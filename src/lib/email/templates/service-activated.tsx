@@ -26,7 +26,7 @@ export function ServiceActivatedEmail({
       </Heading>
       <Text style={emailTextStyle}>Bonjour {recipientName},</Text>
       <Text style={emailTextStyle}>
-        « {serviceName} » est déployée et vérifiée par l&apos;équipe Noveris —
+        « {serviceName} » est déployée et vérifiée par l&apos;équipe Automerio —
         elle est maintenant active.
       </Text>
       <Text style={emailMutedTextStyle}>

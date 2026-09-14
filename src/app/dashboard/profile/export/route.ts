@@ -96,7 +96,7 @@ export async function GET() {
   return new NextResponse(body, {
     headers: {
       "Content-Type": "application/json; charset=utf-8",
-      "Content-Disposition": `attachment; filename="mes-donnees-noveris-${date}.json"`,
+      "Content-Disposition": `attachment; filename="mes-donnees-automerio-${date}.json"`,
       "Cache-Control": "no-store",
     },
   });

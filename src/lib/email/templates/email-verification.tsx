@@ -14,7 +14,7 @@ export function EmailVerificationEmail({
   url: string;
 }) {
   return (
-    <EmailLayout preview="Confirmez votre adresse e-mail Noveris">
+    <EmailLayout preview="Confirmez votre adresse e-mail Automerio">
       <Heading
         as="h2"
         style={{ fontSize: "16px", margin: "0 0 12px", color: "#09090b" }}
@@ -23,7 +23,7 @@ export function EmailVerificationEmail({
       </Heading>
       <Text style={emailTextStyle}>Bonjour {recipientName},</Text>
       <Text style={emailTextStyle}>
-        Il reste une étape pour activer votre compte Noveris : confirmez que
+        Il reste une étape pour activer votre compte Automerio : confirmez que
         cette adresse est bien la vôtre.
       </Text>
       <Link href={url} style={emailButtonStyle}>
@@ -31,7 +31,7 @@ export function EmailVerificationEmail({
       </Link>
       <Text style={emailMutedTextStyle}>
         Ce lien expire dans une heure. Si vous n&apos;avez pas créé de compte
-        Noveris, ignorez cet e-mail : aucun compte ne sera activé.
+        Automerio, ignorez cet e-mail : aucun compte ne sera activé.
       </Text>
     </EmailLayout>
   );

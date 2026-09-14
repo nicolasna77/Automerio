@@ -23,7 +23,7 @@ function describeSignInError(error: { status: number; code?: string }): string {
     return "Confirmez d'abord votre adresse e-mail : nous venons de vous renvoyer le lien.";
   }
   if (error.code === "BANNED_USER") {
-    return "Ce compte a été suspendu. Contactez l'équipe Noveris.";
+    return "Ce compte a été suspendu. Contactez l'équipe Automerio.";
   }
   if (error.status === 401) return "E-mail ou mot de passe incorrect.";
   if (error.status === 429) return "Trop de tentatives. Réessayez dans quelques minutes.";
@@ -65,7 +65,7 @@ export function LoginForm() {
       <CardHeader>
         <CardTitle>Connexion</CardTitle>
         <CardDescription>
-          Accédez à votre tableau de bord Noveris.
+          Accédez à votre tableau de bord Automerio.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

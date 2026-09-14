@@ -46,7 +46,7 @@ export function EmailLayout({
               margin: "0 0 24px",
             }}
           >
-            Noveris
+            Automerio
           </Text>
 
           {children}
@@ -64,7 +64,7 @@ export function EmailLayout({
               margin: 0,
             }}
           >
-            Noveris — automatisations pour artisans, coachs, indépendants et
+            Automerio — automatisations pour artisans, coachs, indépendants et
             TPE/PME.
           </Text>
         </Container>

@@ -4,9 +4,9 @@ import { FEATURES, REQUIRED, checkEnvAtBoot, inspectEnv } from "./env";
 
 function validEnv(overrides: Record<string, string | undefined> = {}) {
   return {
-    DATABASE_URL: "postgresql://noveris:secret@localhost:5432/noveris",
+    DATABASE_URL: "postgresql://automerio:secret@localhost:5432/automerio",
     BETTER_AUTH_SECRET: "x".repeat(32),
-    NEXT_PUBLIC_APP_URL: "https://noveris.fr",
+    NEXT_PUBLIC_APP_URL: "https://automerio.fr",
     STRIPE_SECRET_KEY: "sk_test_abc",
     STRIPE_WEBHOOK_SECRET: "whsec_abc",
     ...overrides,
@@ -42,12 +42,12 @@ describe("variables requises", () => {
   });
 
   it("refuse une URL d'application terminée par un slash", () => {
-    const { problems } = inspectEnv(validEnv({ NEXT_PUBLIC_APP_URL: "https://noveris.fr/" }));
+    const { problems } = inspectEnv(validEnv({ NEXT_PUBLIC_APP_URL: "https://automerio.fr/" }));
     expect(problems).toEqual(["NEXT_PUBLIC_APP_URL ne doit pas se terminer par un slash"]);
   });
 
   it("refuse une URL d'application sans protocole", () => {
-    const { problems } = inspectEnv(validEnv({ NEXT_PUBLIC_APP_URL: "noveris.fr" }));
+    const { problems } = inspectEnv(validEnv({ NEXT_PUBLIC_APP_URL: "automerio.fr" }));
     expect(problems[0]).toContain("http://");
   });
 
@@ -73,7 +73,7 @@ describe("groupes par fonctionnalité", () => {
   const instagram = {
     INSTAGRAM_APP_ID: "id",
     INSTAGRAM_APP_SECRET: "secret",
-    INSTAGRAM_OAUTH_REDIRECT_URI: "https://noveris.fr/api/instagram/callback",
+    INSTAGRAM_OAUTH_REDIRECT_URI: "https://automerio.fr/api/instagram/callback",
     INSTAGRAM_OAUTH_STATE_SECRET: "state",
   };
 
@@ -128,10 +128,10 @@ describe("production", () => {
 
   it("signale une URL d'application qui n'est pas le domaine de production", () => {
     expect(
-      inspectEnv(production({ VERCEL_PROJECT_PRODUCTION_URL: "noveris-equipe.vercel.app" })).warnings.join(" ")
+      inspectEnv(production({ VERCEL_PROJECT_PRODUCTION_URL: "automerio-equipe.vercel.app" })).warnings.join(" ")
     ).toContain("NEXT_PUBLIC_APP_URL");
     expect(
-      inspectEnv(production({ VERCEL_PROJECT_PRODUCTION_URL: "noveris.fr" })).warnings.join(" ")
+      inspectEnv(production({ VERCEL_PROJECT_PRODUCTION_URL: "automerio.fr" })).warnings.join(" ")
     ).not.toContain("NEXT_PUBLIC_APP_URL");
   });
 

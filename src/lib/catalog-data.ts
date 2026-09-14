@@ -228,7 +228,7 @@ export const CATALOG: CatalogService[] = [
         label: "Boîte mail",
         type: "connection",
         placeholder: "vous@gmail.com",
-        helpText: "Gmail ou Outlook — connexion finalisée par l'équipe Noveris.",
+        helpText: "Gmail ou Outlook — connexion finalisée par l'équipe Automerio.",
       },
       {
         key: "sortingRules",

@@ -25,11 +25,11 @@ export function ServiceNoteAddedEmail({
         as="h2"
         style={{ fontSize: "16px", margin: "0 0 12px", color: "#09090b" }}
       >
-        Nouvelle note de l&apos;équipe Noveris
+        Nouvelle note de l&apos;équipe Automerio
       </Heading>
       <Text style={emailTextStyle}>Bonjour {recipientName},</Text>
       <Text style={emailTextStyle}>
-        L&apos;équipe Noveris a ajouté une note sur « {serviceName} » :
+        L&apos;équipe Automerio a ajouté une note sur « {serviceName} » :
       </Text>
       <Section
         style={{

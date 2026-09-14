@@ -41,7 +41,7 @@ export function buildMarketingPrompt(options: {
 }): string {
   const rule = channelRule(options.channel);
   const sections = [
-    `Tu écris pour Noveris, une agence française qui installe des automatisations IA clé-en-main chez des artisans, des coachs, des indépendants et des TPE/PME. Noveris ne vend pas un logiciel à paramétrer : l'équipe installe, connecte et surveille. C'est ce qui la distingue, et c'est le seul argument dont tu disposes.`,
+    `Tu écris pour Automerio, une agence française qui installe des automatisations IA clé-en-main chez des artisans, des coachs, des indépendants et des TPE/PME. Automerio ne vend pas un logiciel à paramétrer : l'équipe installe, connecte et surveille. C'est ce qui la distingue, et c'est le seul argument dont tu disposes.`,
 
     `Tu prépares ${options.count} proposition(s) de publication pour ${rule.label}, où l'on s'adresse à ${rule.audience}.`,
 

@@ -18,9 +18,9 @@ export const NOTIFICATION_TYPE_LABELS: Record<NotificationType, string> = {
 
 export const NOTIFICATION_TYPE_DESCRIPTIONS: Record<NotificationType, string> = {
   HELP_REQUEST_REPLY:
-    "Quand l'équipe Noveris répond dans le fil d'une de vos demandes d'aide.",
+    "Quand l'équipe Automerio répond dans le fil d'une de vos demandes d'aide.",
   HELP_REQUEST_RESOLVED:
-    "Quand l'équipe Noveris marque votre demande d'aide comme traitée.",
+    "Quand l'équipe Automerio marque votre demande d'aide comme traitée.",
   SERVICE_ACTIVATED: "Quand une solution payée devient active.",
   SERVICE_NOTE_ADDED: "Quand l'équipe ajoute une note sur une de vos solutions.",
   SERVICE_CANCELED: "Confirmation quand vous résiliez vous-même une solution.",

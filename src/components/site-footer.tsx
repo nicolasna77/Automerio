@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { NoverisLogo } from "@/components/brand";
+import { AutomerioLogo } from "@/components/brand";
 
 const LEGAL_LINKS = [
   { href: "/mentions-legales", label: "Mentions légales" },
@@ -13,7 +13,7 @@ export function SiteFooter() {
     <footer className="border-t border-border bg-muted">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-12 sm:px-6 md:flex-row md:items-start md:justify-between">
         <div className="max-w-sm">
-          <NoverisLogo />
+          <AutomerioLogo />
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
             Agence d&apos;automatisation pour artisans, coachs, indépendants
             et TPE/PME.
@@ -58,7 +58,7 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="mx-auto flex max-w-6xl flex-col gap-3 border-t border-border px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <p>© {new Date().getFullYear()} Noveris. Tous droits réservés.</p>
+        <p>© {new Date().getFullYear()} Automerio. Tous droits réservés.</p>
         <nav aria-label="Informations légales">
           <ul className="flex flex-wrap gap-x-5 gap-y-2">
             {LEGAL_LINKS.map((link) => (

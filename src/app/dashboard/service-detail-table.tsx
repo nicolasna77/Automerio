@@ -42,7 +42,7 @@ export function ServiceDetailTable({ item }: { item: MyServiceDTO }) {
       {item.adminNote && (
         <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4">
           <p className="text-xs font-medium text-primary">
-            Note de l&apos;équipe Noveris
+            Note de l&apos;équipe Automerio
           </p>
           <p className="mt-1 text-sm text-foreground">{item.adminNote}</p>
         </div>

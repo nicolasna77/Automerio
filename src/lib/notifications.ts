@@ -69,7 +69,7 @@ export async function getClientNotifications(
       })),
       ...replies.map((reply) => ({
         id: `reply-${reply.id}`,
-        title: "Réponse de l'équipe Noveris",
+        title: "Réponse de l'équipe Automerio",
         description: reply.helpRequest.subject,
         href: "/dashboard/aide",
         createdAt: reply.createdAt,

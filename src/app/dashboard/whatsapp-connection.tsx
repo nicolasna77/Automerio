@@ -60,7 +60,7 @@ export function WhatsAppConnection({
     const configId = process.env.NEXT_PUBLIC_META_EMBEDDED_SIGNUP_CONFIG_ID;
     if (!appId || !configId) {
       toast.error(
-        "Connexion WhatsApp indisponible pour l'instant — contactez l'équipe Noveris."
+        "Connexion WhatsApp indisponible pour l'instant — contactez l'équipe Automerio."
       );
       return;
     }

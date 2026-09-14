@@ -146,7 +146,7 @@ export function MyServiceRow({
               {item.adminNote && (
                 <div className="mt-3 rounded-2xl bg-muted p-3">
                   <p className="text-xs font-medium text-muted-foreground">
-                    Note de l&apos;équipe Noveris
+                    Note de l&apos;équipe Automerio
                   </p>
                   <p className="mt-0.5 text-sm text-foreground">{item.adminNote}</p>
                 </div>

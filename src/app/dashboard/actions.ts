@@ -32,7 +32,7 @@ import { applyDiscount, describeDiscount, firstPaymentCents } from "@/lib/promo-
 import { ActionError, runAction } from "@/lib/run-action";
 import { createBillingPortalUrl, getIncludedVatRateId } from "@/lib/stripe-billing";
 
-const CHECKOUT_INTEGRATION_ID = "noveris-activation-qkzmtwph";
+const CHECKOUT_INTEGRATION_ID = "automerio-activation-qkzmtwph";
 
 const TOO_MANY_ATTEMPTS = "Trop d'essais. Réessayez dans quelques minutes.";
 const CHECKOUT_UNAVAILABLE =

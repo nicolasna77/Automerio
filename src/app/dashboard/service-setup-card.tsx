@@ -68,7 +68,7 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
     ...(takesAppointments
       ? [{ label: "Agenda connecté", done: item.calendarConnected }]
       : []),
-    { label: "Vérification par l'équipe Noveris", done: verified },
+    { label: "Vérification par l'équipe Automerio", done: verified },
   ];
 
   const nextIsPhone = needsPhoneNumber(item);
@@ -82,7 +82,7 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
     !nextIsFacebook &&
     !nextIsInstagram &&
     needsCalendarConnection(item);
-  const waitingOnNoveris =
+  const waitingOnAutomerio =
     paid &&
     phoneDone &&
     calendarDone &&
@@ -210,9 +210,9 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
           </div>
         )}
 
-        {waitingOnNoveris && (
+        {waitingOnAutomerio && (
           <p className="text-sm text-muted-foreground">
-            Rien à faire de votre côté : l&apos;équipe Noveris termine la mise
+            Rien à faire de votre côté : l&apos;équipe Automerio termine la mise
             en service et vous prévient dès que votre solution est active.
           </p>
         )}

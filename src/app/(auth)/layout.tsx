@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { NoverisLogo } from "@/components/brand";
+import { AutomerioLogo } from "@/components/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { getSession, isAdmin } from "@/lib/session";
 
@@ -17,7 +17,7 @@ export default async function AuthLayout({
     <div className="flex min-h-screen flex-col bg-background">
       <header className="border-b bg-background">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-          <NoverisLogo />
+          <AutomerioLogo />
           <ThemeToggle />
         </div>
       </header>

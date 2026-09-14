@@ -26,7 +26,7 @@ export function HelpRequestReplyForm({
         toast.success(
           resolved
             ? "Message envoyé — votre demande est rouverte."
-            : "Message envoyé à l'équipe Noveris."
+            : "Message envoyé à l'équipe Automerio."
         );
         setBody("");
       } catch (err) {
@@ -38,7 +38,7 @@ export function HelpRequestReplyForm({
   return (
     <div className="mt-4 space-y-2">
       <label className="sr-only" htmlFor={`reply-${helpRequestId}`}>
-        Répondre à l&apos;équipe Noveris
+        Répondre à l&apos;équipe Automerio
       </label>
       <Textarea
         id={`reply-${helpRequestId}`}

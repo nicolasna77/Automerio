@@ -27,7 +27,7 @@ test("l'export clients rend un CSV téléchargeable", async ({ page }) => {
   expect(response.status()).toBe(200);
   expect(response.headers()["content-type"]).toContain("text/csv");
   expect(response.headers()["content-disposition"]).toMatch(
-    /attachment; filename="clients-noveris-/
+    /attachment; filename="clients-automerio-/
   );
 
   const body = await response.text();

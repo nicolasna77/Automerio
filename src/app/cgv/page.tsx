@@ -14,7 +14,7 @@ export default function CgvPage() {
       title="Conditions générales de vente"
       intro={
         <p>
-          Ces conditions encadrent l&apos;abonnement aux solutions Noveris. Elles
+          Ces conditions encadrent l&apos;abonnement aux solutions Automerio. Elles
           s&apos;appliquent à toute commande passée depuis le tableau de bord, et
           l&apos;emportent sur tout autre document du client.
         </p>
@@ -25,7 +25,7 @@ export default function CgvPage() {
           Les solutions sont vendues par {LEGAL_ENTITY.companyName},{" "}
           {LEGAL_ENTITY.legalForm.toLowerCase()} au capital de {LEGAL_ENTITY.shareCapital},
           dont le siège est situé {LEGAL_ENTITY.headOffice}, immatriculée{" "}
-          {LEGAL_ENTITY.registration} (ci-après « Noveris »).
+          {LEGAL_ENTITY.registration} (ci-après « Automerio »).
         </p>
         <p>
           Elles s&apos;adressent aux professionnels — artisans, indépendants,
@@ -36,7 +36,7 @@ export default function CgvPage() {
 
       <LegalSection title="2. Solutions proposées">
         <p>
-          Noveris installe, connecte et surveille des automatisations fondées sur
+          Automerio installe, connecte et surveille des automatisations fondées sur
           l&apos;intelligence artificielle : standard téléphonique, assistants de
           messagerie, prise de rendez-vous, documents administratifs. Le contenu,
           le prix et les éventuels plafonds d&apos;usage de chaque solution sont
@@ -71,7 +71,7 @@ export default function CgvPage() {
             (durée, solutions concernées, date limite).
           </li>
           <li>
-            Noveris peut faire évoluer ses tarifs. Un changement de prix d&apos;un
+            Automerio peut faire évoluer ses tarifs. Un changement de prix d&apos;un
             abonnement en cours est annoncé au moins 30 jours avant son
             application ; le client peut résilier avant cette date.
           </li>
@@ -80,7 +80,7 @@ export default function CgvPage() {
 
       <LegalSection title="5. Paiement et facturation">
         <p>
-          Le paiement est traité par Stripe ; Noveris ne conserve aucune donnée de
+          Le paiement est traité par Stripe ; Automerio ne conserve aucune donnée de
           carte bancaire. L&apos;abonnement est prélevé chaque mois à la date
           anniversaire de la commande. Les factures sont disponibles dans la
           rubrique « Paiements » du tableau de bord, où le client peut aussi
@@ -108,7 +108,7 @@ export default function CgvPage() {
 
       <LegalSection title={`7. Satisfait ou remboursé pendant ${REFUND_GUARANTEE_DAYS} jours`}>
         <p>
-          Si une solution ne convient pas au client, Noveris rembourse
+          Si une solution ne convient pas au client, Automerio rembourse
           l&apos;intégralité des sommes payées pour cette solution — frais de mise
           en place et abonnement — à condition que la demande soit faite dans les{" "}
           {REFUND_GUARANTEE_DAYS} jours qui suivent son premier paiement.
@@ -127,11 +127,11 @@ export default function CgvPage() {
         </ul>
       </LegalSection>
 
-      <LegalSection title="8. Mise en place et engagements de Noveris">
+      <LegalSection title="8. Mise en place et engagements de Automerio">
         <p>
-          Noveris installe la solution, la relie aux outils du client, vérifie
+          Automerio installe la solution, la relie aux outils du client, vérifie
           son fonctionnement puis la surveille pendant toute la durée de
-          l&apos;abonnement. Noveris s&apos;engage à mettre en œuvre tous les
+          l&apos;abonnement. Automerio s&apos;engage à mettre en œuvre tous les
           moyens raisonnables pour assurer un service continu et de qualité ;
           il s&apos;agit d&apos;une obligation de moyens.
         </p>
@@ -159,17 +159,17 @@ export default function CgvPage() {
           pour la téléphonie, OpenAI pour l&apos;intelligence artificielle, Meta
           pour WhatsApp, Messenger et Instagram, Google pour l&apos;agenda et
           Stripe pour le paiement. Une interruption ou un changement de leurs
-          conditions peut affecter le service ; Noveris en informe alors le client
+          conditions peut affecter le service ; Automerio en informe alors le client
           et cherche une solution équivalente.
         </p>
       </LegalSection>
 
       <LegalSection title="11. Responsabilité">
         <p>
-          Noveris n&apos;est responsable que des dommages directs et prouvés
+          Automerio n&apos;est responsable que des dommages directs et prouvés
           résultant d&apos;un manquement à ses obligations. Sa responsabilité est
           limitée, toutes causes confondues, aux sommes payées par le client au
-          titre de la solution concernée au cours des 12 derniers mois. Noveris ne
+          titre de la solution concernée au cours des 12 derniers mois. Automerio ne
           répond pas des dommages indirects, comme une perte de chiffre
           d&apos;affaires ou de clientèle.
         </p>
@@ -180,7 +180,7 @@ export default function CgvPage() {
           Les données du client sont traitées selon la{" "}
           <Link href="/confidentialite">politique de confidentialité</Link>. Pour
           les données des clients du client traitées par les solutions (appels,
-          messages, rendez-vous), Noveris agit en qualité de sous-traitant au sens
+          messages, rendez-vous), Automerio agit en qualité de sous-traitant au sens
           de l&apos;article 28 du RGPD : il ne les utilise que pour faire
           fonctionner la solution, sur instruction du client.
         </p>
@@ -188,7 +188,7 @@ export default function CgvPage() {
 
       <LegalSection title="13. Propriété intellectuelle">
         <p>
-          Noveris reste propriétaire de ses outils, de ses méthodes et des
+          Automerio reste propriétaire de ses outils, de ses méthodes et des
           configurations qu&apos;il développe. Le client dispose d&apos;un droit
           d&apos;utilisation personnel, pendant la durée de son abonnement. Les
           contenus fournis par le client restent sa propriété.
@@ -197,7 +197,7 @@ export default function CgvPage() {
 
       <LegalSection title="14. Modification des conditions">
         <p>
-          Noveris peut modifier ces conditions. La version applicable est celle en
+          Automerio peut modifier ces conditions. La version applicable est celle en
           vigueur au jour de la commande ; toute modification d&apos;un abonnement
           en cours est notifiée au moins 30 jours à l&apos;avance.
         </p>
@@ -208,7 +208,7 @@ export default function CgvPage() {
           Ces conditions sont soumises au droit français. En cas de différend, les
           parties recherchent d&apos;abord une solution amiable. À défaut, le
           litige est porté devant le tribunal de commerce dans le ressort duquel se
-          trouve le siège de Noveris.
+          trouve le siège de Automerio.
         </p>
       </LegalSection>
     </LegalPage>

@@ -45,5 +45,5 @@ export async function GET() {
     { header: "Résiliée le", value: (r) => r.canceledAt },
   ]);
 
-  return new Response(csv, { headers: csvResponseHeaders("clients-noveris") });
+  return new Response(csv, { headers: csvResponseHeaders("clients-automerio") });
 }

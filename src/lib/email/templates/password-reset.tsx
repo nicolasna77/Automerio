@@ -14,7 +14,7 @@ export function PasswordResetEmail({
   url: string;
 }) {
   return (
-    <EmailLayout preview="Réinitialisez votre mot de passe Noveris">
+    <EmailLayout preview="Réinitialisez votre mot de passe Automerio">
       <Heading
         as="h2"
         style={{ fontSize: "16px", margin: "0 0 12px", color: "#09090b" }}
@@ -23,7 +23,7 @@ export function PasswordResetEmail({
       </Heading>
       <Text style={emailTextStyle}>Bonjour {recipientName},</Text>
       <Text style={emailTextStyle}>
-        Vous avez demandé à réinitialiser votre mot de passe Noveris. Cliquez
+        Vous avez demandé à réinitialiser votre mot de passe Automerio. Cliquez
         sur le bouton ci-dessous pour en choisir un nouveau.
       </Text>
       <Link href={url} style={emailButtonStyle}>

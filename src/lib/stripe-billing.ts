@@ -1,7 +1,7 @@
 import { stripeClient } from "@/lib/stripe";
 
-const VAT_RATE_KEY = "noveris-tva-fr-20-incluse";
-const PORTAL_CONFIGURATION_KEY = "noveris-portail-client";
+const VAT_RATE_KEY = "automerio-tva-fr-20-incluse";
+const PORTAL_CONFIGURATION_KEY = "automerio-portail-client";
 
 let vatRatePromise: Promise<string> | null = null;
 let portalConfigurationPromise: Promise<string> | null = null;

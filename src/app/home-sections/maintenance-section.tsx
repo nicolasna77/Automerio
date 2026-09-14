@@ -16,7 +16,7 @@ const PERKS = [
   },
   {
     title: "Interlocuteur dédié",
-    description: "Un contact Noveris qui connaît déjà vos automatisations.",
+    description: "Un contact Automerio qui connaît déjà vos automatisations.",
   },
   {
     title: "Suivi mensuel",

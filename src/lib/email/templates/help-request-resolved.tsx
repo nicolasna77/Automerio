@@ -25,7 +25,7 @@ export function HelpRequestResolvedEmail({
       <Text style={emailTextStyle}>Bonjour {recipientName},</Text>
       <Text style={emailTextStyle}>
         Votre demande « {subject} » a été marquée comme traitée par l&apos;équipe
-        Noveris.
+        Automerio.
       </Text>
       <Text style={emailMutedTextStyle}>
         Retrouvez le détail de l&apos;échange sur votre centre d&apos;aide.

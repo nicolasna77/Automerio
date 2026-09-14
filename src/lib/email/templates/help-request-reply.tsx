@@ -23,7 +23,7 @@ export function HelpRequestReplyEmail({
         as="h2"
         style={{ fontSize: "16px", margin: "0 0 12px", color: "#09090b" }}
       >
-        L&apos;équipe Noveris vous a répondu
+        L&apos;équipe Automerio vous a répondu
       </Heading>
       <Text style={emailTextStyle}>Bonjour {recipientName},</Text>
       <Text style={emailTextStyle}>

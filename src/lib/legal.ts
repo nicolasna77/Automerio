@@ -1,7 +1,7 @@
 const TO_COMPLETE = "[à compléter";
 
 export const LEGAL_ENTITY = {
-  tradeName: "Noveris",
+  tradeName: "Automerio",
   companyName: "[à compléter : dénomination sociale]",
   legalForm: "Société par actions simplifiée (SAS)",
   shareCapital: "[à compléter] €",
@@ -9,7 +9,7 @@ export const LEGAL_ENTITY = {
   registration: "RCS [à compléter : ville] [à compléter : numéro SIREN]",
   vatNumber: "[à compléter : numéro de TVA intracommunautaire]",
   publicationDirector: "[à compléter : prénom et nom du président ou de la présidente]",
-  email: "contact@noveris.fr",
+  email: "contact@automerio.fr",
   phone: "[à compléter : téléphone]",
   databaseHost: "[à compléter : hébergeur de la base de données et pays]",
 };

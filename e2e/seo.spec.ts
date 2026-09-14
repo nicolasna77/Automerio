@@ -43,7 +43,7 @@ test("une page de solution déclare son offre et son prix", async ({ page }) => 
   const service = blocks.map((b) => JSON.parse(b)).find((d) => d["@type"] === "Service");
 
   expect(service.name).toBe("Assistant WhatsApp");
-  expect(service.provider.name).toBe("Noveris");
+  expect(service.provider.name).toBe("Automerio");
   expect(JSON.stringify(service)).toContain("EUR");
 });
 
@@ -64,7 +64,7 @@ test("llms.txt décrit l'offre avec ses tarifs", async ({ page }) => {
   expect(response.headers()["content-type"]).toContain("text/plain");
 
   const body = await response.text();
-  expect(body).toContain("# Noveris");
+  expect(body).toContain("# Automerio");
   expect(body).toContain("Assistant WhatsApp");
   expect(body).toMatch(/€/);
   expect(body).toContain("Questions fréquentes");

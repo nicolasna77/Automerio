@@ -29,7 +29,7 @@ export async function GET() {
     "",
     `> ${SITE_DESCRIPTION}`,
     "",
-    "Noveris n'est pas un logiciel à paramétrer : l'équipe installe chaque automatisation, la connecte aux outils que le client utilise déjà, et la surveille. Sans engagement de durée.",
+    "Automerio n'est pas un logiciel à paramétrer : l'équipe installe chaque automatisation, la connecte aux outils que le client utilise déjà, et la surveille. Sans engagement de durée.",
     "",
     "## Solutions et tarifs",
     "",

@@ -33,5 +33,5 @@ export async function GET() {
     { header: "Résolue le", value: (r) => r.resolvedAt },
   ]);
 
-  return new Response(csv, { headers: csvResponseHeaders("demandes-aide-noveris") });
+  return new Response(csv, { headers: csvResponseHeaders("demandes-aide-automerio") });
 }

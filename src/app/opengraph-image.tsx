@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { OgFrame, OG_SIZE } from "@/components/og-frame";
 
-export const alt = "Noveris — automatisations installées, connectées et surveillées";
+export const alt = "Automerio — automatisations installées, connectées et surveillées";
 export const size = OG_SIZE;
 export const contentType = "image/png";
 

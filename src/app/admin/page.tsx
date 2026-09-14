@@ -23,7 +23,7 @@ export default async function AdminPage({
             Vue d&apos;ensemble
           </h1>
           <p className="mt-1 text-muted-foreground">
-            Supervision de l&apos;ensemble des clients Noveris.
+            Supervision de l&apos;ensemble des clients Automerio.
           </p>
         </div>
         <LiveRefreshToggle />

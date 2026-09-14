@@ -18,7 +18,7 @@ type Recipient = {
   notificationPreferences: unknown;
 };
 
-const teamEmail = () => process.env.NOVERIS_TEAM_EMAIL ?? "contact@noveris.fr";
+const teamEmail = () => process.env.AUTOMERIO_TEAM_EMAIL ?? "contact@automerio.fr";
 
 export async function sendHelpRequestResolvedEmail(
   recipient: Recipient,
@@ -163,7 +163,7 @@ export async function sendPasswordResetEmail(
 ) {
   await sendEmail({
     to: recipient.email,
-    subject: "Réinitialisez votre mot de passe Noveris",
+    subject: "Réinitialisez votre mot de passe Automerio",
     react: <PasswordResetEmail recipientName={recipient.name} url={url} />,
   });
 }
@@ -174,7 +174,7 @@ export async function sendEmailVerificationEmail(
 ) {
   await sendEmail({
     to: recipient.email,
-    subject: "Confirmez votre adresse e-mail Noveris",
+    subject: "Confirmez votre adresse e-mail Automerio",
     react: <EmailVerificationEmail recipientName={recipient.name} url={url} />,
     devLink: url,
   });

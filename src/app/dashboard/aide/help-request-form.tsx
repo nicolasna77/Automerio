@@ -49,7 +49,7 @@ export function HelpRequestForm({
                 : values.clientServiceId,
           })
         );
-        toast.success("Votre demande a été envoyée à l'équipe Noveris.");
+        toast.success("Votre demande a été envoyée à l'équipe Automerio.");
         setValues(EMPTY_VALUES);
       } catch (err) {
         toast.error(getErrorMessage(err));

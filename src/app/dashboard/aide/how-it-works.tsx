@@ -5,7 +5,7 @@ const STEPS = [
       "Choisissez la solution concernée si besoin, puis expliquez votre problème ou votre question.",
   },
   {
-    title: "L'équipe Noveris répond",
+    title: "L'équipe Automerio répond",
     description: "Nous traitons votre demande sous 24h ouvrées.",
   },
   {

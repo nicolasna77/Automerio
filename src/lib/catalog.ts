@@ -175,7 +175,7 @@ export const SERVICE_EVENT_LABELS: Record<ServiceEventType, string> = {
   PAYMENT_RECEIVED: "Paiement reçu",
   PAYMENT_FAILED: "Paiement refusé",
   ACTIVATED: "Solution vérifiée et activée",
-  NOTE_ADDED: "Note de l'équipe Noveris",
+  NOTE_ADDED: "Note de l'équipe Automerio",
   PHONE_ASSIGNED: "Numéro de téléphone attribué",
   CALENDAR_CONNECTED: "Agenda Google connecté",
   CALENDAR_DISCONNECTED: "Agenda Google déconnecté",
@@ -256,7 +256,7 @@ export function describeServiceStatus(item: {
     case "PENDING_PAYMENT":
       return `En attente de paiement depuis le ${formatDate(item.createdAt)}`;
     case "CONFIGURING":
-      return "Paiement confirmé — en cours de déploiement par l'équipe Noveris";
+      return "Paiement confirmé — en cours de déploiement par l'équipe Automerio";
     case "CANCELED":
       return item.canceledAt ? `Résilié le ${formatDate(item.canceledAt)}` : "Résilié";
   }

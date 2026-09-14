@@ -23,11 +23,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const TITLE = "Noveris — Automatisation pour artisans, coachs et TPE/PME";
+const TITLE = "Automerio — Automatisation pour artisans, coachs et TPE/PME";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
-  title: { default: TITLE, template: "%s | Noveris" },
+  title: { default: TITLE, template: "%s | Automerio" },
   description: SITE_DESCRIPTION,
   alternates: { canonical: "/" },
   openGraph: {

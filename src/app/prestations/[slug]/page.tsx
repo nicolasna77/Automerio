@@ -212,7 +212,7 @@ export default async function PrestationDetailPage({
                 Ce que vous configurez &agrave; l&apos;activation
               </h2>
               <p className="mt-3 max-w-xl leading-relaxed text-muted-foreground">
-                L&apos;&eacute;quipe Noveris installe et connecte la solution —
+                L&apos;&eacute;quipe Automerio installe et connecte la solution —
                 voici les informations qu&apos;on vous demande pour la
                 personnaliser &agrave; votre activit&eacute;.
               </p>

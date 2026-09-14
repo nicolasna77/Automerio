@@ -46,7 +46,7 @@ export function OgFrame({
         >
           N
         </div>
-        <div style={{ fontSize: 30, fontWeight: 600, letterSpacing: -0.5 }}>Noveris</div>
+        <div style={{ fontSize: 30, fontWeight: 600, letterSpacing: -0.5 }}>Automerio</div>
         {eyebrow && (
           <div style={{ fontSize: 26, color: MUTED, marginLeft: 8 }}>{`· ${eyebrow}`}</div>
         )}

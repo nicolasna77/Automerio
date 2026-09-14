@@ -26,7 +26,7 @@ export default function ConfidentialitePage() {
       title="Politique de confidentialité"
       intro={
         <p>
-          Ce que Noveris collecte, pourquoi, combien de temps, et comment exercer
+          Ce que Automerio collecte, pourquoi, combien de temps, et comment exercer
           vos droits. Nous ne vendons ni ne louons vos données.
         </p>
       }
@@ -93,7 +93,7 @@ export default function ConfidentialitePage() {
 
       <LegalSection title="Qui y a accès">
         <p>
-          L&apos;équipe Noveris, pour installer et surveiller vos solutions, et les
+          L&apos;équipe Automerio, pour installer et surveiller vos solutions, et les
           prestataires suivants, qui n&apos;agissent que sur nos instructions :
         </p>
         <ul>
@@ -158,7 +158,7 @@ export default function ConfidentialitePage() {
 
       <LegalSection title="Cookies">
         <p>
-          Noveris n&apos;utilise que des cookies nécessaires au fonctionnement du
+          Automerio n&apos;utilise que des cookies nécessaires au fonctionnement du
           service. Le détail est dans la <Link href="/cookies">politique cookies</Link>.
         </p>
       </LegalSection>

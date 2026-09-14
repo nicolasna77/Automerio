@@ -1,8 +1,8 @@
-# Noveris
+# Automerio
 
 ## Description du projet
 
-Noveris vend des automatisations IA clé-en-main à des artisans, coachs,
+Automerio vend des automatisations IA clé-en-main à des artisans, coachs,
 indépendants et TPE/PME en France : standard téléphonique IA (agent vocal qui
 répond aux appels), prise de rendez-vous automatique, réponses e-mail
 automatisées, génération de documents administratifs, etc.

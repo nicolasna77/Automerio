@@ -55,7 +55,7 @@ export default async function AdminMarketingPage() {
           Marketing
         </h1>
         <p className="mt-1 max-w-2xl text-muted-foreground">
-          Les comptes sociaux de Noveris, pas ceux de vos clients. L&apos;agent
+          Les comptes sociaux de Automerio, pas ceux de vos clients. L&apos;agent
           rédige à partir du catalogue réel — il n&apos;a le droit d&apos;affirmer
           que ce qui s&apos;y trouve.
         </p>

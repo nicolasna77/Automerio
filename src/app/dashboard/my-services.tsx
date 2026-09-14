@@ -36,7 +36,7 @@ const STATUS_FILTER_OPTIONS: ClientServiceStatus[] = [
 ];
 
 type ViewMode = "list" | "grid";
-const VIEW_MODE_STORAGE_KEY = "noveris:my-services-view";
+const VIEW_MODE_STORAGE_KEY = "automerio:my-services-view";
 
 export function MyServices({ items }: { items: MyServiceDTO[] }) {
   const [managingItem, setManagingItem] = useState<MyServiceDTO | null>(null);

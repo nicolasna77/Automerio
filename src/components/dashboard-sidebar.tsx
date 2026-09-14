@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CalendarDays, LayoutDashboard, Layers, LifeBuoy, Receipt, ShieldCheck, UserRound } from "lucide-react";
-import { NoverisLogo } from "@/components/brand";
+import { AutomerioLogo } from "@/components/brand";
 import { OrganizationSwitcher } from "@/components/organization-switcher";
 import {
   Sidebar,
@@ -43,7 +43,7 @@ export function DashboardSidebar({
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <NoverisLogo
+        <AutomerioLogo
           href="/dashboard"
           className="px-2 py-1 group-data-[collapsible=icon]:justify-center [&>span:last-child]:group-data-[collapsible=icon]:hidden"
         />

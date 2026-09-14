@@ -62,7 +62,7 @@ export function AccountDataSection({ requiresPassword }: { requiresPassword: boo
   return (
     <ProfileSection
       title="Vos données"
-      description="Téléchargez tout ce que Noveris conserve sur vous, ou supprimez définitivement votre compte."
+      description="Téléchargez tout ce que Automerio conserve sur vous, ou supprimez définitivement votre compte."
     >
       <div className="flex flex-wrap gap-2">
         <Button

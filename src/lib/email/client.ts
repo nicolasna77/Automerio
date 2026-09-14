@@ -1,7 +1,7 @@
 import { Resend } from "resend";
 import type { ReactElement } from "react";
 
-const FROM_ADDRESS = process.env.EMAIL_FROM ?? "Noveris <onboarding@resend.dev>";
+const FROM_ADDRESS = process.env.EMAIL_FROM ?? "Automerio <onboarding@resend.dev>";
 
 function getResendClient(): Resend | null {
   const apiKey = process.env.RESEND_API_KEY;

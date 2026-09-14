@@ -9,7 +9,7 @@ import {
   type ParsedPromoCode,
 } from "@/lib/promo-codes";
 
-const SOURCE_METADATA = { source: "noveris-admin" };
+const SOURCE_METADATA = { source: "automerio-admin" };
 
 export function couponOf(promo: Stripe.PromotionCode): Stripe.Coupon | null {
   const coupon = promo.promotion.coupon;

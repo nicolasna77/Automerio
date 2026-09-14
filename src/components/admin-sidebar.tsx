@@ -13,7 +13,7 @@ import {
   TicketPercent,
   Users,
 } from "lucide-react";
-import { NoverisLogo } from "@/components/brand";
+import { AutomerioLogo } from "@/components/brand";
 import {
   Sidebar,
   SidebarContent,
@@ -48,7 +48,7 @@ export function AdminSidebar({
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <NoverisLogo
+        <AutomerioLogo
           href="/admin"
           className="px-2 py-1 group-data-[collapsible=icon]:justify-center [&>span:last-child]:group-data-[collapsible=icon]:hidden"
         />

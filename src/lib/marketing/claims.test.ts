@@ -5,7 +5,7 @@ describe("preuves inventées", () => {
   it("laisse passer un texte qui n'affirme que le catalogue", () => {
     const body =
       "Vous êtes sur un chantier, les mains occupées. Le téléphone sonne. " +
-      "Noveris installe un assistant qui décroche et prend les rendez-vous. " +
+      "Automerio installe un assistant qui décroche et prend les rendez-vous. " +
       "À partir de 49 € par mois, 100 appels inclus.";
     expect(detectUnsupportedClaims(body)).toEqual([]);
   });

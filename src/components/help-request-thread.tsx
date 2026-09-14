@@ -31,7 +31,7 @@ export function HelpRequestThread({
         >
           <div className="mb-1 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
             <span className="text-xs font-medium text-foreground">
-              {message.fromTeam ? `${message.authorName} · Noveris` : message.authorName}
+              {message.fromTeam ? `${message.authorName} · Automerio` : message.authorName}
             </span>
             <span className="text-xs tabular-nums text-muted-foreground">
               {formatMessageDate(message.createdAt)}

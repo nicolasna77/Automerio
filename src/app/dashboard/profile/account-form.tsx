@@ -162,7 +162,7 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
       <div className="mt-8">
         <ProfileSection
           title="Vos informations"
-          description="Le nom qui apparaît dans vos échanges avec l'équipe Noveris."
+          description="Le nom qui apparaît dans vos échanges avec l'équipe Automerio."
           action={
             <Button
               onClick={handleSave}

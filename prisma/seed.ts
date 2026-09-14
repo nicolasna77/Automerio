@@ -134,10 +134,10 @@ async function main() {
 
   const serviceIdBySlug = new Map(services.map((s) => [s.slug, s.id]));
 
-  const adminEmail = "equipe@noveris.test";
+  const adminEmail = "equipe@automerio.test";
   if (!(await db.user.findUnique({ where: { email: adminEmail } }))) {
     const result = await auth.api.signUpEmail({
-      body: { name: "Équipe Noveris", email: adminEmail, password: DEMO_PASSWORD },
+      body: { name: "Équipe Automerio", email: adminEmail, password: DEMO_PASSWORD },
     });
     await db.user.update({
       where: { id: result.user.id },

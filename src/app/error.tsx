@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { NoverisLogo } from "@/components/brand";
+import { AutomerioLogo } from "@/components/brand";
 
 export default function GlobalError({
   reset,
@@ -15,7 +15,7 @@ export default function GlobalError({
     <div className="flex min-h-screen flex-col bg-background">
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex h-16 max-w-6xl items-center px-4 sm:px-6">
-          <NoverisLogo />
+          <AutomerioLogo />
         </div>
       </header>
       <main className="flex flex-1 flex-col items-center justify-center px-4 py-24 text-center">

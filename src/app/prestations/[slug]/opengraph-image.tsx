@@ -4,7 +4,7 @@ import { priceSummary } from "@/components/json-ld";
 import { getServiceBySlug } from "@/lib/get-catalog";
 import { CATEGORY_LABELS } from "@/lib/catalog";
 
-export const alt = "Une solution Noveris";
+export const alt = "Une solution Automerio";
 export const size = OG_SIZE;
 export const contentType = "image/png";
 
@@ -16,9 +16,9 @@ export default async function Image({ params }: { params: Promise<{ slug: string
     return new ImageResponse(
       (
         <OgFrame
-          lines={["Noveris"]}
+          lines={["Automerio"]}
           subtitle="Des automatisations installées, connectées et surveillées par notre équipe."
-          footer="noveris.fr"
+          footer="automerio.fr"
         />
       ),
       size

@@ -7,7 +7,7 @@ export function PresentationSection() {
             Une agence, pas un logiciel à configurer
           </h2>
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-foreground">
-            Noveris installe des automatisations pour les artisans, coachs,
+            Automerio installe des automatisations pour les artisans, coachs,
             indépendants et TPE/PME. Chaque solution est connectée à vos outils
             existants puis vérifiée par notre équipe avant d&apos;être activée
             chez vous.

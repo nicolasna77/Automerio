@@ -1,6 +1,6 @@
-# Noveris
+# Automerio
 
-Site d'agence pour Noveris : déploiement d'automatisations d'intelligence
+Site d'agence pour Automerio : déploiement d'automatisations d'intelligence
 artificielle pour artisans, coachs, indépendants et TPE/PME. Landing page
 publique, inscription/connexion, tableau de bord client (activation de
 prestations avec paiement Stripe) et espace admin (supervision de tous les
@@ -51,7 +51,7 @@ Le rôle `ADMIN` ne peut jamais être choisi à l'inscription (champ non
 exposable côté client dans Better Auth). Pour promouvoir un compte existant :
 
 ```bash
-npm run make-admin -- admin@noveris.fr
+npm run make-admin -- admin@automerio.fr
 ```
 
 ## Tester les paiements Stripe en local

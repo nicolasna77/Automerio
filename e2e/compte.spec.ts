@@ -32,7 +32,7 @@ test("le profil propose la double authentification et l'export", async ({ page }
 
   const response = await page.request.get("/dashboard/profile/export");
   expect(response.status()).toBe(200);
-  expect(response.headers()["content-disposition"]).toMatch(/attachment; filename="mes-donnees-noveris-/);
+  expect(response.headers()["content-disposition"]).toMatch(/attachment; filename="mes-donnees-automerio-/);
   const data = await response.json();
   expect(data.account.email).toBeTruthy();
   expect(JSON.stringify(data)).not.toMatch(/accessToken|refreshToken|password/);

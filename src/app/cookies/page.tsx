@@ -25,7 +25,7 @@ const STORED_ITEMS: { name: string; purpose: string; lifetime: string }[] = [
     lifetime: "Jusqu'à ce que vous le changiez",
   },
   {
-    name: "Affichage (stockage local « noveris:my-services-view »)",
+    name: "Affichage (stockage local « automerio:my-services-view »)",
     purpose: "Retenir l'affichage en liste ou en grille de vos solutions.",
     lifetime: "Jusqu'à ce que vous le changiez",
   },
@@ -37,7 +37,7 @@ export default function CookiesPage() {
       title="Cookies"
       intro={
         <p>
-          Noveris ne dépose ni cookie publicitaire, ni cookie de mesure
+          Automerio ne dépose ni cookie publicitaire, ni cookie de mesure
           d&apos;audience. C&apos;est pourquoi aucun bandeau ne vous demande votre
           consentement : les éléments ci-dessous sont strictement nécessaires au
           service.

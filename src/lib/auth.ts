@@ -19,7 +19,7 @@ const adminRole = accessControl.newRole(adminAc.statements);
 const clientRole = accessControl.newRole(userAc.statements);
 
 export const auth = betterAuth({
-  appName: "Noveris",
+  appName: "Automerio",
   baseURL:
     process.env.BETTER_AUTH_URL ??
     process.env.NEXT_PUBLIC_APP_URL ??
@@ -104,7 +104,7 @@ export const auth = betterAuth({
       organizationLimit: 20,
     }),
     twoFactor({
-      issuer: "Noveris",
+      issuer: "Automerio",
       allowPasswordless: true,
     }),
     stripe({

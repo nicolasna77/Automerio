@@ -25,7 +25,7 @@ export function MessengerConnection({
     const configId = process.env.NEXT_PUBLIC_META_MESSENGER_CONFIG_ID;
     if (!appId || !configId) {
       toast.error(
-        "Connexion Facebook indisponible pour l'instant — contactez l'équipe Noveris."
+        "Connexion Facebook indisponible pour l'instant — contactez l'équipe Automerio."
       );
       return;
     }

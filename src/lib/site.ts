@@ -1,4 +1,4 @@
-export const SITE_NAME = "Noveris";
+export const SITE_NAME = "Automerio";
 
 export const SITE_NAV_LINKS = [
   { href: "/#methode", label: "Notre méthode" },
@@ -6,7 +6,7 @@ export const SITE_NAV_LINKS = [
 ];
 
 export const SITE_DESCRIPTION =
-  "Noveris installe des automatisations IA clé-en-main pour artisans, coachs, indépendants et TPE/PME : standard téléphonique, assistants de messagerie, documents administratifs. L'équipe installe, connecte et surveille — aucune compétence technique requise.";
+  "Automerio installe des automatisations IA clé-en-main pour artisans, coachs, indépendants et TPE/PME : standard téléphonique, assistants de messagerie, documents administratifs. L'équipe installe, connecte et surveille — aucune compétence technique requise.";
 
 export function siteUrl(): string {
   const raw = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";

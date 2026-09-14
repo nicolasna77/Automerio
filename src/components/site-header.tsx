@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
-import { NoverisLogo } from "@/components/brand";
+import { AutomerioLogo } from "@/components/brand";
 import { PrestationsMenu } from "@/components/prestations-menu";
 import { SiteMobileNav } from "@/components/site-mobile-nav";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -35,7 +35,7 @@ export async function SiteHeader() {
             loggedIn={!!user}
             isAdmin={!!user?.isAdmin}
           />
-          <NoverisLogo />
+          <AutomerioLogo />
         </div>
         <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
           <PrestationsMenu services={services} />
