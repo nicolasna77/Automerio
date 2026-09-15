@@ -3,7 +3,8 @@ export const OG_SIZE = { width: 1200, height: 630 };
 const INK = "#0d0b1e";
 const PAPER = "#ffffff";
 const MUTED = "#a9a4c7";
-const BRAND = "#432dd7";
+const BRAND_FROM = "#6d3bff";
+const BRAND_TO = "#2a1a9e";
 
 export function OgFrame({
   eyebrow,
@@ -36,7 +37,7 @@ export function OgFrame({
             width: 44,
             height: 44,
             borderRadius: 12,
-            background: BRAND,
+            background: `linear-gradient(135deg, ${BRAND_FROM}, ${BRAND_TO})`,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",

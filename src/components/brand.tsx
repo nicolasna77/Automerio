@@ -9,18 +9,41 @@ export function AutomerioMark({ className }: { className?: string }) {
       role="img"
       aria-label="Automerio"
     >
-      <rect width="32" height="32" rx="9" fill="var(--primary)" />
+      <defs>
+        {/* ids fixes : le mark est rendu plusieurs fois par page (en-tête,
+            pied, sidebar) et toutes les instances sont identiques, donc le
+            premier <defs> rencontré peint correctement les suivantes. */}
+        <linearGradient
+          id="automerio-mark-tile"
+          x1="0"
+          y1="0"
+          x2="32"
+          y2="32"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="#6d3bff" />
+          <stop offset="1" stopColor="#2a1a9e" />
+        </linearGradient>
+        <pattern
+          id="automerio-mark-dots"
+          width="4.5"
+          height="4.5"
+          patternUnits="userSpaceOnUse"
+        >
+          <circle cx="2.25" cy="2.25" r="0.7" fill="#eef2ff" opacity="0.22" />
+        </pattern>
+      </defs>
+      <rect width="32" height="32" rx="9" fill="url(#automerio-mark-tile)" />
+      <rect width="32" height="32" rx="9" fill="url(#automerio-mark-dots)" />
       <path
         d="M9.6 21.8L16 10.2L22.4 21.8M11.48 18.4H20.52"
         fill="none"
-        stroke="var(--primary-foreground)"
-        strokeWidth="2.75"
+        stroke="#eef2ff"
+        strokeWidth="3.4"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle cx="16" cy="10.2" r="2.15" fill="var(--primary-foreground)" />
-      <circle cx="9.6" cy="21.8" r="1.75" fill="var(--primary-foreground)" />
-      <circle cx="22.4" cy="21.8" r="1.75" fill="var(--primary-foreground)" />
+      <path d="M16 13.6L18.4 18.4H13.6Z" fill="#25e6f0" />
     </svg>
   );
 }
