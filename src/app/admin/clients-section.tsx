@@ -135,7 +135,9 @@ export async function ClientsSection({
                         <TableHead>Note pour le client</TableHead>
                         <TableHead>Connexion externe</TableHead>
                         <TableHead className="text-right">Prix</TableHead>
-                        <TableHead className="text-right">Action</TableHead>
+                        <TableHead className="sticky right-0 border-l border-border bg-card text-right">
+                          Action
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -170,7 +172,7 @@ export async function ClientsSection({
                               cs.service.monthlyPriceCents
                             )}
                           </TableCell>
-                          <TableCell className="text-right">
+                          <TableCell className="sticky right-0 border-l border-border bg-card text-right">
                             {cs.status === "CONFIGURING" && (
                               <MarkActiveButton clientServiceId={cs.id} />
                             )}

@@ -46,6 +46,17 @@ export function SpendChartView({
         </div>
       </CardHeader>
       <CardContent>
+        {totalCents === 0 ? (
+          <div className="flex h-[240px] flex-col items-center justify-center gap-1 rounded-2xl border border-dashed border-border px-6 text-center">
+            <p className="font-medium text-foreground">
+              Aucune facture payée pour l&apos;instant
+            </p>
+            <p className="max-w-sm text-sm text-muted-foreground">
+              Vos dépenses apparaîtront ici dès le premier prélèvement, mois par
+              mois.
+            </p>
+          </div>
+        ) : (
         <ChartContainer
           config={chartConfig}
           className="aspect-auto h-[240px] w-full"
@@ -75,13 +86,16 @@ export function SpendChartView({
             />
           </BarChart>
         </ChartContainer>
-        <ul className="sr-only">
-          {data.map((bucket) => (
-            <li key={bucket.label}>
-              {bucket.label} : {formatCents(bucket.totalCents)}
-            </li>
-          ))}
-        </ul>
+        )}
+        {totalCents > 0 && (
+          <ul className="sr-only">
+            {data.map((bucket) => (
+              <li key={bucket.label}>
+                {bucket.label} : {formatCents(bucket.totalCents)}
+              </li>
+            ))}
+          </ul>
+        )}
       </CardContent>
     </Card>
   );

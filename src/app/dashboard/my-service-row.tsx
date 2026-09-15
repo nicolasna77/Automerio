@@ -19,11 +19,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader } from "@/co
 import {
   describeServiceStatus,
   formatPrice,
-  needsCalendarConnection,
-  needsFacebookConnection,
-  needsInstagramConnection,
-  needsPhoneNumber,
-  needsWhatsAppConnection,
+  setupHint,
   TELEPHONY_SERVICE_SLUGS,
   type MyServiceDTO,
 } from "@/lib/catalog";
@@ -51,17 +47,7 @@ export function MyServiceRow({
     (status === "ACTIVE" || status === "CONFIGURING") &&
     service.configFields.length > 0;
   const canUnsubscribe = status === "ACTIVE" || status === "CONFIGURING";
-  const setupHint = needsPhoneNumber(item)
-    ? "Choisissez un numéro pour que l'IA puisse décrocher"
-    : needsWhatsAppConnection(item)
-      ? "Connectez votre compte WhatsApp pour que l'IA puisse répondre"
-      : needsFacebookConnection(item)
-        ? "Connectez votre Page Facebook pour que l'IA puisse répondre"
-        : needsInstagramConnection(item)
-          ? "Connectez votre compte Instagram pour que l'IA puisse répondre"
-          : needsCalendarConnection(item)
-            ? "Connectez votre agenda pour recevoir les rendez-vous"
-            : null;
+  const hint = setupHint(item);
 
   function handleUnsubscribe() {
     startCancelTransition(async () => {
@@ -133,13 +119,13 @@ export function MyServiceRow({
                 </div>
               )}
 
-              {setupHint && (
+              {hint && (
                 <div className="mt-3 flex items-start gap-2 rounded-2xl border border-primary/20 bg-primary/5 p-3">
                   <TriangleAlert
                     className="mt-0.5 size-4 shrink-0 text-primary"
                     aria-hidden="true"
                   />
-                  <p className="text-sm text-foreground">{setupHint}</p>
+                  <p className="text-sm text-foreground">{hint}</p>
                 </div>
               )}
 

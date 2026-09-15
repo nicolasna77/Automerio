@@ -33,7 +33,6 @@ export async function SiteHeader() {
           <SiteMobileNav
             services={services}
             loggedIn={!!user}
-            isAdmin={!!user?.isAdmin}
           />
           <AutomerioLogo />
         </div>
@@ -56,19 +55,15 @@ export async function SiteHeader() {
               Tableau de bord
             </Link>
           )}
-          {user?.isAdmin && (
-            <Link
-              href="/admin"
-              className="transition-colors hover:text-foreground"
-            >
-              Administration
-            </Link>
-          )}
         </nav>
         <div className="flex items-center gap-2">
           <ThemeToggle />
           {user ? (
-            <UserMenu name={user.name} email={user.email} />
+            <UserMenu
+              name={user.name}
+              email={user.email}
+              isAdmin={user.isAdmin}
+            />
           ) : (
             <div className="hidden items-center gap-2 md:flex">
               <Link href="/login" className={buttonVariants({ variant: "ghost" })}>

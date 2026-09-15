@@ -21,11 +21,9 @@ const MENU_CATEGORIES: ServiceCategory[] = ["COMMUNICATION", "INFORMATION"];
 export function SiteMobileNav({
   services,
   loggedIn,
-  isAdmin,
 }: {
   services: ServiceDTO[];
   loggedIn: boolean;
-  isAdmin: boolean;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -87,11 +85,6 @@ export function SiteMobileNav({
                   <li>
                     <MobileNavLink href="/dashboard">Tableau de bord</MobileNavLink>
                   </li>
-                  {isAdmin && (
-                    <li>
-                      <MobileNavLink href="/admin">Administration</MobileNavLink>
-                    </li>
-                  )}
                 </>
               ) : (
                 <>

@@ -317,6 +317,25 @@ export function needsInstagramConnection(item: SetupSubject): boolean {
   );
 }
 
+export function setupHint(item: SetupSubject): string | null {
+  if (needsPhoneNumber(item)) {
+    return "Choisissez un numéro pour que l'IA puisse décrocher";
+  }
+  if (needsWhatsAppConnection(item)) {
+    return "Connectez votre compte WhatsApp pour que l'IA puisse répondre";
+  }
+  if (needsFacebookConnection(item)) {
+    return "Connectez votre Page Facebook pour que l'IA puisse répondre";
+  }
+  if (needsInstagramConnection(item)) {
+    return "Connectez votre compte Instagram pour que l'IA puisse répondre";
+  }
+  if (needsCalendarConnection(item)) {
+    return "Connectez votre agenda pour recevoir les rendez-vous";
+  }
+  return null;
+}
+
 export function asStringArray(value: ConfigValue | undefined): string[] {
   return Array.isArray(value) && (value.length === 0 || typeof value[0] === "string")
     ? (value as string[])

@@ -9,6 +9,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
 import { formatDate } from "@/lib/catalog";
 import { OverviewStats } from "./overview-stats";
+import { OverviewServices } from "./overview-services";
 import { SpendChart } from "./spend-chart";
 import { OverviewStatsSkeleton, SpendChartSkeleton } from "./overview-skeletons";
 
@@ -54,6 +55,9 @@ export default async function DashboardPage() {
       <div className="space-y-4">
         <Suspense fallback={<OverviewStatsSkeleton />}>
           <OverviewStats organizationId={organization.id} />
+        </Suspense>
+        <Suspense fallback={null}>
+          <OverviewServices organizationId={organization.id} />
         </Suspense>
         <Suspense fallback={<SpendChartSkeleton />}>
           <SpendChart userId={session.user.id} organizationId={organization.id} />
