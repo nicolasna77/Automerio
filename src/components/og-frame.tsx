@@ -3,7 +3,7 @@ export const OG_SIZE = { width: 1200, height: 630 };
 const INK = "#0d0b1e";
 const PAPER = "#ffffff";
 const MUTED = "#a9a4c7";
-const BRAND_FROM = "#6d3bff";
+const BRAND_FROM = "#5b2bd9";
 const BRAND_TO = "#2a1a9e";
 
 export function OgFrame({

@@ -21,20 +21,20 @@ export function AutomerioMark({ className }: { className?: string }) {
           y2="32"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0" stopColor="#6d3bff" />
+          <stop offset="0" stopColor="#5b2bd9" />
           <stop offset="1" stopColor="#2a1a9e" />
         </linearGradient>
-        <pattern
-          id="automerio-mark-dots"
-          width="4.5"
-          height="4.5"
-          patternUnits="userSpaceOnUse"
-        >
-          <circle cx="2.25" cy="2.25" r="0.7" fill="#eef2ff" opacity="0.22" />
-        </pattern>
+        <clipPath id="automerio-mark-clip">
+          <rect width="32" height="32" rx="9" />
+        </clipPath>
       </defs>
       <rect width="32" height="32" rx="9" fill="url(#automerio-mark-tile)" />
-      <rect width="32" height="32" rx="9" fill="url(#automerio-mark-dots)" />
+      <g clipPath="url(#automerio-mark-clip)">
+        <g transform="rotate(-38 16 16)">
+          <rect x="-8" y="6" width="48" height="6" fill="#eef2ff" opacity="0.22" />
+          <rect x="-8" y="14.5" width="48" height="2.4" fill="#eef2ff" opacity="0.13" />
+        </g>
+      </g>
       <path
         d="M9.6 21.8L16 10.2L22.4 21.8M11.48 18.4H20.52"
         fill="none"

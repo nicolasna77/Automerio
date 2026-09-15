@@ -17,6 +17,12 @@ export function HeroSection({ services }: { services: ServiceDTO[] }) {
 
   return (
     <section className="relative isolate overflow-hidden border-b border-border">
+      <div aria-hidden="true" className="absolute inset-0 -z-20 overflow-hidden">
+        <div className="absolute top-[12%] -left-1/2 w-[150%] origin-center rotate-[-38deg]">
+          <div className="h-24 bg-primary/8 dark:bg-primary/25" />
+          <div className="mt-10 h-9 bg-primary/5 dark:bg-primary/15" />
+        </div>
+      </div>
       <div
         aria-hidden="true"
         className="absolute inset-0 -z-10 bg-[url(/dot-grid.svg)] bg-size-[1440px_1056px] bg-top opacity-60 mask-[linear-gradient(to_bottom,transparent_58%,black_80%)] lg:mask-[linear-gradient(to_right,transparent_30%,black_65%)] dark:opacity-70 dark:invert"
