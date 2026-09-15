@@ -19,9 +19,9 @@ jobs:
       postgres:
         image: postgres:17-alpine
         env:
-          POSTGRES_USER: automerio
-          POSTGRES_PASSWORD: automerio
-          POSTGRES_DB: automerio
+          POSTGRES_USER: noveris
+          POSTGRES_PASSWORD: noveris
+          POSTGRES_DB: noveris
         ports:
           - 5432:5432
         options: >-
@@ -31,7 +31,7 @@ jobs:
           --health-retries 5
 
     env:
-      DATABASE_URL: postgresql://automerio:automerio@localhost:5432/automerio
+      DATABASE_URL: postgresql://noveris:noveris@localhost:5432/noveris
       BETTER_AUTH_SECRET: ci-dummy-secret-0123456789abcdefghijklmnop
       BETTER_AUTH_URL: http://localhost:3000
       NEXT_PUBLIC_APP_URL: http://localhost:3000

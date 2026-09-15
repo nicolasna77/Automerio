@@ -135,15 +135,27 @@ async function main() {
   const serviceIdBySlug = new Map(services.map((s) => [s.slug, s.id]));
 
   const adminEmail = "equipe@automerio.test";
+  const legacyAdminEmail = "equipe@noveris.test";
   if (!(await db.user.findUnique({ where: { email: adminEmail } }))) {
-    const result = await auth.api.signUpEmail({
-      body: { name: "Équipe Automerio", email: adminEmail, password: DEMO_PASSWORD },
+    const legacyAdmin = await db.user.findUnique({
+      where: { email: legacyAdminEmail },
     });
-    await db.user.update({
-      where: { id: result.user.id },
-      data: { role: "ADMIN", emailVerified: true },
-    });
-    console.log(`Admin créé : ${adminEmail} (mot de passe : ${DEMO_PASSWORD})`);
+    if (legacyAdmin) {
+      await db.user.update({
+        where: { id: legacyAdmin.id },
+        data: { email: adminEmail, name: "Équipe Automerio" },
+      });
+      console.log(`Admin renommé : ${legacyAdminEmail} → ${adminEmail}`);
+    } else {
+      const result = await auth.api.signUpEmail({
+        body: { name: "Équipe Automerio", email: adminEmail, password: DEMO_PASSWORD },
+      });
+      await db.user.update({
+        where: { id: result.user.id },
+        data: { role: "ADMIN", emailVerified: true },
+      });
+      console.log(`Admin créé : ${adminEmail} (mot de passe : ${DEMO_PASSWORD})`);
+    }
   }
 
   for (const client of FAKE_CLIENTS) {

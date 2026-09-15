@@ -2,6 +2,8 @@ import { stripeClient } from "@/lib/stripe";
 
 const VAT_RATE_KEY = "automerio-tva-fr-20-incluse";
 const PORTAL_CONFIGURATION_KEY = "automerio-portail-client";
+const LEGACY_VAT_RATE_KEY = "noveris-tva-fr-20-incluse";
+const LEGACY_PORTAL_CONFIGURATION_KEY = "noveris-portail-client";
 
 let vatRatePromise: Promise<string> | null = null;
 let portalConfigurationPromise: Promise<string> | null = null;
@@ -20,7 +22,11 @@ function memoize(
 
 async function findOrCreateVatRate(): Promise<string> {
   const rates = await stripeClient.taxRates.list({ active: true, inclusive: true, limit: 100 });
-  const existing = rates.data.find((rate) => rate.metadata?.key === VAT_RATE_KEY);
+  const existing = rates.data.find(
+    (rate) =>
+      rate.metadata?.key === VAT_RATE_KEY ||
+      rate.metadata?.key === LEGACY_VAT_RATE_KEY
+  );
   if (existing) return existing.id;
 
   const created = await stripeClient.taxRates.create({
@@ -48,7 +54,9 @@ async function findOrCreatePortalConfiguration(): Promise<string> {
     limit: 100,
   });
   const existing = configurations.data.find(
-    (configuration) => configuration.metadata?.key === PORTAL_CONFIGURATION_KEY
+    (configuration) =>
+      configuration.metadata?.key === PORTAL_CONFIGURATION_KEY ||
+      configuration.metadata?.key === LEGACY_PORTAL_CONFIGURATION_KEY
   );
   if (existing) return existing.id;
 

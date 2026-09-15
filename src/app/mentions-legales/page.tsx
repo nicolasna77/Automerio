@@ -42,7 +42,7 @@ export default function MentionsLegalesPage() {
 
       <LegalSection title="Propriété intellectuelle">
         <p>
-          Les textes, le logo, les illustrations et l&apos;interface de Automerio sont
+          Les textes, le logo, les illustrations et l&apos;interface d&apos;Automerio sont
           protégés par le droit d&apos;auteur. Toute reproduction, même partielle,
           sans autorisation écrite est interdite.
         </p>

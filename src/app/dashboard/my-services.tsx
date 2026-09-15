@@ -37,6 +37,7 @@ const STATUS_FILTER_OPTIONS: ClientServiceStatus[] = [
 
 type ViewMode = "list" | "grid";
 const VIEW_MODE_STORAGE_KEY = "automerio:my-services-view";
+const LEGACY_VIEW_MODE_STORAGE_KEY = "noveris:my-services-view";
 
 export function MyServices({ items }: { items: MyServiceDTO[] }) {
   const [managingItem, setManagingItem] = useState<MyServiceDTO | null>(null);
@@ -47,6 +48,11 @@ export function MyServices({ items }: { items: MyServiceDTO[] }) {
   );
 
   useEffect(() => {
+    const legacy = window.localStorage.getItem(LEGACY_VIEW_MODE_STORAGE_KEY);
+    if (legacy !== null) {
+      window.localStorage.setItem(VIEW_MODE_STORAGE_KEY, legacy);
+      window.localStorage.removeItem(LEGACY_VIEW_MODE_STORAGE_KEY);
+    }
     const stored = window.localStorage.getItem(VIEW_MODE_STORAGE_KEY);
     if (stored === "grid" || stored === "list") {
       // eslint-disable-next-line react-hooks/set-state-in-effect

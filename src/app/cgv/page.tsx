@@ -127,7 +127,7 @@ export default function CgvPage() {
         </ul>
       </LegalSection>
 
-      <LegalSection title="8. Mise en place et engagements de Automerio">
+      <LegalSection title="8. Mise en place et engagements d&apos;Automerio">
         <p>
           Automerio installe la solution, la relie aux outils du client, vérifie
           son fonctionnement puis la surveille pendant toute la durée de
@@ -208,7 +208,7 @@ export default function CgvPage() {
           Ces conditions sont soumises au droit français. En cas de différend, les
           parties recherchent d&apos;abord une solution amiable. À défaut, le
           litige est porté devant le tribunal de commerce dans le ressort duquel se
-          trouve le siège de Automerio.
+          trouve le siège d&apos;Automerio.
         </p>
       </LegalSection>
     </LegalPage>

@@ -18,7 +18,10 @@ type Recipient = {
   notificationPreferences: unknown;
 };
 
-const teamEmail = () => process.env.AUTOMERIO_TEAM_EMAIL ?? "contact@automerio.fr";
+const teamEmail = () =>
+  process.env.AUTOMERIO_TEAM_EMAIL ??
+  process.env.NOVERIS_TEAM_EMAIL ??
+  "contact@automerio.fr";
 
 export async function sendHelpRequestResolvedEmail(
   recipient: Recipient,

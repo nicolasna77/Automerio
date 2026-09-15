@@ -26,7 +26,7 @@ export default function ConfidentialitePage() {
       title="Politique de confidentialité"
       intro={
         <p>
-          Ce que Automerio collecte, pourquoi, combien de temps, et comment exercer
+          Ce qu&apos;Automerio collecte, pourquoi, combien de temps, et comment exercer
           vos droits. Nous ne vendons ni ne louons vos données.
         </p>
       }
