@@ -44,7 +44,7 @@ export function OgFrame({
             fontWeight: 700,
           }}
         >
-          N
+          A
         </div>
         <div style={{ fontSize: 30, fontWeight: 600, letterSpacing: -0.5 }}>Automerio</div>
         {eyebrow && (
