@@ -11,15 +11,16 @@ export function AutomerioMark({ className }: { className?: string }) {
     >
       <rect width="32" height="32" rx="9" fill="var(--primary)" />
       <path
-        d="M11 21V11L21 21V11"
+        d="M9.6 21.8L16 10.2L22.4 21.8M11.48 18.4H20.52"
         fill="none"
         stroke="var(--primary-foreground)"
         strokeWidth="2.75"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle cx="11" cy="11" r="2" fill="var(--primary-foreground)" />
-      <circle cx="21" cy="21" r="2" fill="var(--primary-foreground)" />
+      <circle cx="16" cy="10.2" r="2.15" fill="var(--primary-foreground)" />
+      <circle cx="9.6" cy="21.8" r="1.75" fill="var(--primary-foreground)" />
+      <circle cx="22.4" cy="21.8" r="1.75" fill="var(--primary-foreground)" />
     </svg>
   );
 }
