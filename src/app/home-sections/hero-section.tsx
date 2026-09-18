@@ -13,11 +13,15 @@ export function HeroSection({ services }: { services: ServiceDTO[] }) {
   const monthlyPrices = communication
     .filter((s) => s.monthlyPriceCents !== null)
     .map((s) => s.monthlyPriceCents as number);
-  const fromPrice = monthlyPrices.length > 0 ? Math.min(...monthlyPrices) : null;
+  const fromPrice =
+    monthlyPrices.length > 0 ? Math.min(...monthlyPrices) : null;
 
   return (
     <section className="relative isolate overflow-hidden border-b border-border">
-      <div aria-hidden="true" className="absolute inset-0 -z-20 overflow-hidden">
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-20 overflow-hidden"
+      >
         <div className="absolute top-[12%] -left-1/2 w-[150%] origin-center rotate-[-38deg]">
           <div className="h-24 bg-primary/8 dark:bg-primary/25" />
           <div className="mt-10 h-9 bg-primary/5 dark:bg-primary/15" />
@@ -36,7 +40,7 @@ export function HeroSection({ services }: { services: ServiceDTO[] }) {
             <span className="block text-2xl font-medium leading-snug sm:text-3xl">
               Votre entreprise tourne.
             </span>
-            <span className="mt-2 block text-[2.6rem] font-bold leading-[0.98] tracking-[-0.03em] [font-stretch:88%] sm:text-6xl">
+            <span className="mt-2 block text-[2.6rem] font-bold leading-[0.98] tracking-[-0.03em] font-stretch-88% sm:text-6xl">
               Vos automatisations s&apos;occupent du reste.
             </span>
           </h1>

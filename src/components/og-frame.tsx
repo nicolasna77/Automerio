@@ -1,10 +1,10 @@
 export const OG_SIZE = { width: 1200, height: 630 };
 
-const INK = "#0d0b1e";
-const PAPER = "#ffffff";
-const MUTED = "#a9a4c7";
-const BRAND_FROM = "#5b2bd9";
-const BRAND_TO = "#2a1a9e";
+const INK = "#090b0c";
+const PAPER = "#f9fbfb";
+const MUTED = "#9ca8ab";
+const BRAND_FROM = "#008236";
+const BRAND_TO = "#004e1d";
 
 export function OgFrame({
   eyebrow,

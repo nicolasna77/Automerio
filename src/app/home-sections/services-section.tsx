@@ -27,9 +27,9 @@ function ServiceCard({ service }: { service: ServiceDTO }) {
     <Link
       href={`/prestations/${service.slug}`}
       id={service.slug}
-      className="block scroll-mt-20 text-inherit no-underline outline-none"
+      className="group/service block scroll-mt-20 rounded-4xl text-inherit no-underline outline-none focus-visible:focus-ring"
     >
-      <Card className="flex h-full flex-col transition-colors hover:bg-muted/40 focus-visible:bg-muted/40">
+      <Card className="flex h-full flex-col transition-colors hover:bg-muted/40 group-focus-visible/service:bg-muted/40">
         <CardHeader>
           <div className="flex items-start justify-between gap-2">
             <span className="mb-2 flex size-9 items-center justify-center rounded-md bg-primary/10 text-primary">
@@ -61,12 +61,12 @@ function ServiceCard({ service }: { service: ServiceDTO }) {
                 </dd>
               </div>
             )}
-            {service.usageCapLabel && (
-              <div className="pt-1 text-[11px] leading-relaxed text-muted-foreground">
-                {service.usageCapLabel}
-              </div>
-            )}
           </dl>
+          {service.usageCapLabel && (
+            <p className="pt-2.5 text-xs leading-relaxed text-muted-foreground">
+              {service.usageCapLabel}
+            </p>
+          )}
         </CardContent>
       </Card>
     </Link>

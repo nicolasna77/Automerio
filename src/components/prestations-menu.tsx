@@ -12,15 +12,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CATEGORY_LABELS, type ServiceCategory, type ServiceDTO } from "@/lib/catalog";
+import {
+  CATEGORY_LABELS,
+  type ServiceCategory,
+  type ServiceDTO,
+} from "@/lib/catalog";
 
 const MENU_CATEGORIES: ServiceCategory[] = ["COMMUNICATION", "INFORMATION"];
 
 export function PrestationsMenu({ services }: { services: ServiceDTO[] }) {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex items-center gap-1 text-sm text-muted-foreground transition-colors outline-none hover:text-foreground">
-        Solutions
+      <DropdownMenuTrigger className="flex items-center gap-1 rounded-md text-sm text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:focus-ring">
+        Nos solutions
         <ChevronDown className="size-3.5" aria-hidden="true" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-72">
@@ -33,7 +37,9 @@ export function PrestationsMenu({ services }: { services: ServiceDTO[] }) {
             <Fragment key={category}>
               {index > 0 && <DropdownMenuSeparator />}
               <DropdownMenuGroup>
-                <DropdownMenuLabel>{CATEGORY_LABELS[category]}</DropdownMenuLabel>
+                <DropdownMenuLabel>
+                  {CATEGORY_LABELS[category]}
+                </DropdownMenuLabel>
                 {categoryServices.map((service) => (
                   <DropdownMenuItem
                     key={service.slug}

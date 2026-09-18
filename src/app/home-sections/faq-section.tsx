@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
+import { Card } from "@/components/ui/card";
 import { FAQS } from "@/lib/site";
 
 
@@ -12,9 +13,9 @@ export function FaqSection() {
             Ce que nos clients demandent avant de se lancer
           </h2>
         </div>
-        <div className="mt-10 divide-y divide-border overflow-hidden rounded-lg border border-border bg-card">
+        <Card className="mt-10 gap-0 divide-y divide-border py-0 text-base">
           {FAQS.map((faq) => (
-            <details key={faq.question} className="group p-5">
+            <details key={faq.question} className="group px-(--card-spacing) py-5">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium text-foreground marker:content-none [&::-webkit-details-marker]:hidden">
                 {faq.question}
                 <ChevronDown
@@ -27,7 +28,7 @@ export function FaqSection() {
               </p>
             </details>
           ))}
-        </div>
+        </Card>
         <p className="mt-6 text-sm text-foreground">
           Votre question n&apos;est pas là ?{" "}
           <Link

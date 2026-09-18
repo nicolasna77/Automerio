@@ -42,7 +42,7 @@ export async function SiteHeader() {
             <Link
               key={link.href}
               href={link.href}
-              className="transition-colors hover:text-foreground"
+              className="rounded-md transition-colors hover:text-foreground"
             >
               {link.label}
             </Link>
@@ -50,7 +50,7 @@ export async function SiteHeader() {
           {user && (
             <Link
               href="/dashboard"
-              className="transition-colors hover:text-foreground"
+              className="rounded-md transition-colors hover:text-foreground"
             >
               Tableau de bord
             </Link>

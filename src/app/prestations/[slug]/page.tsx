@@ -128,44 +128,46 @@ export default async function PrestationDetailPage({
 
               <aside
                 aria-labelledby="tarif-heading"
-                className="rounded-xl border border-border bg-card p-6 lg:self-start"
+                className="lg:self-start"
               >
-                <h2 id="tarif-heading" className="text-sm font-medium text-muted-foreground">
-                  Tarif
-                </h2>
+                <Card className="gap-0 px-(--card-spacing)">
+                  <h2 id="tarif-heading" className="text-sm font-medium text-muted-foreground">
+                    Tarif
+                  </h2>
 
-                <dl className="mt-4 divide-y divide-border">
-                  {service.setupFeeCents !== null && (
-                    <div className="pb-4">
-                      <dd className="text-3xl font-semibold tabular-nums text-foreground">
-                        {formatCents(service.setupFeeCents)}
-                      </dd>
-                      <dt className="mt-0.5 text-sm text-muted-foreground">
-                        TTC, &agrave; l&apos;installation
-                      </dt>
-                    </div>
-                  )}
-                  {service.monthlyPriceCents !== null && (
-                    <div className="py-4 first:pt-0">
-                      <dd className="text-3xl font-semibold tabular-nums text-foreground">
-                        {formatCents(service.monthlyPriceCents)}
-                      </dd>
-                      <dt className="mt-0.5 text-sm text-muted-foreground">TTC par mois</dt>
-                    </div>
-                  )}
-                  {service.usageCapLabel && (
-                    <div className="py-4">
-                      <dt className="text-sm text-muted-foreground">Compris</dt>
-                      <dd className="mt-1 text-sm text-foreground">
-                        {service.usageCapLabel}
-                      </dd>
-                    </div>
-                  )}
-                </dl>
+                  <dl className="mt-4 divide-y divide-border">
+                    {service.setupFeeCents !== null && (
+                      <div className="pb-4">
+                        <dd className="text-3xl font-semibold tabular-nums text-foreground">
+                          {formatCents(service.setupFeeCents)}
+                        </dd>
+                        <dt className="mt-0.5 text-sm text-muted-foreground">
+                          TTC, &agrave; l&apos;installation
+                        </dt>
+                      </div>
+                    )}
+                    {service.monthlyPriceCents !== null && (
+                      <div className="py-4 first:pt-0">
+                        <dd className="text-3xl font-semibold tabular-nums text-foreground">
+                          {formatCents(service.monthlyPriceCents)}
+                        </dd>
+                        <dt className="mt-0.5 text-sm text-muted-foreground">TTC par mois</dt>
+                      </div>
+                    )}
+                    {service.usageCapLabel && (
+                      <div className="py-4">
+                        <dt className="text-sm text-muted-foreground">Compris</dt>
+                        <dd className="mt-1 text-sm text-foreground">
+                          {service.usageCapLabel}
+                        </dd>
+                      </div>
+                    )}
+                  </dl>
 
-                <p className="border-t border-border pt-4 text-sm text-muted-foreground">
-                  Sans engagement, r&eacute;siliable &agrave; tout moment.
-                </p>
+                  <p className="border-t border-border pt-4 text-sm text-muted-foreground">
+                    Sans engagement, r&eacute;siliable &agrave; tout moment.
+                  </p>
+                </Card>
               </aside>
             </div>
           </div>
@@ -250,7 +252,7 @@ export default async function PrestationDetailPage({
                   return (
                     <Card
                       key={relatedService.slug}
-                      className="relative h-full transition-colors has-[a:hover]:bg-card/70 has-[a:focus-visible]:bg-card/70 has-[a:focus-visible]:ring-3 has-[a:focus-visible]:ring-ring/30"
+                      className="relative h-full transition-colors has-[a:hover]:bg-card/70 has-[a:focus-visible]:bg-card/70 has-[a:focus-visible]:focus-ring"
                     >
                       <CardHeader>
                         <span className="mb-2 flex size-9 items-center justify-center rounded-md bg-primary/10 text-primary">
