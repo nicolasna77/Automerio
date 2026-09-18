@@ -152,13 +152,6 @@ export const CATALOG: CatalogService[] = [
         required: true,
         placeholder: "+33 6 12 34 56 78",
       },
-      {
-        key: "metaConnection",
-        label: "Connexion Meta Business",
-        type: "connection",
-        helpText:
-          "Rien à saisir ici : la connexion se fait après l'activation, depuis la page de la solution.",
-      },
       { key: "faq", label: "Questions fréquentes", type: "textarea" },
     ],
     sortOrder: 3,
@@ -180,13 +173,6 @@ export const CATALOG: CatalogService[] = [
         required: true,
         placeholder: "Ex. Plomberie Lefèvre",
       },
-      {
-        key: "metaConnection",
-        label: "Connexion Meta Business",
-        type: "connection",
-        helpText:
-          "Rien à saisir ici : la connexion se fait après l'activation, depuis la page de la solution.",
-      },
       { key: "faq", label: "Questions fréquentes", type: "textarea" },
     ],
     sortOrder: 4,
@@ -207,13 +193,6 @@ export const CATALOG: CatalogService[] = [
         type: "text",
         required: true,
         placeholder: "@plomberielefevre",
-      },
-      {
-        key: "metaConnection",
-        label: "Connexion Meta Business",
-        type: "connection",
-        helpText:
-          "Rien à saisir ici : la connexion se fait après l'activation, depuis la page de la solution.",
       },
       { key: "faq", label: "Questions fréquentes", type: "textarea" },
     ],
