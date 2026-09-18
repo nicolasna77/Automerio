@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Info, Loader2, X } from "lucide-react";
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { ClientServiceStatus } from "@/lib/catalog";
 
@@ -15,28 +16,37 @@ export function CheckoutNotice({
   status,
   serviceName,
   initialStatus,
+  nextStep,
 }: {
   status: "success" | "canceled";
   serviceName?: string;
   initialStatus?: ClientServiceStatus;
+  nextStep?: { cta: string; href: string } | null;
 }) {
   const router = useRouter();
   const [dismissed, setDismissed] = useState(false);
   const [attempts, setAttempts] = useState(0);
   const attemptsRef = useRef(0);
 
-  const isActivating = status === "success" && initialStatus !== "ACTIVE";
+  // Le webhook Stripe fait passer la solution de PENDING_PAYMENT a CONFIGURING,
+  // et s'arrete la : le passage a ACTIVE est une action manuelle de l'equipe,
+  // des jours plus tard. On attend donc que le paiement soit enregistre, pas
+  // que la solution soit active, sans quoi chaque achat finit par annoncer un
+  // retard qui n'existe pas.
+  const awaitingPayment =
+    status === "success" &&
+    (initialStatus === undefined || initialStatus === "PENDING_PAYMENT");
   const timedOut = attempts >= MAX_POLL_ATTEMPTS;
 
   useEffect(() => {
-    if (!isActivating || timedOut || dismissed) return;
+    if (!awaitingPayment || timedOut || dismissed) return;
     const id = setTimeout(() => {
       attemptsRef.current += 1;
       setAttempts(attemptsRef.current);
       router.refresh();
     }, POLL_INTERVAL_MS);
     return () => clearTimeout(id);
-  }, [isActivating, timedOut, dismissed, attempts, router]);
+  }, [awaitingPayment, timedOut, dismissed, attempts, router]);
 
   if (dismissed) return null;
 
@@ -49,7 +59,7 @@ export function CheckoutNotice({
     >
       {status === "canceled" ? (
         <Info aria-hidden="true" />
-      ) : isActivating ? (
+      ) : awaitingPayment ? (
         <Loader2 className="animate-spin text-primary" aria-hidden="true" />
       ) : (
         <CheckCircle2 className="text-primary" aria-hidden="true" />
@@ -57,7 +67,7 @@ export function CheckoutNotice({
       <AlertTitle>
         {status === "canceled"
           ? "Paiement annulé"
-          : isActivating
+          : awaitingPayment
             ? `Paiement reçu${serviceName ? ` pour « ${serviceName} »` : ""}`
             : `Paiement confirmé${serviceName ? ` pour « ${serviceName} »` : ""}`}
       </AlertTitle>
@@ -65,16 +75,27 @@ export function CheckoutNotice({
         {status === "canceled" &&
           "Aucun paiement n'a été effectué. Vous pouvez réessayer quand vous le souhaitez depuis le catalogue ci-dessous."}
         {status === "success" &&
-          isActivating &&
+          awaitingPayment &&
           !timedOut &&
-          "Votre solution est en cours d'activation, cela ne prend généralement que quelques secondes…"}
+          "Nous enregistrons votre paiement, cela ne prend que quelques secondes…"}
         {status === "success" &&
-          isActivating &&
+          awaitingPayment &&
           timedOut &&
-          "L'activation prend plus de temps que prévu. Actualisez la page dans un instant, ou contactez-nous si le problème persiste."}
+          "L'enregistrement du paiement prend plus de temps que prévu. Actualisez la page dans un instant, ou contactez-nous si le problème persiste."}
         {status === "success" &&
-          !isActivating &&
-          "Votre solution est active. Retrouvez-la dans « Mes solutions » ci-dessous."}
+          !awaitingPayment &&
+          (nextStep
+            ? "Il reste une étape pour que votre assistant puisse répondre."
+            : initialStatus === "CONFIGURING"
+              ? "Notre équipe installe votre solution et vous prévient dès qu'elle est active."
+              : "Votre solution est active. Retrouvez-la dans « Mes solutions » ci-dessous.")}
+        {status === "success" && nextStep && (
+          <div className="mt-3">
+            <Link href={nextStep.href} className={buttonVariants({ size: "sm" })}>
+              {nextStep.cta}
+            </Link>
+          </div>
+        )}
       </AlertDescription>
       <AlertAction>
         <Button

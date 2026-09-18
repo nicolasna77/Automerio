@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { requireActiveOrganization } from "@/lib/organization";
 import { getCatalog } from "@/lib/get-catalog";
-import { type MyServiceDTO } from "@/lib/catalog";
+import { SETUP_ANCHOR, setupAction, type MyServiceDTO } from "@/lib/catalog";
 import { toMyServiceDTO } from "../get-my-service";
 import { CheckoutNotice } from "../checkout-notice";
 import { MyServices } from "../my-services";
@@ -40,6 +40,7 @@ export default async function PrestationsPage({
   const checkoutTarget = params.clientServiceId
     ? myServices.find((m) => m.clientServiceId === params.clientServiceId)
     : undefined;
+  const checkoutNextStep = checkoutTarget ? setupAction(checkoutTarget) : null;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
@@ -56,6 +57,14 @@ export default async function PrestationsPage({
             status={checkoutStatus}
             serviceName={checkoutTarget?.name}
             initialStatus={checkoutTarget?.status}
+            nextStep={
+              checkoutNextStep && checkoutTarget
+                ? {
+                    cta: checkoutNextStep.cta,
+                    href: `/dashboard/services/${checkoutTarget.clientServiceId}#${SETUP_ANCHOR}`,
+                  }
+                : null
+            }
           />
         </div>
       )}
