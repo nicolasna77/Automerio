@@ -21,6 +21,12 @@ const STATUS_OPTIONS: ClientServiceStatus[] = [
   "CANCELED",
 ];
 
+const SCOPE_LABELS = {
+  with: "Avec une solution",
+  without: "Sans solution",
+  all: "Tous les clients",
+};
+
 export function ClientsFilters() {
   const { searchParams, updateParams } = useQueryParamFilters();
 
@@ -62,6 +68,23 @@ export function ClientsFilters() {
           {STATUS_OPTIONS.map((status) => (
             <SelectItem key={status} value={status}>
               {STATUS_LABELS[status]}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Select
+        value={searchParams.get("scope") ?? "with"}
+        items={SCOPE_LABELS}
+        onValueChange={(value) => updateParams({ scope: value === "with" ? null : value })}
+      >
+        <SelectTrigger className="w-52" aria-label="Filtrer par solutions activées">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {Object.entries(SCOPE_LABELS).map(([value, label]) => (
+            <SelectItem key={value} value={value}>
+              {label}
             </SelectItem>
           ))}
         </SelectContent>

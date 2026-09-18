@@ -41,7 +41,7 @@ async function loadPromoCodes(nameBySlug: Map<string, string>): Promise<PromoCod
               hasSetupFee: true,
               hasSubscription: true,
             })
-          : "Coupon introuvable",
+          : "Remise supprimée dans Stripe",
         services: slugs === null ? null : slugs.map((slug) => nameBySlug.get(slug) ?? slug),
         firstTimeOnly: promo.restrictions.first_time_transaction,
         timesRedeemed: promo.times_redeemed,

@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: "Administration" };
 export default async function AdminPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string; page?: string }>;
+  searchParams: Promise<{ q?: string; status?: string; scope?: string; page?: string }>;
 }) {
   const params = await searchParams;
 
@@ -39,12 +39,13 @@ export default async function AdminPage({
         <h2 className="mb-4 text-lg font-semibold text-foreground">Clients</h2>
         <ClientsFilters />
         <Suspense
-          key={`${params.q ?? ""}:${params.status ?? ""}:${params.page ?? ""}`}
+          key={`${params.q ?? ""}:${params.status ?? ""}:${params.scope ?? ""}:${params.page ?? ""}`}
           fallback={<ClientsSectionSkeleton />}
         >
           <ClientsSection
             q={params.q}
             status={params.status}
+            scope={params.scope}
             page={params.page}
           />
         </Suspense>

@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatDate } from "@/lib/catalog";
+import { describeUserAgent } from "@/lib/user-agent";
 import { RevokeSessionButton } from "../revoke-session-button";
 
 export const SESSIONS_PAGE_SIZE = 20;
@@ -63,12 +64,14 @@ export function UserSessionsTable({
                   <TableHead>Expire le</TableHead>
                   <TableHead>Adresse IP</TableHead>
                   <TableHead>Appareil</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
+                  <TableHead className="sticky right-0 border-l border-border bg-card text-right">
+                    Action
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {sessions.map((s) => (
-                  <TableRow key={s.id} className={s.expired ? "opacity-60" : undefined}>
+                  <TableRow key={s.id}>
                     <TableCell>{formatDate(s.createdAt)}</TableCell>
                     <TableCell>
                       <Badge variant={s.expired ? "outline" : "secondary"}>
@@ -76,13 +79,16 @@ export function UserSessionsTable({
                       </Badge>
                     </TableCell>
                     <TableCell>{formatDate(s.expiresAt)}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                    <TableCell
+                      className="max-w-36 truncate text-sm text-muted-foreground"
+                      title={s.ipAddress ?? undefined}
+                    >
                       {s.ipAddress ?? "—"}
                     </TableCell>
-                    <TableCell className="max-w-56 truncate text-sm text-muted-foreground">
-                      {s.userAgent ?? "—"}
+                    <TableCell className="text-sm text-muted-foreground" title={s.userAgent ?? undefined}>
+                      {describeUserAgent(s.userAgent)}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="sticky right-0 border-l border-border bg-card text-right">
                       <RevokeSessionButton
                         userId={userId}
                         sessionToken={s.token}

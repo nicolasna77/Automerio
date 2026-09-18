@@ -13,7 +13,8 @@ const SOURCE_METADATA = { source: "automerio-admin" };
 
 export function couponOf(promo: Stripe.PromotionCode): Stripe.Coupon | null {
   const coupon = promo.promotion.coupon;
-  return coupon && typeof coupon !== "string" ? coupon : null;
+  if (!coupon || typeof coupon === "string" || ("deleted" in coupon && coupon.deleted)) return null;
+  return coupon;
 }
 
 const MAX_LISTED_PROMOTION_CODES = 1000;

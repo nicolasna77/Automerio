@@ -3,6 +3,16 @@
 import { useState, useTransition } from "react";
 import { Pencil } from "lucide-react";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -99,8 +109,15 @@ export function ServicesTable({ services }: { services: EditableService[] }) {
 function ServiceActiveToggle({ service }: { service: EditableService }) {
   const [isActive, setIsActive] = useState(service.isActive);
   const [isPending, startTransition] = useTransition();
+  const [confirmDeactivate, setConfirmDeactivate] = useState(false);
 
   function handleChange(checked: boolean) {
+    if (checked) applyChange(true);
+    else setConfirmDeactivate(true);
+  }
+
+  function applyChange(checked: boolean) {
+    setConfirmDeactivate(false);
     const previous = isActive;
     setIsActive(checked);
     startTransition(async () => {
@@ -119,16 +136,36 @@ function ServiceActiveToggle({ service }: { service: EditableService }) {
   }
 
   return (
-    <label className="flex items-center gap-2">
-      <Switch
-        checked={isActive}
-        onCheckedChange={handleChange}
-        disabled={isPending}
-        aria-label={`${isActive ? "Désactiver" : "Réactiver"} ${service.name}`}
-      />
-      <span className="text-xs text-muted-foreground">
-        {isActive ? "Active" : "Désactivée"}
-      </span>
-    </label>
+    <>
+      <label className="flex items-center gap-2">
+        <Switch
+          checked={isActive}
+          onCheckedChange={handleChange}
+          disabled={isPending}
+          aria-label={`${isActive ? "Désactiver" : "Réactiver"} ${service.name}`}
+        />
+        <span className="text-xs text-muted-foreground">
+          {isActive ? "Active" : "Désactivée"}
+        </span>
+      </label>
+
+      <AlertDialog open={confirmDeactivate} onOpenChange={setConfirmDeactivate}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Retirer « {service.name} » du catalogue ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Elle ne sera plus proposée sur le site ni dans le catalogue des clients. Les clients
+              qui l&apos;ont déjà activée la gardent. Vous pourrez la réactiver à tout moment.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction variant="destructive" onClick={() => applyChange(false)}>
+              Retirer du catalogue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }

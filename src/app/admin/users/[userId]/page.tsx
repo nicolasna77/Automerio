@@ -10,7 +10,7 @@ import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/session";
 import { UserAccessCards } from "./user-access-cards";
 import { UserSessionsTable, SESSIONS_PAGE_SIZE } from "./user-sessions-table";
-import { UserServicesTable } from "./user-services-table";
+import { ClientServiceCard } from "../../client-service-card";
 import { ServiceHistory } from "./service-history";
 import { LiveRefreshToggle } from "../../live-refresh-toggle";
 import { toMyServiceDTO } from "@/app/dashboard/get-my-service";
@@ -115,11 +115,23 @@ export default async function AdminUserDetailPage({
         page={sessionsPage}
         totalPages={Math.max(1, Math.ceil(sessionsCount / SESSIONS_PAGE_SIZE))}
       />
-      <UserServicesTable
-        userName={user.name}
-        userEmail={user.email}
-        clientServices={clientServices}
-      />
+      <section className="mt-10" aria-labelledby="client-services-heading">
+        <h2 id="client-services-heading" className="text-lg font-semibold text-foreground">
+          Solutions
+        </h2>
+        <p className="mt-1 mb-4 text-sm text-muted-foreground">
+          Note affichée au client, connexion externe et mise en service.
+        </p>
+        {clientServices.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Aucune solution activée.</p>
+        ) : (
+          <ul className="grid gap-4 md:grid-cols-2">
+            {clientServices.map((cs) => (
+              <ClientServiceCard key={cs.id} cs={cs} />
+            ))}
+          </ul>
+        )}
+      </section>
       <ServiceHistory items={clientServices.map(toMyServiceDTO)} />
       {bookings.length > 0 && (
         <Card className="mt-10">

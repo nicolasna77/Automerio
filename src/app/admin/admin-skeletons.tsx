@@ -1,14 +1,5 @@
 import { Card, CardHeader } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
-
-function Pulse({ className }: { className?: string }) {
-  return (
-    <div
-      aria-hidden="true"
-      className={cn("motion-safe:animate-pulse rounded-full bg-muted", className)}
-    />
-  );
-}
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function StatsSkeleton() {
   return (
@@ -21,10 +12,10 @@ export function StatsSkeleton() {
         <Card key={i}>
           <CardHeader>
             <div className="mb-1 flex items-center justify-between">
-              <Pulse className="h-4 w-24" />
-              <Pulse className="size-4" />
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="size-4" />
             </div>
-            <Pulse className="h-8 w-16 rounded-md" />
+            <Skeleton className="h-8 w-16 rounded-md" />
           </CardHeader>
         </Card>
       ))}
@@ -34,21 +25,19 @@ export function StatsSkeleton() {
 
 export function ClientsSectionSkeleton() {
   return (
-    <div role="status" aria-label="Chargement des clients…" className="space-y-4">
-      {Array.from({ length: 3 }).map((_, i) => (
-        <Card key={i}>
-          <CardHeader>
-            <div className="flex items-center justify-between gap-2">
-              <div className="space-y-2">
-                <Pulse className="h-4 w-40 rounded-md" />
-                <Pulse className="h-3 w-56 rounded-md" />
-              </div>
-              <Pulse className="h-5 w-20 rounded-full" />
+    <Card role="status" aria-label="Chargement des clients…">
+      <CardHeader className="space-y-5">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="flex items-center justify-between gap-4">
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-40 rounded-md" />
+              <Skeleton className="h-3 w-56 rounded-md" />
             </div>
-          </CardHeader>
-        </Card>
-      ))}
-    </div>
+            <Skeleton className="h-5 w-48 rounded-full" />
+          </div>
+        ))}
+      </CardHeader>
+    </Card>
   );
 }
 
@@ -60,10 +49,10 @@ export function HelpRequestsSectionSkeleton() {
           <CardHeader>
             <div className="flex items-center justify-between gap-2">
               <div className="space-y-2">
-                <Pulse className="h-4 w-48 rounded-md" />
-                <Pulse className="h-3 w-64 rounded-md" />
+                <Skeleton className="h-4 w-48 rounded-md" />
+                <Skeleton className="h-3 w-64 rounded-md" />
               </div>
-              <Pulse className="h-5 w-20 rounded-full" />
+              <Skeleton className="h-5 w-20 rounded-full" />
             </div>
           </CardHeader>
         </Card>

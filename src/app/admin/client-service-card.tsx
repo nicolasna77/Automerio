@@ -1,10 +1,10 @@
 import { StatusBadge } from "@/components/status-badge";
-import { formatPrice, type ClientServiceStatus } from "@/lib/catalog";
+import { formatDate, formatPrice, type ClientServiceStatus } from "@/lib/catalog";
 import { MarkActiveButton } from "./client-service-actions";
 import {
   ConnectionCell,
   NoteCell,
-  configSummary,
+  configEntries,
   type ClientServiceCellData,
 } from "./client-service-cells";
 
@@ -13,8 +13,15 @@ export function ClientServiceCard({
 }: {
   cs: ClientServiceCellData & {
     name: string;
+    createdAt: Date;
     organization: { name: string };
-    service: { slug: string; name: string; setupFeeCents: number | null; monthlyPriceCents: number | null };
+    service: {
+      slug: string;
+      name: string;
+      setupFeeCents: number | null;
+      monthlyPriceCents: number | null;
+      configFields: unknown;
+    };
   };
 }) {
   return (
@@ -34,18 +41,27 @@ export function ClientServiceCard({
 
       <dl className="mt-3 space-y-1 text-sm">
         <div className="flex gap-2">
+          <dt className="shrink-0 text-muted-foreground">Demandée le</dt>
+          <dd className="ml-auto text-foreground">{formatDate(cs.createdAt)}</dd>
+        </div>
+        <div className="flex gap-2">
           <dt className="shrink-0 text-muted-foreground">Prix</dt>
           <dd className="ml-auto text-foreground">
             {formatPrice(cs.service.setupFeeCents, cs.service.monthlyPriceCents)}
           </dd>
         </div>
-        <div className="flex gap-2">
-          <dt className="shrink-0 text-muted-foreground">Configuration</dt>
-          <dd className="ml-auto min-w-0 text-right break-words text-muted-foreground">
-            {configSummary(cs)}
-          </dd>
-        </div>
       </dl>
+
+      {configEntries(cs).length > 0 && (
+        <dl className="mt-3 space-y-2 border-t border-border pt-3 text-sm">
+          {configEntries(cs).map((entry) => (
+            <div key={entry.key}>
+              <dt className="text-xs text-muted-foreground">{entry.label}</dt>
+              <dd className="break-words text-foreground">{entry.value}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
 
       <div className="mt-4 space-y-3 border-t border-border pt-3">
         <div>

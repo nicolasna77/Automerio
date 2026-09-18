@@ -1,27 +1,18 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Card, CardHeader } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 import { UsersFilters } from "./users-filters";
 import { UsersSection } from "./users-section";
 
 export const metadata: Metadata = { title: "Utilisateurs" };
-
-function Pulse({ className }: { className?: string }) {
-  return (
-    <div
-      aria-hidden="true"
-      className={cn("motion-safe:animate-pulse rounded-full bg-muted", className)}
-    />
-  );
-}
 
 function UsersSectionSkeleton() {
   return (
     <Card role="status" aria-label="Chargement des utilisateurs…">
       <CardHeader className="space-y-3">
         {Array.from({ length: 5 }).map((_, i) => (
-          <Pulse key={i} className="h-4 w-full rounded-md" />
+          <Skeleton key={i} className="h-4 w-full rounded-md" />
         ))}
       </CardHeader>
     </Card>

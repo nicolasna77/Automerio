@@ -1,9 +1,10 @@
 import {
   FACEBOOK_SERVICE_SLUG,
-  formatConfigValue,
+  formatConfigField,
   INSTAGRAM_SERVICE_SLUG,
   TELEPHONY_SERVICE_SLUGS,
   WHATSAPP_SERVICE_SLUG,
+  type ConfigField,
   type ConfigValue,
 } from "@/lib/catalog";
 import {
@@ -26,11 +27,18 @@ export type ClientServiceCellData = {
   service: { slug: string };
 };
 
-export function configSummary(cs: { configuration: unknown }): string {
+export function configEntries(cs: {
+  configuration: unknown;
+  service: { configFields: unknown };
+}): { key: string; label: string; value: string }[] {
   const config = (cs.configuration ?? {}) as Record<string, ConfigValue>;
-  const entries = Object.entries(config).filter(([, v]) => v);
-  if (entries.length === 0) return "—";
-  return entries.map(([k, v]) => `${k}: ${formatConfigValue(v)}`).join(" · ");
+  const fields = (cs.service.configFields as ConfigField[] | null) ?? [];
+  return Object.entries(config)
+    .filter(([, value]) => value)
+    .map(([key, value]) => {
+      const field = fields.find((f) => f.key === key);
+      return { key, label: field?.label ?? key, value: formatConfigField(field, key, value) };
+    });
 }
 
 const Dash = () => <span className="text-sm text-muted-foreground">—</span>;

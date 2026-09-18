@@ -25,7 +25,7 @@ export function ServiceHistory({ items }: { items: MyServiceDTO[] }) {
                 open={index === 0}
                 className="group py-3 first:pt-0 last:pb-0"
               >
-                <summary className="flex cursor-pointer list-none items-center gap-2 rounded-2xl outline-none focus-visible:ring-3 focus-visible:ring-ring/30">
+                <summary className="flex cursor-pointer list-none items-center gap-2 rounded-2xl outline-none focus-visible:focus-ring">
                   <ChevronRight
                     aria-hidden="true"
                     className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-90"

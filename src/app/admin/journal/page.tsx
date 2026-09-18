@@ -97,7 +97,7 @@ export default async function AdminJournalPage({
                         {AUDIT_ACTION_LABELS[entry.action]}
                       </Badge>
                     </TableCell>
-                    <TableCell className="font-medium">
+                    <TableCell className="font-medium whitespace-normal">
                       {entry.targetType === "user" ? (
                         <Link
                           href={`/admin/users/${entry.targetId}`}
@@ -109,7 +109,7 @@ export default async function AdminJournalPage({
                         entry.targetLabel
                       )}
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                    <TableCell className="min-w-64 text-sm whitespace-normal text-muted-foreground">
                       {entry.detail ?? "—"}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
