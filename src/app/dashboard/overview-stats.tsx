@@ -7,10 +7,13 @@ export async function OverviewStats({ organizationId }: { organizationId: string
   const now = new Date();
   const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
-  const [activeServices, callsThisMonth] = await Promise.all([
+  const [activeServices, settingUpCount, callsThisMonth] = await Promise.all([
     db.clientService.findMany({
       where: { organizationId, status: "ACTIVE" },
       select: { service: { select: { monthlyPriceCents: true } } },
+    }),
+    db.clientService.count({
+      where: { organizationId, status: { in: ["PENDING_PAYMENT", "CONFIGURING"] } },
     }),
     db.usageEvent.count({
       where: {
@@ -27,10 +30,30 @@ export async function OverviewStats({ organizationId }: { organizationId: string
     0
   );
 
+  const settingUpNote =
+    settingUpCount > 0
+      ? `+ ${settingUpCount} en cours d'installation`
+      : null;
+
   const stats = [
-    { icon: Zap, label: "Solutions actives", value: String(activeServices.length) },
-    { icon: Wallet, label: "Dépense mensuelle", value: formatPrice(null, monthlySpendCents) },
-    { icon: PhoneCall, label: "Appels ce mois-ci", value: String(callsThisMonth) },
+    {
+      icon: Zap,
+      label: "Solutions actives",
+      value: String(activeServices.length),
+      note: settingUpNote,
+    },
+    {
+      icon: Wallet,
+      label: "Dépense mensuelle",
+      value: formatPrice(null, monthlySpendCents),
+      note: settingUpNote ? "Hors solutions en cours d'installation" : null,
+    },
+    {
+      icon: PhoneCall,
+      label: "Appels ce mois-ci",
+      value: String(callsThisMonth),
+      note: null,
+    },
   ];
 
   return (
@@ -52,6 +75,9 @@ export async function OverviewStats({ organizationId }: { organizationId: string
               <p className="mt-1.5 text-2xl font-semibold tabular-nums text-foreground sm:text-3xl">
                 {stat.value}
               </p>
+              {stat.note && (
+                <p className="mt-0.5 text-xs text-muted-foreground">{stat.note}</p>
+              )}
             </div>
           ))}
         </div>

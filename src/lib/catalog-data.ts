@@ -155,7 +155,9 @@ export const CATALOG: CatalogService[] = [
       {
         key: "metaConnection",
         label: "Connexion Meta Business",
-        type: "text",
+        type: "connection",
+        helpText:
+          "Rien à saisir ici : la connexion se fait après l'activation, depuis la page de la solution.",
       },
       { key: "faq", label: "Questions fréquentes", type: "textarea" },
     ],
@@ -181,7 +183,9 @@ export const CATALOG: CatalogService[] = [
       {
         key: "metaConnection",
         label: "Connexion Meta Business",
-        type: "text",
+        type: "connection",
+        helpText:
+          "Rien à saisir ici : la connexion se fait après l'activation, depuis la page de la solution.",
       },
       { key: "faq", label: "Questions fréquentes", type: "textarea" },
     ],
@@ -207,7 +211,9 @@ export const CATALOG: CatalogService[] = [
       {
         key: "metaConnection",
         label: "Connexion Meta Business",
-        type: "text",
+        type: "connection",
+        helpText:
+          "Rien à saisir ici : la connexion se fait après l'activation, depuis la page de la solution.",
       },
       { key: "faq", label: "Questions fréquentes", type: "textarea" },
     ],
