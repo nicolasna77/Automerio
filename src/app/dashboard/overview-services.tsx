@@ -29,7 +29,7 @@ export async function OverviewServices({
           <CardTitle className="text-base">Vos solutions</CardTitle>
           <Link
             href="/dashboard/prestations"
-            className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+            className="relative touch-hitbox rounded-sm text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:focus-ring"
           >
             Tout voir
           </Link>
@@ -49,7 +49,7 @@ export async function OverviewServices({
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-2">
-                      <p className="truncate font-medium text-foreground">
+                      <p className="line-clamp-2 min-w-0 font-medium text-foreground">
                         <Link
                           href={`/dashboard/services/${item.clientServiceId}`}
                           className="outline-none after:absolute after:inset-0 hover:underline focus-visible:underline"

@@ -39,7 +39,7 @@ export default async function PaiementsPage() {
     requireUser(),
     requireActiveOrganization(),
   ]);
-  const [invoices, failing, customer] = await Promise.all([
+  const [invoices, failing, customer, activatedCount] = await Promise.all([
     getMyInvoices(session.user.id, organization.id),
     db.clientService.findMany({
       where: { organizationId: organization.id, paymentFailedAt: { not: null } },
@@ -49,6 +49,7 @@ export default async function PaiementsPage() {
       where: { id: session.user.id },
       select: { stripeCustomerId: true },
     }),
+    db.clientService.count({ where: { organizationId: organization.id } }),
   ]);
 
   return (
@@ -85,8 +86,12 @@ export default async function PaiementsPage() {
       {invoices.length === 0 ? (
         <EmptyState
           icon={FileText}
-          title="Aucun paiement pour l'instant"
-          description="Vos factures apparaîtront ici dès l'activation d'une solution."
+          title="Aucune facture pour l'instant"
+          description={
+            activatedCount > 0
+              ? "Votre première facture apparaîtra ici après le prochain prélèvement."
+              : "Vos factures apparaîtront ici dès l'activation d'une solution."
+          }
         />
       ) : (
         <div className="rounded-3xl border border-border bg-card">

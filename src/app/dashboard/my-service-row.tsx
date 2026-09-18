@@ -62,7 +62,11 @@ export function MyServiceRow({
     <>
       <Card className="relative shadow-sm transition-shadow has-[a:hover]:shadow-md has-[a:focus-visible]:shadow-md has-[a:focus-visible]:focus-ring">
         <CardHeader>
-          <div className="flex items-start gap-3">
+          {/* min-w-0 : CardHeader est une grille, et un enfant de grille refuse
+              par defaut de descendre sous sa largeur min-content. Sans cela le
+              titre et la frise depassent la carte, qui est en overflow-hidden :
+              le texte est coupe, pas defilable. */}
+          <div className="flex min-w-0 items-start gap-3">
             <Icon
               className="mt-0.5 size-5 shrink-0 text-muted-foreground"
               aria-hidden="true"
@@ -70,7 +74,7 @@ export function MyServiceRow({
 
             <div className="min-w-0 flex-1">
               <div className="flex items-start justify-between gap-2">
-                <h3 className="truncate text-base font-semibold text-foreground">
+                <h3 className="line-clamp-2 min-w-0 text-base font-semibold text-foreground">
                   <Link
                     href={`/dashboard/services/${item.clientServiceId}`}
                     className="outline-none after:absolute after:inset-0 hover:underline focus-visible:underline"
