@@ -55,14 +55,14 @@ export default async function PaiementsPage() {
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
       <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
             Paiements
           </h1>
           <p className="mt-1 text-muted-foreground">
             Vos factures, par solution. Prix TTC, TVA à 20 % incluse.
           </p>
         </div>
-        {customer.stripeCustomerId && <BillingPortalButton />}
+        {customer.stripeCustomerId && invoices.length > 0 && <BillingPortalButton />}
       </div>
 
       {failing.length > 0 && (

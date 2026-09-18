@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { LifeBuoy } from "lucide-react";
 import { db } from "@/lib/db";
 import { requireActiveOrganization } from "@/lib/organization";
 import {
@@ -58,27 +57,22 @@ export default async function AidePage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
-      <div className="mb-8 flex items-start gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-          <LifeBuoy className="size-5" aria-hidden="true" />
-        </span>
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-            Aide
-          </h1>
-          <p className="mt-1 text-muted-foreground">
-            Une question sur une solution, un souci technique ? Décrivez-le
-            ci-dessous.
-          </p>
+      <h1 className="text-2xl font-semibold tracking-tight text-foreground">Aide</h1>
+      <p className="mt-1 text-muted-foreground">
+        Une question sur une solution, un souci technique ? L&apos;équipe vous répond ici.
+      </p>
+
+      {historyItems.length > 0 && <HelpRequestHistory items={historyItems} />}
+
+      <section aria-labelledby="new-request-heading" className="mt-10">
+        <h2 id="new-request-heading" className="mb-4 text-lg font-semibold text-foreground">
+          Nouvelle demande
+        </h2>
+        <div className="grid gap-8 lg:grid-cols-[1fr_20rem] lg:gap-12">
+          <HelpRequestForm services={serviceOptions} />
+          <HowItWorks />
         </div>
-      </div>
-
-      <div className="grid gap-8 lg:grid-cols-[1fr_20rem] lg:gap-12">
-        <HelpRequestForm services={serviceOptions} />
-        <HowItWorks />
-      </div>
-
-      <HelpRequestHistory items={historyItems} />
+      </section>
     </div>
   );
 }

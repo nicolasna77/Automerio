@@ -152,7 +152,7 @@ export function CallForwardingGuide({ targetNumber }: { targetNumber: string }) 
             </Button>
           </div>
 
-          <div className="inline-flex items-center gap-0.5 rounded-lg border border-border p-0.5">
+          <div className="inline-flex items-center gap-0.5 rounded-4xl border border-border p-0.5">
             <Button
               type="button"
               variant="ghost"

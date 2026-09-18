@@ -97,7 +97,7 @@ export function OrganizationSwitcher({
                     className="data-active:bg-accent data-active:text-accent-foreground"
                     onClick={() => handleSwitch(organization.id)}
                   >
-                    <span className="flex size-5 shrink-0 items-center justify-center rounded bg-primary/15 text-[11px] font-semibold text-primary">
+                    <span className="flex size-5 shrink-0 items-center justify-center rounded-sm bg-primary/15 text-xs font-semibold text-primary">
                       {orgInitial(organization.name)}
                     </span>
                     <span className="truncate">{organization.name}</span>

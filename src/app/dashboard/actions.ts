@@ -9,6 +9,7 @@ import { getSession } from "@/lib/session";
 import {
   findMissingRequiredField,
   TELEPHONY_SERVICE_SLUGS,
+  withCleanProductCatalog,
   type ConfigField,
   type Configuration,
 } from "@/lib/catalog";
@@ -186,7 +187,7 @@ export async function activateService(
           serviceId,
           name: trimmedName,
           status: "PENDING_PAYMENT",
-          configuration,
+          configuration: withCleanProductCatalog(configuration),
           promoCode: promotion?.code ?? null,
         },
       });
@@ -345,7 +346,7 @@ export async function updateServiceConfiguration(
 
     await db.clientService.update({
       where: { id: clientServiceId },
-      data: { configuration },
+      data: { configuration: withCleanProductCatalog(configuration) },
     });
     await logServiceEvent(clientServiceId, "CONFIGURATION_UPDATED");
 

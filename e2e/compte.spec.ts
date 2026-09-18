@@ -13,16 +13,16 @@ test("une erreur de validation serveur reste lisible en production", async ({ pa
   await expect(page.getByText(/Minified React error/)).toHaveCount(0);
 });
 
-test("la fenêtre d'activation propose le nom de la solution", async ({ page }) => {
+test("la page d'activation propose le nom de la solution", async ({ page }) => {
   await page.goto("/dashboard/prestations");
-  await page.getByRole("button", { name: "Découvrir les solutions" }).click();
-  await page.getByRole("button", { name: /^Activer( à nouveau)?$/ }).first().click();
+  const catalogue = page.getByRole("region", { name: "Catalogue" });
+  await catalogue.getByRole("link", { name: /^Activer( à nouveau)? / }).first().click();
+  await page.waitForURL(/\/dashboard\/prestations\/activer\/[^/]+$/);
 
-  const dialog = page.getByRole("dialog");
-  const title = (await dialog.getByRole("heading").first().textContent()) ?? "";
-  const serviceName = title.match(/« (.+) »/)?.[1];
+  const title = (await page.getByRole("heading", { level: 1 }).textContent()) ?? "";
+  const serviceName = title.replace(/^Activer /, "");
   expect(serviceName).toBeTruthy();
-  await expect(dialog.getByLabel("Nom de cette activation")).toHaveValue(serviceName!);
+  await expect(page.getByLabel("Nom de cette activation")).toHaveValue(serviceName);
 });
 
 test("le profil propose la double authentification et l'export", async ({ page }) => {

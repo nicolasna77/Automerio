@@ -60,11 +60,11 @@ export function AccountDataSection({ requiresPassword }: { requiresPassword: boo
   }
 
   return (
-    <ProfileSection
-      title="Vos données"
-      description="Téléchargez tout ce qu'Automerio conserve sur vous, ou supprimez définitivement votre compte."
-    >
-      <div className="flex flex-wrap gap-2">
+    <>
+      <ProfileSection
+        title="Vos données"
+        description="Téléchargez tout ce qu'Automerio conserve sur vous, dans un fichier lisible."
+      >
         <Button
           variant="outline"
           nativeButton={false}
@@ -73,70 +73,76 @@ export function AccountDataSection({ requiresPassword }: { requiresPassword: boo
           <Download aria-hidden="true" data-icon="inline-start" />
           Exporter mes données
         </Button>
+      </ProfileSection>
+
+      <ProfileSection
+        title="Supprimer le compte"
+        description="Résilie vos abonnements et efface vos organisations, solutions et échanges. Cette action est définitive."
+      >
         <Button variant="destructive" onClick={() => setConfirmOpen(true)}>
           Supprimer mon compte
         </Button>
-      </div>
 
-      <AlertDialog
-        open={confirmOpen}
-        onOpenChange={(open) => {
-          setConfirmOpen(open);
-          if (!open) reset();
-        }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Supprimer définitivement votre compte ?</AlertDialogTitle>
-            <AlertDialogDescription render={<div />}>
-              <ul className="list-disc space-y-1 pl-5 text-left">
-                <li>Vos abonnements en cours sont résiliés immédiatement.</li>
-                <li>Les numéros de téléphone attribués à l&apos;IA sont libérés.</li>
-                <li>Vos organisations, solutions et échanges sont effacés.</li>
-                <li>Les factures restent conservées par Stripe, comme l&apos;exige la loi.</li>
-              </ul>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
+        <AlertDialog
+          open={confirmOpen}
+          onOpenChange={(open) => {
+            setConfirmOpen(open);
+            if (!open) reset();
+          }}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Supprimer définitivement votre compte ?</AlertDialogTitle>
+              <AlertDialogDescription render={<div />}>
+                <ul className="list-disc space-y-1 pl-5 text-left">
+                  <li>Vos abonnements en cours sont résiliés immédiatement.</li>
+                  <li>Les numéros de téléphone attribués à l&apos;IA sont libérés.</li>
+                  <li>Vos organisations, solutions et échanges sont effacés.</li>
+                  <li>Les factures restent conservées par Stripe, comme l&apos;exige la loi.</li>
+                </ul>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
 
-          <div className="grid gap-4">
-            {requiresPassword && (
+            <div className="grid gap-4">
+              {requiresPassword && (
+                <div className="space-y-2">
+                  <Label htmlFor="delete-password">Mot de passe</Label>
+                  <Input
+                    id="delete-password"
+                    type="password"
+                    autoComplete="current-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+              )}
               <div className="space-y-2">
-                <Label htmlFor="delete-password">Mot de passe</Label>
+                <Label htmlFor="delete-confirmation">
+                  Tapez {CONFIRMATION_WORD} pour confirmer
+                </Label>
                 <Input
-                  id="delete-password"
-                  type="password"
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  id="delete-confirmation"
+                  autoComplete="off"
+                  value={confirmation}
+                  onChange={(e) => setConfirmation(e.target.value)}
                 />
               </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="delete-confirmation">
-                Tapez {CONFIRMATION_WORD} pour confirmer
-              </Label>
-              <Input
-                id="delete-confirmation"
-                autoComplete="off"
-                value={confirmation}
-                onChange={(e) => setConfirmation(e.target.value)}
-              />
             </div>
-          </div>
 
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>Annuler</AlertDialogCancel>
-            <AlertDialogAction
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={isPending || !canDelete}
-              aria-busy={isPending}
-            >
-              {isPending ? "Suppression…" : "Supprimer mon compte"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </ProfileSection>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isPending}>Annuler</AlertDialogCancel>
+              <AlertDialogAction
+                variant="destructive"
+                onClick={handleDelete}
+                disabled={isPending || !canDelete}
+                aria-busy={isPending}
+              >
+                {isPending ? "Suppression…" : "Supprimer mon compte"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </ProfileSection>
+    </>
   );
 }

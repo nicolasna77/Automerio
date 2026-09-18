@@ -57,6 +57,9 @@ const DEFAULT_DURATION_MIN = 30;
 const DEFAULT_START_HOUR = 8;
 const DEFAULT_END_HOUR = 20;
 const HOUR_ROW_PX = 56;
+const EVENT_MIN_HEIGHT_PX = 22;
+const EVENT_COMPACT_BELOW_PX = 26;
+const EVENT_TWO_LINES_MIN_PX = 40;
 
 const WEEK_OPTS = { weekStartsOn: 1 } as const;
 
@@ -209,7 +212,7 @@ export function BookingsCalendar({
               {unscheduled.length} sans horaire
             </Button>
           )}
-          <div className="flex shrink-0 items-center gap-0.5 rounded-lg border border-border p-0.5">
+          <div className="flex shrink-0 items-center gap-0.5 rounded-4xl border border-border p-0.5">
             {(Object.keys(VIEW_LABELS) as ViewMode[]).map((mode) => (
               <Button
                 key={mode}
@@ -227,8 +230,17 @@ export function BookingsCalendar({
         </div>
       </div>
 
+      {scheduled.length === 0 && unscheduled.length === 0 && (
+        <p className="mb-3 shrink-0 text-sm text-muted-foreground">
+          Aucun rendez-vous ni commande pris par téléphone pour l&apos;instant.
+        </p>
+      )}
+
       {view === "month" ? (
-        <div className="grid min-h-0 flex-1 grid-cols-7 grid-rows-[auto_repeat(6,minmax(0,1fr))] gap-px overflow-hidden rounded-2xl border border-border bg-border text-xs">
+        <div
+          className="grid min-h-0 flex-1 grid-cols-7 gap-px overflow-hidden rounded-2xl border border-border bg-border text-xs"
+          style={{ gridTemplateRows: `auto repeat(${monthDays.length / 7}, minmax(0, 1fr))` }}
+        >
           {WEEKDAY_LABELS.map((label) => (
             <div
               key={label}
@@ -255,7 +267,7 @@ export function BookingsCalendar({
               >
                 <span
                   className={cn(
-                    "flex size-5 shrink-0 items-center justify-center rounded-full text-[11px]",
+                    "flex size-5 shrink-0 items-center justify-center rounded-full text-xs",
                     isToday(day)
                       ? "bg-primary text-primary-foreground"
                       : inMonth
@@ -269,13 +281,13 @@ export function BookingsCalendar({
                   {items.slice(0, MAX_CHIPS_PER_DAY).map((item) => (
                     <span
                       key={item.id}
-                      className="truncate rounded bg-primary/10 px-1 py-0.5 text-[10px] text-primary"
+                      className="truncate rounded-sm bg-primary/10 px-1 py-px text-xs text-primary"
                     >
                       {format(item.date, "HH:mm")} {item.title}
                     </span>
                   ))}
                   {items.length > MAX_CHIPS_PER_DAY && (
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       +{items.length - MAX_CHIPS_PER_DAY}
                     </span>
                   )}
@@ -315,7 +327,7 @@ export function BookingsCalendar({
                   <div
                     key={hour}
                     style={{ height: HOUR_ROW_PX }}
-                    className="border-b border-border px-2 pt-1 text-right text-[11px] text-muted-foreground last:border-b-0"
+                    className="border-b border-border px-2 pt-1 text-right text-xs text-muted-foreground last:border-b-0"
                   >
                     {String(hour).padStart(2, "0")}:00
                   </div>
@@ -340,42 +352,45 @@ export function BookingsCalendar({
                         style={{ top: i * HOUR_ROW_PX, height: HOUR_ROW_PX }}
                       />
                     ))}
-                    {layoutDay(items).map(({ item, col, totalCols, start, end }) => (
-                      <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => setDetail(item)}
-                        title={`${format(item.date, "HH:mm")} — ${item.title}`}
-                        className="absolute overflow-hidden rounded-lg border border-primary/30 bg-primary/10 p-1.5 text-left text-[11px] leading-tight text-primary transition-colors hover:bg-primary/20"
-                        style={{
-                          top: ((start - dayStart) / 3_600_000) * HOUR_ROW_PX,
-                          height: Math.max(((end - start) / 3_600_000) * HOUR_ROW_PX, 22),
-                          left: `calc(${(col / totalCols) * 100}% + 2px)`,
-                          width: `calc(${(1 / totalCols) * 100}% - 4px)`,
-                        }}
-                      >
-                        <span className="block truncate font-medium">
-                          {format(item.date, "HH:mm")} {item.title}
-                        </span>
-                        {item.subtitle && (
-                          <span className="block truncate text-primary/70">
-                            {item.subtitle}
+                    {layoutDay(items).map(({ item, col, totalCols, start, end }) => {
+                      const height = Math.max(
+                        ((end - start) / 3_600_000) * HOUR_ROW_PX,
+                        EVENT_MIN_HEIGHT_PX
+                      );
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => setDetail(item)}
+                          title={`${format(item.date, "HH:mm")} — ${item.title}${item.subtitle ? ` · ${item.subtitle}` : ""}`}
+                          className={cn(
+                            "absolute overflow-hidden rounded-lg border border-primary/30 bg-primary/10 px-1.5 text-left text-xs leading-tight text-primary transition-colors hover:bg-primary/20",
+                            height < EVENT_COMPACT_BELOW_PX ? "py-0.5" : "py-1"
+                          )}
+                          style={{
+                            top: ((start - dayStart) / 3_600_000) * HOUR_ROW_PX,
+                            height,
+                            left: `calc(${(col / totalCols) * 100}% + 2px)`,
+                            width: `calc(${(1 / totalCols) * 100}% - 4px)`,
+                          }}
+                        >
+                          <span className="block truncate font-medium">
+                            {format(item.date, "HH:mm")} {item.title}
                           </span>
-                        )}
-                      </button>
-                    ))}
+                          {item.subtitle && height >= EVENT_TWO_LINES_MIN_PX && (
+                            <span className="block truncate text-primary/70">
+                              {item.subtitle}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 );
               })}
             </div>
           </div>
         </div>
-      )}
-
-      {scheduled.length === 0 && unscheduled.length === 0 && (
-        <p className="mt-3 shrink-0 text-sm text-muted-foreground">
-          Aucun rendez-vous ni commande pris par téléphone pour l&apos;instant.
-        </p>
       )}
 
       <Dialog open={detail !== null} onOpenChange={(open) => !open && setDetail(null)}>

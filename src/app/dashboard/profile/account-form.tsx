@@ -54,6 +54,10 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
   const [image, setImage] = useState(initialAccount.image);
   const [isPending, startTransition] = useTransition();
   const [isProcessingImage, setIsProcessingImage] = useState(false);
+  const [changingEmail, setChangingEmail] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [emailRequestedFor, setEmailRequestedFor] = useState<string | null>(null);
+  const [isRequestingEmail, startEmailRequest] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const initials = name
@@ -89,6 +93,27 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
     }
   }
 
+  function handleEmailChange() {
+    const email = newEmail.trim();
+    if (!email || email.toLowerCase() === initialAccount.email.toLowerCase()) {
+      toast.error("Saisissez une adresse différente de l'actuelle.");
+      return;
+    }
+    startEmailRequest(async () => {
+      const { error } = await authClient.changeEmail({
+        newEmail: email,
+        callbackURL: "/dashboard/profile",
+      });
+      if (error) {
+        toast.error(error.message ?? "La demande n'a pas pu être envoyée.");
+        return;
+      }
+      setEmailRequestedFor(email);
+      setChangingEmail(false);
+      setNewEmail("");
+    });
+  }
+
   function handleSave() {
     startTransition(async () => {
       const { error } = await authClient.updateUser({
@@ -112,7 +137,7 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
           onClick={() => fileInputRef.current?.click()}
           disabled={isProcessingImage}
           aria-label="Changer la photo de profil"
-          className="group relative size-20 shrink-0 overflow-hidden rounded-full border border-border bg-muted outline-none focus-visible:ring-3 focus-visible:ring-ring/30"
+          className="group relative size-20 shrink-0 overflow-hidden rounded-full border border-border bg-muted outline-none focus-visible:focus-ring"
         >
           {image ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -139,9 +164,9 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
         />
 
         <div className="min-w-0">
-          <h1 className="truncate text-xl font-semibold tracking-tight text-foreground">
+          <p className="truncate text-xl font-semibold tracking-tight text-foreground">
             {name || "Votre nom"}
-          </h1>
+          </p>
           <p className="truncate text-sm text-muted-foreground">
             {initialAccount.email}
           </p>
@@ -162,37 +187,75 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
       <div className="mt-8">
         <ProfileSection
           title="Vos informations"
-          description="Le nom qui apparaît dans vos échanges avec l'équipe Automerio."
-          action={
-            <Button
-              onClick={handleSave}
-              disabled={!isDirty || isPending}
-              aria-busy={isPending}
-            >
-              {isPending ? "Enregistrement…" : "Enregistrer"}
-            </Button>
-          }
+          description="Le nom et la photo qui apparaissent dans vos échanges avec l'équipe Automerio."
         >
           <div className="grid gap-4 sm:max-w-md">
             <div className="space-y-2">
               <Label htmlFor="name">Nom</Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
+              <div className="flex flex-wrap gap-2">
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="min-w-48 flex-1"
+                />
+                <Button onClick={handleSave} disabled={!isDirty || isPending} aria-busy={isPending}>
+                  {isPending ? "Enregistrement…" : "Enregistrer"}
+                </Button>
+              </div>
+              {isDirty && image !== initialAccount.image && (
+                <p className="text-xs text-muted-foreground">
+                  Enregistrez pour appliquer la nouvelle photo.
+                </p>
+              )}
             </div>
-            <div className="space-y-1">
+            <div className="space-y-2">
               <p className="text-sm font-medium text-foreground">E-mail</p>
-              <p className="text-sm text-muted-foreground">
-                {initialAccount.email} — écrivez-nous depuis{" "}
-                <a
-                  href="/dashboard/aide"
-                  className="text-primary underline-offset-4 hover:underline"
+              {changingEmail ? (
+                <form
+                  className="space-y-2"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleEmailChange();
+                  }}
                 >
-                  le centre d&apos;aide
-                </a>{" "}
-                pour en changer.
+                  <Label htmlFor="new-email" className="font-normal text-muted-foreground">
+                    Nouvelle adresse
+                  </Label>
+                  <Input
+                    id="new-email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={newEmail}
+                    onChange={(e) => setNewEmail(e.target.value)}
+                  />
+                  <div className="flex flex-wrap gap-2">
+                    <Button type="submit" disabled={isRequestingEmail} aria-busy={isRequestingEmail}>
+                      {isRequestingEmail ? "Envoi…" : "Recevoir le lien de confirmation"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setChangingEmail(false)}
+                      disabled={isRequestingEmail}
+                    >
+                      Annuler
+                    </Button>
+                  </div>
+                </form>
+              ) : (
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <p className="text-sm text-foreground">{initialAccount.email}</p>
+                  <Button type="button" variant="outline" size="sm" onClick={() => setChangingEmail(true)}>
+                    Changer d&apos;adresse
+                  </Button>
+                </div>
+              )}
+              <p role="status" className="text-xs text-muted-foreground empty:hidden">
+                {emailRequestedFor
+                  ? `Un lien de confirmation a été envoyé à ${initialAccount.email}. Une fois confirmé, un second lien vérifiera ${emailRequestedFor}.`
+                  : ""}
               </p>
             </div>
           </div>

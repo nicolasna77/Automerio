@@ -1,6 +1,10 @@
+import Link from "next/link";
+import { Settings2 } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   asStringArray,
+  canEditConfiguration,
   FACEBOOK_SERVICE_SLUG,
   INSTAGRAM_SERVICE_SLUG,
   TELEPHONY_SERVICE_SLUGS,
@@ -11,7 +15,6 @@ import { ServiceFacts, hasServiceFacts } from "@/components/service-facts";
 import { CalendarConnection } from "./calendar-connection";
 import { CallActivity } from "./call-activity";
 import { CallForwardingGuide } from "./call-forwarding-guide";
-import { ConfigureButton } from "./configure-button";
 import { InstagramConnection } from "./instagram-connection";
 import { MessengerConnection } from "./messenger-connection";
 import { UsageCounter } from "./usage-counter";
@@ -24,9 +27,7 @@ export function ServiceDetailTable({ item }: { item: MyServiceDTO }) {
   const takesAppointments = asStringArray(
     item.configuration.objectives
   ).includes("appointment");
-  const canEditConfig =
-    (item.status === "ACTIVE" || item.status === "CONFIGURING") &&
-    item.service.configFields.length > 0;
+  const canEditConfig = canEditConfiguration(item);
   const showCalendarRow = isLive && takesAppointments && item.calendarConnected;
   const isDeployedStatus = item.status === "ACTIVE" || item.status === "CONFIGURING";
   const isWhatsApp = item.service.slug === WHATSAPP_SERVICE_SLUG;
@@ -80,7 +81,15 @@ export function ServiceDetailTable({ item }: { item: MyServiceDTO }) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
             <CardTitle className="text-base">Configuration</CardTitle>
-            {canEditConfig && <ConfigureButton item={item} />}
+            {canEditConfig && (
+              <Link
+                href={`/dashboard/services/${item.clientServiceId}/configuration`}
+                className={buttonVariants({ variant: "outline", size: "sm" })}
+              >
+                <Settings2 aria-hidden="true" data-icon="inline-start" />
+                Modifier
+              </Link>
+            )}
           </CardHeader>
           <CardContent className="space-y-5">
             {!hasFacts && (

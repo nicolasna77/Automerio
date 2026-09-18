@@ -7,7 +7,7 @@ export default function Loading() {
 
       <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-4">
-          <Skeleton className="size-11 shrink-0 rounded-md" />
+          <Skeleton className="size-11 shrink-0 rounded-lg" />
           <div>
             <Skeleton className="h-7 w-64" />
             <Skeleton className="mt-2 h-5 w-32" />

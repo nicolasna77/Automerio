@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { Check } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import {
@@ -9,11 +11,14 @@ import {
   needsFacebookConnection,
   needsInstagramConnection,
   needsPhoneNumber,
+  needsProductCatalog,
+  PRODUCT_CATALOG_FIELD_KEY,
   needsWhatsAppConnection,
   TELEPHONY_SERVICE_SLUGS,
   WHATSAPP_SERVICE_SLUG,
   type MyServiceDTO,
 } from "@/lib/catalog";
+import { countCatalogItems, readProductCatalog } from "@/lib/product-catalog";
 import { CalendarConnection } from "./calendar-connection";
 import { InstagramConnection } from "./instagram-connection";
 import { MessengerConnection } from "./messenger-connection";
@@ -27,9 +32,9 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
   const isWhatsApp = item.service.slug === WHATSAPP_SERVICE_SLUG;
   const isFacebook = item.service.slug === FACEBOOK_SERVICE_SLUG;
   const isInstagram = item.service.slug === INSTAGRAM_SERVICE_SLUG;
-  const takesAppointments = asStringArray(
-    item.configuration.objectives
-  ).includes("appointment");
+  const objectives = asStringArray(item.configuration.objectives);
+  const takesAppointments = objectives.includes("appointment");
+  const takesOrders = objectives.includes("order");
 
   const paid = item.status !== "PENDING_PAYMENT";
   const hasNumber = Boolean(item.externalPhoneNumber);
@@ -40,6 +45,9 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
   const whatsappDone = !isWhatsApp || item.whatsappConnected;
   const facebookDone = !isFacebook || item.facebookConnected;
   const instagramDone = !isInstagram || item.instagramConnected;
+  const catalogDone =
+    !takesOrders ||
+    countCatalogItems(readProductCatalog(item.configuration[PRODUCT_CATALOG_FIELD_KEY])) > 0;
   if (
     paid &&
     phoneDone &&
@@ -47,6 +55,7 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
     whatsappDone &&
     facebookDone &&
     instagramDone &&
+    catalogDone &&
     verified
   )
     return null;
@@ -65,6 +74,7 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
     ...(isInstagram
       ? [{ label: "Compte Instagram connecté", done: item.instagramConnected }]
       : []),
+    ...(takesOrders ? [{ label: "Carte ajoutée", done: catalogDone }] : []),
     ...(takesAppointments
       ? [{ label: "Agenda connecté", done: item.calendarConnected }]
       : []),
@@ -76,11 +86,18 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
   const nextIsFacebook = !nextIsPhone && !nextIsWhatsApp && needsFacebookConnection(item);
   const nextIsInstagram =
     !nextIsPhone && !nextIsWhatsApp && !nextIsFacebook && needsInstagramConnection(item);
+  const nextIsCatalog =
+    !nextIsPhone &&
+    !nextIsWhatsApp &&
+    !nextIsFacebook &&
+    !nextIsInstagram &&
+    needsProductCatalog(item);
   const nextIsCalendar =
     !nextIsPhone &&
     !nextIsWhatsApp &&
     !nextIsFacebook &&
     !nextIsInstagram &&
+    !nextIsCatalog &&
     needsCalendarConnection(item);
   const waitingOnAutomerio =
     paid &&
@@ -89,6 +106,7 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
     whatsappDone &&
     facebookDone &&
     instagramDone &&
+    catalogDone &&
     !verified;
 
   return (
@@ -191,6 +209,24 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
               connected={item.instagramConnected}
               username={item.instagramUsername}
             />
+          </div>
+        )}
+
+        {nextIsCatalog && (
+          <div className="rounded-2xl border border-border bg-muted/40 p-4">
+            <p className="text-sm font-medium text-foreground">
+              Ajoutez votre carte
+            </p>
+            <p className="mt-1 mb-3 text-sm text-muted-foreground">
+              Sans carte, l&apos;IA note les coordonnées de vos clients mais ne
+              prend pas leurs commandes. Une photo ou un PDF suffit.
+            </p>
+            <Link
+              href={`/dashboard/services/${item.clientServiceId}/configuration`}
+              className={buttonVariants({ size: "sm" })}
+            >
+              Ajouter ma carte
+            </Link>
           </div>
         )}
 

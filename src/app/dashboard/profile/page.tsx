@@ -31,16 +31,18 @@ export default async function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
+      <h1 className="text-2xl font-semibold tracking-tight text-foreground">Profil</h1>
+      <p className="mt-1 mb-8 text-muted-foreground">
+        Vos informations, vos e-mails et la sécurité de votre compte.
+      </p>
       <AccountForm initialAccount={initialAccount} />
+      <p className="-mt-4 mb-4 text-sm text-muted-foreground">
+        Vos entreprises se gèrent depuis le sélecteur d&apos;organisation, en haut de la barre latérale.
+      </p>
       <NotificationPreferencesForm initialPreferences={initialPreferences} />
       {hasPassword && <PasswordForm />}
       <TwoFactorSection enabled={!!user.twoFactorEnabled} requiresPassword={hasPassword} />
       <AccountDataSection requiresPassword={hasPassword} />
-
-      <p className="mt-10 text-sm text-muted-foreground">
-        Vos entreprises se gèrent depuis le sélecteur d&apos;organisation, en
-        haut de la barre latérale.
-      </p>
     </div>
   );
 }

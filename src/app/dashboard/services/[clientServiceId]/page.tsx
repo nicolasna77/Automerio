@@ -76,7 +76,7 @@ export default async function ServiceDetailPage({
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-4">
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <Icon className="size-5" aria-hidden="true" />
           </span>
           <div className="min-w-0 flex-1">

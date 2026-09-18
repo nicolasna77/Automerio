@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader } from "@/components/ui/card";
 import {
+  canEditConfiguration,
   describeServiceStatus,
   formatPrice,
   setupHint,
@@ -34,18 +35,14 @@ import { UsageCounter } from "./usage-counter";
 
 export function MyServiceRow({
   item,
-  onManage,
 }: {
   item: MyServiceDTO;
-  onManage: () => void;
 }) {
   const [isCanceling, startCancelTransition] = useTransition();
   const [confirmCancel, setConfirmCancel] = useState(false);
   const { service, status } = item;
   const Icon = SERVICE_ICONS[service.slug] ?? Bot;
-  const canManageConfig =
-    (status === "ACTIVE" || status === "CONFIGURING") &&
-    service.configFields.length > 0;
+  const canManageConfig = canEditConfiguration(item);
   const canUnsubscribe = status === "ACTIVE" || status === "CONFIGURING";
   const hint = setupHint(item);
 
@@ -63,7 +60,7 @@ export function MyServiceRow({
 
   return (
     <>
-      <Card className="relative shadow-sm transition-shadow has-[a:hover]:shadow-md has-[a:focus-visible]:shadow-md has-[a:focus-visible]:ring-3 has-[a:focus-visible]:ring-ring/30">
+      <Card className="relative shadow-sm transition-shadow has-[a:hover]:shadow-md has-[a:focus-visible]:shadow-md has-[a:focus-visible]:focus-ring">
         <CardHeader>
           <div className="flex items-start gap-3">
             <Icon
@@ -175,7 +172,12 @@ export function MyServiceRow({
         {(canManageConfig || canUnsubscribe) && (
           <CardFooter className="relative z-10 mt-auto flex-col gap-2">
             {canManageConfig && (
-              <Button className="w-full" variant="outline" onClick={onManage}>
+              <Button
+                className="w-full"
+                variant="outline"
+                nativeButton={false}
+                render={<Link href={`/dashboard/services/${item.clientServiceId}/configuration`} />}
+              >
                 <Settings2 aria-hidden="true" data-icon="inline-start" />
                 Gérer la configuration
               </Button>

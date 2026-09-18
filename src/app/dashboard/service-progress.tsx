@@ -35,7 +35,7 @@ export function ServiceProgress({ status }: { status: ClientServiceStatus }) {
               />
               <span
                 className={cn(
-                  "text-[11px] whitespace-nowrap",
+                  "text-xs whitespace-nowrap",
                   current
                     ? "font-medium text-foreground"
                     : done

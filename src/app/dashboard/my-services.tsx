@@ -18,7 +18,6 @@ import {
   type ClientServiceStatus,
   type MyServiceDTO,
 } from "@/lib/catalog";
-import { ManageConfigurationDialog } from "./manage-configuration-dialog";
 import { MyServiceRow } from "./my-service-row";
 
 const STATUS_PRIORITY: Record<ClientServiceStatus, number> = {
@@ -40,7 +39,6 @@ const VIEW_MODE_STORAGE_KEY = "automerio:my-services-view";
 const LEGACY_VIEW_MODE_STORAGE_KEY = "noveris:my-services-view";
 
 export function MyServices({ items }: { items: MyServiceDTO[] }) {
-  const [managingItem, setManagingItem] = useState<MyServiceDTO | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<ClientServiceStatus | "all">(
@@ -91,12 +89,8 @@ export function MyServices({ items }: { items: MyServiceDTO[] }) {
   }
 
   return (
-    <section aria-labelledby="my-services-heading" className="mb-14">
+    <section aria-labelledby="my-services-heading">
       <div className="mb-5 flex items-start gap-3">
-        <span
-          aria-hidden="true"
-          className="mt-1 h-6 w-1 shrink-0 rounded-full bg-primary"
-        />
         <div>
           <h2
             id="my-services-heading"
@@ -147,7 +141,7 @@ export function MyServices({ items }: { items: MyServiceDTO[] }) {
             </SelectContent>
           </Select>
 
-          <div className="flex shrink-0 items-center gap-0.5 rounded-lg border border-border p-0.5">
+          <div className="flex shrink-0 items-center gap-0.5 rounded-4xl border border-border p-0.5">
             <Button
               type="button"
               variant="ghost"
@@ -178,7 +172,7 @@ export function MyServices({ items }: { items: MyServiceDTO[] }) {
         <EmptyState
           icon={Sparkles}
           title="Vous n'avez encore activé aucune solution"
-          description="Parcourez le catalogue ci-dessus pour démarrer votre première automatisation."
+          description="Choisissez une automatisation dans le catalogue ci-dessous pour démarrer."
         />
       ) : filtered.length === 0 ? (
         <EmptyState
@@ -203,19 +197,11 @@ export function MyServices({ items }: { items: MyServiceDTO[] }) {
           }
         >
           {filtered.map((item) => (
-            <MyServiceRow
-              key={item.clientServiceId}
-              item={item}
-              onManage={() => setManagingItem(item)}
-            />
+            <MyServiceRow key={item.clientServiceId} item={item} />
           ))}
         </div>
       )}
 
-      <ManageConfigurationDialog
-        item={managingItem}
-        onOpenChange={(open) => !open && setManagingItem(null)}
-      />
     </section>
   );
 }
