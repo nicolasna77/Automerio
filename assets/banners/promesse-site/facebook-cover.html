@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Automerio — couvertures Facebook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=swap" rel="stylesheet">
+<style>
+  /* Couleurs reprises de src/app/globals.css (mist + green). */
+  :root {
+    --ink: #090b0c;
+    --paper: #ffffff;
+    --mist-50: #f9fbfb;
+    --mist-300: #d0d6d8;
+    --mist-600: #4b585b;
+    --dark-muted: #9ca8ab;
+    --dark-card: #161b1d;
+    --green-50: #f0fdf4;
+    --green-500: #00c950;
+    --green-700: #008236;
+    --green-950: #032e15;
+  }
+
+  * { box-sizing: border-box; margin: 0; }
+
+  body {
+    display: grid;
+    gap: 40px;
+    justify-content: center;
+    padding: 40px;
+    background: var(--mist-300);
+    font-family: Inter, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* 820 × 312 : couverture Facebook, exportée en 2x. */
+  .banner {
+    position: relative;
+    width: 820px;
+    height: 312px;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .content {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .logo svg { width: 28px; height: 28px; flex-shrink: 0; }
+
+  .eyebrow { font-size: 17px; line-height: 21px; }
+
+  .headline {
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 44px;
+    letter-spacing: -0.035em;
+  }
+
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 44px;
+    padding: 0 22px;
+    border-radius: 999px;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .cta svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Repères : recadrage mobile (554 px centraux) et photo de profil. */
+  body.guides .banner::after {
+    content: "";
+    position: absolute;
+    inset: 0 133px;
+    z-index: 10;
+    border-inline: 2px dashed #ff2d55;
+    pointer-events: none;
+  }
+  body.guides .banner::before {
+    content: "";
+    position: absolute;
+    left: 16px;
+    bottom: -84px;
+    z-index: 10;
+    width: 168px;
+    height: 168px;
+    border-radius: 50%;
+    background: rgb(255 45 85 / 0.35);
+    pointer-events: none;
+  }
+
+  /* A — Minimaliste « Faisceau » */
+  .minimaliste { background: var(--paper); color: var(--ink); }
+  .minimaliste .beams {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1600px;
+    transform: translate(-50%, -50%) rotate(-38deg);
+  }
+  .minimaliste .beam-wide { height: 72px; background: rgb(0 130 54 / 0.08); }
+  .minimaliste .beam-thin { height: 26px; margin-top: 38px; background: rgb(0 130 54 / 0.05); }
+  .minimaliste .dots {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(var(--mist-300) 1.2px, transparent 1.4px);
+    background-size: 18px 18px;
+    background-position: 9px 9px;
+    -webkit-mask-image: radial-gradient(ellipse 360px 190px at 50% 50%, transparent 55%, black 100%);
+    mask-image: radial-gradient(ellipse 360px 190px at 50% 50%, transparent 55%, black 100%);
+  }
+  .minimaliste .eyebrow { margin-top: 18px; color: var(--mist-600); }
+  .minimaliste .headline { margin-top: 6px; }
+  .minimaliste .headline span { color: var(--green-700); }
+  .minimaliste .cta { margin-top: 20px; background: var(--green-700); color: var(--green-50); }
+
+  /* B — Géométrique « Réseau » */
+  .reseau { background: var(--ink); color: var(--mist-50); }
+  .reseau .dots {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgb(255 255 255 / 0.09) 1.2px, transparent 1.4px);
+    background-size: 20px 20px;
+    background-position: 10px 6px;
+  }
+  .reseau .glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 320px 170px at 50% 52%, rgb(0 201 80 / 0.12), transparent 70%);
+  }
+  .reseau .network { position: absolute; inset: 0; z-index: 1; }
+  .reseau .network .wire { fill: none; stroke: var(--green-500); stroke-width: 1.5; stroke-opacity: 0.4; stroke-linejoin: round; }
+  .reseau .network .packet { fill: none; stroke: var(--green-500); stroke-width: 2.5; stroke-linecap: round; }
+  .reseau .network .port { fill: var(--green-500); }
+  .reseau .node {
+    position: absolute;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    margin: -20px 0 0 -20px;
+    border: 1px solid rgb(255 255 255 / 0.1);
+    border-radius: 11px;
+    background: var(--dark-card);
+  }
+  .reseau .node svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: var(--green-500);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .reseau .eyebrow { margin-top: 18px; color: var(--dark-muted); }
+  .reseau .headline { margin-top: 6px; }
+  .reseau .headline span { color: var(--green-500); }
+  .reseau .cta { margin-top: 20px; background: var(--green-500); color: var(--green-950); }
+
+  /* C — Typo XXL */
+  .typo-xxl { background: var(--green-700); color: var(--paper); }
+  .typo-xxl .beams {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1600px;
+    transform: translate(-50%, -50%) rotate(-38deg);
+  }
+  .typo-xxl .beam-wide { height: 120px; background: rgb(0 0 0 / 0.14); }
+  .typo-xxl .beam-thin { height: 40px; margin-top: 48px; background: rgb(0 0 0 / 0.09); }
+  .typo-xxl .content {
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 26px 150px 0;
+    text-align: left;
+  }
+  .typo-xxl .logo {
+    height: 36px;
+    padding: 0 14px 0 5px;
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 16px;
+    gap: 8px;
+  }
+  .typo-xxl .logo svg { width: 26px; height: 26px; }
+  .typo-xxl .lead {
+    margin-top: 20px;
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 29px;
+    letter-spacing: -0.02em;
+  }
+  .typo-xxl .giant {
+    margin-top: 2px;
+    font-size: 118px;
+    font-weight: 800;
+    line-height: 104px;
+    letter-spacing: -0.055em;
+  }
+  .typo-xxl .cta {
+    align-self: flex-end;
+    margin-top: 22px;
+    background: var(--paper);
+    color: var(--ink);
+  }
+</style>
+</head>
+<body>
+
+<!-- Monogramme : copie de src/app/icon.svg (clair) et de sa variante sombre du site. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="tile-light" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#008236" />
+      <stop offset="1" stop-color="#004e1d" />
+    </linearGradient>
+    <linearGradient id="tile-dark" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#00c950" />
+      <stop offset="1" stop-color="#007b2e" />
+    </linearGradient>
+    <clipPath id="tile-clip"><rect width="32" height="32" rx="9" /></clipPath>
+    <symbol id="mark-light" viewBox="0 0 32 32">
+      <rect width="32" height="32" rx="9" fill="url(#tile-light)" />
+      <g clip-path="url(#tile-clip)">
+        <g transform="rotate(-38 16 16)">
+          <rect x="-8" y="6" width="48" height="6" fill="#f0fdf4" opacity="0.22" />
+          <rect x="-8" y="14.5" width="48" height="2.4" fill="#f0fdf4" opacity="0.13" />
+        </g>
+      </g>
+      <path d="M9.6 21.8L16 10.2L22.4 21.8M11.48 18.4H20.52" fill="none" stroke="#f0fdf4" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M16 13.6L18.4 18.4H13.6Z" fill="#f0fdf4" opacity="0.45" />
+    </symbol>
+    <symbol id="mark-dark" viewBox="0 0 32 32">
+      <rect width="32" height="32" rx="9" fill="url(#tile-dark)" />
+      <g clip-path="url(#tile-clip)">
+        <g transform="rotate(-38 16 16)">
+          <rect x="-8" y="6" width="48" height="6" fill="#032e15" opacity="0.22" />
+          <rect x="-8" y="14.5" width="48" height="2.4" fill="#032e15" opacity="0.13" />
+        </g>
+      </g>
+      <path d="M9.6 21.8L16 10.2L22.4 21.8M11.48 18.4H20.52" fill="none" stroke="#032e15" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" />
+      <path d="M16 13.6L18.4 18.4H13.6Z" fill="#032e15" opacity="0.45" />
+    </symbol>
+    <symbol id="arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+  </defs>
+</svg>
+
+<section class="banner minimaliste" id="minimaliste">
+  <div class="beams" aria-hidden="true"><div class="beam-wide"></div><div class="beam-thin"></div></div>
+  <div class="dots" aria-hidden="true"></div>
+  <div class="content">
+    <div class="logo"><svg><use href="#mark-light" /></svg>Automerio</div>
+    <p class="eyebrow">Votre entreprise tourne.</p>
+    <h1 class="headline">Vos automatisations<br>s'occupent <span>du reste.</span></h1>
+    <a class="cta" href="https://automerio.fr">Créer mon compte<svg><use href="#arrow-right" /></svg></a>
+  </div>
+</section>
+
+<section class="banner reseau" id="reseau">
+  <div class="dots" aria-hidden="true"></div>
+  <div class="glow" aria-hidden="true"></div>
+  <svg class="network" viewBox="0 0 820 312" aria-hidden="true">
+    <path class="wire" d="M86 70H120V156M86 156H166" />
+    <path class="wire" d="M734 70H700V156M734 156H700M734 242H700V156M700 156H654" />
+    <path class="packet" d="M92 70H108" />
+    <path class="packet" d="M700 196V214" />
+    <path class="packet" d="M672 156H688" />
+    <circle class="port" cx="166" cy="156" r="3" />
+    <circle class="port" cx="654" cy="156" r="3" />
+  </svg>
+  <div class="node" style="left:66px;top:70px"><svg viewBox="0 0 24 24"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/></svg></div>
+  <div class="node" style="left:66px;top:156px"><svg viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="m9 16 2 2 4-4"/></svg></div>
+  <div class="node" style="left:754px;top:70px"><svg viewBox="0 0 24 24"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/></svg></div>
+  <div class="node" style="left:754px;top:156px"><svg viewBox="0 0 24 24"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg></div>
+  <div class="node" style="left:754px;top:242px"><svg viewBox="0 0 24 24"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></div>
+  <div class="content">
+    <div class="logo"><svg><use href="#mark-dark" /></svg>Automerio</div>
+    <p class="eyebrow">Votre entreprise tourne.</p>
+    <h1 class="headline">Vos automatisations<br>s'occupent <span>du reste.</span></h1>
+    <a class="cta" href="https://automerio.fr">Créer mon compte<svg><use href="#arrow-right" /></svg></a>
+  </div>
+</section>
+
+<section class="banner typo-xxl" id="typo-xxl">
+  <div class="beams" aria-hidden="true"><div class="beam-wide"></div><div class="beam-thin"></div></div>
+  <div class="content">
+    <div class="logo"><svg><use href="#mark-light" /></svg>Automerio</div>
+    <p class="lead">Vos automatisations s'occupent</p>
+    <h1 class="giant">du reste.</h1>
+    <a class="cta" href="https://automerio.fr">Créer mon compte<svg><use href="#arrow-right" /></svg></a>
+  </div>
+</section>
+
+<script>
+  if (new URLSearchParams(location.search).has("guides")) document.body.classList.add("guides");
+</script>
+</body>
+</html>
