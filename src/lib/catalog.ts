@@ -1,3 +1,11 @@
+import {
+  countCatalogItems,
+  describeProductCatalog,
+  isProductCatalog,
+  readProductCatalog,
+  type CatalogSection,
+} from "@/lib/product-catalog";
+
 export type ServiceCategory =
   | "COMMUNICATION"
   | "ADMINISTRATION"
@@ -18,6 +26,8 @@ export const TELEPHONY_SERVICE_SLUGS = new Set([
 export const WHATSAPP_SERVICE_SLUG = "assistant-whatsapp";
 export const FACEBOOK_SERVICE_SLUG = "assistant-facebook";
 export const INSTAGRAM_SERVICE_SLUG = "assistant-instagram";
+
+export const PRODUCT_CATALOG_FIELD_KEY = "productCatalog";
 
 export type WeekDay = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
 
@@ -48,7 +58,7 @@ export const DEFAULT_WEEKLY_HOURS: WeeklyHours = WEEK_DAYS.reduce(
 
 export type RuleRow = { trigger: string; target: string };
 
-export type ConfigValue = string | string[] | WeeklyHours | RuleRow[];
+export type ConfigValue = string | string[] | WeeklyHours | RuleRow[] | CatalogSection[];
 export type Configuration = Record<string, ConfigValue>;
 
 export type ConfigField = {
@@ -219,7 +229,10 @@ export type MyServiceDTO = {
   service: ServiceDTO;
 };
 
-export function formatConfigValue(value: ConfigValue): string {
+export function formatConfigValue(value: ConfigValue, key?: string): string {
+  if (key === PRODUCT_CATALOG_FIELD_KEY || isProductCatalog(value)) {
+    return describeProductCatalog(readProductCatalog(value));
+  }
   if (typeof value === "string") return value;
   if (Array.isArray(value)) {
     if (value.length === 0) return "—";
@@ -232,6 +245,20 @@ export function formatConfigValue(value: ConfigValue): string {
     (day) => `${WEEK_DAY_LABELS[day]} ${value[day].open}–${value[day].close}`
   );
   return openDays.length > 0 ? openDays.join(" · ") : "Fermé toute la semaine";
+}
+
+export function formatConfigField(
+  field: ConfigField | undefined,
+  key: string,
+  value: ConfigValue
+): string {
+  const options = field?.options;
+  const labelOf = (raw: string) => options?.find((option) => option.value === raw)?.label ?? raw;
+  if (options && typeof value === "string") return labelOf(value);
+  if (options && Array.isArray(value) && value.every((entry) => typeof entry === "string")) {
+    return value.length > 0 ? (value as string[]).map(labelOf).join(", ") : "—";
+  }
+  return formatConfigValue(value, key);
 }
 
 export function formatDate(date: Date): string {
@@ -275,6 +302,21 @@ type SetupSubject = {
 
 function isDeployable(status: ClientServiceStatus): boolean {
   return status === "ACTIVE" || status === "CONFIGURING";
+}
+
+export function canEditConfiguration(item: {
+  status: ClientServiceStatus;
+  service: { configFields: ConfigField[] };
+}): boolean {
+  return isDeployable(item.status) && item.service.configFields.length > 0;
+}
+
+export function needsProductCatalog(item: SetupSubject): boolean {
+  return (
+    isDeployable(item.status) &&
+    asStringArray(item.configuration.objectives).includes("order") &&
+    countCatalogItems(readProductCatalog(item.configuration[PRODUCT_CATALOG_FIELD_KEY])) === 0
+  );
 }
 
 export function needsPhoneNumber(item: SetupSubject): boolean {
@@ -330,6 +372,9 @@ export function setupHint(item: SetupSubject): string | null {
   if (needsInstagramConnection(item)) {
     return "Connectez votre compte Instagram pour que l'IA puisse répondre";
   }
+  if (needsProductCatalog(item)) {
+    return "Ajoutez votre carte pour que l'IA prenne les commandes";
+  }
   if (needsCalendarConnection(item)) {
     return "Connectez votre agenda pour recevoir les rendez-vous";
   }
@@ -353,9 +398,18 @@ export function isFieldVisible(field: ConfigField, values: Configuration): boole
 
 export function isFieldEmpty(field: ConfigField, values: Configuration): boolean {
   const value = values[field.key];
+  if (field.key === PRODUCT_CATALOG_FIELD_KEY) return countCatalogItems(readProductCatalog(value)) === 0;
   if (typeof value === "string") return !value.trim();
   if (Array.isArray(value)) return value.length === 0;
   return !value;
+}
+
+export function withCleanProductCatalog(configuration: Configuration): Configuration {
+  if (!(PRODUCT_CATALOG_FIELD_KEY in configuration)) return configuration;
+  return {
+    ...configuration,
+    [PRODUCT_CATALOG_FIELD_KEY]: readProductCatalog(configuration[PRODUCT_CATALOG_FIELD_KEY]),
+  };
 }
 
 export function findMissingRequiredField(
@@ -365,6 +419,7 @@ export function findMissingRequiredField(
   return fields.find(
     (field) =>
       field.required &&
+      field.key !== PRODUCT_CATALOG_FIELD_KEY &&
       isFieldVisible(field, values) &&
       isFieldEmpty(field, values)
   );

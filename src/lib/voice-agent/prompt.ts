@@ -6,6 +6,11 @@ import {
   type RuleRow,
   type WeeklyHours,
 } from "@/lib/catalog";
+import {
+  countCatalogItems,
+  formatCatalogForAgent,
+  readProductCatalog,
+} from "@/lib/product-catalog";
 
 function asString(value: Configuration[string] | undefined): string {
   return typeof value === "string" ? value : "";
@@ -93,14 +98,25 @@ function buildPriseRdvPrompt(configuration: Configuration, companyName: string, 
   }
 
   if (takesOrders) {
-    const productCatalog = asString(configuration.productCatalog);
+    const catalog = readProductCatalog(configuration.productCatalog);
     const businessAddress = asString(configuration.businessAddress);
     const deliveryZone = asString(configuration.deliveryZone);
+    if (countCatalogItems(catalog) > 0) {
+      lines.push(
+        "Tu peux enregistrer une commande avec l'outil take_order, après avoir",
+        "confirmé les articles, le nom et le numéro de téléphone de l'appelant, et",
+        "s'il souhaite un retrait ou une livraison. Ne propose que les produits du",
+        "catalogue, aux prix indiqués.",
+        `Catalogue :\n${formatCatalogForAgent(catalog)}`
+      );
+    } else {
+      lines.push(
+        "La carte n'est pas encore renseignée : ne prends aucune commande. Note le",
+        "nom, le numéro et la demande de l'appelant avec l'outil take_message, et",
+        "indique-lui que l'entreprise le rappellera."
+      );
+    }
     lines.push(
-      "Tu peux enregistrer une commande avec l'outil take_order, après avoir",
-      "confirmé les articles, le nom et le numéro de téléphone de l'appelant, et",
-      "s'il souhaite un retrait ou une livraison.",
-      productCatalog ? `Catalogue :\n${productCatalog}` : "",
       businessAddress ? `Adresse (retrait) : ${businessAddress}` : "",
       deliveryZone ? `Zone de livraison : ${deliveryZone}` : ""
     );

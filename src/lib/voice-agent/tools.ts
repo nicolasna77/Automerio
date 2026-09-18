@@ -2,6 +2,7 @@ import OpenAI from "openai";
 import { db } from "@/lib/db";
 import { createCalendarEvent, isSlotFree } from "@/lib/google-calendar";
 import { asStringArray, type Configuration, type RuleRow } from "@/lib/catalog";
+import { countCatalogItems, readProductCatalog } from "@/lib/product-catalog";
 
 function getOpenAIClient() {
   return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -168,7 +169,8 @@ export function getToolDefinitions(
     tools.push(CHECK_AVAILABILITY, BOOK_APPOINTMENT);
   }
   if (objectives.includes("order")) {
-    tools.push(TAKE_ORDER);
+    const hasCatalog = countCatalogItems(readProductCatalog(configuration.productCatalog)) > 0;
+    tools.push(hasCatalog ? TAKE_ORDER : TAKE_MESSAGE);
   }
   return tools;
 }

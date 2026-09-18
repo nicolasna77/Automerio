@@ -2,15 +2,20 @@ import { describe, expect, it } from "vitest";
 import {
   findMissingRequiredField,
   formatCents,
+  formatConfigValue,
   formatPrice,
   isFieldVisible,
   needsCalendarConnection,
   needsFacebookConnection,
   needsInstagramConnection,
   needsPhoneNumber,
+  needsProductCatalog,
   needsWhatsAppConnection,
+  setupHint,
+  withCleanProductCatalog,
   type ConfigField,
 } from "./catalog";
+import { buildSystemPrompt } from "./voice-agent/prompt";
 
 describe("formatCents", () => {
   it("n'affiche pas de décimales inutiles", () => {
@@ -160,5 +165,67 @@ describe("champs obligatoires manquants", () => {
         objectives: ["order"],
       })?.key
     ).toBe("deliveryZone");
+  });
+});
+
+describe("carte produits", () => {
+  const catalog = [
+    {
+      id: "s1",
+      title: "Pizzas",
+      items: [{ id: "a", name: "Margherita", note: "", details: "tomate, mozzarella", priceCents: 990 }],
+    },
+  ];
+  const catalogField: ConfigField = {
+    key: "productCatalog",
+    label: "Menu / catalogue de produits",
+    type: "textarea",
+    required: true,
+    showIf: { key: "objectives", includes: "order" },
+  };
+  const ordering = {
+    status: "CONFIGURING" as const,
+    externalPhoneNumber: "+33123456789",
+    calendarConnected: false,
+    whatsappConnected: false,
+    facebookConnected: false,
+    instagramConnected: false,
+    configuration: { objectives: ["order"] },
+    service: { slug: "prise-rdv-telephone" },
+  };
+
+  it("ne bloque jamais l'enregistrement quand la carte est vide", () => {
+    expect(findMissingRequiredField([catalogField], { objectives: ["order"] })).toBeUndefined();
+  });
+
+  it("réclame la carte une fois la solution payée, tant qu'elle ne contient aucun produit", () => {
+    expect(needsProductCatalog(ordering)).toBe(true);
+    expect(setupHint(ordering)).toBe("Ajoutez votre carte pour que l'IA prenne les commandes");
+    expect(needsProductCatalog({ ...ordering, configuration: { objectives: ["order"], productCatalog: catalog } })).toBe(false);
+    expect(needsProductCatalog({ ...ordering, status: "PENDING_PAYMENT" })).toBe(false);
+    expect(needsProductCatalog({ ...ordering, configuration: { objectives: ["appointment"] } })).toBe(false);
+  });
+
+  it("résume la carte au lieu de l'afficher en entier, même saisie en texte", () => {
+    expect(formatConfigValue(catalog, "productCatalog")).toBe("1 produit");
+    expect(formatConfigValue("Tiramisu — 5 €\nPanna cotta — 4 €", "productCatalog")).toBe("2 produits");
+  });
+
+  it("nettoie la carte avant l'enregistrement sans toucher aux autres réglages", () => {
+    const cleaned = withCleanProductCatalog({
+      objectives: ["order"],
+      productCatalog: [{ id: "s", title: "", items: [{ id: "x", name: " ", note: "", details: "", priceCents: null }] }],
+    });
+    expect(cleaned).toEqual({ objectives: ["order"], productCatalog: [] });
+    expect(withCleanProductCatalog({ objectives: ["order"] })).toEqual({ objectives: ["order"] });
+  });
+
+  it("donne la carte à l'agent vocal, ou lui interdit de prendre commande sans carte", () => {
+    const options = { calendarConnected: false, companyName: "Chez Luigi" };
+    const withCatalog = buildSystemPrompt("prise-rdv-telephone", { objectives: ["order"], productCatalog: catalog }, options);
+    expect(withCatalog).toContain("Catalogue :\nPizzas\n- Margherita — 9,90 € : tomate, mozzarella");
+    const withoutCatalog = buildSystemPrompt("prise-rdv-telephone", { objectives: ["order"] }, options);
+    expect(withoutCatalog).toContain("ne prends aucune commande");
+    expect(withoutCatalog).not.toContain("take_order");
   });
 });

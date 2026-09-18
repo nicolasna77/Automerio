@@ -198,14 +198,18 @@ export function ConfigFieldsForm({
   values,
   onChange,
   submitAttempted = false,
+  omitKeys = [],
 }: {
   fields: ConfigField[];
   values: Configuration;
   onChange: (key: string, value: ConfigValue) => void;
   submitAttempted?: boolean;
+  omitKeys?: string[];
 }) {
   const [touched, setTouched] = useState<Set<string>>(new Set());
-  const visibleFields = fields.filter((field) => isFieldVisible(field, values));
+  const visibleFields = fields.filter(
+    (field) => !omitKeys.includes(field.key) && isFieldVisible(field, values)
+  );
   if (visibleFields.length === 0) return null;
 
   function markTouched(key: string) {

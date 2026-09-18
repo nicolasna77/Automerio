@@ -1,4 +1,4 @@
-import { formatConfigValue, type MyServiceDTO } from "@/lib/catalog";
+import { formatConfigField, type MyServiceDTO } from "@/lib/catalog";
 
 export function Fact({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -40,10 +40,7 @@ export function ServiceFacts({
       )}
       {serviceConfigEntries(item).map(([key, value]) => {
         const field = item.service.configFields.find((f) => f.key === key);
-        const displayValue =
-          field?.type === "select" && typeof value === "string"
-            ? (field.options?.find((o) => o.value === value)?.label ?? value)
-            : formatConfigValue(value);
+        const displayValue = formatConfigField(field, key, value);
         return (
           <Fact key={key} label={field?.label ?? key}>
             {displayValue}
