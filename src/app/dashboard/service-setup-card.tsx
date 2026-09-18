@@ -14,6 +14,7 @@ import {
   needsProductCatalog,
   PRODUCT_CATALOG_FIELD_KEY,
   needsWhatsAppConnection,
+  SETUP_ANCHOR,
   TELEPHONY_SERVICE_SLUGS,
   WHATSAPP_SERVICE_SLUG,
   type MyServiceDTO,
@@ -110,7 +111,7 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
     !verified;
 
   return (
-    <Card>
+    <Card id={SETUP_ANCHOR} className="scroll-mt-24">
       <CardHeader>
         <CardTitle className="text-base">Mise en service</CardTitle>
       </CardHeader>

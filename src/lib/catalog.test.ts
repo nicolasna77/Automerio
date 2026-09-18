@@ -11,6 +11,7 @@ import {
   needsPhoneNumber,
   needsProductCatalog,
   needsWhatsAppConnection,
+  setupAction,
   setupHint,
   withCleanProductCatalog,
   type ConfigField,
@@ -204,6 +205,33 @@ describe("carte produits", () => {
     expect(needsProductCatalog({ ...ordering, configuration: { objectives: ["order"], productCatalog: catalog } })).toBe(false);
     expect(needsProductCatalog({ ...ordering, status: "PENDING_PAYMENT" })).toBe(false);
     expect(needsProductCatalog({ ...ordering, configuration: { objectives: ["appointment"] } })).toBe(false);
+  });
+
+  it("accompagne chaque blocage d'un intitulé d'action pour le bouton", () => {
+    expect(setupAction(ordering)).toEqual({
+      hint: "Ajoutez votre carte pour que l'IA prenne les commandes",
+      cta: "Ajouter ma carte",
+    });
+    expect(setupAction({ ...ordering, externalPhoneNumber: null })?.cta).toBe(
+      "Choisir un numéro"
+    );
+    expect(
+      setupAction({
+        ...ordering,
+        configuration: { objectives: ["appointment"] },
+      })?.cta
+    ).toBe("Connecter mon agenda");
+  });
+
+  it("ne réclame rien quand tout est en place", () => {
+    expect(
+      setupAction({
+        ...ordering,
+        status: "ACTIVE",
+        calendarConnected: true,
+        configuration: { objectives: [] },
+      })
+    ).toBeNull();
   });
 
   it("résume la carte au lieu de l'afficher en entier, même saisie en texte", () => {

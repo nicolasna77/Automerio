@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { Bot, ChevronRight, TriangleAlert } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/status-badge";
 import { db } from "@/lib/db";
-import { setupHint } from "@/lib/catalog";
+import { SETUP_ANCHOR, setupAction } from "@/lib/catalog";
 import { SERVICE_ICONS } from "@/lib/service-icons";
 import { toMyServiceDTO } from "./get-my-service";
 
@@ -38,7 +39,7 @@ export async function OverviewServices({
         <ul className="divide-y divide-border">
           {items.map((item) => {
             const Icon = SERVICE_ICONS[item.service.slug] ?? Bot;
-            const hint = setupHint(item);
+            const action = setupAction(item);
             return (
               <li key={item.clientServiceId} className="relative py-3 first:pt-0 last:pb-0">
                 <div className="flex items-start gap-3">
@@ -65,14 +66,26 @@ export async function OverviewServices({
                         />
                       </div>
                     </div>
-                    {hint && (
-                      <p className="mt-1 flex items-start gap-1.5 text-sm text-foreground">
-                        <TriangleAlert
-                          className="mt-0.5 size-3.5 shrink-0 text-primary"
-                          aria-hidden="true"
-                        />
-                        {hint}
-                      </p>
+                    {action && (
+                      <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-2">
+                        <p className="flex items-start gap-1.5 text-sm text-foreground">
+                          <TriangleAlert
+                            className="mt-0.5 size-3.5 shrink-0 text-primary"
+                            aria-hidden="true"
+                          />
+                          {action.hint}
+                        </p>
+                        <Link
+                          href={`/dashboard/services/${item.clientServiceId}#${SETUP_ANCHOR}`}
+                          className={buttonVariants({
+                            size: "sm",
+                            variant: "outline",
+                            className: "relative z-10",
+                          })}
+                        >
+                          {action.cta}
+                        </Link>
+                      </div>
                     )}
                   </div>
                 </div>

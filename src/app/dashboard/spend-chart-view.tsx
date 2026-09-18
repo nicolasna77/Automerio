@@ -40,22 +40,19 @@ export function SpendChartView({
             </CardTitle>
             <CardDescription>Basé sur vos factures payées.</CardDescription>
           </div>
-          <p className="text-2xl font-semibold tabular-nums text-foreground">
-            {formatCents(totalCents)}
-          </p>
+          {totalCents > 0 && (
+            <p className="text-2xl font-semibold tabular-nums text-foreground">
+              {formatCents(totalCents)}
+            </p>
+          )}
         </div>
       </CardHeader>
       <CardContent>
         {totalCents === 0 ? (
-          <div className="flex h-[240px] flex-col items-center justify-center gap-1 rounded-2xl border border-dashed border-border px-6 text-center">
-            <p className="font-medium text-foreground">
-              Aucune facture payée pour l&apos;instant
-            </p>
-            <p className="max-w-sm text-sm text-muted-foreground">
-              Vos dépenses apparaîtront ici dès le premier prélèvement, mois par
-              mois.
-            </p>
-          </div>
+          <p className="text-sm text-muted-foreground">
+            Vos dépenses apparaîtront ici dès le premier prélèvement, mois par
+            mois.
+          </p>
         ) : (
         <ChartContainer
           config={chartConfig}

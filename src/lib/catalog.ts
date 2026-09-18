@@ -359,26 +359,61 @@ export function needsInstagramConnection(item: SetupSubject): boolean {
   );
 }
 
+export const SETUP_ANCHOR = "mise-en-service";
+
+export type SetupAction = { hint: string; cta: string };
+
+const SETUP_ACTIONS: { needs: (item: SetupSubject) => boolean; action: SetupAction }[] = [
+  {
+    needs: needsPhoneNumber,
+    action: {
+      hint: "Choisissez un numéro pour que l'IA puisse décrocher",
+      cta: "Choisir un numéro",
+    },
+  },
+  {
+    needs: needsWhatsAppConnection,
+    action: {
+      hint: "Connectez votre compte WhatsApp pour que l'IA puisse répondre",
+      cta: "Connecter WhatsApp",
+    },
+  },
+  {
+    needs: needsFacebookConnection,
+    action: {
+      hint: "Connectez votre Page Facebook pour que l'IA puisse répondre",
+      cta: "Connecter ma Page",
+    },
+  },
+  {
+    needs: needsInstagramConnection,
+    action: {
+      hint: "Connectez votre compte Instagram pour que l'IA puisse répondre",
+      cta: "Connecter Instagram",
+    },
+  },
+  {
+    needs: needsProductCatalog,
+    action: {
+      hint: "Ajoutez votre carte pour que l'IA prenne les commandes",
+      cta: "Ajouter ma carte",
+    },
+  },
+  {
+    needs: needsCalendarConnection,
+    action: {
+      hint: "Connectez votre agenda pour recevoir les rendez-vous",
+      cta: "Connecter mon agenda",
+    },
+  },
+];
+
+export function setupAction(item: SetupSubject): SetupAction | null {
+  return SETUP_ACTIONS.find(({ needs }) => needs(item))?.action ?? null;
+}
+
 export function setupHint(item: SetupSubject): string | null {
-  if (needsPhoneNumber(item)) {
-    return "Choisissez un numéro pour que l'IA puisse décrocher";
-  }
-  if (needsWhatsAppConnection(item)) {
-    return "Connectez votre compte WhatsApp pour que l'IA puisse répondre";
-  }
-  if (needsFacebookConnection(item)) {
-    return "Connectez votre Page Facebook pour que l'IA puisse répondre";
-  }
-  if (needsInstagramConnection(item)) {
-    return "Connectez votre compte Instagram pour que l'IA puisse répondre";
-  }
-  if (needsProductCatalog(item)) {
-    return "Ajoutez votre carte pour que l'IA prenne les commandes";
-  }
-  if (needsCalendarConnection(item)) {
-    return "Connectez votre agenda pour recevoir les rendez-vous";
-  }
-  return null;
+  return setupAction(item)?.hint ?? null;
 }
 
 export function asStringArray(value: ConfigValue | undefined): string[] {
