@@ -3,15 +3,9 @@
 import Link from "next/link";
 import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowLeft, CircleAlert } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,6 +16,7 @@ export function TwoFactorVerificationForm() {
   const router = useRouter();
   const codeId = useId();
   const trustId = useId();
+  const errorId = useId();
   const [useBackupCode, setUseBackupCode] = useState(false);
   const [code, setCode] = useState("");
   const [trustDevice, setTrustDevice] = useState(false);
@@ -54,61 +49,77 @@ export function TwoFactorVerificationForm() {
   }
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle>Vérification en deux étapes</CardTitle>
-        <CardDescription>
-          {useBackupCode
-            ? "Saisissez l'un des codes de secours obtenus à l'activation."
-            : "Saisissez le code à 6 chiffres affiché dans votre application d'authentification."}
-        </CardDescription>
-      </CardHeader>
-      <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor={codeId}>{useBackupCode ? "Code de secours" : "Code"}</Label>
-            <Input
-              id={codeId}
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              inputMode={useBackupCode ? "text" : "numeric"}
-              autoComplete="one-time-code"
-              autoFocus
-              required
-              className="tabular-nums tracking-widest"
-            />
-          </div>
-          <label htmlFor={trustId} className="flex items-center gap-2 text-sm">
-            <Checkbox
-              id={trustId}
-              checked={trustDevice}
-              onCheckedChange={(checked) => setTrustDevice(checked === true)}
-            />
-            Ne plus demander sur cet appareil pendant 30 jours
-          </label>
-          {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-        </CardContent>
-        <CardFooter className="mt-6 flex flex-col gap-4">
-          <Button type="submit" className="w-full" disabled={loading || !code.trim()}>
-            {loading ? "Vérification…" : "Valider"}
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setUseBackupCode((prev) => !prev);
-              setCode("");
-              setError(null);
-            }}
-          >
-            {useBackupCode ? "Utiliser mon application" : "Utiliser un code de secours"}
-          </Button>
-          <Link href="/login" className="text-sm text-muted-foreground underline underline-offset-4">
-            Revenir à la connexion
-          </Link>
-        </CardFooter>
+    <div>
+      <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+        Vérification en deux étapes
+      </h1>
+      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+        {useBackupCode
+          ? "Saisissez l'un des codes de secours obtenus à l'activation."
+          : "Saisissez le code à 6 chiffres affiché dans votre application d'authentification."}
+      </p>
+
+      <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor={codeId}>{useBackupCode ? "Code de secours" : "Code"}</Label>
+          <Input
+            id={codeId}
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            inputMode={useBackupCode ? "text" : "numeric"}
+            autoComplete="one-time-code"
+            autoFocus
+            required
+            aria-invalid={error ? true : undefined}
+            aria-describedby={error ? errorId : undefined}
+            className="text-center text-lg tabular-nums tracking-[0.4em]"
+          />
+        </div>
+        <label htmlFor={trustId} className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Checkbox
+            id={trustId}
+            checked={trustDevice}
+            onCheckedChange={(checked) => setTrustDevice(checked === true)}
+          />
+          Ne plus demander sur cet appareil pendant 30 jours
+        </label>
+
+        {error && (
+          <Alert variant="destructive" id={errorId}>
+            <CircleAlert aria-hidden="true" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={loading || !code.trim()}
+          aria-busy={loading}
+        >
+          {loading ? "Vérification…" : "Valider"}
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          className="w-full"
+          onClick={() => {
+            setUseBackupCode((prev) => !prev);
+            setCode("");
+            setError(null);
+          }}
+        >
+          {useBackupCode ? "Utiliser mon application" : "Utiliser un code de secours"}
+        </Button>
       </form>
-    </Card>
+
+      <Link
+        href="/login"
+        className="mt-6 inline-flex items-center gap-1.5 rounded-sm text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:focus-ring"
+      >
+        <ArrowLeft className="size-4" aria-hidden="true" />
+        Revenir à la connexion
+      </Link>
+    </div>
   );
 }

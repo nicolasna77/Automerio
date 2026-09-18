@@ -30,7 +30,7 @@ test.describe("depuis un visiteur", () => {
   test("un client se connecte et atterrit sur son tableau de bord", async ({ page }) => {
     await page.goto("/login");
     await page.getByLabel("E-mail").fill(CLIENT.email);
-    await page.getByLabel("Mot de passe").fill(CLIENT.password);
+    await page.getByLabel("Mot de passe", { exact: true }).fill(CLIENT.password);
     await page.getByRole("button", { name: "Se connecter" }).click();
 
     await page.waitForURL("**/dashboard");

@@ -42,7 +42,7 @@ test("l'inscription demande de confirmer l'adresse e-mail", async ({ page }) => 
   await page.goto("/signup");
   await page.getByLabel("Nom").fill("Camille Test");
   await page.getByLabel("E-mail").fill(email);
-  await page.getByLabel("Mot de passe").fill("motdepasse-solide");
+  await page.getByLabel("Mot de passe", { exact: true }).fill("motdepasse-solide");
   await page.getByRole("button", { name: "Créer mon compte" }).click();
 
   await expect(page.getByText("Vérifiez votre boîte mail")).toBeVisible();

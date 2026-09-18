@@ -3,17 +3,12 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { CircleAlert } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PasswordInput } from "@/components/password-input";
 import { authClient } from "@/lib/auth-client";
 import { GoogleSignInButton } from "../google-signin-button";
 import { redirectAfterSignIn } from "./redirect-after-sign-in";
@@ -61,66 +56,79 @@ export function LoginForm() {
   }
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle>Connexion</CardTitle>
-        <CardDescription>
-          Accédez à votre tableau de bord Automerio.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <div>
+      <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+        Connexion
+      </h1>
+      <p className="mt-1.5 text-sm text-muted-foreground">
+        Retrouvez vos automatisations et leur suivi.
+      </p>
+
+      <div className="mt-8">
         <GoogleSignInButton />
-        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+        <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
           <span className="h-px flex-1 bg-border" />
           ou
           <span className="h-px flex-1 bg-border" />
         </div>
-      </CardContent>
-      <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">E-mail</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              placeholder="vous@entreprise.fr"
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="password">Mot de passe</Label>
-              <Link
-                href="/forgot-password"
-                className="text-xs text-muted-foreground underline-offset-4 hover:underline"
-              >
-                Mot de passe oublié ?
-              </Link>
-            </div>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
-            />
-          </div>
-          {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-        </CardContent>
-        <CardFooter className="mt-6 flex flex-col gap-4">
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Connexion…" : "Se connecter"}
-          </Button>
-          <p className="text-sm text-muted-foreground">
-            Pas encore de compte ?{" "}
-            <Link href="/signup" className="text-foreground underline underline-offset-4">
-              Créer mon compte
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="email">E-mail</Label>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            placeholder="vous@entreprise.fr"
+            autoFocus
+            aria-invalid={error ? true : undefined}
+            aria-describedby={error ? "login-error" : undefined}
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between gap-3">
+            <Label htmlFor="password">Mot de passe</Label>
+            <Link
+              href="/forgot-password"
+              className="rounded-sm text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:focus-ring"
+            >
+              Mot de passe oublié ?
             </Link>
-          </p>
-        </CardFooter>
+          </div>
+          <PasswordInput
+            id="password"
+            name="password"
+            autoComplete="current-password"
+            aria-invalid={error ? true : undefined}
+            describedBy={error ? "login-error" : undefined}
+            required
+          />
+        </div>
+
+        {error && (
+          <Alert variant="destructive" id="login-error">
+            <CircleAlert aria-hidden="true" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        <Button type="submit" className="w-full" disabled={loading} aria-busy={loading}>
+          {loading ? "Connexion…" : "Se connecter"}
+        </Button>
       </form>
-    </Card>
+
+      <p className="mt-6 text-sm text-muted-foreground">
+        Pas encore de compte ?{" "}
+        <Link
+          href="/signup"
+          className="rounded-sm text-foreground underline underline-offset-4 focus-visible:focus-ring"
+        >
+          Créer mon compte
+        </Link>
+      </p>
+    </div>
   );
 }

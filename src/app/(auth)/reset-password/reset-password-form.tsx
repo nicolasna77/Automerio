@@ -2,18 +2,15 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { ArrowLeft, Check, CircleAlert, LockKeyhole } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PasswordInput } from "@/components/password-input";
 import { authClient } from "@/lib/auth-client";
+import { cn } from "cn";
+
+const MIN_PASSWORD_LENGTH = 8;
 
 export function ResetPasswordForm({
   token,
@@ -25,34 +22,35 @@ export function ResetPasswordForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const [password, setPassword] = useState("");
+  const [confirmation, setConfirmation] = useState("");
+
+  const longEnough = password.length >= MIN_PASSWORD_LENGTH;
+  const mismatch = confirmation.length > 0 && confirmation !== password;
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!token) return;
     setError(null);
 
-    const formData = new FormData(event.currentTarget);
-    const newPassword = String(formData.get("newPassword"));
-    const confirmPassword = String(formData.get("confirmPassword"));
-
-    if (newPassword !== confirmPassword) {
+    if (password !== confirmation) {
       setError("Les deux mots de passe ne correspondent pas.");
       return;
     }
-    if (newPassword.length < 8) {
-      setError("Le mot de passe doit contenir au moins 8 caractères.");
+    if (!longEnough) {
+      setError(`Le mot de passe doit contenir au moins ${MIN_PASSWORD_LENGTH} caractères.`);
       return;
     }
 
     setLoading(true);
     const { error: resetError } = await authClient.resetPassword({
-      newPassword,
+      newPassword: password,
       token,
     });
     setLoading(false);
 
     if (resetError) {
-      setError(resetError.message ?? "Une erreur est survenue.");
+      setError(resetError.message ?? "La mise à jour a échoué. Redemandez un lien.");
       return;
     }
     setDone(true);
@@ -60,89 +58,119 @@ export function ResetPasswordForm({
 
   if (!token || invalidToken) {
     return (
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Lien invalide</CardTitle>
-          <CardDescription>
-            Ce lien de réinitialisation est invalide ou a expiré.
-          </CardDescription>
-        </CardHeader>
-        <CardFooter>
-          <Link
-            href="/forgot-password"
-            className="text-sm text-foreground underline underline-offset-4"
-          >
-            Demander un nouveau lien
-          </Link>
-        </CardFooter>
-      </Card>
+      <div>
+        <CircleAlert className="size-6 text-muted-foreground" aria-hidden="true" />
+        <h1 className="mt-3 text-2xl font-semibold tracking-tight text-foreground">
+          Lien invalide ou expiré
+        </h1>
+        <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+          Les liens de réinitialisation ne servent qu&apos;une fois et expirent
+          au bout d&apos;une heure. Demandez-en un nouveau pour continuer.
+        </p>
+        <Button
+          render={<Link href="/forgot-password" />}
+          nativeButton={false}
+          className="mt-8 w-full"
+        >
+          Demander un nouveau lien
+        </Button>
+        <Link
+          href="/login"
+          className="mt-6 inline-flex items-center gap-1.5 rounded-sm text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:focus-ring"
+        >
+          <ArrowLeft className="size-4" aria-hidden="true" />
+          Retour à la connexion
+        </Link>
+      </div>
     );
   }
 
   if (done) {
     return (
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Mot de passe mis à jour</CardTitle>
-          <CardDescription>
-            Vous pouvez maintenant vous connecter avec votre nouveau mot de
-            passe.
-          </CardDescription>
-        </CardHeader>
-        <CardFooter>
-          <Link
-            href="/login"
-            className="text-sm text-foreground underline underline-offset-4"
-          >
-            Se connecter
-          </Link>
-        </CardFooter>
-      </Card>
+      <div>
+        <LockKeyhole className="size-6 text-primary" aria-hidden="true" />
+        <h1 className="mt-3 text-2xl font-semibold tracking-tight text-foreground">
+          Mot de passe mis à jour
+        </h1>
+        <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+          Connectez-vous avec votre nouveau mot de passe. Si vous n&apos;êtes pas
+          à l&apos;origine de ce changement, contactez l&apos;équipe Automerio.
+        </p>
+        <Button
+          render={<Link href="/login" />}
+          nativeButton={false}
+          className="mt-8 w-full"
+        >
+          Se connecter
+        </Button>
+      </div>
     );
   }
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle>Choisir un nouveau mot de passe</CardTitle>
-        <CardDescription>
-          Renseignez votre nouveau mot de passe ci-dessous.
-        </CardDescription>
-      </CardHeader>
-      <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="newPassword">Nouveau mot de passe</Label>
-            <Input
-              id="newPassword"
-              name="newPassword"
-              type="password"
-              autoComplete="new-password"
-              minLength={8}
-              required
-            />
-            <p className="text-xs text-muted-foreground">
-              8 caractères minimum.
+    <div>
+      <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+        Choisir un nouveau mot de passe
+      </h1>
+      <p className="mt-1.5 text-sm text-muted-foreground">
+        Il remplacera l&apos;ancien dès la validation.
+      </p>
+
+      <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="newPassword">Nouveau mot de passe</Label>
+          <PasswordInput
+            id="newPassword"
+            name="newPassword"
+            autoComplete="new-password"
+            minLength={MIN_PASSWORD_LENGTH}
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            describedBy="password-rule"
+            autoFocus
+            required
+          />
+          <p
+            id="password-rule"
+            className={cn(
+              "flex items-center gap-1.5 text-xs",
+              longEnough ? "text-primary" : "text-muted-foreground"
+            )}
+          >
+            {longEnough && <Check className="size-3.5" aria-hidden="true" />}
+            {MIN_PASSWORD_LENGTH} caractères minimum.
+          </p>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="confirmPassword">Confirmer</Label>
+          <PasswordInput
+            id="confirmPassword"
+            name="confirmPassword"
+            autoComplete="new-password"
+            value={confirmation}
+            onChange={(event) => setConfirmation(event.target.value)}
+            aria-invalid={mismatch || undefined}
+            describedBy={mismatch ? "confirm-mismatch" : undefined}
+            required
+          />
+          {mismatch && (
+            <p id="confirm-mismatch" className="text-xs text-destructive">
+              Les deux mots de passe ne correspondent pas.
             </p>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirmer</Label>
-            <Input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              autoComplete="new-password"
-              required
-            />
-          </div>
-          {error && <p className="text-sm text-destructive">{error}</p>}
-        </CardContent>
-        <CardFooter className="mt-6">
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Mise à jour…" : "Mettre à jour le mot de passe"}
-          </Button>
-        </CardFooter>
+          )}
+        </div>
+
+        {error && (
+          <Alert variant="destructive">
+            <CircleAlert aria-hidden="true" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        <Button type="submit" className="w-full" disabled={loading} aria-busy={loading}>
+          {loading ? "Mise à jour…" : "Mettre à jour le mot de passe"}
+        </Button>
       </form>
-    </Card>
+    </div>
   );
 }
