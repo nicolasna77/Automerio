@@ -1,9 +1,9 @@
 export const EMAIL_COLORS = {
-  background: "#f4f4f5",
+  background: "#f1f3f3",
   card: "#ffffff",
-  foreground: "#09090b",
-  mutedForeground: "#71717b",
-  border: "#e4e4e7",
-  primary: "#432dd7",
-  primaryForeground: "#eef2ff",
+  foreground: "#090b0c",
+  mutedForeground: "#67787c",
+  border: "#e3e7e8",
+  primary: "#008236",
+  primaryForeground: "#f0fdf4",
 } as const;

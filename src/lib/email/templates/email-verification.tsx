@@ -1,6 +1,7 @@
 import { Heading, Link, Text } from "@react-email/components";
 import {
   EmailLayout,
+  emailHeadingStyle,
   emailButtonStyle,
   emailMutedTextStyle,
   emailTextStyle,
@@ -17,21 +18,21 @@ export function EmailVerificationEmail({
     <EmailLayout preview="Confirmez votre adresse e-mail Automerio">
       <Heading
         as="h2"
-        style={{ fontSize: "16px", margin: "0 0 12px", color: "#09090b" }}
+        style={emailHeadingStyle}
       >
         Confirmez votre adresse e-mail
       </Heading>
       <Text style={emailTextStyle}>Bonjour {recipientName},</Text>
       <Text style={emailTextStyle}>
-        Il reste une étape pour activer votre compte Automerio : confirmez que
-        cette adresse est bien la vôtre.
+        Confirmez que cette adresse est bien la vôtre pour l&apos;utiliser avec
+        votre compte Automerio.
       </Text>
       <Link href={url} style={emailButtonStyle}>
         Confirmer mon adresse
       </Link>
       <Text style={emailMutedTextStyle}>
-        Ce lien expire dans une heure. Si vous n&apos;avez pas créé de compte
-        Automerio, ignorez cet e-mail : aucun compte ne sera activé.
+        Ce lien expire dans une heure. Si vous n&apos;êtes pas à l&apos;origine de
+        cette demande, ignorez cet e-mail.
       </Text>
     </EmailLayout>
   );

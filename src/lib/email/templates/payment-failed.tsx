@@ -2,6 +2,7 @@ import { Heading, Link, Text } from "@react-email/components";
 import { appUrl } from "../app-url";
 import {
   EmailLayout,
+  emailHeadingStyle,
   emailButtonStyle,
   emailMutedTextStyle,
   emailTextStyle,
@@ -18,7 +19,7 @@ export function PaymentFailedEmail({
     <EmailLayout preview={`Le paiement de « ${serviceName} » a échoué`}>
       <Heading
         as="h2"
-        style={{ fontSize: "16px", margin: "0 0 12px", color: "#09090b" }}
+        style={emailHeadingStyle}
       >
         Votre paiement n&apos;est pas passé
       </Heading>

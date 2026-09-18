@@ -2,6 +2,7 @@ import { Heading, Link, Section, Text } from "@react-email/components";
 import { appUrl } from "../app-url";
 import {
   EmailLayout,
+  emailHeadingStyle,
   emailButtonStyle,
   emailMutedTextStyle,
   emailTextStyle,
@@ -21,7 +22,7 @@ export function HelpRequestReplyEmail({
     <EmailLayout preview={`Réponse à votre demande « ${subject} »`}>
       <Heading
         as="h2"
-        style={{ fontSize: "16px", margin: "0 0 12px", color: "#09090b" }}
+        style={emailHeadingStyle}
       >
         L&apos;équipe Automerio vous a répondu
       </Heading>

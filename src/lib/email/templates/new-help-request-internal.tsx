@@ -1,6 +1,6 @@
 import { Heading, Link, Section, Text } from "@react-email/components";
 import { appUrl } from "../app-url";
-import { EmailLayout, emailButtonStyle, emailTextStyle } from "./layout";
+import { EmailLayout, emailHeadingStyle, emailButtonStyle, emailTextStyle } from "./layout";
 import { EMAIL_COLORS } from "../colors";
 
 export function NewHelpRequestInternalEmail({
@@ -22,7 +22,7 @@ export function NewHelpRequestInternalEmail({
     <EmailLayout preview={`Nouvelle demande d'aide : ${subject}`}>
       <Heading
         as="h2"
-        style={{ fontSize: "16px", margin: "0 0 12px", color: "#09090b" }}
+        style={emailHeadingStyle}
       >
         Nouvelle demande d&apos;aide
       </Heading>

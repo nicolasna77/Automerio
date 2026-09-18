@@ -97,3 +97,9 @@ export const emailButtonStyle = {
   textDecoration: "none",
   display: "inline-block",
 };
+
+export const emailHeadingStyle = {
+  fontSize: "16px",
+  margin: "0 0 12px",
+  color: EMAIL_COLORS.foreground,
+};

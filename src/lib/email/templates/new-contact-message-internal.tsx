@@ -1,5 +1,5 @@
 import { Heading, Section, Text } from "@react-email/components";
-import { EmailLayout, emailTextStyle } from "./layout";
+import { EmailLayout, emailHeadingStyle, emailTextStyle } from "./layout";
 import { EMAIL_COLORS } from "../colors";
 
 export function NewContactMessageInternalEmail({
@@ -17,7 +17,7 @@ export function NewContactMessageInternalEmail({
     <EmailLayout preview={`Nouveau message de contact de ${name}`}>
       <Heading
         as="h2"
-        style={{ fontSize: "16px", margin: "0 0 12px", color: "#09090b" }}
+        style={emailHeadingStyle}
       >
         Nouveau message depuis le site public
       </Heading>

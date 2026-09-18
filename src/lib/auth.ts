@@ -8,7 +8,11 @@ import { db } from "@/lib/db";
 import { stripeClient } from "@/lib/stripe";
 import { handleStripeEvent } from "@/lib/stripe-webhooks";
 import { prepareAccountDeletion, removeOrphanOrganizations } from "@/lib/account-deletion";
-import { sendEmailVerificationEmail, sendPasswordResetEmail } from "@/lib/email/notifications";
+import {
+  sendEmailChangeConfirmationEmail,
+  sendEmailVerificationEmail,
+  sendPasswordResetEmail,
+} from "@/lib/email/notifications";
 import { redisRateLimitStorage } from "@/lib/rate-limit";
 import { trustedOrigins } from "@/lib/trusted-origins";
 
@@ -60,6 +64,12 @@ export const auth = betterAuth({
     },
   },
   user: {
+    changeEmail: {
+      enabled: true,
+      sendChangeEmailConfirmation: async ({ user, newEmail, url }) => {
+        await sendEmailChangeConfirmationEmail({ email: user.email, name: user.name }, newEmail, url);
+      },
+    },
     additionalFields: {
       role: {
         type: "string",

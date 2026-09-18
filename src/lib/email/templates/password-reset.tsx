@@ -1,6 +1,7 @@
 import { Heading, Link, Text } from "@react-email/components";
 import {
   EmailLayout,
+  emailHeadingStyle,
   emailButtonStyle,
   emailMutedTextStyle,
   emailTextStyle,
@@ -17,7 +18,7 @@ export function PasswordResetEmail({
     <EmailLayout preview="Réinitialisez votre mot de passe Automerio">
       <Heading
         as="h2"
-        style={{ fontSize: "16px", margin: "0 0 12px", color: "#09090b" }}
+        style={emailHeadingStyle}
       >
         Réinitialisation de mot de passe
       </Heading>

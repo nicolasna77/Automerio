@@ -10,6 +10,7 @@ import { NewHelpRequestInternalEmail } from "./templates/new-help-request-intern
 import { NewContactMessageInternalEmail } from "./templates/new-contact-message-internal";
 import { PasswordResetEmail } from "./templates/password-reset";
 import { EmailVerificationEmail } from "./templates/email-verification";
+import { EmailChangeConfirmationEmail } from "./templates/email-change-confirmation";
 import { PaymentFailedEmail } from "./templates/payment-failed";
 
 type Recipient = {
@@ -179,6 +180,19 @@ export async function sendEmailVerificationEmail(
     to: recipient.email,
     subject: "Confirmez votre adresse e-mail Automerio",
     react: <EmailVerificationEmail recipientName={recipient.name} url={url} />,
+    devLink: url,
+  });
+}
+
+export async function sendEmailChangeConfirmationEmail(
+  recipient: { email: string; name: string },
+  newEmail: string,
+  url: string
+) {
+  await sendEmail({
+    to: recipient.email,
+    subject: "Confirmez le changement d'adresse de votre compte Automerio",
+    react: <EmailChangeConfirmationEmail recipientName={recipient.name} newEmail={newEmail} url={url} />,
     devLink: url,
   });
 }

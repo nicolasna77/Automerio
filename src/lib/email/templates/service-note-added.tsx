@@ -2,6 +2,7 @@ import { Heading, Link, Section, Text } from "@react-email/components";
 import { appUrl } from "../app-url";
 import {
   EmailLayout,
+  emailHeadingStyle,
   emailButtonStyle,
   emailMutedTextStyle,
   emailTextStyle,
@@ -23,7 +24,7 @@ export function ServiceNoteAddedEmail({
     <EmailLayout preview={`Nouvelle note sur « ${serviceName} »`}>
       <Heading
         as="h2"
-        style={{ fontSize: "16px", margin: "0 0 12px", color: "#09090b" }}
+        style={emailHeadingStyle}
       >
         Nouvelle note de l&apos;équipe Automerio
       </Heading>
