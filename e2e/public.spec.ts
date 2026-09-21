@@ -31,6 +31,22 @@ test("une page de solution annonce son tarif et propose d'agir", async ({ page }
   ).toBeVisible();
 });
 
+test("une page de solution dit ce qu'elle change pour le client", async ({ page }) => {
+  await page.goto("/prestations/standard-telephonique-ia");
+
+  await expect(
+    page.getByRole("heading", { name: "Ce que ça change pour vous" })
+  ).toBeVisible();
+  await expect(
+    page.getByText("Plus un seul appel qui sonne dans le vide")
+  ).toBeVisible();
+
+  await expect(
+    page.getByRole("heading", { name: /situations où elle travaille/ })
+  ).toBeVisible();
+  await expect(page.getByText("Plomberie", { exact: true })).toBeVisible();
+});
+
 test("une solution inconnue rend une page 404, pas une erreur", async ({ page }) => {
   const response = await page.goto("/prestations/cette-solution-nexiste-pas");
   expect(response?.status()).toBe(404);

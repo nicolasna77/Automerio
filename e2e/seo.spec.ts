@@ -47,6 +47,18 @@ test("une page de solution déclare son offre et son prix", async ({ page }) => 
   expect(JSON.stringify(service)).toContain("EUR");
 });
 
+test("une page de solution déclare sa propre FAQ", async ({ page }) => {
+  await page.goto("/prestations/assistant-whatsapp");
+
+  const blocks = await page.locator('script[type="application/ld+json"]').allTextContents();
+  const faq = blocks.map((b) => JSON.parse(b)).find((d) => d["@type"] === "FAQPage");
+
+  expect(faq.mainEntity.length).toBeGreaterThan(0);
+  const firstQuestion = faq.mainEntity[0].name;
+  expect(firstQuestion).toContain("WhatsApp Business");
+  await expect(page.getByText(firstQuestion)).toBeVisible();
+});
+
 test("l'aperçu de partage porte le prix", async ({ page }) => {
   await page.goto("/prestations/assistant-whatsapp");
 
