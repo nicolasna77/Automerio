@@ -16,6 +16,12 @@ export function HeroSection({ services }: { services: ServiceDTO[] }) {
   const fromPrice =
     monthlyPrices.length > 0 ? Math.min(...monthlyPrices) : null;
 
+  const facts = [
+    fromPrice !== null ? `À partir de ${formatCents(fromPrice)} TTC par mois` : null,
+    "Sans engagement",
+    "Abonnement remboursé 30 jours",
+  ].filter((fact): fact is string => fact !== null);
+
   return (
     <section className="relative isolate overflow-hidden border-b border-border">
       <div
@@ -33,22 +39,23 @@ export function HeroSection({ services }: { services: ServiceDTO[] }) {
       />
       <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[minmax(0,1fr)_32rem]">
         <div>
-          <p className="mb-6 text-sm text-muted-foreground">
-            Agence d&apos;automatisation IA pour artisans, coachs et TPE/PME
+          <p className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
+            <span className="size-1.5 rounded-full bg-primary" />
+            Automatisation IA pour artisans, coachs et TPE/PME
           </p>
-          <h1 className="max-w-2xl tracking-tight text-balance text-foreground">
+          <h1 className="mt-6 max-w-2xl tracking-tight text-balance text-foreground">
             <span className="block text-2xl font-medium leading-snug sm:text-3xl">
-              Votre entreprise tourne.
+              Pendant que vous travaillez,
             </span>
-            <span className="mt-2 block text-[2.6rem] font-bold leading-[0.98] tracking-[-0.03em] font-stretch-88% sm:text-6xl">
-              Vos automatisations s&apos;occupent du reste.
+            <span className="mt-2 block text-[2.6rem] font-bold leading-[0.98] tracking-[-0.03em] font-stretch-88% sm:text-5xl lg:text-[3.4rem]">
+              vos clients obtiennent une réponse.
             </span>
           </h1>
-          <p className="mt-6 max-w-xl text-lg leading-relaxed text-balance text-muted-foreground">
-            Un assistant IA répond au téléphone et sur vos messageries, prend
-            les rendez-vous et vous transmet l&apos;essentiel. Notre équipe
-            l&apos;installe, le connecte à vos outils et le surveille chaque
-            mois.
+          <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
+            Un assistant IA décroche votre téléphone, répond à vos messages et
+            prend les rendez-vous. Notre équipe l&apos;installe, le connecte à
+            vos outils et le surveille chaque mois — vous n&apos;ouvrez aucun
+            logiciel technique.
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <Link href="/signup" className={buttonVariants({ size: "lg" })}>
@@ -62,18 +69,16 @@ export function HeroSection({ services }: { services: ServiceDTO[] }) {
               Voir les solutions
             </Link>
           </div>
-          <p className="mt-4 max-w-md text-sm text-balance text-muted-foreground">
-            {fromPrice !== null && (
-              <>
-                À partir de{" "}
-                <span className="font-medium tabular-nums text-foreground">
-                  {formatCents(fromPrice)} TTC par mois
-                </span>
-                , sans engagement.{" "}
-              </>
-            )}
-            Remboursé si ça ne vous convient pas sous 30 jours.
-          </p>
+          <ul className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+            {facts.map((fact) => (
+              <li
+                key={fact}
+                className="after:ml-3 after:text-border after:content-['·'] last:after:content-none"
+              >
+                {fact}
+              </li>
+            ))}
+          </ul>
         </div>
         <HeroNetworkVisual labels={labels} />
       </div>
