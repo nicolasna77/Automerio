@@ -101,17 +101,18 @@ export default function CgvPage() {
           Les abonnements sont <strong>sans engagement de durée</strong>. Le client
           peut résilier une solution à tout moment depuis le tableau de bord ; la
           résiliation prend effet immédiatement et arrête les prélèvements
-          suivants. Hors garantie de remboursement (article 7), le mois entamé et
-          les frais de mise en place déjà réglés restent dus.
+          suivants. Le mois entamé reste dû, de même que les frais de mise en
+          place déjà réglés, sous réserve de la garantie de remboursement
+          (article 7).
         </p>
       </LegalSection>
 
       <LegalSection title={`7. Satisfait ou remboursé pendant ${REFUND_GUARANTEE_DAYS} jours`}>
         <p>
-          Si une solution ne convient pas au client, Automerio rembourse
-          l&apos;intégralité des sommes payées pour cette solution — frais de mise
-          en place et abonnement — à condition que la demande soit faite dans les{" "}
-          {REFUND_GUARANTEE_DAYS} jours qui suivent son premier paiement.
+          Si une solution ne convient pas au client, Automerio rembourse{" "}
+          <strong>l&apos;abonnement</strong> versé pour cette solution, à condition
+          que la demande soit faite dans les {REFUND_GUARANTEE_DAYS} jours qui
+          suivent son premier paiement.
         </p>
         <ul>
           <li>
@@ -120,11 +121,24 @@ export default function CgvPage() {
             sans avoir à se justifier.
           </li>
           <li>
+            Les frais de mise en place sont remboursés en totalité tant que la
+            solution n&apos;a pas été mise en service, c&apos;est-à-dire tant
+            qu&apos;elle n&apos;est pas passée au statut « Actif » dans le tableau
+            de bord du client. Une fois ce statut atteint, ils restent acquis à
+            Automerio : ils rémunèrent l&apos;installation, le paramétrage et les
+            vérifications déjà réalisés, ainsi que les frais engagés auprès des
+            opérateurs (achat du numéro de téléphone notamment).
+          </li>
+          <li>
             Le remboursement est versé sur le moyen de paiement d&apos;origine sous
             14 jours, et la solution est résiliée.
           </li>
           <li>La garantie joue une fois par solution et par client.</li>
         </ul>
+        <p>
+          Cette garantie est commerciale : elle s&apos;ajoute aux droits que le
+          client tient de la loi et ne les restreint pas.
+        </p>
       </LegalSection>
 
       <LegalSection title="8. Mise en place et engagements d&apos;Automerio">

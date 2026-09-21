@@ -6,6 +6,7 @@ import { requireAdmin } from "@/lib/session";
 import { logAdminAction } from "@/lib/audit";
 import { ActionError, runAction } from "@/lib/run-action";
 import type { ServiceCategory } from "@/lib/catalog";
+import { usageCapLabelOf, type UsageUnit } from "@/lib/usage-cap";
 
 function formatCents(cents: number | null): string {
   return cents === null
@@ -22,7 +23,9 @@ function describeServiceChanges(
     category: ServiceCategory;
     setupFeeCents: number | null;
     monthlyPriceCents: number | null;
-    usageCapLabel: string | null;
+    includedUsageUnits: number | null;
+    usageUnit: UsageUnit | null;
+    overageUnitPriceCents: number | null;
     sortOrder: number;
   },
   after: typeof before
@@ -42,10 +45,10 @@ function describeServiceChanges(
       `Abonnement : ${formatCents(before.monthlyPriceCents)} → ${formatCents(after.monthlyPriceCents)}`
     );
   }
-  if (before.usageCapLabel !== after.usageCapLabel) {
-    changes.push(
-      `Plafond d'usage : ${before.usageCapLabel ?? "aucun"} → ${after.usageCapLabel ?? "aucun"}`
-    );
+  const capBefore = usageCapLabelOf(before);
+  const capAfter = usageCapLabelOf(after);
+  if (capBefore !== capAfter) {
+    changes.push(`Plafond d'usage : ${capBefore ?? "aucun"} → ${capAfter ?? "aucun"}`);
   }
   if (before.sortOrder !== after.sortOrder) {
     changes.push(`Ordre : ${before.sortOrder} → ${after.sortOrder}`);
@@ -60,7 +63,9 @@ export type ServiceUpdateInput = {
   category: ServiceCategory;
   setupFeeEuros: number | null;
   monthlyPriceEuros: number | null;
-  usageCapLabel: string | null;
+  includedUsageUnits: number | null;
+  usageUnit: UsageUnit | null;
+  overageUnitEuros: number | null;
   sortOrder: number;
 };
 
@@ -81,6 +86,19 @@ export async function updateServiceAction(
       );
     }
 
+    // Quantite et unite vont ensemble : l'une sans l'autre ne decrit aucun
+    // plafond, et laisserait la jauge du client sans reference.
+    const includedUnits = input.includedUsageUnits;
+    const hasCap = includedUnits !== null && input.usageUnit !== null;
+    if (!hasCap && (includedUnits !== null || input.usageUnit !== null)) {
+      throw new ActionError(
+        "Un plafond d'usage demande à la fois une quantité incluse et une unité."
+      );
+    }
+    if (hasCap && includedUnits <= 0) {
+      throw new ActionError("La quantité incluse doit être supérieure à zéro.");
+    }
+
     const before = await db.service.findUniqueOrThrow({ where: { id: serviceId } });
     const after = await db.service.update({
       where: { id: serviceId },
@@ -94,7 +112,11 @@ export async function updateServiceAction(
           input.monthlyPriceEuros !== null
             ? Math.round(input.monthlyPriceEuros * 100)
             : null,
-        usageCapLabel: input.usageCapLabel?.trim() || null,
+        includedUsageUnits: hasCap ? includedUnits : null,
+        usageUnit: hasCap ? input.usageUnit : null,
+        overageUnitPriceCents: hasCap
+          ? Math.round((input.overageUnitEuros ?? 0) * 100)
+          : null,
         sortOrder: input.sortOrder,
       },
     });

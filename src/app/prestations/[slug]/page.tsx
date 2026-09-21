@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, Bot } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { JsonLd, priceSummary, serviceSchema } from "@/components/json-ld";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader } from "@/components/ui/card";
@@ -10,7 +10,8 @@ import { SiteFooter } from "@/components/site-footer";
 import { getSession } from "@/lib/session";
 import { CATEGORY_LABELS, TELEPHONY_SERVICE_SLUGS, formatCents } from "@/lib/catalog";
 import { getCatalog, getServiceBySlug } from "@/lib/get-catalog";
-import { SERVICE_ICONS } from "@/lib/service-icons";
+import { formatUsageCap } from "@/lib/usage-cap";
+import { ServiceGlyphBadge } from "@/components/service-glyph";
 
 export async function generateMetadata({
   params,
@@ -61,7 +62,6 @@ export default async function PrestationDetailPage({
   if (!service) notFound();
 
   const [session, allServices] = await Promise.all([getSession(), getCatalog()]);
-  const Icon = SERVICE_ICONS[service.slug] ?? Bot;
   const isTelephony = TELEPHONY_SERVICE_SLUGS.has(service.slug);
   const configFields = service.configFields.filter(
     (field) => !GENERIC_FIELD_KEYS.has(field.key)
@@ -88,9 +88,7 @@ export default async function PrestationDetailPage({
             <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-16">
               <div>
                 <div className="flex items-center gap-3">
-                  <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <Icon className="size-5" aria-hidden="true" />
-                  </span>
+                  <ServiceGlyphBadge slug={service.slug} size="lg" />
                   <span className="text-sm text-muted-foreground">
                     {CATEGORY_LABELS[service.category]}
                   </span>
@@ -154,11 +152,11 @@ export default async function PrestationDetailPage({
                         <dt className="mt-0.5 text-sm text-muted-foreground">TTC par mois</dt>
                       </div>
                     )}
-                    {service.usageCapLabel && (
+                    {service.usageCap && (
                       <div className="py-4">
                         <dt className="text-sm text-muted-foreground">Compris</dt>
                         <dd className="mt-1 text-sm text-foreground">
-                          {service.usageCapLabel}
+                          {formatUsageCap(service.usageCap)}
                         </dd>
                       </div>
                     )}
@@ -248,16 +246,16 @@ export default async function PrestationDetailPage({
               </h2>
               <div className="mt-8 grid gap-4 sm:grid-cols-3">
                 {related.map((relatedService) => {
-                  const RelatedIcon = SERVICE_ICONS[relatedService.slug] ?? Bot;
                   return (
                     <Card
                       key={relatedService.slug}
                       className="relative h-full transition-colors has-[a:hover]:bg-card/70 has-[a:focus-visible]:bg-card/70 has-[a:focus-visible]:focus-ring"
                     >
                       <CardHeader>
-                        <span className="mb-2 flex size-9 items-center justify-center rounded-md bg-primary/10 text-primary">
-                          <RelatedIcon className="size-4" aria-hidden="true" />
-                        </span>
+                        <ServiceGlyphBadge
+                          slug={relatedService.slug}
+                          className="mb-2"
+                        />
                         <h3 className="font-heading text-base font-medium">
                           <Link
                             href={`/prestations/${relatedService.slug}`}

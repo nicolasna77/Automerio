@@ -1,5 +1,6 @@
 import { absoluteUrl, FAQS, SITE_DESCRIPTION, SITE_NAME, siteUrl } from "@/lib/site";
 import { formatCents, type ServiceDTO } from "@/lib/catalog";
+import { formatUsageCap } from "@/lib/usage-cap";
 
 export function JsonLd({ data }: { data: object }) {
   return (
@@ -77,7 +78,7 @@ export function serviceSchema(service: ServiceDTO) {
     ...(offers.length > 0 && {
       offers: offers.length === 1 ? offers[0] : offers,
     }),
-    ...(service.usageCapLabel && { termsOfService: service.usageCapLabel }),
+    ...(service.usageCap && { termsOfService: formatUsageCap(service.usageCap) }),
   };
 }
 

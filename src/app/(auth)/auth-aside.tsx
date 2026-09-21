@@ -35,8 +35,8 @@ export function AuthAside() {
 
       <p className="mt-9 max-w-sm border-t border-border pt-5 text-sm leading-relaxed text-balance text-muted-foreground">
         Notre équipe l&apos;installe, la connecte à vos outils et la surveille
-        chaque mois. Sans engagement, remboursé sous 30 jours si ça ne vous
-        convient pas.
+        chaque mois. Sans engagement : votre abonnement est remboursé sous
+        30 jours si ça ne vous convient pas.
       </p>
     </aside>
   );

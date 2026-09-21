@@ -2,6 +2,7 @@ import { cache } from "react";
 import type { Service } from "@prisma/client";
 import { db } from "@/lib/db";
 import type { ConfigField, ServiceDTO } from "@/lib/catalog";
+import { readUsageCap } from "@/lib/usage-cap";
 
 export function toServiceDTO(service: Service): ServiceDTO {
   return {
@@ -12,7 +13,7 @@ export function toServiceDTO(service: Service): ServiceDTO {
     category: service.category,
     setupFeeCents: service.setupFeeCents,
     monthlyPriceCents: service.monthlyPriceCents,
-    usageCapLabel: service.usageCapLabel,
+    usageCap: readUsageCap(service),
     configFields: (service.configFields as ConfigField[]) ?? [],
     sortOrder: service.sortOrder,
   };

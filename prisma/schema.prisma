@@ -133,6 +133,11 @@ enum ServiceCategory {
   ABONNEMENT
 }
 
+enum UsageUnit {
+  CALL
+  MINUTE
+}
+
 model Service {
   id                String          @id @default(cuid())
   slug              String          @unique
@@ -141,7 +146,15 @@ model Service {
   category          ServiceCategory
   setupFeeCents     Int?
   monthlyPriceCents Int?
-  usageCapLabel     String?
+
+  // Plafond d'usage inclus dans l'abonnement. Les trois champs vont ensemble :
+  // sans unite ni quantite, la solution n'a pas de plafond. L'etiquette lue par
+  // le client (« 150 min incluses, puis 0,30 EUR/min ») en est derivee
+  // (`formatUsageCap`), pour qu'elle ne puisse pas contredire la jauge.
+  includedUsageUnits    Int?
+  usageUnit             UsageUnit?
+  overageUnitPriceCents Int?
+
   configFields      Json            @default("[]")
   sortOrder         Int             @default(0)
   isActive          Boolean         @default(true)

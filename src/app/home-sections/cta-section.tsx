@@ -26,7 +26,7 @@ export function CtaSection() {
           </Link>
         </div>
         <p className="mt-4 text-sm text-muted-foreground">
-          Garantie 30 jours, sans engagement.
+          Abonnement remboursé 30 jours, sans engagement.
         </p>
       </div>
     </section>

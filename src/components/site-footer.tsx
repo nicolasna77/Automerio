@@ -57,7 +57,16 @@ export function SiteFooter() {
           </div>
         </div>
       </div>
-      <div className="mx-auto flex max-w-6xl flex-col gap-3 border-t border-border px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
+      {/* Meta demande que rien ne laisse croire a un partenariat ou a un
+          agrement des lors qu'on montre ses logos. */}
+      <div className="mx-auto max-w-6xl border-t border-border px-4 pt-6 text-xs text-muted-foreground sm:px-6">
+        <p>
+          WhatsApp, Messenger et Instagram sont des marques de Meta Platforms,
+          Inc. Automerio n&apos;est ni affilié à Meta, ni parrainé ou agréé par
+          Meta.
+        </p>
+      </div>
+      <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <p>© {new Date().getFullYear()} Automerio. Tous droits réservés.</p>
         <nav aria-label="Informations légales">
           <ul className="flex flex-wrap gap-x-5 gap-y-2">

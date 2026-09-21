@@ -24,6 +24,35 @@ test("un client se déconnecte et retrouve le site public", async ({ page }) => 
   await expect(page.getByRole("button", { name: "Menu utilisateur" })).toHaveCount(0);
 });
 
+test("le client suit le quota de ses abonnements en cours", async ({ page }) => {
+  await page.goto("/dashboard");
+  await page.getByRole("link", { name: "Abonnements", exact: true }).click();
+  await page.waitForURL("**/dashboard/abonnements");
+
+  await expect(page.getByRole("heading", { name: "Abonnements", level: 1 })).toBeVisible();
+
+  const running = page.getByRole("region", { name: "En cours" });
+  await expect(running.getByRole("link", { name: "Standard téléphonique automatisé" })).toBeVisible();
+
+  // Le plafond n'est plus une phrase libre : chaque jauge lit la quantite
+  // incluse de sa solution. Les deux prestations telephoniques comptent en
+  // minutes depuis que le quota en appels s'est revele deficitaire.
+  const jauges = running.locator('[role="progressbar"][aria-valuemax="150"]');
+  await expect(jauges).toHaveCount(2);
+  await expect(jauges.first()).toHaveAttribute("aria-valuetext", /min$/);
+  await expect(running.getByText("Quota consommé").first()).toBeVisible();
+
+  await expect(page.getByRole("button", { name: "Se désabonner" }).first()).toBeVisible();
+
+  // Le meme quota se retrouve sur la page de la solution concernee.
+  await running.getByRole("link", { name: "Standard téléphonique automatisé" }).click();
+  await page.waitForURL(/\/dashboard\/services\/[^/]+$/);
+  await expect(page.getByText("Abonnement", { exact: true })).toBeVisible();
+  await expect(page.locator('[role="progressbar"][aria-valuemax="150"]')).toBeVisible();
+  // Le plafond n'est annonce qu'une fois : la jauge remplace la ligne du tableau.
+  await expect(page.getByText("Plafond d'usage")).toHaveCount(0);
+});
+
 test.describe("depuis un visiteur", () => {
   test.use({ storageState: ANONYMOUS });
 

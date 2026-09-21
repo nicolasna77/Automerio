@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { absoluteUrl, FAQS, SITE_DESCRIPTION, SITE_NAME } from "@/lib/site";
 import { CATEGORY_LABELS, formatCents, type ServiceCategory } from "@/lib/catalog";
+import { usageCapLabelOf } from "@/lib/usage-cap";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +42,7 @@ export async function GET() {
       lines.push(
         `- [${service.name}](${absoluteUrl(`/prestations/${service.slug}`)}) — ${service.description}`,
         `  Tarif : ${price(service.setupFeeCents, service.monthlyPriceCents)}.${
-          service.usageCapLabel ? ` ${service.usageCapLabel}.` : ""
+          usageCapLabelOf(service) ? ` ${usageCapLabelOf(service)}.` : ""
         }`
       );
     }

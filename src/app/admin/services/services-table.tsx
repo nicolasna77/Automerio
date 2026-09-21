@@ -28,6 +28,7 @@ import {
 import { CATEGORY_LABELS, formatPrice } from "@/lib/catalog";
 import { unwrap } from "@/lib/action-result";
 import { cn, getErrorMessage } from "@/lib/utils";
+import { usageCapLabelOf } from "@/lib/usage-cap";
 import { setServiceActiveAction } from "./actions";
 import { ServiceEditDialog, type EditableService } from "./service-edit-dialog";
 
@@ -72,7 +73,7 @@ export function ServicesTable({ services }: { services: EditableService[] }) {
                     {formatPrice(service.setupFeeCents, service.monthlyPriceCents)}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {service.usageCapLabel ?? "—"}
+                    {usageCapLabelOf(service) ?? "—"}
                   </TableCell>
                   <TableCell className="text-right tabular-nums text-muted-foreground">
                     {service.sortOrder}

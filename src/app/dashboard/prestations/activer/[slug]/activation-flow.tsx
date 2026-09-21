@@ -22,6 +22,7 @@ import {
   type ServiceDTO,
 } from "@/lib/catalog";
 import { unwrap } from "@/lib/action-result";
+import { formatUsageCap } from "@/lib/usage-cap";
 import { cn, getErrorMessage } from "@/lib/utils";
 import { activateService, previewPromoCode, type PromoPreview } from "@/app/dashboard/actions";
 import { ConfigFieldsForm } from "@/app/dashboard/config-fields";
@@ -279,8 +280,10 @@ export function ActivationFlow({
                     </dd>
                   </div>
                 )}
-                {service.usageCapLabel && (
-                  <p className="text-xs text-muted-foreground">{service.usageCapLabel}</p>
+                {service.usageCap && (
+                  <p className="text-xs text-muted-foreground">
+                    {formatUsageCap(service.usageCap)}
+                  </p>
                 )}
               </dl>
 

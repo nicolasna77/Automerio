@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { Bot, ChevronRight, TriangleAlert } from "lucide-react";
+import { ChevronRight, TriangleAlert } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/status-badge";
 import { db } from "@/lib/db";
 import { SETUP_ANCHOR, setupAction } from "@/lib/catalog";
-import { SERVICE_ICONS } from "@/lib/service-icons";
+import { ServiceGlyph } from "@/components/service-glyph";
 import { toMyServiceDTO } from "./get-my-service";
 
 export async function OverviewServices({
@@ -38,14 +38,13 @@ export async function OverviewServices({
       <CardContent>
         <ul className="divide-y divide-border">
           {items.map((item) => {
-            const Icon = SERVICE_ICONS[item.service.slug] ?? Bot;
             const action = setupAction(item);
             return (
               <li key={item.clientServiceId} className="relative py-3 first:pt-0 last:pb-0">
                 <div className="flex items-start gap-3">
-                  <Icon
+                  <ServiceGlyph
+                    slug={item.service.slug}
                     className="mt-0.5 size-4 shrink-0 text-muted-foreground"
-                    aria-hidden="true"
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-2">

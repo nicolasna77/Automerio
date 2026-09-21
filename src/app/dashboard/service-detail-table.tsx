@@ -20,7 +20,13 @@ import { MessengerConnection } from "./messenger-connection";
 import { UsageCounter } from "./usage-counter";
 import { WhatsAppConnection } from "./whatsapp-connection";
 
-export function ServiceDetailTable({ item }: { item: MyServiceDTO }) {
+export function ServiceDetailTable({
+  item,
+  showUsageCap = true,
+}: {
+  item: MyServiceDTO;
+  showUsageCap?: boolean;
+}) {
   const isTelephony = TELEPHONY_SERVICE_SLUGS.has(item.service.slug);
   const isLive =
     isTelephony && (item.status === "ACTIVE" || item.status === "CONFIGURING");
@@ -36,7 +42,7 @@ export function ServiceDetailTable({ item }: { item: MyServiceDTO }) {
   const showFacebookRow = isFacebook && isDeployedStatus && item.facebookConnected;
   const isInstagram = item.service.slug === INSTAGRAM_SERVICE_SLUG;
   const showInstagramRow = isInstagram && isDeployedStatus && item.instagramConnected;
-  const hasFacts = hasServiceFacts(item, !isLive);
+  const hasFacts = hasServiceFacts(item, !isLive, showUsageCap);
 
   return (
     <div className="space-y-6">
@@ -97,7 +103,13 @@ export function ServiceDetailTable({ item }: { item: MyServiceDTO }) {
                 Aucun réglage renseigné pour l&apos;instant.
               </p>
             )}
-            {hasFacts && <ServiceFacts item={item} showPhoneNumber={!isLive} />}
+            {hasFacts && (
+              <ServiceFacts
+                item={item}
+                showPhoneNumber={!isLive}
+                showUsageCap={showUsageCap}
+              />
+            )}
 
             {showCalendarRow && (
               <CalendarConnection

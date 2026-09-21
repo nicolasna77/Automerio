@@ -25,9 +25,11 @@ export function ServiceCanceledEmail({
       </Heading>
       <Text style={emailTextStyle}>Bonjour {recipientName},</Text>
       <Text style={emailTextStyle}>
-        Votre solution « {serviceName} » a bien été résiliée. L&apos;abonnement
-        mensuel est annulé immédiatement ; les frais de mise en place déjà
-        réglés ne sont pas remboursés.
+        Votre solution « {serviceName} » a bien été résiliée et
+        l&apos;abonnement mensuel est annulé immédiatement. Si votre premier
+        paiement date de moins de 30 jours, cet abonnement vous est remboursé
+        sur simple demande depuis la rubrique « Aide ». Les frais de mise en
+        place restent acquis dès lors que la solution a été mise en service.
       </Text>
       <Text style={emailMutedTextStyle}>
         Vous pouvez réactiver cette solution à tout moment depuis votre
