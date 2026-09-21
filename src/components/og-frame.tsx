@@ -1,10 +1,12 @@
+import { BRAND_GRADIENT_END, BRAND_PALETTE } from "@/lib/brand-palette";
+
 export const OG_SIZE = { width: 1200, height: 630 };
 
-const INK = "#090b0c";
-const PAPER = "#f9fbfb";
-const MUTED = "#9ca8ab";
-const BRAND_FROM = "#008236";
-const BRAND_TO = "#004e1d";
+const INK = BRAND_PALETTE.dark.background;
+const PAPER = BRAND_PALETTE.dark.foreground;
+const MUTED = BRAND_PALETTE.dark.mutedForeground;
+const BRAND_FROM = BRAND_PALETTE.light.primary;
+const BRAND_TO = BRAND_GRADIENT_END;
 
 export function OgFrame({
   eyebrow,
