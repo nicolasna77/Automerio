@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight } from "lucide-react";
-import { JsonLd, priceSummary, serviceSchema } from "@/components/json-ld";
+import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { JsonLd, faqSchema, priceSummary, serviceSchema } from "@/components/json-ld";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader } from "@/components/ui/card";
 import { SiteHeader } from "@/components/site-header";
@@ -11,6 +11,8 @@ import { getSession } from "@/lib/session";
 import { CATEGORY_LABELS, TELEPHONY_SERVICE_SLUGS, formatCents } from "@/lib/catalog";
 import { getCatalog, getServiceBySlug } from "@/lib/get-catalog";
 import { formatUsageCap } from "@/lib/usage-cap";
+import { getServiceCopy } from "@/lib/service-copy";
+import { FaqList } from "@/components/faq-list";
 import { ServiceGlyphBadge } from "@/components/service-glyph";
 
 export async function generateMetadata({
@@ -62,6 +64,7 @@ export default async function PrestationDetailPage({
   if (!service) notFound();
 
   const [session, allServices] = await Promise.all([getSession(), getCatalog()]);
+  const copy = getServiceCopy(service.slug);
   const isTelephony = TELEPHONY_SERVICE_SLUGS.has(service.slug);
   const configFields = service.configFields.filter(
     (field) => !GENERIC_FIELD_KEYS.has(field.key)
@@ -73,6 +76,7 @@ export default async function PrestationDetailPage({
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <JsonLd data={serviceSchema(service)} />
+      {copy && <JsonLd data={faqSchema(copy.faq)} />}
       <SiteHeader />
       <main id="contenu" className="flex-1">
         <section className="border-b border-border">
@@ -171,6 +175,65 @@ export default async function PrestationDetailPage({
           </div>
         </section>
 
+        {copy && (
+          <section aria-labelledby="benefices-heading" className="border-b border-border">
+            <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6 sm:py-20">
+              <h2
+                id="benefices-heading"
+                className="text-2xl font-semibold tracking-tight text-balance text-foreground"
+              >
+                Ce que &ccedil;a change pour vous
+              </h2>
+              <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+                {copy.intro}
+              </p>
+              <div className="mt-10 grid gap-4 sm:grid-cols-3">
+                {copy.benefits.map((benefit) => (
+                  <Card key={benefit.title} className="h-full">
+                    <CardHeader>
+                      <span className="mb-2 flex size-9 items-center justify-center rounded-md bg-primary/10 text-primary">
+                        <Check className="size-4" aria-hidden="true" />
+                      </span>
+                      <h3 className="font-heading text-base font-medium">
+                        {benefit.title}
+                      </h3>
+                      <CardDescription>{benefit.description}</CardDescription>
+                    </CardHeader>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {copy?.useCases && (
+          <section aria-labelledby="situations-heading" className="border-b border-border">
+            <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6 sm:py-20">
+              <h2
+                id="situations-heading"
+                className="text-2xl font-semibold tracking-tight text-balance text-foreground"
+              >
+                Des situations o&ugrave; elle travaille pour vous
+              </h2>
+              <p className="mt-3 max-w-xl leading-relaxed text-muted-foreground">
+                Des exemples typiques, &agrave; transposer &agrave; votre
+                activit&eacute; — l&apos;&eacute;quipe adapte la solution
+                &agrave; vos cas r&eacute;els pendant l&apos;installation.
+              </p>
+              <dl className="mt-10 grid gap-x-12 sm:grid-cols-3">
+                {copy.useCases.map((useCase) => (
+                  <div key={useCase.audience} className="border-t border-border py-4">
+                    <dt className="font-medium text-foreground">{useCase.audience}</dt>
+                    <dd className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                      {useCase.scenario}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          </section>
+        )}
+
         {isTelephony && (
           <section aria-labelledby="numero-heading" className="border-b border-border">
             <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6 sm:py-20">
@@ -228,6 +291,30 @@ export default async function PrestationDetailPage({
                   </div>
                 ))}
               </dl>
+            </div>
+          </section>
+        )}
+
+        {copy && (
+          <section aria-labelledby="faq-heading" className="border-b border-border">
+            <div className="mx-auto max-w-5xl px-4 py-14 sm:px-6 sm:py-20">
+              <h2
+                id="faq-heading"
+                className="text-2xl font-semibold tracking-tight text-balance text-foreground"
+              >
+                Les questions qu&apos;on nous pose sur cette solution
+              </h2>
+              <FaqList items={copy.faq} className="mt-8 max-w-3xl" />
+              <p className="mt-6 max-w-3xl text-sm text-foreground">
+                Votre question n&apos;est pas l&agrave; ?{" "}
+                <Link
+                  href="/contact"
+                  className="font-medium text-primary underline-offset-4 hover:underline"
+                >
+                  &Eacute;crivez-nous
+                </Link>
+                , on r&eacute;pond sous 24h ouvr&eacute;es.
+              </p>
             </div>
           </section>
         )}

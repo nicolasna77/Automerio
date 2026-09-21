@@ -1,4 +1,11 @@
-import { absoluteUrl, FAQS, SITE_DESCRIPTION, SITE_NAME, siteUrl } from "@/lib/site";
+import {
+  absoluteUrl,
+  FAQS,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  siteUrl,
+  type Faq,
+} from "@/lib/site";
 import { formatCents, type ServiceDTO } from "@/lib/catalog";
 import { formatUsageCap } from "@/lib/usage-cap";
 
@@ -30,11 +37,11 @@ export function organizationSchema() {
   };
 }
 
-export function faqSchema() {
+export function faqSchema(items: Faq[] = FAQS) {
   return {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: FAQS.map((faq) => ({
+    mainEntity: items.map((faq) => ({
       "@type": "Question",
       name: faq.question,
       acceptedAnswer: { "@type": "Answer", text: faq.answer },

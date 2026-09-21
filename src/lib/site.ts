@@ -17,7 +17,9 @@ export function absoluteUrl(path: string): string {
   return `${siteUrl()}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
-export const FAQS = [
+export type Faq = { question: string; answer: string };
+
+export const FAQS: Faq[] = [
   {
     question: "Dois-je savoir configurer un outil ou une API ?",
     answer:
