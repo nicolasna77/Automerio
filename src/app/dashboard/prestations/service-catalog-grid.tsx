@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { Bot, PackageSearch } from "lucide-react";
+import { PackageSearch } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/status-badge";
 import { formatPrice, type ClientServiceStatus, type ServiceDTO } from "@/lib/catalog";
-import { SERVICE_ICONS } from "@/lib/service-icons";
+import { formatUsageCap } from "@/lib/usage-cap";
+import { ServiceGlyphBadge } from "@/components/service-glyph";
 
 export function ServiceCatalogGrid({
   services,
@@ -33,15 +34,12 @@ export function ServiceCatalogGrid({
     <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {services.map((service) => {
         const status = statusByServiceId[service.id];
-        const Icon = SERVICE_ICONS[service.slug] ?? Bot;
         return (
           <li key={service.id}>
             <Card className="h-full">
               <CardHeader>
                 <div className="mb-2 flex items-start justify-between gap-2">
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
-                    <Icon className="size-4" aria-hidden="true" />
-                  </span>
+                  <ServiceGlyphBadge slug={service.slug} />
                   {status && <StatusBadge status={status} />}
                 </div>
                 <CardTitle className="text-base">{service.name}</CardTitle>
@@ -51,8 +49,10 @@ export function ServiceCatalogGrid({
                 <p className="border-t border-border pt-4 font-medium text-foreground tabular-nums">
                   {formatPrice(service.setupFeeCents, service.monthlyPriceCents)}
                 </p>
-                {service.usageCapLabel && (
-                  <p className="mt-0.5 text-xs text-muted-foreground">{service.usageCapLabel}</p>
+                {service.usageCap && (
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {formatUsageCap(service.usageCap)}
+                  </p>
                 )}
               </CardContent>
               <CardFooter>

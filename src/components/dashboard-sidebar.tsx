@@ -2,7 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarDays, LayoutDashboard, Layers, LifeBuoy, Receipt, ShieldCheck, UserRound } from "lucide-react";
+import {
+  CalendarDays,
+  CreditCard,
+  LayoutDashboard,
+  Layers,
+  LifeBuoy,
+  Receipt,
+  ShieldCheck,
+  UserRound,
+} from "lucide-react";
 import { AutomerioLogo } from "@/components/brand";
 import { OrganizationSwitcher } from "@/components/organization-switcher";
 import {
@@ -22,6 +31,7 @@ const NAV_ITEMS = [
   { href: "/dashboard", label: "Vue d'ensemble", icon: LayoutDashboard },
   { href: "/dashboard/prestations", label: "Solutions", icon: Layers },
   { href: "/dashboard/calendrier", label: "Calendrier", icon: CalendarDays },
+  { href: "/dashboard/abonnements", label: "Abonnements", icon: CreditCard },
   { href: "/dashboard/paiements", label: "Paiements", icon: Receipt },
   { href: "/dashboard/profile", label: "Profil", icon: UserRound },
   { href: "/dashboard/aide", label: "Aide", icon: LifeBuoy },

@@ -13,6 +13,7 @@ import type {
   ServiceDTO,
   ServiceEventDTO,
 } from "@/lib/catalog";
+import { readUsageCap } from "@/lib/usage-cap";
 
 function toBookingDTO(booking: Booking): BookingDTO {
   return {
@@ -73,7 +74,7 @@ export function toMyServiceDTO(
       category: cs.service.category,
       setupFeeCents: cs.service.setupFeeCents,
       monthlyPriceCents: cs.service.monthlyPriceCents,
-      usageCapLabel: cs.service.usageCapLabel,
+      usageCap: readUsageCap(cs.service),
       configFields: (cs.service.configFields as ServiceDTO["configFields"]) ?? [],
       sortOrder: cs.service.sortOrder,
     },

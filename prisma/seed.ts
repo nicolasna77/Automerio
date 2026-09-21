@@ -60,7 +60,7 @@ const FAKE_CLIENTS: FakeClient[] = [
     subscriptions: [
       {
         slug: "assistant-whatsapp",
-        name: "Assistant WhatsApp",
+        name: "Réponses automatiques sur WhatsApp",
         status: "PENDING_PAYMENT",
         configuration: {
           whatsappNumber: "+33 6 98 76 54 32",

@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Bot, ChevronRight, Phone, Settings2, TriangleAlert } from "lucide-react";
+import { ChevronRight, Phone, Settings2, TriangleAlert } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,7 +27,7 @@ import {
 import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
 import { StatusBadge } from "@/components/status-badge";
-import { SERVICE_ICONS } from "@/lib/service-icons";
+import { ServiceGlyph } from "@/components/service-glyph";
 import { cancelService } from "./actions";
 import { ResumeCheckoutButton } from "./resume-checkout-button";
 import { ServiceProgress } from "./service-progress";
@@ -41,7 +41,6 @@ export function MyServiceRow({
   const [isCanceling, startCancelTransition] = useTransition();
   const [confirmCancel, setConfirmCancel] = useState(false);
   const { service, status } = item;
-  const Icon = SERVICE_ICONS[service.slug] ?? Bot;
   const canManageConfig = canEditConfiguration(item);
   const canUnsubscribe = status === "ACTIVE" || status === "CONFIGURING";
   const hint = setupHint(item);
@@ -67,9 +66,9 @@ export function MyServiceRow({
               titre et la frise depassent la carte, qui est en overflow-hidden :
               le texte est coupe, pas defilable. */}
           <div className="flex min-w-0 items-start gap-3">
-            <Icon
+            <ServiceGlyph
+              slug={service.slug}
               className="mt-0.5 size-5 shrink-0 text-muted-foreground"
-              aria-hidden="true"
             />
 
             <div className="min-w-0 flex-1">
@@ -206,9 +205,9 @@ export function MyServiceRow({
               Résilier « {item.name} » ?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              L&apos;abonnement mensuel sera annulé immédiatement. Pour être
-              remboursé dans les 30 jours suivant votre premier paiement,
-              écrivez-nous plutôt depuis la rubrique Aide.
+              L&apos;abonnement mensuel sera annulé immédiatement. Dans les 30
+              jours suivant votre premier paiement, il vous est remboursé sur
+              simple demande depuis la rubrique Aide.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

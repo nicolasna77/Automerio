@@ -1,4 +1,5 @@
 import type { ConfigField, ServiceCategory } from "@/lib/catalog";
+import type { UsageUnit } from "@/lib/usage-cap";
 
 export type CatalogService = {
   slug: string;
@@ -7,7 +8,9 @@ export type CatalogService = {
   category: ServiceCategory;
   setupFeeCents: number | null;
   monthlyPriceCents: number | null;
-  usageCapLabel: string | null;
+  includedUsageUnits: number | null;
+  usageUnit: UsageUnit | null;
+  overageUnitPriceCents: number | null;
   configFields: ConfigField[];
   sortOrder: number;
 };
@@ -28,7 +31,9 @@ export const CATALOG: CatalogService[] = [
     category: "COMMUNICATION",
     setupFeeCents: 90000,
     monthlyPriceCents: 7900,
-    usageCapLabel: "150 min incluses, puis 0,30 €/min",
+    includedUsageUnits: 150,
+    usageUnit: "MINUTE",
+    overageUnitPriceCents: 30,
     configFields: [
       {
         key: "phoneLine",
@@ -66,7 +71,9 @@ export const CATALOG: CatalogService[] = [
     category: "COMMUNICATION",
     setupFeeCents: 45000,
     monthlyPriceCents: 4900,
-    usageCapLabel: "100 appels inclus, puis 0,30 €/appel",
+    includedUsageUnits: 150,
+    usageUnit: "MINUTE",
+    overageUnitPriceCents: 30,
     configFields: [
       {
         key: "objectives",
@@ -137,13 +144,15 @@ export const CATALOG: CatalogService[] = [
   },
   {
     slug: "assistant-whatsapp",
-    name: "Assistant WhatsApp",
+    name: "Réponses automatiques sur WhatsApp",
     description:
       "Réponses instantanées à vos clients sur WhatsApp : questions fréquentes, devis, disponibilités.",
     category: "COMMUNICATION",
     setupFeeCents: 45000,
     monthlyPriceCents: 5900,
-    usageCapLabel: null,
+    includedUsageUnits: null,
+    usageUnit: null,
+    overageUnitPriceCents: null,
     configFields: [
       {
         key: "whatsappNumber",
@@ -158,13 +167,15 @@ export const CATALOG: CatalogService[] = [
   },
   {
     slug: "assistant-facebook",
-    name: "Assistant Facebook Messenger",
+    name: "Réponses automatiques sur Messenger",
     description:
       "Réponses instantanées à vos clients sur Messenger : questions fréquentes, devis, disponibilités.",
     category: "COMMUNICATION",
     setupFeeCents: 45000,
     monthlyPriceCents: 5900,
-    usageCapLabel: null,
+    includedUsageUnits: null,
+    usageUnit: null,
+    overageUnitPriceCents: null,
     configFields: [
       {
         key: "facebookPageName",
@@ -179,13 +190,15 @@ export const CATALOG: CatalogService[] = [
   },
   {
     slug: "assistant-instagram",
-    name: "Assistant Instagram",
+    name: "Réponses automatiques sur Instagram",
     description:
       "Réponses instantanées à vos clients en messages privés Instagram : questions fréquentes, devis, disponibilités.",
     category: "COMMUNICATION",
     setupFeeCents: 45000,
     monthlyPriceCents: 5900,
-    usageCapLabel: null,
+    includedUsageUnits: null,
+    usageUnit: null,
+    overageUnitPriceCents: null,
     configFields: [
       {
         key: "instagramUsername",
@@ -206,7 +219,9 @@ export const CATALOG: CatalogService[] = [
     category: "COMMUNICATION",
     setupFeeCents: 35000,
     monthlyPriceCents: 4900,
-    usageCapLabel: null,
+    includedUsageUnits: null,
+    usageUnit: null,
+    overageUnitPriceCents: null,
     configFields: [
       {
         key: "mailbox",
@@ -233,7 +248,9 @@ export const CATALOG: CatalogService[] = [
     category: "COMMUNICATION",
     setupFeeCents: 30000,
     monthlyPriceCents: 2900,
-    usageCapLabel: null,
+    includedUsageUnits: null,
+    usageUnit: null,
+    overageUnitPriceCents: null,
     configFields: [
       {
         key: "calendarLink",
@@ -253,133 +270,6 @@ export const CATALOG: CatalogService[] = [
     sortOrder: 7,
   },
 
-  {
-    slug: "devis-factures-bons-commande",
-    name: "Devis, factures et bons de commande",
-    description:
-      "Devis, facturation et bons de commande générés et suivis automatiquement, avec vos informations d'entreprise pré-remplies.",
-    category: "ADMINISTRATION",
-    setupFeeCents: 30000,
-    monthlyPriceCents: 2900,
-    usageCapLabel: null,
-    configFields: [
-      { key: "logo", label: "Logo", type: "url", placeholder: "https://…" },
-      { key: "siret", label: "SIRET", type: "text" },
-      { key: "vatRegime", label: "Régime de TVA", type: "text" },
-      { key: "iban", label: "IBAN / BIC", type: "text" },
-      {
-        key: "productCatalog",
-        label: "Catalogue produits/services",
-        type: "textarea",
-        placeholder: "Solution A — 120 €\nSolution B — 45 €",
-      },
-      { key: "existingTemplate", label: "Modèle existant", type: "file-link" },
-      {
-        key: "legalNotice",
-        label: "Mentions légales à afficher (devis)",
-        type: "textarea",
-      },
-    ],
-    sortOrder: 8,
-  },
-  {
-    slug: "contrats-courriers-administratifs",
-    name: "Contrats et courriers administratifs",
-    description:
-      "Contrats types et courriers officiels adaptés à votre activité, générés et remplis automatiquement.",
-    category: "ADMINISTRATION",
-    setupFeeCents: 35000,
-    monthlyPriceCents: 2400,
-    usageCapLabel: null,
-    configFields: [
-      { key: "documentTypes", label: "Types fréquents", type: "tags" },
-      {
-        key: "existingTemplates",
-        label: "Modèles existants",
-        type: "file-link",
-        helpText: "Plusieurs fichiers possibles — un lien par modèle.",
-      },
-      {
-        key: "tone",
-        label: "Ton souhaité (courriers)",
-        type: "select",
-        options: [
-          { value: "formal", label: "Formel" },
-          { value: "friendly", label: "Convivial" },
-        ],
-      },
-    ],
-    sortOrder: 9,
-  },
-  {
-    slug: "relance-impayes",
-    name: "Relance automatique des impayés",
-    description:
-      "Relances progressives et personnalisées par e-mail jusqu'au règlement, sans y penser. Nécessite « Devis, factures et bons de commande » déjà actif.",
-    category: "ADMINISTRATION",
-    setupFeeCents: 25000,
-    monthlyPriceCents: 2900,
-    usageCapLabel: null,
-    configFields: [
-      {
-        key: "invoicingConnection",
-        label: "Connexion outil de facturation",
-        type: "connection",
-        helpText: "Ou dépôt d'un export régulier.",
-      },
-      {
-        key: "reminderSchedule",
-        label: "Échéancier de relance",
-        type: "rules-list",
-        helpText: "Ex. J+7 → e-mail doux, J+30 → courrier",
-      },
-    ],
-    sortOrder: 10,
-  },
-  {
-    slug: "signature-electronique",
-    name: "Signature électronique",
-    description:
-      "Faites signer devis et contrats en ligne, avec valeur légale et archivage automatique.",
-    category: "ADMINISTRATION",
-    setupFeeCents: 20000,
-    monthlyPriceCents: 2900,
-    usageCapLabel: null,
-    configFields: [
-      {
-        key: "signatureProvider",
-        label: "Solution de signature",
-        type: "select",
-        options: [
-          { value: "yousign", label: "Yousign" },
-          { value: "docusign", label: "DocuSign" },
-          { value: "other", label: "Autre" },
-        ],
-      },
-      { key: "documentTypes", label: "Documents types à signer", type: "tags" },
-    ],
-    sortOrder: 11,
-  },
-  {
-    slug: "archivage-intelligent",
-    name: "Archivage intelligent des documents",
-    description:
-      "Classement automatique de vos documents par client, date et type — retrouvez tout en un instant.",
-    category: "ADMINISTRATION",
-    setupFeeCents: 35000,
-    monthlyPriceCents: 2900,
-    usageCapLabel: null,
-    configFields: [
-      {
-        key: "storageConnection",
-        label: "Espace de stockage",
-        type: "connection",
-        helpText: "Drive / Dropbox / OneDrive.",
-      },
-      { key: "classificationRules", label: "Règles de classement", type: "rules-list" },
-    ],
-    sortOrder: 12,
-  },
 
   {
     slug: "resume-pdf",
@@ -389,7 +279,9 @@ export const CATALOG: CatalogService[] = [
     category: "INFORMATION",
     setupFeeCents: 15000,
     monthlyPriceCents: 1900,
-    usageCapLabel: null,
+    includedUsageUnits: null,
+    usageUnit: null,
+    overageUnitPriceCents: null,
     configFields: [
       {
         key: "sourceConnection",
@@ -417,7 +309,9 @@ export const CATALOG: CatalogService[] = [
     category: "INFORMATION",
     setupFeeCents: 20000,
     monthlyPriceCents: 2400,
-    usageCapLabel: null,
+    includedUsageUnits: null,
+    usageUnit: null,
+    overageUnitPriceCents: null,
     configFields: [
       {
         key: "sourceConnection",
@@ -452,7 +346,9 @@ export const CATALOG: CatalogService[] = [
     category: "INFORMATION",
     setupFeeCents: 35000,
     monthlyPriceCents: 3900,
-    usageCapLabel: null,
+    includedUsageUnits: null,
+    usageUnit: null,
+    overageUnitPriceCents: null,
     configFields: [
       { key: "priorityDocTypes", label: "Types de documents prioritaires", type: "tags" },
       {
@@ -473,7 +369,9 @@ export const CATALOG: CatalogService[] = [
     category: "ABONNEMENT",
     setupFeeCents: null,
     monthlyPriceCents: 9900,
-    usageCapLabel: null,
+    includedUsageUnits: null,
+    usageUnit: null,
+    overageUnitPriceCents: null,
     configFields: [],
     sortOrder: 16,
   },

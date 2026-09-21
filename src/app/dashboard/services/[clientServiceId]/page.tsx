@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AlertTriangle, ArrowLeft, Bot } from "lucide-react";
+import { AlertTriangle, ArrowLeft } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireUser } from "@/lib/session";
@@ -13,7 +13,7 @@ import {
   TELEPHONY_SERVICE_SLUGS,
 } from "@/lib/catalog";
 import { StatusBadge } from "@/components/status-badge";
-import { SERVICE_ICONS } from "@/lib/service-icons";
+import { ServiceGlyphBadge } from "@/components/service-glyph";
 import { BookingsCalendar } from "@/components/bookings-calendar";
 import { toCalendarBookings } from "@/lib/bookings";
 import { ServiceProgress } from "@/app/dashboard/service-progress";
@@ -21,6 +21,8 @@ import { ServiceTimeline } from "@/app/dashboard/service-timeline";
 import { ServiceDetailTable } from "@/app/dashboard/service-detail-table";
 import { ServiceDetailActions } from "@/app/dashboard/service-detail-actions";
 import { ServiceSetupCard } from "@/app/dashboard/service-setup-card";
+import { ServiceSubscriptionCard } from "@/app/dashboard/service-subscription-card";
+import { getSubscriptionFor } from "@/lib/subscriptions";
 
 export const metadata: Metadata = { title: "Détail de la solution" };
 
@@ -39,7 +41,11 @@ export default async function ServiceDetailPage({
   const item = await getMyService(clientServiceId, session.user.id);
   if (!item) notFound();
 
-  const Icon = SERVICE_ICONS[item.service.slug] ?? Bot;
+  // Null pour une solution sans abonnement mensuel : elle n'a pas de periode.
+  const subscription = await getSubscriptionFor(clientServiceId);
+  // La carte d'abonnement dit deja le plafond : le tableau ne le repete pas.
+  const subscriptionShowsCap = Boolean(subscription?.cap);
+
   const isLive =
     TELEPHONY_SERVICE_SLUGS.has(item.service.slug) &&
     (item.status === "ACTIVE" || item.status === "CONFIGURING");
@@ -76,9 +82,7 @@ export default async function ServiceDetailPage({
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-4">
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <Icon className="size-5" aria-hidden="true" />
-          </span>
+          <ServiceGlyphBadge slug={item.service.slug} size="lg" />
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
               <h1 className="truncate text-2xl font-semibold tracking-tight text-foreground">
@@ -112,7 +116,8 @@ export default async function ServiceDetailPage({
       <div className={showBookings ? "mt-8 grid gap-6 lg:grid-cols-5" : "mt-8"}>
         <div className={showBookings ? "space-y-6 lg:col-span-2" : "space-y-6"}>
           <ServiceSetupCard item={item} />
-          <ServiceDetailTable item={item} />
+          {subscription && <ServiceSubscriptionCard subscription={subscription} />}
+          <ServiceDetailTable item={item} showUsageCap={!subscriptionShowsCap} />
           <ServiceTimeline events={item.events} />
         </div>
 

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bot, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -14,7 +14,8 @@ import {
   type ServiceCategory,
   type ServiceDTO,
 } from "@/lib/catalog";
-import { SERVICE_ICONS } from "@/lib/service-icons";
+import { formatUsageCap } from "@/lib/usage-cap";
+import { ServiceGlyphBadge } from "@/components/service-glyph";
 
 const SERVICE_SECTION_CATEGORIES: ServiceCategory[] = [
   "COMMUNICATION",
@@ -22,7 +23,6 @@ const SERVICE_SECTION_CATEGORIES: ServiceCategory[] = [
 ];
 
 function ServiceCard({ service }: { service: ServiceDTO }) {
-  const Icon = SERVICE_ICONS[service.slug] ?? Bot;
   return (
     <Link
       href={`/prestations/${service.slug}`}
@@ -32,9 +32,7 @@ function ServiceCard({ service }: { service: ServiceDTO }) {
       <Card className="flex h-full flex-col transition-colors hover:bg-muted/40 group-focus-visible/service:bg-muted/40">
         <CardHeader>
           <div className="flex items-start justify-between gap-2">
-            <span className="mb-2 flex size-9 items-center justify-center rounded-md bg-primary/10 text-primary">
-              <Icon className="size-4" />
-            </span>
+            <ServiceGlyphBadge slug={service.slug} className="mb-2" />
             <ChevronRight
               className="mt-1 size-4 shrink-0 text-muted-foreground"
               aria-hidden="true"
@@ -62,9 +60,9 @@ function ServiceCard({ service }: { service: ServiceDTO }) {
               </div>
             )}
           </dl>
-          {service.usageCapLabel && (
+          {service.usageCap && (
             <p className="pt-2.5 text-xs leading-relaxed text-muted-foreground">
-              {service.usageCapLabel}
+              {formatUsageCap(service.usageCap)}
             </p>
           )}
         </CardContent>

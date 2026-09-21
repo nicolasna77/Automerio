@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import type { MarketingChannel } from "@prisma/client";
 import { formatCents, type ServiceDTO } from "@/lib/catalog";
+import { formatUsageCap } from "@/lib/usage-cap";
 import { channelRule } from "./channels";
 import { detectUnsupportedClaims } from "./claims";
 
@@ -27,7 +28,7 @@ function describeCatalog(services: ServiceDTO[]): string {
           : service.setupFeeCents !== null
             ? `${formatCents(service.setupFeeCents)} à l'installation`
             : "tarif non précisé";
-      const cap = service.usageCapLabel ? ` (${service.usageCapLabel})` : "";
+      const cap = service.usageCap ? ` (${formatUsageCap(service.usageCap)})` : "";
       return `- ${service.name} [${service.slug}] — ${service.description} Tarif : ${price}${cap}.`;
     })
     .join("\n");

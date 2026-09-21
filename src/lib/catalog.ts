@@ -1,3 +1,4 @@
+import type { UsageCap } from "@/lib/usage-cap";
 import {
   countCatalogItems,
   describeProductCatalog,
@@ -145,7 +146,7 @@ export type ServiceDTO = {
   category: ServiceCategory;
   setupFeeCents: number | null;
   monthlyPriceCents: number | null;
-  usageCapLabel: string | null;
+  usageCap: UsageCap | null;
   configFields: ConfigField[];
   sortOrder: number;
 };

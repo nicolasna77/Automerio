@@ -1,4 +1,5 @@
 import { formatConfigField, type MyServiceDTO } from "@/lib/catalog";
+import { formatUsageCap } from "@/lib/usage-cap";
 
 export function Fact({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -13,9 +14,13 @@ export function serviceConfigEntries(item: MyServiceDTO) {
   return Object.entries(item.configuration).filter(([, value]) => value);
 }
 
-export function hasServiceFacts(item: MyServiceDTO, showPhoneNumber: boolean) {
+export function hasServiceFacts(
+  item: MyServiceDTO,
+  showPhoneNumber: boolean,
+  showUsageCap = true
+) {
   return Boolean(
-    item.service.usageCapLabel ||
+    (item.service.usageCap && showUsageCap) ||
       (item.externalPhoneNumber && showPhoneNumber) ||
       serviceConfigEntries(item).length > 0
   );
@@ -24,14 +29,17 @@ export function hasServiceFacts(item: MyServiceDTO, showPhoneNumber: boolean) {
 export function ServiceFacts({
   item,
   showPhoneNumber = true,
+  showUsageCap = true,
 }: {
   item: MyServiceDTO;
   showPhoneNumber?: boolean;
+  /** Faux quand une jauge montre deja ce plafond, pour ne pas le dire deux fois. */
+  showUsageCap?: boolean;
 }) {
   return (
     <dl>
-      {item.service.usageCapLabel && (
-        <Fact label="Plafond d'usage">{item.service.usageCapLabel}</Fact>
+      {item.service.usageCap && showUsageCap && (
+        <Fact label="Plafond d'usage">{formatUsageCap(item.service.usageCap)}</Fact>
       )}
       {item.externalPhoneNumber && showPhoneNumber && (
         <Fact label="Numéro de téléphone">

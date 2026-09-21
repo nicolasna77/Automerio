@@ -20,7 +20,7 @@ test("une page de solution annonce son tarif et propose d'agir", async ({ page }
   await page.goto("/prestations/assistant-whatsapp");
 
   await expect(
-    page.getByRole("heading", { level: 1, name: "Assistant WhatsApp" })
+    page.getByRole("heading", { level: 1, name: "Réponses automatiques sur WhatsApp" })
   ).toBeVisible();
 
   await expect(page.getByRole("heading", { name: "Tarif" })).toBeVisible();
