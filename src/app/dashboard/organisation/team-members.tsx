@@ -139,7 +139,12 @@ export function TeamMembers({
                         className="w-40"
                         aria-label={`Rôle de ${member.name}`}
                       >
-                        <SelectValue />
+                        {/* Sans fonction de formatage, Base UI affiche la
+                            valeur brute — « member » au lieu de
+                            « Collaborateur ». */}
+                        <SelectValue>
+                          {(value) => roleLabel(String(value))}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         {INVITABLE_ROLES.map((role) => (

@@ -43,7 +43,7 @@ export function InviteForm({ organizationId }: { organizationId: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="max-w-3xl space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <div className="flex-1 space-y-1.5">
           <Label htmlFor="invite-email">Adresse e-mail</Label>
@@ -66,7 +66,7 @@ export function InviteForm({ organizationId }: { organizationId: string }) {
             disabled={pending}
           >
             <SelectTrigger id="invite-role" className="w-full sm:w-44">
-              <SelectValue />
+              <SelectValue>{(value) => roleLabel(String(value))}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               {INVITABLE_ROLES.map((value) => (
@@ -81,7 +81,7 @@ export function InviteForm({ organizationId }: { organizationId: string }) {
           {pending ? "Envoi…" : "Inviter"}
         </Button>
       </div>
-      <p className="text-xs leading-relaxed text-muted-foreground">
+      <p className="max-w-xl text-xs leading-relaxed text-muted-foreground">
         {ROLE_DESCRIPTIONS[role]} La personne recevra un lien pour rejoindre
         l&apos;entreprise ; si elle n&apos;a pas de compte Automerio, elle pourra
         en créer un.
