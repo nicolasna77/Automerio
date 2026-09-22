@@ -29,23 +29,26 @@ export const PALETTE_TOKENS = {
 
 export const BRAND_PALETTE = {
   light: {
-    background: "#f1f3f3",
+    background: "#f1f5f9",
     card: "#ffffff",
-    foreground: "#090b0c",
-    mutedForeground: "#5c6c70",
-    border: "#e3e7e8",
-    primary: "#008236",
-    primaryForeground: "#f0fdf4",
+    foreground: "#0d1b2e",
+    mutedForeground: "#4a5568",
+    border: "#cbd5e0",
+    primary: "#2c7a7b",
+    primaryForeground: "#f6f7f8",
   },
   dark: {
-    background: "#090b0c",
-    foreground: "#f9fbfb",
-    mutedForeground: "#9ca8ab",
+    background: "#0d1b2e",
+    foreground: "#f6f7f8",
+    mutedForeground: "#a0aec0",
   },
 } as const;
 
 /**
- * Le vert sombre qui ferme le degrade du logo sur les images de partage.
- * Choisi a la main : aucun jeton ne le porte, le test ne le controle donc pas.
+ * La teinte foncee qui ferme le degrade du logo sur les images de partage.
+ * Aucun jeton ne la porte, le test ne la controle donc pas : elle reprend le
+ * calcul que `brand.tsx` fait en CSS — `color-mix(in oklab, var(--primary)
+ * 70%, black)` — pour que l'image de partage et le logo affiche ne divergent
+ * pas.
  */
-export const BRAND_GRADIENT_END = "#004e1d";
+export const BRAND_GRADIENT_END = "#17494a";

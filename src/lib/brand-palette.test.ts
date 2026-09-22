@@ -8,7 +8,10 @@ const GLOBALS = readFileSync(
 );
 
 function readBlock(selector: string): Record<string, string> {
-  const block = new RegExp(`^${selector} \\{\\n([\\s\\S]*?)^\\}`, "m").exec(GLOBALS);
+  // `\r?` : le fichier de thème peut arriver d'un éditeur Windows, en CRLF.
+  const block = new RegExp(`^${selector} \\{\\r?\\n([\\s\\S]*?)^\\}`, "m").exec(
+    GLOBALS
+  );
   if (!block) throw new Error(`Bloc ${selector} introuvable dans globals.css`);
 
   const declarations: Record<string, string> = {};
@@ -18,36 +21,33 @@ function readBlock(selector: string): Record<string, string> {
   return declarations;
 }
 
-/** oklch() -> sRGB, la conversion que fait le navigateur avant d'afficher. */
-function oklchToHex(declaration: string): string {
-  const parsed = /^oklch\(([\d.]+)\s+([\d.]+)\s+([\d.]+)\)$/.exec(declaration);
-  if (!parsed) throw new Error(`Valeur oklch inattendue : ${declaration}`);
+/** hsl() -> sRGB, la conversion que fait le navigateur avant d'afficher. */
+function hslToHex(declaration: string): string {
+  const parsed = /^hsl\(([\d.]+)\s+([\d.]+)%\s+([\d.]+)%\)$/.exec(declaration.trim());
+  if (!parsed) throw new Error(`Valeur hsl inattendue : ${declaration}`);
 
-  const [lightness, chroma, hue] = parsed.slice(1).map(Number);
-  const radians = (hue * Math.PI) / 180;
-  const a = chroma * Math.cos(radians);
-  const b = chroma * Math.sin(radians);
+  const [hue, saturation, lightness] = parsed.slice(1).map(Number);
+  const s = saturation / 100;
+  const l = lightness / 100;
+  const chroma = (1 - Math.abs(2 * l - 1)) * s;
+  const second = chroma * (1 - Math.abs(((hue / 60) % 2) - 1));
+  const offset = l - chroma / 2;
 
-  const l = (lightness + 0.3963377774 * a + 0.2158037573 * b) ** 3;
-  const m = (lightness - 0.1055613458 * a - 0.0638541728 * b) ** 3;
-  const s = (lightness - 0.0894841775 * a - 1.291485548 * b) ** 3;
+  const [r, g, b] = [
+    [chroma, second, 0],
+    [second, chroma, 0],
+    [0, chroma, second],
+    [0, second, chroma],
+    [second, 0, chroma],
+    [chroma, 0, second],
+  ][Math.floor(hue / 60) % 6];
 
-  const linear = [
-    4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
-    -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
-    -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s,
-  ];
-
-  return `#${linear
-    .map((channel) => {
-      const encoded =
-        channel <= 0.0031308
-          ? 12.92 * channel
-          : 1.055 * channel ** (1 / 2.4) - 0.055;
-      return Math.round(Math.min(1, Math.max(0, encoded)) * 255)
+  return `#${[r, g, b]
+    .map((channel) =>
+      Math.round((channel + offset) * 255)
         .toString(16)
-        .padStart(2, "0");
-    })
+        .padStart(2, "0")
+    )
     .join("")}`;
 }
 
@@ -58,8 +58,9 @@ const THEMES = [
 
 describe("BRAND_PALETTE", () => {
   it("convertit correctement une valeur connue", () => {
-    expect(oklchToHex("oklch(1 0 0)")).toBe("#ffffff");
-    expect(oklchToHex("oklch(0 0 0)")).toBe("#000000");
+    expect(hslToHex("hsl(0 0% 100%)")).toBe("#ffffff");
+    expect(hslToHex("hsl(0 0% 0%)")).toBe("#000000");
+    expect(hslToHex("hsl(180.7595 47.3054% 32.7451%)")).toBe("#2c7a7b");
   });
 
   for (const theme of THEMES) {
@@ -70,7 +71,7 @@ describe("BRAND_PALETTE", () => {
         it(`${key} suit ${token}`, () => {
           const declaration = declarations[token];
           expect(declaration, `${token} absent de globals.css`).toBeDefined();
-          expect(oklchToHex(declaration)).toBe(
+          expect(hslToHex(declaration)).toBe(
             BRAND_PALETTE[theme.name][
               key as keyof (typeof BRAND_PALETTE)[typeof theme.name]
             ]
