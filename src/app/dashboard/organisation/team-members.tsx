@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,7 +25,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
-import { INVITABLE_ROLES, roleLabel } from "@/lib/organization-roles";
+import {
+  INVITABLE_ROLES,
+  ROLE_DESCRIPTIONS,
+  roleLabel,
+} from "@/lib/organization-roles";
 import { changeMemberRoleAction, removeMemberAction } from "./actions";
 
 export type TeamMemberRow = {
@@ -36,13 +41,23 @@ export type TeamMemberRow = {
   isMe: boolean;
 };
 
+function initialsOf(name: string): string {
+  return (
+    name
+      .split(" ")
+      .map((part) => part[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase() || "?"
+  );
+}
+
 export function TeamMembers({
   organizationId,
   members,
   canManage,
 }: {
   organizationId: string;
-  currentUserId: string;
   canManage: boolean;
   members: TeamMemberRow[];
 }) {
@@ -81,61 +96,75 @@ export function TeamMembers({
     <>
       <ul className="divide-y divide-border">
         {members.map((member) => {
-          // Le propriétaire ne se modifie pas depuis cette page : son rôle se
-          // transmet, ce qui est un autre geste.
+          // Le propriétaire ne se modifie pas ici : son rôle se transmet, ce qui
+          // est un autre geste.
           const isOwner = member.role.split(",").includes("owner");
           const editable = canManage && !isOwner;
 
           return (
-            <li
-              key={member.id}
-              className="flex flex-wrap items-center gap-3 py-3 first:pt-0 last:pb-0"
-            >
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-foreground">
-                  {member.name}
-                  {member.isMe && (
-                    <span className="ml-2 text-xs font-normal text-muted-foreground">
-                      vous
-                    </span>
+            <li key={member.id} className="py-4 first:pt-0 last:pb-0">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <Avatar className="size-9 shrink-0">
+                  <AvatarFallback className="text-xs">
+                    {initialsOf(member.name)}
+                  </AvatarFallback>
+                </Avatar>
+
+                <div className="min-w-0 flex-1">
+                  <p className="flex items-center gap-2 text-sm font-medium text-foreground">
+                    <span className="truncate">{member.name}</span>
+                    {member.isMe && (
+                      <Badge variant="outline" className="shrink-0 font-normal">
+                        vous
+                      </Badge>
+                    )}
+                  </p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {member.email}
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {ROLE_DESCRIPTIONS[member.role] ??
+                      `Membre depuis le ${member.joinedAt}`}
+                  </p>
+                </div>
+
+                <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+                  {editable ? (
+                    <Select
+                      value={member.role}
+                      onValueChange={(role) => role && handleRoleChange(member, role)}
+                      disabled={pending}
+                    >
+                      <SelectTrigger
+                        className="w-40"
+                        aria-label={`Rôle de ${member.name}`}
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {INVITABLE_ROLES.map((role) => (
+                          <SelectItem key={role} value={role}>
+                            {roleLabel(role)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Badge variant="secondary">{roleLabel(member.role)}</Badge>
                   )}
-                </p>
-                <p className="truncate text-xs text-muted-foreground">
-                  {member.email} · depuis le {member.joinedAt}
-                </p>
+
+                  {editable && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      disabled={pending}
+                      onClick={() => setToRemove(member)}
+                    >
+                      Retirer
+                    </Button>
+                  )}
+                </div>
               </div>
-
-              {editable ? (
-                <Select
-                  value={member.role}
-                  onValueChange={(role) => role && handleRoleChange(member, role)}
-                  disabled={pending}
-                >
-                  <SelectTrigger className="w-40" aria-label={`Rôle de ${member.name}`}>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {INVITABLE_ROLES.map((role) => (
-                      <SelectItem key={role} value={role}>
-                        {roleLabel(role)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              ) : (
-                <Badge variant="secondary">{roleLabel(member.role)}</Badge>
-              )}
-
-              {editable && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  disabled={pending}
-                  onClick={() => setToRemove(member)}
-                >
-                  Retirer
-                </Button>
-              )}
             </li>
           );
         })}
