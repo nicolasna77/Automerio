@@ -1,4 +1,5 @@
 import { formatCents } from "@/lib/catalog";
+import { formatCentsExcludingVat } from "@/lib/vat";
 
 export type DiscountDuration = "once" | "repeating" | "forever";
 
@@ -44,7 +45,9 @@ export function describeDiscount(
   const isPercent = rule.percentOff !== null;
   const amount = isPercent
     ? `−${formatPercent(rule.percentOff!)}`
-    : `−${formatCents(rule.amountOffCents ?? 0)}`;
+    : `−${formatCents(rule.amountOffCents ?? 0)} TTC (−${formatCentsExcludingVat(
+        rule.amountOffCents ?? 0
+      )} HT)`;
 
   if (!pricing.hasSubscription) return `${amount} sur le paiement`;
 

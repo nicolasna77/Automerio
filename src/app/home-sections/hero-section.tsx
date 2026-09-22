@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import { formatCents, type ServiceDTO } from "@/lib/catalog";
+import type { ServiceDTO } from "@/lib/catalog";
+import { formatCentsWithVat } from "@/lib/vat";
 import { HeroNetworkVisual } from "./hero-network-visual";
 
 const VISUAL_NODE_COUNT = 6;
@@ -17,7 +18,7 @@ export function HeroSection({ services }: { services: ServiceDTO[] }) {
     monthlyPrices.length > 0 ? Math.min(...monthlyPrices) : null;
 
   const facts = [
-    fromPrice !== null ? `À partir de ${formatCents(fromPrice)} TTC par mois` : null,
+    fromPrice !== null ? `À partir de ${formatCentsWithVat(fromPrice)} par mois` : null,
     "Sans engagement",
     "Abonnement remboursé 30 jours",
   ].filter((fact): fact is string => fact !== null);

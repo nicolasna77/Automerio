@@ -2,6 +2,7 @@ import { PhoneCall, Wallet, Zap } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { db } from "@/lib/db";
 import { formatPrice } from "@/lib/catalog";
+import { formatPriceExcludingVat } from "@/lib/vat";
 
 export async function OverviewStats({ organizationId }: { organizationId: string }) {
   const now = new Date();
@@ -45,8 +46,13 @@ export async function OverviewStats({ organizationId }: { organizationId: string
     {
       icon: Wallet,
       label: "Dépense mensuelle",
-      value: formatPrice(null, monthlySpendCents),
-      note: settingUpNote ? "Hors solutions en cours d'installation" : null,
+      value: `${formatPrice(null, monthlySpendCents)} TTC`,
+      note: [
+        `soit ${formatPriceExcludingVat(null, monthlySpendCents)} HT`,
+        settingUpNote ? "hors solutions en cours d'installation" : null,
+      ]
+        .filter((part): part is string => part !== null)
+        .join(" · "),
     },
     {
       icon: PhoneCall,

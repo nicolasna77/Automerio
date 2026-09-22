@@ -11,6 +11,7 @@ import { getSession } from "@/lib/session";
 import { CATEGORY_LABELS, TELEPHONY_SERVICE_SLUGS, formatCents } from "@/lib/catalog";
 import { getCatalog, getServiceBySlug } from "@/lib/get-catalog";
 import { siteOpenGraph } from "@/lib/site";
+import { excludingVatSuffix } from "@/lib/vat";
 import { formatUsageCap } from "@/lib/usage-cap";
 import { getServiceCopy } from "@/lib/service-copy";
 import { FaqList } from "@/components/faq-list";
@@ -146,6 +147,9 @@ export default async function PrestationDetailPage({
                         </dd>
                         <dt className="mt-0.5 text-sm text-muted-foreground">
                           TTC, &agrave; l&apos;installation
+                          <span className="block text-xs">
+                            {excludingVatSuffix(service.setupFeeCents)}
+                          </span>
                         </dt>
                       </div>
                     )}
@@ -154,7 +158,12 @@ export default async function PrestationDetailPage({
                         <dd className="text-3xl font-semibold tabular-nums text-foreground">
                           {formatCents(service.monthlyPriceCents)}
                         </dd>
-                        <dt className="mt-0.5 text-sm text-muted-foreground">TTC par mois</dt>
+                        <dt className="mt-0.5 text-sm text-muted-foreground">
+                          TTC par mois
+                          <span className="block text-xs">
+                            {excludingVatSuffix(service.monthlyPriceCents)}
+                          </span>
+                        </dt>
                       </div>
                     )}
                     {service.usageCap && (

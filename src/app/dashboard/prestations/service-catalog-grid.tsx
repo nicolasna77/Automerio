@@ -4,6 +4,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/status-badge";
 import { formatPrice, type ClientServiceStatus, type ServiceDTO } from "@/lib/catalog";
+import { formatPriceExcludingVat } from "@/lib/vat";
 import { formatUsageCap } from "@/lib/usage-cap";
 import { ServiceGlyphBadge } from "@/components/service-glyph";
 
@@ -47,7 +48,10 @@ export function ServiceCatalogGrid({
               </CardHeader>
               <CardContent className="mt-auto">
                 <p className="border-t border-border pt-4 font-medium text-foreground tabular-nums">
-                  {formatPrice(service.setupFeeCents, service.monthlyPriceCents)}
+                  {formatPrice(service.setupFeeCents, service.monthlyPriceCents)} TTC
+                  <span className="block text-xs font-normal text-muted-foreground">
+                    soit {formatPriceExcludingVat(service.setupFeeCents, service.monthlyPriceCents)} HT
+                  </span>
                 </p>
                 {service.usageCap && (
                   <p className="mt-0.5 text-xs text-muted-foreground">

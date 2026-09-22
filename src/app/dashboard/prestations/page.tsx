@@ -80,7 +80,7 @@ export default async function PrestationsPage({
           Catalogue
         </h2>
         <p className="mt-1 mb-4 text-sm text-muted-foreground">
-          Prix TTC. Vous pouvez activer une même solution plusieurs fois, pour plusieurs boutiques par exemple.
+          Prix TTC, le montant hors taxes est rappelé dessous. Vous pouvez activer une même solution plusieurs fois, pour plusieurs boutiques par exemple.
         </p>
         <ServiceCatalogGrid services={catalog} statusByServiceId={statusByServiceId} />
       </section>

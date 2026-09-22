@@ -26,6 +26,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { CATEGORY_LABELS, formatPrice } from "@/lib/catalog";
+import { formatPriceExcludingVat } from "@/lib/vat";
 import { unwrap } from "@/lib/action-result";
 import { cn, getErrorMessage } from "@/lib/utils";
 import { usageCapLabelOf } from "@/lib/usage-cap";
@@ -70,7 +71,10 @@ export function ServicesTable({ services }: { services: EditableService[] }) {
                     {CATEGORY_LABELS[service.category]}
                   </TableCell>
                   <TableCell className="tabular-nums text-foreground">
-                    {formatPrice(service.setupFeeCents, service.monthlyPriceCents)}
+                    {formatPrice(service.setupFeeCents, service.monthlyPriceCents)} TTC
+                    <span className="block text-xs text-muted-foreground">
+                      soit {formatPriceExcludingVat(service.setupFeeCents, service.monthlyPriceCents)} HT
+                    </span>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
                     {usageCapLabelOf(service) ?? "—"}

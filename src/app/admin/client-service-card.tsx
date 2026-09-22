@@ -1,5 +1,6 @@
 import { StatusBadge } from "@/components/status-badge";
 import { formatDate, formatPrice, type ClientServiceStatus } from "@/lib/catalog";
+import { formatPriceExcludingVat } from "@/lib/vat";
 import { MarkActiveButton } from "./client-service-actions";
 import {
   ConnectionCell,
@@ -46,8 +47,11 @@ export function ClientServiceCard({
         </div>
         <div className="flex gap-2">
           <dt className="shrink-0 text-muted-foreground">Prix</dt>
-          <dd className="ml-auto text-foreground">
-            {formatPrice(cs.service.setupFeeCents, cs.service.monthlyPriceCents)}
+          <dd className="ml-auto text-right text-foreground">
+            {formatPrice(cs.service.setupFeeCents, cs.service.monthlyPriceCents)} TTC
+            <span className="block text-xs text-muted-foreground">
+              soit {formatPriceExcludingVat(cs.service.setupFeeCents, cs.service.monthlyPriceCents)} HT
+            </span>
           </dd>
         </div>
       </dl>

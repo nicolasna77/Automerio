@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { formatCentsExcludingVat } from "./vat";
 import { formatCents } from "@/lib/catalog";
 import {
   allowedServiceSlugs,
@@ -69,7 +70,7 @@ describe("describeDiscount", () => {
 
   it("n'en parle pas pour un montant fixe, qui se retranche du total", () => {
     expect(describeDiscount(fixed(5000), HYBRID)).toBe(
-      `−${formatCents(5000)} sur le premier paiement`
+      `−${formatCents(5000)} TTC (−${formatCentsExcludingVat(5000)} HT) sur le premier paiement`
     );
   });
 
@@ -78,7 +79,7 @@ describe("describeDiscount", () => {
       `−20${NBSP}% pendant 3 mois, mise en place comprise`
     );
     expect(describeDiscount(fixed(1000, "repeating", 3), HYBRID)).toBe(
-      `−${formatCents(1000)} sur chacun des 3 premiers paiements`
+      `−${formatCents(1000)} TTC (−${formatCentsExcludingVat(1000)} HT) sur chacun des 3 premiers paiements`
     );
   });
 

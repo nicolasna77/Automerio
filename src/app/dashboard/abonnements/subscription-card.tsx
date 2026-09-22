@@ -12,6 +12,7 @@ import {
 } from "@/lib/subscriptions";
 import { UsageGauge } from "./usage-gauge";
 import { SubscriptionActions } from "./subscription-actions";
+import { excludingVatSuffix } from "@/lib/vat";
 
 export function SubscriptionCard({
   subscription,
@@ -81,9 +82,12 @@ export function SubscriptionCard({
               <p className="text-sm text-muted-foreground">{subscription.serviceName}</p>
             )}
           </div>
-          <p className="shrink-0 text-sm tabular-nums text-foreground">
-            {formatCents(subscription.monthlyPriceCents)}
+          <p className="shrink-0 text-right text-sm tabular-nums text-foreground">
+            {formatCents(subscription.monthlyPriceCents)} TTC
             <span className="text-muted-foreground">/mois</span>
+            <span className="block text-xs font-normal text-muted-foreground">
+              {excludingVatSuffix(subscription.monthlyPriceCents)}
+            </span>
           </p>
         </div>
       </CardHeader>

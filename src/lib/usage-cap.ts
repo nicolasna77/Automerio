@@ -1,4 +1,4 @@
-import { formatCents } from "@/lib/catalog";
+import { formatCentsWithVat } from "@/lib/vat";
 
 export type UsageUnit = "CALL" | "MINUTE";
 
@@ -38,7 +38,7 @@ export function formatUsageCap(cap: UsageCap): string {
       : `${cap.includedUnits} appel${cap.includedUnits === 1 ? "" : "s"} inclus`;
   if (cap.overageUnitPriceCents <= 0) return included;
   const per = cap.unit === "MINUTE" ? "min" : "appel";
-  return `${included}, puis ${formatCents(cap.overageUnitPriceCents)}/${per}`;
+  return `${included}, puis ${formatCentsWithVat(cap.overageUnitPriceCents)}/${per}`;
 }
 
 export function usageCapLabelOf(service: ServiceUsageColumns): string | null {

@@ -17,6 +17,7 @@ import { requireActiveOrganization } from "@/lib/organization";
 import { formatCents, formatDate } from "@/lib/catalog";
 import { getMyInvoices, type InvoiceDTO } from "../get-invoices";
 import { BillingPortalButton } from "./billing-portal-button";
+import { VAT_PERCENTAGE, excludingVatSuffix } from "@/lib/vat";
 
 export const metadata: Metadata = { title: "Paiements" };
 
@@ -60,7 +61,8 @@ export default async function PaiementsPage() {
             Paiements
           </h1>
           <p className="mt-1 text-muted-foreground">
-            Vos factures, par solution. Prix TTC, TVA à 20 % incluse.
+            Vos factures, par solution. Montant prélevé TTC, TVA à {VAT_PERCENTAGE} % incluse ;
+            le hors taxes est rappelé sous chaque montant.
           </p>
         </div>
         {customer.stripeCustomerId && invoices.length > 0 && <BillingPortalButton />}
@@ -116,7 +118,10 @@ export default async function PaiementsPage() {
                     {formatDate(invoice.createdAt)}
                   </TableCell>
                   <TableCell className="tabular-nums text-foreground">
-                    {formatCents(invoice.amountPaidCents)}
+                    {formatCents(invoice.amountPaidCents)} TTC
+                    <span className="block text-xs text-muted-foreground">
+                      {excludingVatSuffix(invoice.amountPaidCents)}
+                    </span>
                   </TableCell>
                   <TableCell>
                     <InvoiceStatusBadge status={invoice.status} />
