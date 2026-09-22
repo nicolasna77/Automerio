@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { JsonLd, organizationSchema } from "@/components/json-ld";
-import { SITE_DESCRIPTION, SITE_NAME, siteUrl } from "@/lib/site";
+import { SITE_DESCRIPTION, SITE_TITLE, siteOpenGraph, siteUrl } from "@/lib/site";
 import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({
@@ -18,24 +18,18 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const TITLE = "Automerio — Automatisation pour artisans, coachs et TPE/PME";
-
+// Ni `alternates.canonical` ni `openGraph.url` ne figurent ici : Next fait
+// heriter tout champ qu'une page ne redefinit pas, si bien qu'une URL posee au
+// niveau du layout se propage a tout le site et que chaque page se declare
+// canonique vers l'accueil. Chaque page publique pose donc la sienne.
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
-  title: { default: TITLE, template: "%s | Automerio" },
+  title: { default: SITE_TITLE, template: "%s | Automerio" },
   description: SITE_DESCRIPTION,
-  alternates: { canonical: "/" },
-  openGraph: {
-    type: "website",
-    locale: "fr_FR",
-    siteName: SITE_NAME,
-    title: TITLE,
-    description: SITE_DESCRIPTION,
-    url: "/",
-  },
+  openGraph: siteOpenGraph(),
   twitter: {
     card: "summary_large_image",
-    title: TITLE,
+    title: SITE_TITLE,
     description: SITE_DESCRIPTION,
   },
 };

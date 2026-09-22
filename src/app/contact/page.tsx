@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { siteOpenGraph } from "@/lib/site";
 import { ContactForm } from "./contact-form";
 
-export const metadata: Metadata = { title: "Contact" };
+export const metadata: Metadata = {
+  title: "Contact",
+  alternates: { canonical: "/contact" },
+  openGraph: siteOpenGraph({ url: "/contact", title: "Contact" }),
+};
 
 const NEXT_STEPS = [
   {

@@ -10,6 +10,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { getSession } from "@/lib/session";
 import { CATEGORY_LABELS, TELEPHONY_SERVICE_SLUGS, formatCents } from "@/lib/catalog";
 import { getCatalog, getServiceBySlug } from "@/lib/get-catalog";
+import { siteOpenGraph } from "@/lib/site";
 import { formatUsageCap } from "@/lib/usage-cap";
 import { getServiceCopy } from "@/lib/service-copy";
 import { FaqList } from "@/components/faq-list";
@@ -29,7 +30,7 @@ export async function generateMetadata({
     title: service.name,
     description,
     alternates: { canonical: url },
-    openGraph: { type: "website", title: service.name, description, url },
+    openGraph: siteOpenGraph({ url, title: service.name, description }),
     twitter: { card: "summary_large_image", title: service.name, description },
   };
 }

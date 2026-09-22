@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import { siteOpenGraph } from "@/lib/site";
 import { JsonLd, faqSchema } from "@/components/json-ld";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -10,6 +12,11 @@ import { MethodSection } from "./home-sections/method-section";
 import { MaintenanceSection } from "./home-sections/maintenance-section";
 import { FaqSection } from "./home-sections/faq-section";
 import { CtaSection } from "./home-sections/cta-section";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+  openGraph: siteOpenGraph({ url: "/" }),
+};
 
 export default async function HomePage() {
   const services = await getCatalog();
