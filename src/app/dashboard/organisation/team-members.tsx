@@ -27,6 +27,7 @@ import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
 import {
   INVITABLE_ROLES,
+  INVITABLE_ROLE_ITEMS,
   ROLE_DESCRIPTIONS,
   roleLabel,
 } from "@/lib/organization-roles";
@@ -132,6 +133,7 @@ export function TeamMembers({
                   {editable ? (
                     <Select
                       value={member.role}
+                      items={INVITABLE_ROLE_ITEMS}
                       onValueChange={(role) => role && handleRoleChange(member, role)}
                       disabled={pending}
                     >
@@ -139,12 +141,7 @@ export function TeamMembers({
                         className="w-40"
                         aria-label={`Rôle de ${member.name}`}
                       >
-                        {/* Sans fonction de formatage, Base UI affiche la
-                            valeur brute — « member » au lieu de
-                            « Collaborateur ». */}
-                        <SelectValue>
-                          {(value) => roleLabel(String(value))}
-                        </SelectValue>
+                        <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         {INVITABLE_ROLES.map((role) => (
