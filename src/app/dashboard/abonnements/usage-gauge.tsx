@@ -1,11 +1,11 @@
 import { cn } from "@/lib/utils";
-import { formatCents } from "@/lib/catalog";
 import {
   formatUsageUnits,
   overageUnits,
   usageRatio,
   type UsageCap,
 } from "@/lib/usage-cap";
+import { formatCentsWithVat } from "@/lib/vat";
 
 export function UsageGauge({
   cap,
@@ -54,7 +54,7 @@ export function UsageGauge({
           <>
             {formatUsageUnits(over, cap.unit)} au-delà du forfait —{" "}
             <span className="font-medium text-foreground tabular-nums">
-              {formatCents(overageCents)}
+              {formatCentsWithVat(overageCents)}
             </span>{" "}
             s&apos;ajouteront à la prochaine facture.
           </>

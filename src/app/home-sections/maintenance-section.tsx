@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { formatCents, type ServiceDTO } from "@/lib/catalog";
+import { excludingVatSuffix } from "@/lib/vat";
 
 const PERKS = [
   {
@@ -38,9 +39,12 @@ export function MaintenanceSection({ services }: { services: ServiceDTO[] }) {
                 <LifeBuoy className="size-4" />
               </span>
               {support.monthlyPriceCents !== null && (
-                <Badge>
-                  {formatCents(support.monthlyPriceCents)}/mois TTC
-                </Badge>
+                <div className="text-right">
+                  <Badge>{formatCents(support.monthlyPriceCents)}/mois TTC</Badge>
+                  <span className="mt-1 block text-[0.6875rem] text-muted-foreground">
+                    {excludingVatSuffix(support.monthlyPriceCents)}
+                  </span>
+                </div>
               )}
             </div>
             <CardTitle>{support.name}</CardTitle>

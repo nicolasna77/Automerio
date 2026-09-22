@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { absoluteUrl, FAQS, SITE_DESCRIPTION, SITE_NAME } from "@/lib/site";
-import { CATEGORY_LABELS, formatCents, type ServiceCategory } from "@/lib/catalog";
+import { CATEGORY_LABELS, type ServiceCategory } from "@/lib/catalog";
+import { formatCentsWithVat } from "@/lib/vat";
 import { usageCapLabelOf } from "@/lib/usage-cap";
 
 export const dynamic = "force-dynamic";
@@ -20,8 +21,10 @@ export async function GET() {
 
   function price(setupFeeCents: number | null, monthlyPriceCents: number | null): string {
     const parts: string[] = [];
-    if (setupFeeCents !== null) parts.push(`${formatCents(setupFeeCents)} à l'installation`);
-    if (monthlyPriceCents !== null) parts.push(`${formatCents(monthlyPriceCents)} par mois`);
+    if (setupFeeCents !== null)
+      parts.push(`${formatCentsWithVat(setupFeeCents)} à l'installation`);
+    if (monthlyPriceCents !== null)
+      parts.push(`${formatCentsWithVat(monthlyPriceCents)} par mois`);
     return parts.length > 0 ? parts.join(", puis ") : "tarif sur demande";
   }
 

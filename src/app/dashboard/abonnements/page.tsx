@@ -7,7 +7,7 @@ import { EmptyState } from "@/components/empty-state";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import { requireActiveOrganization } from "@/lib/organization";
-import { formatCents, formatDate } from "@/lib/catalog";
+import { formatDate } from "@/lib/catalog";
 import {
   getMySubscriptions,
   isRunning,
@@ -16,6 +16,7 @@ import {
 } from "@/lib/subscriptions";
 import { BillingPortalButton } from "../paiements/billing-portal-button";
 import { SubscriptionCard } from "./subscription-card";
+import { formatCentsWithVat } from "@/lib/vat";
 
 export const metadata: Metadata = { title: "Abonnements" };
 
@@ -46,7 +47,7 @@ export default async function AbonnementsPage() {
     {
       icon: Wallet,
       label: "Total mensuel",
-      value: formatCents(monthlyTotalCents(subscriptions)),
+      value: formatCentsWithVat(monthlyTotalCents(subscriptions)),
     },
     {
       icon: CalendarClock,

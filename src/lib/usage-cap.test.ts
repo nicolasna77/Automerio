@@ -36,13 +36,17 @@ describe("readUsageCap", () => {
 
 describe("formatUsageCap", () => {
   it("accorde le participe avec l'unité", () => {
-    expect(formatUsageCap(minutes)).toBe(`150 min incluses, puis 0,30${NBSP}€/min`);
-    expect(formatUsageCap(calls)).toBe(`100 appels inclus, puis 0,30${NBSP}€/appel`);
+    expect(formatUsageCap(minutes)).toBe(
+      `150 min incluses, puis 0,30${NBSP}€ TTC (0,25${NBSP}€ HT)/min`
+    );
+    expect(formatUsageCap(calls)).toBe(
+      `100 appels inclus, puis 0,30${NBSP}€ TTC (0,25${NBSP}€ HT)/appel`
+    );
   });
 
   it("met l'unique appel inclus au singulier", () => {
     expect(formatUsageCap({ ...calls, includedUnits: 1 })).toBe(
-      `1 appel inclus, puis 0,30${NBSP}€/appel`
+      `1 appel inclus, puis 0,30${NBSP}€ TTC (0,25${NBSP}€ HT)/appel`
     );
   });
 

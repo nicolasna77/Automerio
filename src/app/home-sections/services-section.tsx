@@ -14,6 +14,7 @@ import {
   type ServiceCategory,
   type ServiceDTO,
 } from "@/lib/catalog";
+import { excludingVatSuffix } from "@/lib/vat";
 import { bentoLayout, type BentoSize } from "@/lib/bento-layout";
 import { formatUsageCap } from "@/lib/usage-cap";
 import { getServiceCopy } from "@/lib/service-copy";
@@ -38,16 +39,22 @@ function PriceList({ service }: { service: ServiceDTO }) {
         {service.setupFeeCents !== null && (
           <div className="flex items-center justify-between">
             <dt className="text-muted-foreground">Mise en place</dt>
-            <dd className="tabular-nums text-foreground">
-              {formatCents(service.setupFeeCents)}
+            <dd className="text-right tabular-nums text-foreground">
+              {formatCents(service.setupFeeCents)} TTC
+              <span className="block text-[0.6875rem] font-normal text-muted-foreground">
+                {excludingVatSuffix(service.setupFeeCents)}
+              </span>
             </dd>
           </div>
         )}
         {service.monthlyPriceCents !== null && (
           <div className="flex items-center justify-between">
             <dt className="text-muted-foreground">Abonnement</dt>
-            <dd className="tabular-nums text-foreground">
+            <dd className="text-right tabular-nums text-foreground">
               {formatCents(service.monthlyPriceCents)}/mois TTC
+              <span className="block text-[0.6875rem] font-normal text-muted-foreground">
+                {excludingVatSuffix(service.monthlyPriceCents)}
+              </span>
             </dd>
           </div>
         )}

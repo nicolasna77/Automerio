@@ -2,8 +2,9 @@ import type { ClientService, Service } from "@prisma/client";
 import type Stripe from "stripe";
 import { db } from "@/lib/db";
 import { stripeClient } from "@/lib/stripe";
-import { formatCents, formatDate, type ClientServiceStatus } from "@/lib/catalog";
+import { formatDate, type ClientServiceStatus } from "@/lib/catalog";
 import { overageCents, readUsageCap, type UsageCap } from "@/lib/usage-cap";
+import { formatCentsWithVat } from "@/lib/vat";
 
 export type BillingPeriod = {
   start: Date;
@@ -213,7 +214,7 @@ export function describeNextCharge(subscription: MySubscription): string {
       ? `Ne sera pas renouvelé après le ${formatDate(subscription.period.end)}`
       : "Ne sera pas renouvelé";
   }
-  const amount = formatCents(subscription.monthlyPriceCents);
+  const amount = formatCentsWithVat(subscription.monthlyPriceCents);
   return subscription.period.end
     ? `Prochain prélèvement : ${amount} le ${formatDate(subscription.period.end)}`
     : `Prochain prélèvement : ${amount}`;

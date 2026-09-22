@@ -15,6 +15,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { formatCents } from "@/lib/catalog";
+import { excludingVatSuffix, formatCentsWithVat } from "@/lib/vat";
 
 const chartConfig = {
   totalCents: {
@@ -41,8 +42,11 @@ export function SpendChartView({
             <CardDescription>Basé sur vos factures payées.</CardDescription>
           </div>
           {totalCents > 0 && (
-            <p className="text-2xl font-semibold tabular-nums text-foreground">
-              {formatCents(totalCents)}
+            <p className="text-right text-2xl font-semibold tabular-nums text-foreground">
+              {formatCents(totalCents)} TTC
+              <span className="block text-xs font-normal text-muted-foreground">
+                {excludingVatSuffix(totalCents)}
+              </span>
             </p>
           )}
         </div>
@@ -71,7 +75,7 @@ export function SpendChartView({
             <ChartTooltip
               content={
                 <ChartTooltipContent
-                  formatter={(value) => formatCents(Number(value))}
+                  formatter={(value) => formatCentsWithVat(Number(value))}
                 />
               }
             />
@@ -88,7 +92,7 @@ export function SpendChartView({
           <ul className="sr-only">
             {data.map((bucket) => (
               <li key={bucket.label}>
-                {bucket.label} : {formatCents(bucket.totalCents)}
+                {bucket.label} : {formatCentsWithVat(bucket.totalCents)}
               </li>
             ))}
           </ul>

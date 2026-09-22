@@ -3,6 +3,7 @@ import { Card, CardHeader, CardDescription } from "@/components/ui/card";
 import { StatCard } from "@/components/stat-card";
 import { db } from "@/lib/db";
 import { STATUS_LABELS, formatPrice, type ClientServiceStatus } from "@/lib/catalog";
+import { formatPriceExcludingVat } from "@/lib/vat";
 
 const STATUS_ORDER: ClientServiceStatus[] = [
   "PENDING_PAYMENT",
@@ -134,7 +135,14 @@ export async function Stats() {
         <StatCard
           icon={Wallet}
           label="Revenu récurrent mensuel"
-          value={formatPrice(null, mrrCents)}
+          value={
+            <>
+              {formatPrice(null, mrrCents)} TTC
+              <span className="block text-xs font-normal text-muted-foreground">
+                soit {formatPriceExcludingVat(null, mrrCents)} HT
+              </span>
+            </>
+          }
         >
           <Sparkline counts={sparklineCounts} />
         </StatCard>

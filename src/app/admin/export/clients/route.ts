@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/session";
 import { csvResponseHeaders, toCsv } from "@/lib/csv";
 import { STATUS_LABELS, formatCents, type ClientServiceStatus } from "@/lib/catalog";
+import { formatCentsExcludingVat } from "@/lib/vat";
 
 export async function GET() {
   await requireAdmin();
@@ -26,16 +27,30 @@ export async function GET() {
       value: (r) => STATUS_LABELS[r.status as ClientServiceStatus] ?? r.status,
     },
     {
-      header: "Frais de mise en place",
+      header: "Frais de mise en place TTC",
       value: (r) =>
         r.service.setupFeeCents === null ? "" : formatCents(r.service.setupFeeCents),
     },
     {
-      header: "Abonnement mensuel",
+      header: "Frais de mise en place HT",
+      value: (r) =>
+        r.service.setupFeeCents === null
+          ? ""
+          : formatCentsExcludingVat(r.service.setupFeeCents),
+    },
+    {
+      header: "Abonnement mensuel TTC",
       value: (r) =>
         r.service.monthlyPriceCents === null
           ? ""
           : formatCents(r.service.monthlyPriceCents),
+    },
+    {
+      header: "Abonnement mensuel HT",
+      value: (r) =>
+        r.service.monthlyPriceCents === null
+          ? ""
+          : formatCentsExcludingVat(r.service.monthlyPriceCents),
     },
     { header: "Code promo", value: (r) => r.promoCode },
     { header: "Numéro attribué", value: (r) => r.externalPhoneNumber },

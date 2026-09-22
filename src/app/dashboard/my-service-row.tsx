@@ -19,7 +19,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader } from "@/co
 import {
   canEditConfiguration,
   describeServiceStatus,
-  formatPrice,
   setupHint,
   TELEPHONY_SERVICE_SLUGS,
   type MyServiceDTO,
@@ -32,6 +31,7 @@ import { cancelService } from "./actions";
 import { ResumeCheckoutButton } from "./resume-checkout-button";
 import { ServiceProgress } from "./service-progress";
 import { UsageCounter } from "./usage-counter";
+import { formatPriceWithVat } from "@/lib/vat";
 
 export function MyServiceRow({
   item,
@@ -157,7 +157,7 @@ export function MyServiceRow({
               </span>
             )}
             <span className="tabular-nums text-muted-foreground">
-              {formatPrice(service.setupFeeCents, service.monthlyPriceCents)}
+              {formatPriceWithVat(service.setupFeeCents, service.monthlyPriceCents)}
             </span>
           </div>
         </CardContent>

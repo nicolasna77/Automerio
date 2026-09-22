@@ -9,7 +9,6 @@ import { getMyService } from "@/app/dashboard/get-my-service";
 import {
   asStringArray,
   describeServiceStatus,
-  formatPrice,
   TELEPHONY_SERVICE_SLUGS,
 } from "@/lib/catalog";
 import { StatusBadge } from "@/components/status-badge";
@@ -23,6 +22,7 @@ import { ServiceDetailActions } from "@/app/dashboard/service-detail-actions";
 import { ServiceSetupCard } from "@/app/dashboard/service-setup-card";
 import { ServiceSubscriptionCard } from "@/app/dashboard/service-subscription-card";
 import { getSubscriptionFor } from "@/lib/subscriptions";
+import { formatPriceWithVat } from "@/lib/vat";
 
 export const metadata: Metadata = { title: "Détail de la solution" };
 
@@ -90,7 +90,7 @@ export default async function ServiceDetailPage({
               </h1>
               <StatusBadge status={item.status} />
               <span className="text-base tabular-nums text-foreground">
-                {formatPrice(item.service.setupFeeCents, item.service.monthlyPriceCents)}
+                {formatPriceWithVat(item.service.setupFeeCents, item.service.monthlyPriceCents)}
               </span>
             </div>
 

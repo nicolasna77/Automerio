@@ -62,6 +62,12 @@ export function serviceSchema(service: ServiceDTO) {
       name: "Mise en place",
       price: (service.setupFeeCents / 100).toFixed(2),
       priceCurrency: "EUR",
+      priceSpecification: {
+        "@type": "PriceSpecification",
+        price: (service.setupFeeCents / 100).toFixed(2),
+        priceCurrency: "EUR",
+        valueAddedTaxIncluded: true,
+      },
     });
   }
   if (service.monthlyPriceCents !== null) {
@@ -75,6 +81,7 @@ export function serviceSchema(service: ServiceDTO) {
         priceCurrency: "EUR",
         billingIncrement: 1,
         unitCode: "MON",
+        valueAddedTaxIncluded: true,
       },
     });
   }
@@ -95,11 +102,13 @@ export function serviceSchema(service: ServiceDTO) {
 }
 
 export function priceSummary(service: ServiceDTO): string {
+  // Sert la meta description et le pied de l'image OG, tous deux contraints en
+  // longueur : le prix y reste TTC seul, mais dit qu'il l'est.
   if (service.setupFeeCents !== null && service.monthlyPriceCents !== null) {
-    return `${formatCents(service.setupFeeCents)} à l'installation, puis ${formatCents(service.monthlyPriceCents)} par mois.`;
+    return `${formatCents(service.setupFeeCents)} TTC à l'installation, puis ${formatCents(service.monthlyPriceCents)} TTC par mois.`;
   }
   if (service.monthlyPriceCents !== null) {
-    return `${formatCents(service.monthlyPriceCents)} par mois, sans frais d'installation.`;
+    return `${formatCents(service.monthlyPriceCents)} TTC par mois, sans frais d'installation.`;
   }
-  return `${formatCents(service.setupFeeCents ?? 0)} à l'installation, sans abonnement.`;
+  return `${formatCents(service.setupFeeCents ?? 0)} TTC à l'installation, sans abonnement.`;
 }

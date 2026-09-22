@@ -9,6 +9,7 @@ import {
   type MySubscription,
 } from "@/lib/subscriptions";
 import { UsageGauge } from "./abonnements/usage-gauge";
+import { excludingVatSuffix } from "@/lib/vat";
 
 /** Le quota de cette solution, sur sa periode de facturation. */
 export function ServiceSubscriptionCard({
@@ -22,9 +23,12 @@ export function ServiceSubscriptionCard({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
         <CardTitle className="text-base">Abonnement</CardTitle>
-        <p className="shrink-0 text-sm tabular-nums text-foreground">
-          {formatCents(subscription.monthlyPriceCents)}
+        <p className="shrink-0 text-right text-sm tabular-nums text-foreground">
+          {formatCents(subscription.monthlyPriceCents)} TTC
           <span className="text-muted-foreground">/mois</span>
+          <span className="block text-xs font-normal text-muted-foreground">
+            {excludingVatSuffix(subscription.monthlyPriceCents)}
+          </span>
         </p>
       </CardHeader>
       <CardContent className="space-y-4">

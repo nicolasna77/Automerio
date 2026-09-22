@@ -23,6 +23,7 @@ import {
 } from "@/lib/catalog";
 import { unwrap } from "@/lib/action-result";
 import { formatUsageCap } from "@/lib/usage-cap";
+import { excludingVatSuffix, formatCentsWithVat } from "@/lib/vat";
 import { cn, getErrorMessage } from "@/lib/utils";
 import { activateService, previewPromoCode, type PromoPreview } from "@/app/dashboard/actions";
 import { ConfigFieldsForm } from "@/app/dashboard/config-fields";
@@ -262,21 +263,31 @@ export function ActivationFlow({
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Paiement</CardTitle>
-              <CardDescription>Paiement sécurisé par Stripe. Prix TTC, sans engagement.</CardDescription>
+              <CardDescription>
+                Paiement sécurisé par Stripe. Prélèvement au montant TTC, sans engagement.
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-5">
               <dl className="space-y-2 text-sm">
                 {service.setupFeeCents !== null && (
                   <div className="flex justify-between gap-4">
                     <dt className="text-muted-foreground">Mise en place, payée une fois</dt>
-                    <dd className="font-medium text-foreground tabular-nums">{formatCents(service.setupFeeCents)}</dd>
+                    <dd className="text-right font-medium text-foreground tabular-nums">
+                      {formatCents(service.setupFeeCents)} TTC
+                      <span className="block text-xs font-normal text-muted-foreground">
+                        {excludingVatSuffix(service.setupFeeCents)}
+                      </span>
+                    </dd>
                   </div>
                 )}
                 {service.monthlyPriceCents !== null && (
                   <div className="flex justify-between gap-4">
                     <dt className="text-muted-foreground">Abonnement</dt>
-                    <dd className="font-medium text-foreground tabular-nums">
-                      {formatCents(service.monthlyPriceCents)} par mois
+                    <dd className="text-right font-medium text-foreground tabular-nums">
+                      {formatCents(service.monthlyPriceCents)} TTC par mois
+                      <span className="block text-xs font-normal text-muted-foreground">
+                        {excludingVatSuffix(service.monthlyPriceCents)}
+                      </span>
                     </dd>
                   </div>
                 )}
@@ -328,7 +339,7 @@ export function ActivationFlow({
                       <span>
                         {promo.preview.description}. Premier paiement :{" "}
                         <span className="font-medium tabular-nums">
-                          {formatCents(promo.preview.discountedFirstPaymentCents)}
+                          {formatCentsWithVat(promo.preview.discountedFirstPaymentCents)}
                         </span>{" "}
                         au lieu de{" "}
                         <span className="text-muted-foreground tabular-nums line-through">
@@ -359,7 +370,7 @@ export function ActivationFlow({
             <Button type="button" onClick={handlePay} disabled={isPending} aria-busy={isPending}>
               {isPending
                 ? "Redirection vers le paiement…"
-                : `Payer ${formatPrice(service.setupFeeCents, service.monthlyPriceCents)}`}
+                : `Payer ${formatPrice(service.setupFeeCents, service.monthlyPriceCents)} TTC`}
             </Button>
           </div>
         </>

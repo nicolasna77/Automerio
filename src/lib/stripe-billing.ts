@@ -1,6 +1,7 @@
 import { stripeClient } from "@/lib/stripe";
+import { VAT_PERCENTAGE } from "@/lib/vat";
 
-const VAT_RATE_KEY = "automerio-tva-fr-20-incluse";
+const VAT_RATE_KEY = `automerio-tva-fr-${VAT_PERCENTAGE}-incluse`;
 const PORTAL_CONFIGURATION_KEY = "automerio-portail-client";
 const LEGACY_VAT_RATE_KEY = "noveris-tva-fr-20-incluse";
 const LEGACY_PORTAL_CONFIGURATION_KEY = "noveris-portail-client";
@@ -31,8 +32,8 @@ async function findOrCreateVatRate(): Promise<string> {
 
   const created = await stripeClient.taxRates.create({
     display_name: "TVA",
-    description: "TVA française à 20 %, incluse dans le prix",
-    percentage: 20,
+    description: `TVA française à ${VAT_PERCENTAGE} %, incluse dans le prix`,
+    percentage: VAT_PERCENTAGE,
     inclusive: true,
     country: "FR",
     tax_type: "vat",
