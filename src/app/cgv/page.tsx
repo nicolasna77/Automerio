@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalPage, LegalSection } from "@/components/legal-page";
 import { LEGAL_ENTITY, REFUND_GUARANTEE_DAYS } from "@/lib/legal";
+import { VAT_PERCENTAGE } from "@/lib/vat";
 
 export const metadata: Metadata = {
   title: "Conditions générales de vente",
@@ -58,7 +59,7 @@ export default function CgvPage() {
         <ul>
           <li>
             Les prix sont indiqués en euros, <strong>toutes taxes comprises</strong> :
-            ils incluent la TVA au taux de 20 %. Le détail hors taxes figure sur
+            ils incluent la TVA au taux de {VAT_PERCENTAGE} %. Le détail hors taxes figure sur
             chaque facture.
           </li>
           <li>
