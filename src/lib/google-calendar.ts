@@ -1,6 +1,6 @@
-import { createHmac, timingSafeEqual } from "crypto";
 import { db } from "@/lib/db";
 import { requireEnv } from "@/lib/env";
+import { signOAuthState, verifyOAuthState } from "@/lib/oauth-state";
 import { logServiceEvent } from "@/lib/service-events";
 
 const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
@@ -11,23 +11,11 @@ const GOOGLE_CALENDAR_SCOPE = "https://www.googleapis.com/auth/calendar.events";
 const FEATURE = "l'agenda Google";
 
 function signState(clientServiceId: string): string {
-  const secret = requireEnv("GOOGLE_OAUTH_STATE_SECRET", FEATURE);
-  const signature = createHmac("sha256", secret).update(clientServiceId).digest("hex");
-  return `${clientServiceId}.${signature}`;
+  return signOAuthState(requireEnv("GOOGLE_OAUTH_STATE_SECRET", FEATURE), clientServiceId);
 }
 
 export function verifyState(state: string): string | null {
-  const [clientServiceId, signature] = state.split(".");
-  if (!clientServiceId || !signature) return null;
-
-  const secret = requireEnv("GOOGLE_OAUTH_STATE_SECRET", FEATURE);
-  const expected = createHmac("sha256", secret).update(clientServiceId).digest("hex");
-  const expectedBuf = Buffer.from(expected);
-  const signatureBuf = Buffer.from(signature);
-  if (expectedBuf.length !== signatureBuf.length) return null;
-  if (!timingSafeEqual(expectedBuf, signatureBuf)) return null;
-
-  return clientServiceId;
+  return verifyOAuthState(requireEnv("GOOGLE_OAUTH_STATE_SECRET", FEATURE), state);
 }
 
 export function buildGoogleAuthUrl(clientServiceId: string): string {
