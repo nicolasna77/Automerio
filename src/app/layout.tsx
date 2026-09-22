@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Inter } from "next/font/google";
+import { PT_Serif, Space_Grotesk, Space_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
@@ -8,14 +8,27 @@ import { JsonLd, organizationSchema } from "@/components/json-ld";
 import { SITE_DESCRIPTION, SITE_TITLE, siteOpenGraph, siteUrl } from "@/lib/site";
 import { Analytics } from "@vercel/analytics/next";
 
-const inter = Inter({
-  variable: "--font-sans",
+// Les variables portent le nom de la police, non celui de son role. Le theme
+// compose ensuite les piles par-dessus (`globals.css`). Sans cette separation,
+// la classe posee par next/font et la regle `:root` du theme se disputeraient
+// le meme nom, et le gagnant dependrait de l'ordre des feuilles de style.
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+// PT Serif et Space Mono n'ont pas de fonte variable : leurs graisses se
+// declarent une par une.
+const ptSerif = PT_Serif({
+  variable: "--font-pt-serif",
   subsets: ["latin"],
+  weight: ["400", "700"],
+});
+
+const spaceMono = Space_Mono({
+  variable: "--font-space-mono",
+  subsets: ["latin"],
+  weight: ["400", "700"],
 });
 
 // Ni `alternates.canonical` ni `openGraph.url` ne figurent ici : Next fait
@@ -46,8 +59,9 @@ export default function RootLayout({
       className={cn(
         "h-full",
         "antialiased",
-        inter.variable,
-        geistMono.variable,
+        spaceGrotesk.variable,
+        ptSerif.variable,
+        spaceMono.variable,
         "font-sans",
       )}
     >
