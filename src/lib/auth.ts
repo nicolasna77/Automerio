@@ -11,8 +11,11 @@ import { prepareAccountDeletion, removeOrphanOrganizations } from "@/lib/account
 import {
   sendEmailChangeConfirmationEmail,
   sendEmailVerificationEmail,
+  sendOrganizationInvitationEmail,
   sendPasswordResetEmail,
 } from "@/lib/email/notifications";
+import { roleLabel } from "@/lib/organization-roles";
+import { absoluteUrl } from "@/lib/site";
 import { redisRateLimitStorage } from "@/lib/rate-limit";
 import { trustedOrigins } from "@/lib/trusted-origins";
 
@@ -112,6 +115,18 @@ export const auth = betterAuth({
     }),
     organization({
       organizationLimit: 20,
+      // Sans ce rappel, `invite-member` cree bien une ligne `Invitation` mais
+      // personne n'est prevenu : l'invite ne saurait jamais qu'on l'attend.
+      async sendInvitationEmail(data) {
+        await sendOrganizationInvitationEmail({
+          to: data.email,
+          organizationName: data.organization.name,
+          inviterName: data.inviter.user.name,
+          inviterEmail: data.inviter.user.email,
+          roleLabel: roleLabel(data.role),
+          url: absoluteUrl(`/invitation/${data.id}`),
+        });
+      },
     }),
     twoFactor({
       issuer: "Automerio",

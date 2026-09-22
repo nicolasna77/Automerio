@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { isOrganizationManager } from "@/lib/organization-roles";
 
 /**
  * Qui a le droit de quoi sur une prestation.
@@ -18,21 +19,9 @@ import { db } from "@/lib/db";
  * comme un droit.
  */
 
-/** Les roles qui donnent la main sur l'argent et sur l'arret d'un service. */
-const BILLING_ROLES = new Set(["owner", "admin"]);
-
 export type Membership = { organizationId: string; role: string };
 export type Viewer = { memberships: Membership[] };
 export type OwnedResource = { organizationId: string };
-
-/**
- * Un membre peut porter plusieurs roles, que better-auth range dans une seule
- * colonne separes par des virgules. Comparer la chaine entiere manquerait
- * « admin,member ».
- */
-export function hasBillingRole(role: string): boolean {
-  return role.split(",").some((part) => BILLING_ROLES.has(part.trim()));
-}
 
 /** Consulter et configurer : il suffit d'appartenir a l'organisation. */
 export function canReadClientService(
@@ -51,7 +40,8 @@ export function canManageClientServiceBilling(
 ): boolean {
   return viewer.memberships.some(
     (m) =>
-      m.organizationId === clientService.organizationId && hasBillingRole(m.role)
+      m.organizationId === clientService.organizationId &&
+      isOrganizationManager(m.role)
   );
 }
 

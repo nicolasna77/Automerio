@@ -12,6 +12,7 @@ import { PasswordResetEmail } from "./templates/password-reset";
 import { EmailVerificationEmail } from "./templates/email-verification";
 import { EmailChangeConfirmationEmail } from "./templates/email-change-confirmation";
 import { PaymentFailedEmail } from "./templates/payment-failed";
+import { OrganizationInvitationEmail } from "./templates/organization-invitation";
 
 type Recipient = {
   email: string;
@@ -205,5 +206,33 @@ export async function sendPaymentFailedEmail(
     to: recipient.email,
     subject: `Le paiement de « ${serviceName} » a échoué`,
     react: <PaymentFailedEmail recipientName={recipient.name} serviceName={serviceName} />,
+  });
+}
+
+/**
+ * L'invitation ne passe par aucune preference de notification : elle s'adresse
+ * a quelqu'un qui n'a peut-etre pas encore de compte, donc pas de preferences,
+ * et c'est un message sollicite par un tiers, non une notification de service.
+ */
+export async function sendOrganizationInvitationEmail(input: {
+  to: string;
+  organizationName: string;
+  inviterName: string;
+  inviterEmail: string;
+  roleLabel: string;
+  url: string;
+}) {
+  await sendEmail({
+    to: input.to,
+    subject: `${input.inviterName} vous invite à rejoindre ${input.organizationName}`,
+    react: (
+      <OrganizationInvitationEmail
+        organizationName={input.organizationName}
+        inviterName={input.inviterName}
+        inviterEmail={input.inviterEmail}
+        roleLabel={input.roleLabel}
+        url={input.url}
+      />
+    ),
   });
 }

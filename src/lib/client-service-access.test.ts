@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   canManageClientServiceBilling,
   canReadClientService,
-  hasBillingRole,
 } from "./client-service-access";
 
 const prestation = { organizationId: "org1" };
@@ -12,30 +11,6 @@ const admin = { memberships: [{ organizationId: "org1", role: "admin" }] };
 const proprietaire = { memberships: [{ organizationId: "org1", role: "owner" }] };
 const etranger = { memberships: [{ organizationId: "org2", role: "owner" }] };
 const parti = { memberships: [] };
-
-describe("hasBillingRole", () => {
-  it("reconnaît les deux rôles qui engagent", () => {
-    expect(hasBillingRole("owner")).toBe(true);
-    expect(hasBillingRole("admin")).toBe(true);
-  });
-
-  it("refuse le membre simple", () => {
-    expect(hasBillingRole("member")).toBe(false);
-  });
-
-  it("lit les rôles multiples, que better-auth sépare par des virgules", () => {
-    // Comparer la chaîne entière manquerait ce cas.
-    expect(hasBillingRole("admin,member")).toBe(true);
-    expect(hasBillingRole("member,owner")).toBe(true);
-    expect(hasBillingRole("member, admin")).toBe(true);
-    expect(hasBillingRole("member,guest")).toBe(false);
-  });
-
-  it("ne se laisse pas prendre par un rôle qui contient le mot", () => {
-    expect(hasBillingRole("coowner")).toBe(false);
-    expect(hasBillingRole("administrateur")).toBe(false);
-  });
-});
 
 describe("canReadClientService", () => {
   it("ouvre la consultation à tout membre, quel que soit son rôle", () => {
