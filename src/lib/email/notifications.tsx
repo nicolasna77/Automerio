@@ -22,7 +22,7 @@ type Recipient = {
 const teamEmail = () =>
   process.env.AUTOMERIO_TEAM_EMAIL ??
   process.env.NOVERIS_TEAM_EMAIL ??
-  "contact@automerio.fr";
+  "info@automerio.com";
 
 export async function sendHelpRequestResolvedEmail(
   recipient: Recipient,

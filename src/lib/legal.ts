@@ -9,7 +9,7 @@ export const LEGAL_ENTITY = {
   registration: "RCS [à compléter : ville] [à compléter : numéro SIREN]",
   vatNumber: "[à compléter : numéro de TVA intracommunautaire]",
   publicationDirector: "[à compléter : prénom et nom du président ou de la présidente]",
-  email: "contact@automerio.fr",
+  email: "info@automerio.com",
   phone: "[à compléter : téléphone]",
   databaseHost: "[à compléter : hébergeur de la base de données et pays]",
 };
