@@ -11,6 +11,7 @@ import {
   Receipt,
   ShieldCheck,
   UserRound,
+  Users,
 } from "lucide-react";
 import { AutomerioLogo } from "@/components/brand";
 import { OrganizationSwitcher } from "@/components/organization-switcher";
@@ -33,6 +34,7 @@ const NAV_ITEMS = [
   { href: "/dashboard/calendrier", label: "Calendrier", icon: CalendarDays },
   { href: "/dashboard/abonnements", label: "Abonnements", icon: CreditCard },
   { href: "/dashboard/paiements", label: "Paiements", icon: Receipt },
+  { href: "/dashboard/organisation", label: "Organisation", icon: Users },
   { href: "/dashboard/profile", label: "Profil", icon: UserRound },
   { href: "/dashboard/aide", label: "Aide", icon: LifeBuoy },
 ];
