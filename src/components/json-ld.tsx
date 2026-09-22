@@ -6,6 +6,7 @@ import {
   siteUrl,
   type Faq,
 } from "@/lib/site";
+import { LEGAL_ENTITY } from "@/lib/legal";
 import { formatCents, type ServiceDTO } from "@/lib/catalog";
 import { formatUsageCap } from "@/lib/usage-cap";
 
@@ -26,11 +27,15 @@ export function organizationSchema() {
     "@type": "Organization",
     name: SITE_NAME,
     url: siteUrl(),
+    // Rattachent le site a une entite reelle plutot qu'a un nom seul.
+    logo: absoluteUrl("/icon.svg"),
+    email: LEGAL_ENTITY.email,
     description: SITE_DESCRIPTION,
     areaServed: { "@type": "Country", name: "France" },
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "sales",
+      email: LEGAL_ENTITY.email,
       url: absoluteUrl("/contact"),
       availableLanguage: ["fr"],
     },
