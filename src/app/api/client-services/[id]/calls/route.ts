@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
+import { assertCanReadClientService } from "@/lib/client-service-access";
 
 const RECENT_LIMIT = 15;
 
@@ -23,11 +24,7 @@ export async function GET(
   }
 
   const { id } = await params;
-  const clientService = await db.clientService.findUnique({
-    where: { id },
-    select: { userId: true },
-  });
-  if (!clientService || clientService.userId !== session.user.id) {
+  if (!(await assertCanReadClientService(id, session.user.id))) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 

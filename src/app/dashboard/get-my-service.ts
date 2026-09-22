@@ -14,6 +14,10 @@ import type {
   ServiceEventDTO,
 } from "@/lib/catalog";
 import { readUsageCap } from "@/lib/usage-cap";
+import {
+  canReadClientService,
+  viewerOrganizationIds,
+} from "@/lib/client-service-access";
 
 function toBookingDTO(booking: Booking): BookingDTO {
   return {
@@ -94,6 +98,11 @@ export async function getMyService(
       events: { orderBy: { createdAt: "desc" } },
     },
   });
-  if (!clientService || clientService.userId !== userId) return null;
+  if (!clientService) return null;
+  const allowed = canReadClientService(clientService, {
+    userId,
+    organizationIds: await viewerOrganizationIds(userId),
+  });
+  if (!allowed) return null;
   return toMyServiceDTO(clientService);
 }
