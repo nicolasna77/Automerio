@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { JsonLd, organizationSchema } from "@/components/json-ld";
 import { SITE_DESCRIPTION, SITE_NAME, siteUrl } from "@/lib/site";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -69,6 +70,7 @@ export default function RootLayout({
           <Toaster />
         </ThemeProvider>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
