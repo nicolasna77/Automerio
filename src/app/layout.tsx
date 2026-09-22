@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { JsonLd, organizationSchema } from "@/components/json-ld";
 import { SITE_DESCRIPTION, SITE_TITLE, siteOpenGraph, siteUrl } from "@/lib/site";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 // Les variables portent le nom de la police, non celui de son role. Le theme
 // compose ensuite les piles par-dessus (`globals.css`). Sans cette separation,
@@ -77,6 +78,7 @@ export default function RootLayout({
           <Toaster />
         </ThemeProvider>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
