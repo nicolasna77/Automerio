@@ -1,33 +1,40 @@
+/**
+ * Les cinq etapes decrivent le parcours que l'application fait reellement vivre
+ * au client : il choisit au catalogue, renseigne sa configuration, paie, et
+ * l'equipe deploie — `PENDING_PAYMENT`, puis `CONFIGURING`, puis `ACTIVE`.
+ * Promettre ici un audit ou une formation qui n'existent nulle part dans le
+ * produit ferait attendre au visiteur un rendez-vous qui ne viendra pas.
+ */
 const METHOD_STEPS = [
   {
     step: "01",
-    title: "Audit",
+    title: "Vous choisissez",
     description:
-      "En 30 minutes, nous identifions les tâches qui vous coûtent le plus de temps chaque semaine.",
+      "Au catalogue, prix affiché, sans devis ni rendez-vous préalable. Vous voyez ce que chaque solution coûte avant de vous décider.",
   },
   {
     step: "02",
-    title: "Priorisation",
+    title: "Vous réglez l'essentiel",
     description:
-      "Ensemble, nous choisissons les automatisations au meilleur retour sur investissement pour votre activité.",
+      "Quelques champs suffisent : vos horaires, votre adresse, ce que vous proposez. Cinq minutes, depuis votre téléphone.",
   },
   {
     step: "03",
-    title: "Déploiement",
+    title: "Nous déployons",
     description:
-      "Notre équipe installe et connecte vos automatisations à vos outils existants, puis les teste sur vos vrais cas.",
+      "Notre équipe installe l'automatisation, la connecte à vos outils existants et la teste sur vos vrais cas.",
   },
   {
     step: "04",
-    title: "Formation",
+    title: "C'est actif",
     description:
-      "Vous et votre équipe prenez la main en quelques minutes, sans aucune compétence technique.",
+      "En quelques jours, sans que vous ayez ouvert le moindre logiciel technique. Vous recevez un e-mail à la mise en service.",
   },
   {
     step: "05",
-    title: "Suivi mensuel",
+    title: "Nous surveillons",
     description:
-      "Nous surveillons, ajustons et améliorons vos automatisations en continu, inclus dans l'abonnement.",
+      "Nous veillons sur vos automatisations et les ajustons au fil du temps. Inclus dans l'abonnement, sans engagement de durée.",
   },
 ];
 
@@ -37,12 +44,12 @@ export function MethodSection() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="max-w-2xl">
           <h2 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-            Une méthode de déploiement éprouvée
+            De votre choix à la mise en service
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            De l&apos;audit initial au suivi mensuel, nous vous accompagnons à
-            chaque étape pour que vos automatisations produisent des résultats
-            concrets.
+            Vous choisissez et vous payez ; nous faisons le reste. Aucune étape
+            ne vous demande de compétence technique, et aucune ne vous fait
+            attendre un rendez-vous.
           </p>
         </div>
         <ol className="mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
