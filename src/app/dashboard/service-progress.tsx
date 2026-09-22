@@ -1,3 +1,13 @@
+"use client";
+
+import { Check } from "lucide-react";
+import {
+  Stepper,
+  StepperIndicator,
+  StepperItem,
+  StepperNav,
+  StepperSeparator,
+} from "@/components/reui/stepper";
 import { cn } from "@/lib/utils";
 import type { ClientServiceStatus } from "@/lib/catalog";
 
@@ -7,38 +17,43 @@ const PROGRESS_STEPS = [
   { status: "ACTIVE", label: "Actif" },
 ] as const;
 
+/**
+ * Ou en est une solution, de son paiement a sa mise en service.
+ *
+ * Volontairement sans `StepperTrigger` ni `StepperTitle`. Le premier rendrait
+ * des boutons qui ne menent nulle part : rien n'est navigable ici, l'etape
+ * courante est decidee par le statut de la solution. Le second rend un `<h3>`,
+ * et ce composant se repete a chaque ligne de la liste des solutions — trois
+ * titres par ligne encombreraient le plan de la page sans rien nommer.
+ */
 export function ServiceProgress({ status }: { status: ClientServiceStatus }) {
   if (status === "CANCELED") return null;
+
   const currentIndex = PROGRESS_STEPS.findIndex((s) => s.status === status);
+  const currentStep = currentIndex + 1;
 
   return (
-    <ol aria-label="Étapes de la solution" className="mt-3 flex items-center">
-      {PROGRESS_STEPS.map((step, index) => {
-        const done = index <= currentIndex;
-        const current = index === currentIndex;
-        return (
-          <li
+    <Stepper
+      value={currentStep}
+      indicators={{ completed: <Check className="size-3" /> }}
+      className="mt-3"
+    >
+      <StepperNav aria-label="Étapes de la solution" className="gap-1.5">
+        {PROGRESS_STEPS.map((step, index) => (
+          <StepperItem
             key={step.status}
-            aria-current={current ? "step" : undefined}
-            className="flex flex-1 items-center last:flex-none"
+            step={index + 1}
+            aria-current={index === currentIndex ? "step" : undefined}
+            className="items-start"
           >
-            <div className="flex flex-col items-start gap-1">
-              <span
-                aria-hidden="true"
-                className={cn(
-                  "size-1.5 rounded-full border",
-                  done
-                    ? "border-primary bg-primary"
-                    : "border-border bg-transparent",
-                  current && "ring-2 ring-primary/25"
-                )}
-              />
+            <div className="flex flex-col items-start gap-1.5">
+              <StepperIndicator className="size-4 border-2 border-transparent text-[0.625rem] data-[state=inactive]:border-border data-[state=inactive]:bg-transparent" />
               <span
                 className={cn(
                   "text-xs whitespace-nowrap",
-                  current
+                  index === currentIndex
                     ? "font-medium text-foreground"
-                    : done
+                    : index < currentIndex
                       ? "text-foreground"
                       : "text-muted-foreground"
                 )}
@@ -47,17 +62,11 @@ export function ServiceProgress({ status }: { status: ClientServiceStatus }) {
               </span>
             </div>
             {index < PROGRESS_STEPS.length - 1 && (
-              <span
-                aria-hidden="true"
-                className={cn(
-                  "mx-1.5 mb-4 h-px flex-1",
-                  index < currentIndex ? "bg-primary" : "bg-border"
-                )}
-              />
+              <StepperSeparator className="mt-2 data-[state=completed]:bg-primary" />
             )}
-          </li>
-        );
-      })}
-    </ol>
+          </StepperItem>
+        ))}
+      </StepperNav>
+    </Stepper>
   );
 }
