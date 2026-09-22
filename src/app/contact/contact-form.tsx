@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition, type FormEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+  type FormEvent,
+} from "react";
 import { toast } from "sonner";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,7 +16,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { submitContactMessage } from "./actions";
 
-const EMPTY_VALUES = { name: "", email: "", activity: "", message: "", website: "" };
+const EMPTY_VALUES = {
+  name: "",
+  email: "",
+  activity: "",
+  message: "",
+  website: "",
+};
 
 export function ContactForm() {
   const [isPending, startTransition] = useTransition();
@@ -40,7 +52,7 @@ export function ContactForm() {
 
   if (sent) {
     return (
-      <Card>
+      <Card className="flex flex-col items-center justify-center gap-4 py-12 text-center">
         <CardContent>
           <div ref={confirmationRef} tabIndex={-1} className="outline-none">
             <p className="font-medium text-foreground">Message envoyé.</p>
@@ -94,7 +106,9 @@ export function ContactForm() {
           <div className="space-y-2">
             <Label htmlFor="activity">
               Votre activité
-              <span className="font-normal text-muted-foreground">(facultatif)</span>
+              <span className="font-normal text-muted-foreground">
+                (facultatif)
+              </span>
             </Label>
             <Input
               id="activity"
