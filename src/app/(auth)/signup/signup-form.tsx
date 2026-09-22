@@ -17,7 +17,7 @@ const AFTER_VERIFICATION_URL = "/dashboard";
 const MIN_PASSWORD_LENGTH = 8;
 const RESEND_DELAY_SECONDS = 30;
 
-export function SignupForm() {
+export function SignupForm({ googleEnabled }: { googleEnabled: boolean }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sentTo, setSentTo] = useState<string | null>(null);
@@ -124,14 +124,16 @@ export function SignupForm() {
         Activez vos premières automatisations en quelques minutes.
       </p>
 
-      <div className="mt-8">
-        <GoogleSignInButton />
-        <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
-          <span className="h-px flex-1 bg-border" />
-          ou
-          <span className="h-px flex-1 bg-border" />
+      {googleEnabled && (
+        <div className="mt-8">
+          <GoogleSignInButton />
+          <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
+            <span className="h-px flex-1 bg-border" />
+            ou
+            <span className="h-px flex-1 bg-border" />
+          </div>
         </div>
-      </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">

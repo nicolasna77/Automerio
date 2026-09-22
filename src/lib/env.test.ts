@@ -1,6 +1,12 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { FEATURES, REQUIRED, checkEnvAtBoot, inspectEnv } from "./env";
+import {
+  FEATURES,
+  REQUIRED,
+  checkEnvAtBoot,
+  inspectEnv,
+  isGoogleSignInConfigured,
+} from "./env";
 
 function validEnv(overrides: Record<string, string | undefined> = {}) {
   return {
@@ -137,6 +143,31 @@ describe("production", () => {
 
   it("signale une limitation de débit limitée à une instance sans Upstash", () => {
     expect(inspectEnv(production()).warnings.join(" ")).toContain("Upstash");
+  });
+});
+
+describe("connexion Google", () => {
+  it("est configurée quand les deux identifiants sont là", () => {
+    expect(
+      isGoogleSignInConfigured({
+        GOOGLE_CLIENT_ID: "id",
+        GOOGLE_CLIENT_SECRET: "secret",
+      })
+    ).toBe(true);
+  });
+
+  it("ne l'est pas s'il manque le secret", () => {
+    expect(isGoogleSignInConfigured({ GOOGLE_CLIENT_ID: "id" })).toBe(false);
+  });
+
+  it("ne l'est pas quand une valeur est vide", () => {
+    expect(
+      isGoogleSignInConfigured({ GOOGLE_CLIENT_ID: "id", GOOGLE_CLIENT_SECRET: "  " })
+    ).toBe(false);
+  });
+
+  it("ne l'est pas sur un environnement nu", () => {
+    expect(isGoogleSignInConfigured({})).toBe(false);
   });
 });
 

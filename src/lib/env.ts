@@ -122,6 +122,18 @@ function read(source: Source, name: string): string | null {
   return value && value.trim() !== "" ? value : null;
 }
 
+/**
+ * better-auth enregistre le provider Google meme sans identifiants : la route
+ * de connexion sociale repond alors 500. Le bouton ne s'affiche donc que si
+ * les deux variables sont la — en production comme sur une preview neuve.
+ */
+export function isGoogleSignInConfigured(source: Source = process.env): boolean {
+  return (
+    read(source, "GOOGLE_CLIENT_ID") !== null &&
+    read(source, "GOOGLE_CLIENT_SECRET") !== null
+  );
+}
+
 export function isProduction(source: Source): boolean {
   return source.VERCEL_ENV === "production";
 }
