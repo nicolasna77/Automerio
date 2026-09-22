@@ -1,4 +1,9 @@
+import type { Metadata } from "next";
+
 export const SITE_NAME = "Automerio";
+
+export const SITE_TITLE =
+  "Automerio — Automatisation pour artisans, coachs et TPE/PME";
 
 export const SITE_NAV_LINKS = [
   { href: "/#methode", label: "Notre méthode" },
@@ -7,6 +12,35 @@ export const SITE_NAV_LINKS = [
 
 export const SITE_DESCRIPTION =
   "Automerio installe des automatisations IA clé-en-main pour artisans, coachs, indépendants et TPE/PME : standard téléphonique, assistants de messagerie, documents administratifs. L'équipe installe, connecte et surveille — aucune compétence technique requise.";
+
+/**
+ * Champs Open Graph d'une page publique.
+ *
+ * Next remplace `openGraph` en bloc au lieu de le fusionner : une page qui
+ * redefinit l'objet perd les champs poses par le layout (`siteName`, `locale`).
+ * Ils sont donc reconstruits ici a chaque fois.
+ *
+ * `url` reste optionnel, et le layout racine l'omet : une URL propre a une page
+ * n'a rien a faire dans un fichier partage par toutes (voir `alternates` dans
+ * `src/app/layout.tsx`).
+ */
+export function siteOpenGraph(
+  options: { url?: string; title?: string; description?: string } = {}
+): NonNullable<Metadata["openGraph"]> {
+  const {
+    url,
+    title = SITE_TITLE,
+    description = SITE_DESCRIPTION,
+  } = options;
+  return {
+    type: "website",
+    locale: "fr_FR",
+    siteName: SITE_NAME,
+    title,
+    description,
+    ...(url ? { url } : {}),
+  };
+}
 
 export function siteUrl(): string {
   const raw = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
