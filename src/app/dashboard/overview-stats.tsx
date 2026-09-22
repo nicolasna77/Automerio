@@ -65,7 +65,7 @@ export async function OverviewStats({ organizationId }: { organizationId: string
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Ce mois-ci</CardTitle>
+        <CardTitle as="h2" className="text-base">Ce mois-ci</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 divide-y divide-border sm:grid-cols-3 sm:divide-x sm:divide-y-0">

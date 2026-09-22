@@ -113,7 +113,7 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
   return (
     <Card id={SETUP_ANCHOR} className="scroll-mt-24">
       <CardHeader>
-        <CardTitle className="text-base">Mise en service</CardTitle>
+        <CardTitle as="h2" className="text-base">Mise en service</CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">
         <ol className="space-y-2">

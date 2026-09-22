@@ -181,7 +181,7 @@ export function ActivationFlow({
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Réglages</CardTitle>
+              <CardTitle as="h2" className="text-base">Réglages</CardTitle>
               <CardDescription>Modifiables à tout moment une fois la solution activée.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -232,7 +232,7 @@ export function ActivationFlow({
         <>
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Récapitulatif</CardTitle>
+              <CardTitle as="h2" className="text-base">Récapitulatif</CardTitle>
               <CardDescription>Vérifiez les informations avant de payer.</CardDescription>
             </CardHeader>
             <CardContent>
@@ -262,7 +262,7 @@ export function ActivationFlow({
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Paiement</CardTitle>
+              <CardTitle as="h2" className="text-base">Paiement</CardTitle>
               <CardDescription>
                 Paiement sécurisé par Stripe. Prélèvement au montant TTC, sans engagement.
               </CardDescription>

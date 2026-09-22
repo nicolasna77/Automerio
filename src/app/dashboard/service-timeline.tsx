@@ -8,7 +8,7 @@ export function ServiceTimeline({ events }: { events: ServiceEventDTO[] }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Historique</CardTitle>
+        <CardTitle as="h2" className="text-base">Historique</CardTitle>
       </CardHeader>
       <CardContent>
         <ServiceTimelineList events={events} />

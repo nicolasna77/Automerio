@@ -124,7 +124,7 @@ export default async function ServiceDetailPage({
         {showBookings && (
           <Card className="h-fit lg:col-span-3">
             <CardHeader>
-              <CardTitle className="text-base">
+              <CardTitle as="h2" className="text-base">
                 Rendez-vous et commandes reçus
               </CardTitle>
             </CardHeader>

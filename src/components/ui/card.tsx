@@ -32,9 +32,22 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
-function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
+/**
+ * Le titre d'une carte. `div` par defaut, car une carte n'est pas toujours une
+ * section : elle peut porter une valeur — une tuile de statistique met un
+ * nombre ici — ou etre un element parmi d'autres dans une grille.
+ *
+ * Quand la carte titre bel et bien une section de la page, passer `as="h2"` ou
+ * `as="h3"` selon le niveau ou elle se trouve : un lecteur d'ecran navigue par
+ * les titres, et un `div` ne lui en offre aucun.
+ */
+function CardTitle({
+  className,
+  as: Component = "div",
+  ...props
+}: React.ComponentProps<"div"> & { as?: "div" | "h2" | "h3" | "h4" }) {
   return (
-    <div
+    <Component
       data-slot="card-title"
       className={cn("font-heading text-base font-medium", className)}
       {...props}
