@@ -31,6 +31,11 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import { validatePromoCodeForService } from "@/lib/stripe-promo-codes";
 import { applyDiscount, describeDiscount, firstPaymentCents } from "@/lib/promo-codes";
 import { ActionError, runAction } from "@/lib/run-action";
+import {
+  canManageClientServiceBilling,
+  canReadClientService,
+  viewerOf,
+} from "@/lib/client-service-access";
 import { createBillingPortalUrl, getIncludedVatRateId } from "@/lib/stripe-billing";
 
 const CHECKOUT_INTEGRATION_ID = "automerio-activation-qkzmtwph";
@@ -45,14 +50,34 @@ async function requireUserId() {
   return session.user.id;
 }
 
-async function requireOrgMember(organizationId: string, userId: string) {
-  const member = await db.member.findFirst({ where: { organizationId, userId } });
-  if (!member) throw new ActionError("Vous n'avez pas accès à cette organisation.");
+/** Consulter et configurer : il suffit d'appartenir a l'organisation porteuse. */
+async function requireMemberOn(
+  clientService: { organizationId: string },
+  userId: string
+) {
+  if (!canReadClientService(clientService, await viewerOf(userId))) {
+    throw new ActionError("Cette solution n'appartient pas à votre organisation.");
+  }
 }
 
-function requireOwner(clientService: { userId: string }, userId: string) {
-  if (clientService.userId !== userId) {
-    throw new ActionError("Cette solution n'appartient pas à votre compte.");
+/**
+ * Engager de l'argent ou couper un service en marche : l'appartenance ne
+ * suffit plus, il faut le role. Le message distingue les deux refus — un
+ * membre a qui l'on dit « cette solution n'existe pas » cherchera le probleme
+ * au mauvais endroit.
+ */
+async function requireBillingRoleOn(
+  clientService: { organizationId: string },
+  userId: string
+) {
+  const viewer = await viewerOf(userId);
+  if (!canReadClientService(clientService, viewer)) {
+    throw new ActionError("Cette solution n'appartient pas à votre organisation.");
+  }
+  if (!canManageClientServiceBilling(clientService, viewer)) {
+    throw new ActionError(
+      "Seuls les responsables de l'organisation peuvent effectuer cette action."
+    );
   }
 }
 
@@ -158,7 +183,7 @@ export async function activateService(
       db.service.findUniqueOrThrow({ where: { id: serviceId } }),
       db.user.findUniqueOrThrow({ where: { id: userId } }),
     ]);
-    await requireOrgMember(organizationId, userId);
+    await requireBillingRoleOn({ organizationId }, userId);
 
     const trimmedName = name.trim();
     if (!trimmedName) {
@@ -236,7 +261,7 @@ export async function resumeServiceCheckout(
       }),
     ]);
 
-    requireOwner(clientService, userId);
+    await requireBillingRoleOn(clientService, userId);
     if (clientService.status !== "PENDING_PAYMENT" && clientService.status !== "CANCELED") {
       throw new ActionError("Cette solution est déjà active.");
     }
@@ -335,7 +360,7 @@ export async function updateServiceConfiguration(
         include: { service: true },
       }),
     ]);
-    requireOwner(clientService, userId);
+    await requireMemberOn(clientService, userId);
 
     const configFields =
       (clientService.service.configFields as ConfigField[]) ?? [];
@@ -360,7 +385,7 @@ export async function disconnectGoogleCalendar(clientServiceId: string) {
       requireUserId(),
       db.clientService.findUniqueOrThrow({ where: { id: clientServiceId } }),
     ]);
-    requireOwner(clientService, userId);
+    await requireMemberOn(clientService, userId);
 
     const { count } = await db.calendarConnection.deleteMany({ where: { clientServiceId } });
     if (count > 0) await logServiceEvent(clientServiceId, "CALENDAR_DISCONNECTED");
@@ -379,7 +404,7 @@ export async function completeWhatsAppEmbeddedSignup(
       requireUserId(),
       db.clientService.findUniqueOrThrow({ where: { id: clientServiceId } }),
     ]);
-    requireOwner(clientService, userId);
+    await requireMemberOn(clientService, userId);
 
     const accessToken = await exchangeMetaEmbeddedSignupCode(code);
     await subscribeAppToWaba(wabaId, accessToken);
@@ -406,7 +431,7 @@ export async function disconnectWhatsApp(clientServiceId: string) {
       requireUserId(),
       db.clientService.findUniqueOrThrow({ where: { id: clientServiceId } }),
     ]);
-    requireOwner(clientService, userId);
+    await requireMemberOn(clientService, userId);
 
     await db.clientService.update({
       where: { id: clientServiceId },
@@ -428,7 +453,7 @@ export async function completeMessengerConnection(clientServiceId: string, code:
       requireUserId(),
       db.clientService.findUniqueOrThrow({ where: { id: clientServiceId } }),
     ]);
-    requireOwner(clientService, userId);
+    await requireMemberOn(clientService, userId);
 
     const userAccessToken = await exchangeMetaEmbeddedSignupCode(code);
     const page = await fetchManagedPage(userAccessToken);
@@ -458,7 +483,7 @@ export async function disconnectMessenger(clientServiceId: string) {
       requireUserId(),
       db.clientService.findUniqueOrThrow({ where: { id: clientServiceId } }),
     ]);
-    requireOwner(clientService, userId);
+    await requireMemberOn(clientService, userId);
 
     await db.clientService.update({
       where: { id: clientServiceId },
@@ -479,7 +504,7 @@ export async function disconnectInstagram(clientServiceId: string) {
       requireUserId(),
       db.clientService.findUniqueOrThrow({ where: { id: clientServiceId } }),
     ]);
-    requireOwner(clientService, userId);
+    await requireMemberOn(clientService, userId);
 
     await db.clientService.update({
       where: { id: clientServiceId },
@@ -503,7 +528,7 @@ async function requireOwnedTelephonyService(
     where: { id: clientServiceId },
     include: { service: true },
   });
-  requireOwner(clientService, userId);
+  await requireBillingRoleOn(clientService, userId);
   if (!TELEPHONY_SERVICE_SLUGS.has(clientService.service.slug)) {
     throw new ActionError("Cette solution ne prend pas de numéro de téléphone.");
   }
@@ -560,7 +585,7 @@ export async function cancelService(clientServiceId: string) {
         include: { user: true },
       }),
     ]);
-    requireOwner(clientService, userId);
+    await requireBillingRoleOn(clientService, userId);
 
     if (clientService.stripeSubscriptionId) {
       try {

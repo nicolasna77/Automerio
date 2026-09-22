@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { canReadClientService, viewerOf } from "@/lib/client-service-access";
 import { requireUser } from "@/lib/session";
 import { buildGoogleAuthUrl } from "@/lib/google-calendar";
 
@@ -13,9 +14,12 @@ export async function GET(request: Request) {
 
   const clientService = await db.clientService.findUnique({
     where: { id: clientServiceId },
-    select: { userId: true },
+    select: { organizationId: true },
   });
-  if (!clientService || clientService.userId !== session.user.id) {
+  if (
+    !clientService ||
+    !canReadClientService(clientService, await viewerOf(session.user.id))
+  ) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
