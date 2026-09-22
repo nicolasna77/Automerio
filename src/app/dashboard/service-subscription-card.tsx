@@ -22,7 +22,7 @@ export function ServiceSubscriptionCard({
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
-        <CardTitle className="text-base">Abonnement</CardTitle>
+        <CardTitle as="h2" className="text-base">Abonnement</CardTitle>
         <p className="shrink-0 text-right text-sm tabular-nums text-foreground">
           {formatCents(subscription.monthlyPriceCents)} TTC
           <span className="text-muted-foreground">/mois</span>

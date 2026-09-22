@@ -43,7 +43,7 @@ export function ServiceCatalogGrid({
                   <ServiceGlyphBadge slug={service.slug} />
                   {status && <StatusBadge status={status} />}
                 </div>
-                <CardTitle className="text-base">{service.name}</CardTitle>
+                <CardTitle as="h3" className="text-base">{service.name}</CardTitle>
                 <CardDescription>{service.description}</CardDescription>
               </CardHeader>
               <CardContent className="mt-auto">

@@ -58,7 +58,7 @@ export function ServiceDetailTable({
       {isLive && item.externalPhoneNumber && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">En direct</CardTitle>
+            <CardTitle as="h2" className="text-base">En direct</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <UsageCounter clientServiceId={item.clientServiceId} />
@@ -70,7 +70,7 @@ export function ServiceDetailTable({
       {isLive && item.externalPhoneNumber && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Recevoir vos appels</CardTitle>
+            <CardTitle as="h2" className="text-base">Recevoir vos appels</CardTitle>
           </CardHeader>
           <CardContent>
             <CallForwardingGuide targetNumber={item.externalPhoneNumber} />
@@ -86,7 +86,7 @@ export function ServiceDetailTable({
         canEditConfig) && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
-            <CardTitle className="text-base">Configuration</CardTitle>
+            <CardTitle as="h2" className="text-base">Configuration</CardTitle>
             {canEditConfig && (
               <Link
                 href={`/dashboard/services/${item.clientServiceId}/configuration`}

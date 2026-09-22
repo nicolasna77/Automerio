@@ -62,7 +62,7 @@ export default async function DashboardPage() {
       ) : (
         <Card className="max-w-3xl">
           <CardHeader>
-            <CardTitle className="text-base">Mettez en place votre première automatisation</CardTitle>
+            <CardTitle as="h2" className="text-base">Mettez en place votre première automatisation</CardTitle>
             <CardDescription>
               Vos appels, vos rendez-vous et vos dépenses s&apos;afficheront ici dès qu&apos;une
               solution sera active.

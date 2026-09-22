@@ -105,7 +105,7 @@ export function ServiceConfigurationForm({
       {hasOtherFields && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Réglages</CardTitle>
+            <CardTitle as="h2" className="text-base">Réglages</CardTitle>
             <CardDescription>
               Ce que l&apos;assistant doit savoir de votre activité pour répondre à vos clients.
             </CardDescription>
@@ -125,7 +125,7 @@ export function ServiceConfigurationForm({
       {showCatalog && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Carte et produits</CardTitle>
+            <CardTitle as="h2" className="text-base">Carte et produits</CardTitle>
             <CardDescription>
               Les produits et les prix que l&apos;assistant propose quand il prend une commande.
             </CardDescription>

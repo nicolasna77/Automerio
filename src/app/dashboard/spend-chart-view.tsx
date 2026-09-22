@@ -39,7 +39,7 @@ export function SpendChartView({
       <CardHeader>
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
           <div>
-            <CardTitle className="text-base">
+            <CardTitle as="h2" className="text-base">
               Dépenses des 6 derniers mois
             </CardTitle>
             <CardDescription>Basé sur vos factures payées.</CardDescription>
