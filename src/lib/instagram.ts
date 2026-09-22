@@ -1,6 +1,6 @@
-import { createHmac, timingSafeEqual } from "crypto";
 import { db } from "@/lib/db";
 import { requireEnv } from "@/lib/env";
+import { signOAuthState, verifyOAuthState } from "@/lib/oauth-state";
 import { logServiceEvent } from "@/lib/service-events";
 
 const INSTAGRAM_AUTH_URL = "https://www.instagram.com/oauth/authorize";
@@ -11,23 +11,11 @@ const INSTAGRAM_SCOPE = "instagram_business_basic,instagram_business_manage_mess
 const FEATURE = "la messagerie Instagram";
 
 function signState(clientServiceId: string): string {
-  const secret = requireEnv("INSTAGRAM_OAUTH_STATE_SECRET", FEATURE);
-  const signature = createHmac("sha256", secret).update(clientServiceId).digest("hex");
-  return `${clientServiceId}.${signature}`;
+  return signOAuthState(requireEnv("INSTAGRAM_OAUTH_STATE_SECRET", FEATURE), clientServiceId);
 }
 
 export function verifyInstagramState(state: string): string | null {
-  const [clientServiceId, signature] = state.split(".");
-  if (!clientServiceId || !signature) return null;
-
-  const secret = requireEnv("INSTAGRAM_OAUTH_STATE_SECRET", FEATURE);
-  const expected = createHmac("sha256", secret).update(clientServiceId).digest("hex");
-  const expectedBuf = Buffer.from(expected);
-  const signatureBuf = Buffer.from(signature);
-  if (expectedBuf.length !== signatureBuf.length) return null;
-  if (!timingSafeEqual(expectedBuf, signatureBuf)) return null;
-
-  return clientServiceId;
+  return verifyOAuthState(requireEnv("INSTAGRAM_OAUTH_STATE_SECRET", FEATURE), state);
 }
 
 export function buildInstagramAuthUrl(clientServiceId: string): string {
