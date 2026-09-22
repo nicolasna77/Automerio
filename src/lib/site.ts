@@ -62,7 +62,7 @@ export const FAQS: Faq[] = [
   {
     question: "Combien de temps avant que ce soit actif ?",
     answer:
-      "La plupart des solutions sont déployées et vérifiées en quelques jours après l'audit initial.",
+      "Quelques jours. Vous choisissez et payez, notre équipe installe et teste, puis vous prévient à la mise en service.",
   },
   {
     question: "Je peux arrêter quand je veux ?",
