@@ -25,7 +25,7 @@ function describeSignInError(error: { status: number; code?: string }): string {
   return "La connexion a échoué. Réessayez dans un instant.";
 }
 
-export function LoginForm() {
+export function LoginForm({ googleEnabled }: { googleEnabled: boolean }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -64,14 +64,16 @@ export function LoginForm() {
         Retrouvez vos automatisations et leur suivi.
       </p>
 
-      <div className="mt-8">
-        <GoogleSignInButton />
-        <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
-          <span className="h-px flex-1 bg-border" />
-          ou
-          <span className="h-px flex-1 bg-border" />
+      {googleEnabled && (
+        <div className="mt-8">
+          <GoogleSignInButton />
+          <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
+            <span className="h-px flex-1 bg-border" />
+            ou
+            <span className="h-px flex-1 bg-border" />
+          </div>
         </div>
-      </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
