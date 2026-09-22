@@ -80,3 +80,46 @@ describe("csvResponseHeaders", () => {
     expect(headers["Cache-Control"]).toBe("no-store");
   });
 });
+
+describe("toCsv — neutralisation des formules", () => {
+  type Cell = { label: string };
+  const cell = [{ header: "Libellé", value: (r: Cell) => r.label }];
+
+  /** La seule ligne de données, BOM et en-tête retirés. */
+  function line(label: string): string {
+    return toCsv([{ label }], cell).split("\r\n")[1];
+  }
+
+  it("désamorce une valeur commençant par un signe égal", () => {
+    // Apostrophe ajoutée, puis guillemetage car la valeur contient des
+    // guillemets — qui sont doublés.
+    expect(line('=HYPERLINK("https://exemple.test")')).toBe(
+      `"'=HYPERLINK(""https://exemple.test"")"`
+    );
+  });
+
+  it("désamorce les autres amorces reconnues par les tableurs", () => {
+    expect(line("+1")).toBe("'+1");
+    expect(line("-1+2")).toBe("'-1+2");
+    expect(line("@SUM(A1)")).toBe("'@SUM(A1)");
+    expect(line("\tcalc")).toBe("'\tcalc");
+  });
+
+  it("désamorce la formule DDE, celle qui vise l'exécution de commande", () => {
+    // Pas de guillemetage : ni guillemet ni séparateur dans la valeur.
+    expect(line("=cmd|'/c calc'!A0")).toBe("'=cmd|'/c calc'!A0");
+  });
+
+  it("neutralise avant de guillemeter, pour protéger l'apostrophe aussi", () => {
+    expect(line("=A1;B2")).toBe(`"'=A1;B2"`);
+  });
+
+  it("laisse intacte une valeur ordinaire", () => {
+    expect(line("Boulangerie Martin")).toBe("Boulangerie Martin");
+    expect(line("79 €")).toBe("79 €");
+  });
+
+  it("protège aussi les en-têtes", () => {
+    expect(toCsv([], [{ header: "=1+1", value: () => "" }])).toContain("'=1+1");
+  });
+});
