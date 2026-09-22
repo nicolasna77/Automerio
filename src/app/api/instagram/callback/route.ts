@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/session";
 import { db } from "@/lib/db";
+import { canReadClientService, viewerOf } from "@/lib/client-service-access";
 import { completeInstagramConnection, verifyInstagramState } from "@/lib/instagram";
 
 export async function GET(request: Request) {
@@ -21,9 +22,12 @@ export async function GET(request: Request) {
 
   const clientService = await db.clientService.findUnique({
     where: { id: clientServiceId },
-    select: { userId: true },
+    select: { organizationId: true },
   });
-  if (!clientService || clientService.userId !== session.user.id) {
+  if (
+    !clientService ||
+    !canReadClientService(clientService, await viewerOf(session.user.id))
+  ) {
     return NextResponse.redirect(new URL("/dashboard?instagram=error", url));
   }
 
