@@ -29,18 +29,18 @@ export const PALETTE_TOKENS = {
 
 export const BRAND_PALETTE = {
   light: {
-    background: "#f1f3f3",
+    background: "#e0edf8",
     card: "#ffffff",
-    foreground: "#090b0c",
-    mutedForeground: "#5c6c70",
-    border: "#e3e7e8",
-    primary: "#008236",
-    primaryForeground: "#f0fdf4",
+    foreground: "#09131a",
+    mutedForeground: "#4c575f",
+    border: "#d3e0ea",
+    primary: "#00a33d",
+    primaryForeground: "#f3faff",
   },
   dark: {
-    background: "#090b0c",
-    foreground: "#f9fbfb",
-    mutedForeground: "#9ca8ab",
+    background: "#02080e",
+    foreground: "#e9f0f5",
+    mutedForeground: "#85919a",
   },
 } as const;
 
@@ -48,4 +48,4 @@ export const BRAND_PALETTE = {
  * Le vert sombre qui ferme le degrade du logo sur les images de partage.
  * Choisi a la main : aucun jeton ne le porte, le test ne le controle donc pas.
  */
-export const BRAND_GRADIENT_END = "#004e1d";
+export const BRAND_GRADIENT_END = "#006322";

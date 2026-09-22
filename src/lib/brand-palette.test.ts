@@ -8,7 +8,10 @@ const GLOBALS = readFileSync(
 );
 
 function readBlock(selector: string): Record<string, string> {
-  const block = new RegExp(`^${selector} \\{\\n([\\s\\S]*?)^\\}`, "m").exec(GLOBALS);
+  // `\r?` : le fichier de thème peut arriver d'un éditeur Windows, en CRLF.
+  const block = new RegExp(`^${selector} \\{\\r?\\n([\\s\\S]*?)^\\}`, "m").exec(
+    GLOBALS
+  );
   if (!block) throw new Error(`Bloc ${selector} introuvable dans globals.css`);
 
   const declarations: Record<string, string> = {};

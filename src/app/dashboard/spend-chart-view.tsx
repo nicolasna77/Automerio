@@ -20,7 +20,10 @@ import { excludingVatSuffix, formatCentsWithVat } from "@/lib/vat";
 const chartConfig = {
   totalCents: {
     label: "Dépense",
-    color: "var(--primary)",
+    // `--chart-1` plutot que `--primary` : le theme distingue la palette des
+    // graphiques de la couleur de marque, meme si les deux coincident pour
+    // l'instant. Le graphique suivra si elles divergent.
+    color: "var(--chart-1)",
   },
 } satisfies ChartConfig;
 
