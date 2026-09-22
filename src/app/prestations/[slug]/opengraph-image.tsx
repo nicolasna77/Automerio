@@ -18,7 +18,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
         <OgFrame
           lines={["Automerio"]}
           subtitle="Des automatisations installées, connectées et surveillées par notre équipe."
-          footer="automerio.fr"
+          footer="automerio.com"
         />
       ),
       size
