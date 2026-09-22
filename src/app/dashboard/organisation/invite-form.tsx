@@ -17,6 +17,7 @@ import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
 import {
   INVITABLE_ROLES,
+  INVITABLE_ROLE_ITEMS,
   ROLE_DESCRIPTIONS,
   roleLabel,
 } from "@/lib/organization-roles";
@@ -62,11 +63,12 @@ export function InviteForm({ organizationId }: { organizationId: string }) {
           <Label htmlFor="invite-role">Rôle</Label>
           <Select
             value={role}
+            items={INVITABLE_ROLE_ITEMS}
             onValueChange={(value) => value && setRole(value)}
             disabled={pending}
           >
             <SelectTrigger id="invite-role" className="w-full sm:w-44">
-              <SelectValue>{(value) => roleLabel(String(value))}</SelectValue>
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {INVITABLE_ROLES.map((value) => (

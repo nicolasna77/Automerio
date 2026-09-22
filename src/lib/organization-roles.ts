@@ -24,6 +24,15 @@ export const ROLE_DESCRIPTIONS: Record<string, string> = {
 export const INVITABLE_ROLES = ["admin", "member"] as const;
 export type InvitableRole = (typeof INVITABLE_ROLES)[number];
 
+/**
+ * La table que `<Select items>` attend : Base UI y lit le libelle a afficher
+ * dans le declencheur. Sans elle, il montrerait la valeur brute — « member »
+ * au lieu de « Collaborateur ».
+ */
+export const INVITABLE_ROLE_ITEMS: Record<string, string> = Object.fromEntries(
+  INVITABLE_ROLES.map((role) => [role, ROLE_LABELS[role]])
+);
+
 /** Les roles qui engagent : argent, resiliation, et gestion de l'equipe. */
 const MANAGER_ROLES = new Set(["owner", "admin"]);
 
