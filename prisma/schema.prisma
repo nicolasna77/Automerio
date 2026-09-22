@@ -158,6 +158,11 @@ model Service {
   configFields      Json            @default("[]")
   sortOrder         Int             @default(0)
   isActive          Boolean         @default(true)
+
+  // Date de derniere modification, publiee en `lastmod` dans le sitemap. Les
+  // moteurs ignorent une date qu'ils jugent peu fiable : elle doit donc suivre
+  // les vraies editions du catalogue, pas la date de deploiement.
+  updatedAt         DateTime        @updatedAt
   clientServices    ClientService[]
   marketingPosts    MarketingPost[]
 
