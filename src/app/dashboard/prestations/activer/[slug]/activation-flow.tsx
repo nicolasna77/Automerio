@@ -206,21 +206,17 @@ export function ActivationFlow({
             <CardContent className="space-y-6">
               {service.tier && (
                 <div className="space-y-3 rounded-2xl border border-border p-4">
-                  <div>
-                    <p className="font-medium text-foreground">
-                      Combien de minutes vous faut-il ?
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Au-delà de ce quota, chaque minute est facturée au tarif de
-                      dépassement. L&apos;acheter à l&apos;avance revient moins cher.
-                    </p>
-                  </div>
                   <SubscriptionMinutesSlider
                     tier={service.tier}
                     value={chosenUnits}
                     onChange={setChosenUnits}
+                    label="Combien de minutes vous faut-il ?"
                     disabled={isPending}
                   />
+                  <p className="text-sm text-muted-foreground">
+                    Au-delà de ce quota, chaque minute est facturée au tarif de
+                    dépassement. L&apos;acheter à l&apos;avance revient moins cher.
+                  </p>
                 </div>
               )}
 
