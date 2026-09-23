@@ -5,6 +5,7 @@ import { AlertTriangle, ArrowLeft } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireUser } from "@/lib/session";
+import { requireActiveOrganization } from "@/lib/organization";
 import { getMyService } from "@/app/dashboard/get-my-service";
 import {
   asStringArray,
@@ -37,7 +38,10 @@ export default async function ServiceDetailPage({
     params,
     searchParams,
   ]);
-  const session = await requireUser();
+  const [session, { active: organization }] = await Promise.all([
+    requireUser(),
+    requireActiveOrganization(),
+  ]);
   const item = await getMyService(clientServiceId, session.user.id);
   if (!item) notFound();
 
@@ -116,7 +120,12 @@ export default async function ServiceDetailPage({
       <div className={showBookings ? "mt-8 grid gap-6 lg:grid-cols-5" : "mt-8"}>
         <div className={showBookings ? "space-y-6 lg:col-span-2" : "space-y-6"}>
           <ServiceSetupCard item={item} />
-          {subscription && <ServiceSubscriptionCard subscription={subscription} />}
+          {subscription && (
+            <ServiceSubscriptionCard
+              subscription={subscription}
+              organizationId={organization.id}
+            />
+          )}
           <ServiceDetailTable item={item} showUsageCap={!subscriptionShowsCap} />
           <ServiceTimeline events={item.events} />
         </div>

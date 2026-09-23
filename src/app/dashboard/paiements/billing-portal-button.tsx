@@ -11,9 +11,11 @@ import { openBillingPortal } from "../actions";
 export function BillingPortalButton({
   organizationId,
   variant = "outline",
+  size,
 }: {
   organizationId: string;
   variant?: "outline" | "default";
+  size?: "sm";
 }) {
   const [isPending, startTransition] = useTransition();
 
@@ -29,7 +31,13 @@ export function BillingPortalButton({
   }
 
   return (
-    <Button variant={variant} onClick={handleClick} disabled={isPending} aria-busy={isPending}>
+    <Button
+      variant={variant}
+      size={size}
+      onClick={handleClick}
+      disabled={isPending}
+      aria-busy={isPending}
+    >
       {isPending ? (
         <Loader2 className="animate-spin" aria-hidden="true" data-icon="inline-start" />
       ) : (

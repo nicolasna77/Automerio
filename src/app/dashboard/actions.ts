@@ -35,6 +35,7 @@ import {
   getOrCreateOrganizationCustomer,
   organizationCustomerId,
 } from "@/lib/organization-billing";
+import { applyMonthlyPriceChange } from "@/lib/subscription-changes";
 import {
   calculateMonthlyPriceCents,
   isValidUnitSelection,
@@ -699,5 +700,75 @@ export async function openBillingPortal(organizationId: string) {
     }
     const url = await createBillingPortalUrl(customerId, `${appUrl()}/dashboard/paiements`);
     return { url };
+  });
+}
+
+/**
+ * Changer le quota d'une solution deja active.
+ *
+ * Le role est exige, non la simple appartenance : l'operation preleve tout de
+ * suite le prorata de la difference. Le quota est revalide comme a l'achat —
+ * une valeur entre deux crans est refusee, pas corrigee — et le prix recalcule
+ * ici, jamais repris du navigateur.
+ *
+ * Stripe est modifie avant la base : si le prelevement echoue, le client garde
+ * son ancien quota et son ancien prix, ce qui est l'etat vrai. L'inverse lui
+ * promettrait des minutes qu'il n'a pas payees.
+ */
+export async function changeSubscriptionQuota(
+  clientServiceId: string,
+  units: number
+) {
+  return runAction(async () => {
+    const userId = await requireUserId();
+    if (!(await checkRateLimit("quota-change", userId, "10 m", 10))) {
+      throw new ActionError(TOO_MANY_ATTEMPTS);
+    }
+
+    const clientService = await db.clientService.findUniqueOrThrow({
+      where: { id: clientServiceId },
+      include: { service: true },
+    });
+    await requireBillingRoleOn(clientService, userId);
+
+    if (clientService.status !== "ACTIVE" && clientService.status !== "CONFIGURING") {
+      throw new ActionError(
+        "Seule une solution en service peut changer de volume."
+      );
+    }
+    if (!clientService.stripeSubscriptionId) {
+      throw new ActionError("Cette solution n'a pas d'abonnement en cours.");
+    }
+
+    const tier = readSubscriptionTier(clientService.service);
+    if (!tier) {
+      throw new ActionError("Le volume de cette solution n'est pas modifiable.");
+    }
+    if (!isValidUnitSelection(tier, units)) {
+      throw new ActionError("Ce volume n'est pas proposé pour cette solution.");
+    }
+
+    const current = clientService.includedUsageUnits ?? tier.minUnits;
+    if (units === current) return { immediateChargeCents: 0 };
+
+    const monthlyPriceCents = calculateMonthlyPriceCents(tier, units);
+    const { immediateChargeCents } = await applyMonthlyPriceChange(
+      clientService.stripeSubscriptionId,
+      monthlyPriceCents
+    );
+
+    await db.clientService.update({
+      where: { id: clientServiceId },
+      data: { includedUsageUnits: units, monthlyPriceCents },
+    });
+    await logServiceEvent(
+      clientServiceId,
+      "QUOTA_CHANGED",
+      `${current} → ${units}`
+    );
+
+    revalidateDashboard(clientServiceId);
+    revalidatePath("/dashboard/abonnements");
+    return { immediateChargeCents };
   });
 }

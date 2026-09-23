@@ -4,6 +4,10 @@ import { db } from "@/lib/db";
 import { stripeClient } from "@/lib/stripe";
 import { formatDate, type ClientServiceStatus } from "@/lib/catalog";
 import { overageCents, readClientUsageCap, type UsageCap } from "@/lib/usage-cap";
+import {
+  readSubscriptionTier,
+  type SubscriptionTier,
+} from "@/lib/subscription-pricing";
 import { formatCentsWithVat } from "@/lib/vat";
 
 export type BillingPeriod = {
@@ -33,6 +37,8 @@ export type MySubscription = {
   cap: UsageCap | null;
   /** La consommation sur la periode — nulle hors des periodes facturees. */
   usage: SubscriptionUsage | null;
+  /** Les bornes du volume, quand il est modifiable. Nulles sinon. */
+  tier: SubscriptionTier | null;
 };
 
 /**
@@ -130,6 +136,7 @@ async function toMySubscription(
     // Le prix convenu a la commande, non celui du catalogue : un changement
     // de tarif ne doit pas modifier ce qu'un client paie deja.
     monthlyPriceCents: cs.monthlyPriceCents ?? cs.service.monthlyPriceCents!,
+    tier: readSubscriptionTier(cs.service),
     paymentFailedAt: cs.paymentFailedAt,
     canceledAt: cs.canceledAt,
     period,
