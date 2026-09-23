@@ -30,16 +30,15 @@ export function ServicePriceSimulator({
 
   return (
     <div className="space-y-4">
-      <div>
-        <p className="text-sm font-medium text-foreground">
-          Combien de minutes vous faut-il ?
-        </p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Déplacez le curseur pour voir ce que votre abonnement coûterait.
-        </p>
-      </div>
-
-      <SubscriptionMinutesSlider tier={tier} value={units} onChange={setUnits} />
+      <SubscriptionMinutesSlider
+        tier={tier}
+        value={units}
+        onChange={setUnits}
+        label="Combien de minutes vous faut-il ?"
+      />
+      <p className="text-sm text-muted-foreground">
+        Déplacez le curseur pour voir ce que votre abonnement coûterait.
+      </p>
 
       <p className="text-xs leading-relaxed text-muted-foreground">
         Au-delà de ce quota, chaque minute est facturée{" "}
