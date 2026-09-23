@@ -9,13 +9,17 @@ import {
   type MySubscription,
 } from "@/lib/subscriptions";
 import { UsageGauge } from "./abonnements/usage-gauge";
+import { ChangeQuotaDialog } from "./change-quota-dialog";
+import { BillingPortalButton } from "./paiements/billing-portal-button";
 import { excludingVatSuffix } from "@/lib/vat";
 
 /** Le quota de cette solution, sur sa periode de facturation. */
 export function ServiceSubscriptionCard({
   subscription,
+  organizationId,
 }: {
   subscription: MySubscription;
+  organizationId?: string;
 }) {
   const running = isRunning(subscription);
 
@@ -34,6 +38,24 @@ export function ServiceSubscriptionCard({
       <CardContent className="space-y-4">
         {running && (
           <p className="text-sm text-muted-foreground">{describePeriod(subscription)}</p>
+        )}
+
+        {running && (
+          <div className="flex flex-wrap gap-2">
+            {subscription.tier && subscription.cap && (
+              <ChangeQuotaDialog
+                clientServiceId={subscription.clientServiceId}
+                tier={subscription.tier}
+                currentUnits={subscription.cap.includedUnits}
+              />
+            )}
+            {/* Le moyen de paiement se change ici aussi : c'est depuis la
+                solution qu'un client y pense, pas depuis une page Paiements
+                qu'il doit d'abord trouver. */}
+            {organizationId && (
+              <BillingPortalButton organizationId={organizationId} size="sm" />
+            )}
+          </div>
         )}
 
         {subscription.cap && subscription.usage ? (
