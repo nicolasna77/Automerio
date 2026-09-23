@@ -4,7 +4,10 @@ import { ADMIN_STATE, ANONYMOUS } from "./roles";
 test.use({ storageState: ADMIN_STATE });
 
 test("le détail d'un utilisateur montre ce que voit le client", async ({ page }) => {
-  await page.goto("/admin/users");
+  // Par la recherche, non par la premiere page : la liste est paginee, et
+  // supposer qu'un compte s'y trouve fait dependre le test du nombre de
+  // comptes en base.
+  await page.goto(`/admin/users?q=${encodeURIComponent("Marc Lefèvre")}`);
   await page.getByRole("link", { name: "Marc Lefèvre" }).click();
   await page.waitForURL(/\/admin\/users\/[^/]+$/);
 

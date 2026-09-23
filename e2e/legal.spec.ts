@@ -1,5 +1,9 @@
 import { expect, test } from "@playwright/test";
+import { db } from "@/lib/db";
 import { ANONYMOUS } from "./roles";
+
+/** Prefixe des adresses creees par le test d'inscription. */
+const SIGNUP_PREFIX = "inscription-";
 
 test.use({ storageState: ANONYMOUS });
 
@@ -37,8 +41,18 @@ test("les pages portent les en-têtes de sécurité", async ({ page }) => {
   expect(headers["x-powered-by"]).toBeUndefined();
 });
 
+/**
+ * Les comptes crees par le test ci-dessous, y compris ceux qu'une execution
+ * interrompue aurait laisses. Sans ce menage, la liste des utilisateurs
+ * s'allonge a chaque passage et finit par repousser en seconde page les comptes
+ * que d'autres tests vont chercher.
+ */
+test.afterEach(async () => {
+  await db.user.deleteMany({ where: { email: { startsWith: SIGNUP_PREFIX } } });
+});
+
 test("l'inscription demande de confirmer l'adresse e-mail", async ({ page }) => {
-  const email = `inscription-${Date.now()}@example.com`;
+  const email = `${SIGNUP_PREFIX}${Date.now()}@example.com`;
   await page.goto("/signup");
   await page.getByLabel("Nom").fill("Camille Test");
   await page.getByLabel("E-mail").fill(email);
