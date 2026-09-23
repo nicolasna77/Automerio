@@ -23,6 +23,8 @@ import {
 } from "@/lib/catalog";
 import { unwrap } from "@/lib/action-result";
 import { formatUsageCap } from "@/lib/usage-cap";
+import { SubscriptionMinutesSlider } from "@/components/subscription/subscription-minutes-slider";
+import { calculateMonthlyPriceCents } from "@/lib/subscription-pricing";
 import { excludingVatSuffix, formatCentsWithVat } from "@/lib/vat";
 import { cn, getErrorMessage } from "@/lib/utils";
 import { activateService, previewPromoCode, type PromoPreview } from "@/app/dashboard/actions";
@@ -54,7 +56,17 @@ export function ActivationFlow({
   const [name, setName] = useState(service.name);
   const [values, setValues] = useState<Configuration>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
+  // Le quota choisi part du plancher : rester la coute le prix du catalogue,
+  // et le client voit ce qu'il paierait sans rien decider.
+  const [chosenUnits, setChosenUnits] = useState(service.tier?.minUnits ?? 0);
   const [promoInput, setPromoInput] = useState("");
+
+  // Le prix a montrer : celui du quota choisi quand la solution est
+  // personnalisable, celui du catalogue sinon. Le serveur le recalcule de son
+  // cote avant de facturer — celui-ci n'est qu'un affichage.
+  const monthlyPriceCents = service.tier
+    ? calculateMonthlyPriceCents(service.tier, chosenUnits)
+    : service.monthlyPriceCents;
   const [promo, setPromo] = useState<PromoState>({ status: "idle" });
 
   const takesOrders =
@@ -120,7 +132,14 @@ export function ActivationFlow({
       }
       try {
         const { checkoutUrl } = unwrap(
-          await activateService(service.id, organizationId, name.trim(), values, code)
+          await activateService(
+            service.id,
+            organizationId,
+            name.trim(),
+            values,
+            code,
+            service.tier ? chosenUnits : null
+          )
         );
         window.location.href = checkoutUrl;
       } catch (err) {
@@ -185,6 +204,26 @@ export function ActivationFlow({
               <CardDescription>Modifiables à tout moment une fois la solution activée.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              {service.tier && (
+                <div className="space-y-3 rounded-2xl border border-border p-4">
+                  <div>
+                    <p className="font-medium text-foreground">
+                      Combien de minutes vous faut-il ?
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Au-delà de ce quota, chaque minute est facturée au tarif de
+                      dépassement. L&apos;acheter à l&apos;avance revient moins cher.
+                    </p>
+                  </div>
+                  <SubscriptionMinutesSlider
+                    tier={service.tier}
+                    value={chosenUnits}
+                    onChange={setChosenUnits}
+                    disabled={isPending}
+                  />
+                </div>
+              )}
+
               <div className="space-y-2">
                 <Label htmlFor={nameFieldId}>Nom de cette activation</Label>
                 <Input
@@ -280,13 +319,13 @@ export function ActivationFlow({
                     </dd>
                   </div>
                 )}
-                {service.monthlyPriceCents !== null && (
+                {monthlyPriceCents !== null && (
                   <div className="flex justify-between gap-4">
                     <dt className="text-muted-foreground">Abonnement</dt>
                     <dd className="text-right font-medium text-foreground tabular-nums">
-                      {formatCents(service.monthlyPriceCents)} TTC par mois
+                      {formatCents(monthlyPriceCents)} TTC par mois
                       <span className="block text-xs font-normal text-muted-foreground">
-                        {excludingVatSuffix(service.monthlyPriceCents)}
+                        {excludingVatSuffix(monthlyPriceCents)}
                       </span>
                     </dd>
                   </div>
@@ -370,7 +409,7 @@ export function ActivationFlow({
             <Button type="button" onClick={handlePay} disabled={isPending} aria-busy={isPending}>
               {isPending
                 ? "Redirection vers le paiement…"
-                : `Payer ${formatPrice(service.setupFeeCents, service.monthlyPriceCents)} TTC`}
+                : `Payer ${formatPrice(service.setupFeeCents, monthlyPriceCents)} TTC`}
             </Button>
           </div>
         </>

@@ -36,6 +36,11 @@ import {
   organizationCustomerId,
 } from "@/lib/organization-billing";
 import {
+  calculateMonthlyPriceCents,
+  isValidUnitSelection,
+  readSubscriptionTier,
+} from "@/lib/subscription-pricing";
+import {
   canManageClientServiceBilling,
   canReadClientService,
   viewerOf,
@@ -52,6 +57,22 @@ async function requireUserId() {
   const session = await getSession();
   if (!session) throw new ActionError("Votre session a expiré. Reconnectez-vous.");
   return session.user.id;
+}
+
+/**
+ * Le tarif convenu a la commande, qui prime sur celui du catalogue : une
+ * solution personnalisable a ete vendue a un prix que le client a choisi, et
+ * reprendre son paiement ne doit pas lui en presenter un autre.
+ */
+function agreedPricing(clientService: {
+  monthlyPriceCents: number | null;
+  service: { id: string; name: string; setupFeeCents: number | null; monthlyPriceCents: number | null };
+}) {
+  return {
+    ...clientService.service,
+    monthlyPriceCents:
+      clientService.monthlyPriceCents ?? clientService.service.monthlyPriceCents,
+  };
 }
 
 /** Consulter et configurer : il suffit d'appartenir a l'organisation porteuse. */
@@ -182,7 +203,8 @@ export async function activateService(
   organizationId: string,
   name: string,
   configuration: Configuration,
-  promoCode: string | null = null
+  promoCode: string | null = null,
+  chosenUnits: number | null = null
 ) {
   return runAction(async () => {
     const userId = await requireUserId();
@@ -198,6 +220,22 @@ export async function activateService(
     const trimmedName = name.trim();
     if (!trimmedName) {
       throw new ActionError("Merci de donner un nom à cette activation.");
+    }
+
+    // Le quota choisi et son prix sont recalcules ici : ceux que le navigateur
+    // a affiches ne servaient qu'a montrer. Une valeur entre deux crans est
+    // refusee plutot que corrigee — facturer autre chose que ce qui a ete
+    // choisi serait pire que refuser.
+    const tier = readSubscriptionTier(service);
+    let includedUsageUnits: number | null = null;
+    let monthlyPriceCents: number | null = null;
+    if (tier) {
+      const units = chosenUnits ?? tier.minUnits;
+      if (!isValidUnitSelection(tier, units)) {
+        throw new ActionError("Ce volume n'est pas proposé pour cette solution.");
+      }
+      includedUsageUnits = units;
+      monthlyPriceCents = calculateMonthlyPriceCents(tier, units);
     }
 
     const configFields = (service.configFields as ConfigField[]) ?? [];
@@ -223,6 +261,8 @@ export async function activateService(
           name: trimmedName,
           status: "PENDING_PAYMENT",
           configuration: withCleanProductCatalog(configuration),
+          includedUsageUnits,
+          monthlyPriceCents,
           promoCode: promotion?.code ?? null,
         },
       });
@@ -241,7 +281,9 @@ export async function activateService(
       const checkoutUrl = await createCheckoutSession(
         clientService.id,
         organizationId,
-        service,
+        // Le prix convenu, non celui du catalogue : le client a choisi son
+        // quota, c'est ce choix qui est facture.
+        { ...service, monthlyPriceCents: monthlyPriceCents ?? service.monthlyPriceCents },
         user,
         promotion?.promotionCodeId ?? null
       );
@@ -307,7 +349,7 @@ export async function resumeServiceCheckout(
       checkoutUrl = await createCheckoutSession(
         clientService.id,
         clientService.organizationId,
-        clientService.service,
+        agreedPricing(clientService),
         user,
         promotion?.promotionCodeId ?? null
       );
@@ -321,7 +363,7 @@ export async function resumeServiceCheckout(
       checkoutUrl = await createCheckoutSession(
         clientService.id,
         clientService.organizationId,
-        clientService.service,
+        agreedPricing(clientService),
         user
       );
     }

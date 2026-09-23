@@ -155,6 +155,18 @@ model Service {
   usageUnit             UsageUnit?
   overageUnitPriceCents Int?
 
+  // Bornes du curseur par lequel le client choisit son quota.
+  // `includedUsageUnits` en est le plancher et correspond a
+  // `monthlyPriceCents` : rester au minimum coute le prix affiche au catalogue.
+  // Sans `maxUsageUnits`, la solution n'est pas personnalisable.
+  maxUsageUnits         Int?
+  usageStepUnits        Int?
+
+  // Ce que coute une unite ajoutee au quota. Doit rester sous
+  // `overageUnitPriceCents`, sinon le client n'a aucune raison d'acheter a
+  // l'avance plutot que de payer son depassement.
+  extraUnitPriceCents   Int?
+
   configFields      Json            @default("[]")
   sortOrder         Int             @default(0)
   isActive          Boolean         @default(true)
@@ -187,6 +199,13 @@ model ClientService {
   service                 Service             @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   status                  ClientServiceStatus @default(PENDING_PAYMENT)
   configuration           Json                @default("{}")
+
+  // Le quota choisi a la commande et le prix convenu alors. Nuls quand la
+  // solution n'est pas personnalisable : les valeurs du catalogue font foi.
+  // Le prix est fige a l'achat — un changement de tarif ne doit pas modifier
+  // retroactivement ce qu'un client paie deja.
+  includedUsageUnits      Int?
+  monthlyPriceCents       Int?
   adminNote               String?
   stripeCheckoutSessionId String?
   stripePaymentIntentId   String?
