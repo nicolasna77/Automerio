@@ -366,6 +366,12 @@ model Organization {
   logo           String?
   createdAt      DateTime
   metadata       String?
+
+  // Le client Stripe de l'entreprise, non de la personne qui a commande. Une
+  // prestation appartient a une organisation et se partage entre ses membres :
+  // ses factures doivent suivre la meme frontiere. Cree a la premiere commande
+  // seulement — une entreprise qui n'achete rien n'encombre pas Stripe.
+  stripeCustomerId String?        @unique
   members        Member[]
   invitations    Invitation[]
   clientServices ClientService[]

@@ -4,13 +4,11 @@ import { SpendChartView } from "./spend-chart-view";
 const MONTHS_SHOWN = 6;
 
 export async function SpendChart({
-  userId,
   organizationId,
 }: {
-  userId: string;
   organizationId: string;
 }) {
-  const invoices = await getMyInvoices(userId, organizationId);
+  const invoices = await getMyInvoices(organizationId);
   const now = new Date();
 
   const buckets = Array.from({ length: MONTHS_SHOWN }, (_, i) => {

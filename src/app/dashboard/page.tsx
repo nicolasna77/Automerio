@@ -56,7 +56,7 @@ export default async function DashboardPage() {
             <OverviewServices organizationId={organization.id} />
           </Suspense>
           <Suspense fallback={<SpendChartSkeleton />}>
-            <SpendChart userId={session.user.id} organizationId={organization.id} />
+            <SpendChart organizationId={organization.id} />
           </Suspense>
         </div>
       ) : (

@@ -12,10 +12,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { db } from "@/lib/db";
-import { requireUser } from "@/lib/session";
 import { requireActiveOrganization } from "@/lib/organization";
 import { formatCents, formatDate } from "@/lib/catalog";
 import { getMyInvoices, type InvoiceDTO } from "../get-invoices";
+import { organizationCustomerId } from "@/lib/organization-billing";
 import { BillingPortalButton } from "./billing-portal-button";
 import { VAT_PERCENTAGE, excludingVatSuffix } from "@/lib/vat";
 
@@ -36,20 +36,14 @@ function InvoiceStatusBadge({ status }: { status: InvoiceDTO["status"] }) {
 }
 
 export default async function PaiementsPage() {
-  const [session, { active: organization }] = await Promise.all([
-    requireUser(),
-    requireActiveOrganization(),
-  ]);
-  const [invoices, failing, customer, activatedCount] = await Promise.all([
-    getMyInvoices(session.user.id, organization.id),
+  const { active: organization } = await requireActiveOrganization();
+  const [invoices, failing, customerId, activatedCount] = await Promise.all([
+    getMyInvoices(organization.id),
     db.clientService.findMany({
       where: { organizationId: organization.id, paymentFailedAt: { not: null } },
       select: { id: true, name: true },
     }),
-    db.user.findUniqueOrThrow({
-      where: { id: session.user.id },
-      select: { stripeCustomerId: true },
-    }),
+    organizationCustomerId(organization.id),
     db.clientService.count({ where: { organizationId: organization.id } }),
   ]);
 
@@ -65,7 +59,7 @@ export default async function PaiementsPage() {
             le hors taxes est rappelé sous chaque montant.
           </p>
         </div>
-        {customer.stripeCustomerId && invoices.length > 0 && <BillingPortalButton />}
+        {customerId && invoices.length > 0 && <BillingPortalButton organizationId={organization.id} />}
       </div>
 
       {failing.length > 0 && (
@@ -81,7 +75,7 @@ export default async function PaiementsPage() {
               Mettez à jour votre moyen de paiement pour éviter une interruption.
             </span>
           </p>
-          {customer.stripeCustomerId && <BillingPortalButton variant="default" />}
+          {customerId && <BillingPortalButton organizationId={organization.id} variant="default" />}
         </div>
       )}
 

@@ -135,7 +135,12 @@ export const auth = betterAuth({
     stripe({
       stripeClient,
       stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
-      createCustomerOnSignUp: true,
+      // Plus de client Stripe par utilisateur : c'est l'organisation qui achete
+      // et qui est facturee, et sa fiche se cree a sa premiere commande
+      // (`src/lib/organization-billing.ts`). Laisser ce rappel actif remplirait
+      // Stripe d'une fiche par inscription, que rien ne facturerait jamais.
+      // `User.stripeCustomerId` demeure — better-auth possede la colonne — mais
+      // l'application ne la lit plus.
       onEvent: handleStripeEvent,
     }),
   ],
