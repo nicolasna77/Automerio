@@ -1,6 +1,7 @@
 import type Stripe from "stripe";
 import { db } from "@/lib/db";
 import { stripeClient } from "@/lib/stripe";
+import { organizationCustomerId } from "@/lib/organization-billing";
 
 export type InvoiceDTO = {
   id: string;
@@ -21,18 +22,15 @@ function subscriptionIdOf(invoice: Stripe.Invoice): string | null {
 }
 
 export async function getMyInvoices(
-  userId: string,
   organizationId: string
 ): Promise<InvoiceDTO[]> {
-  const user = await db.user.findUniqueOrThrow({
-    where: { id: userId },
-    select: { stripeCustomerId: true },
-  });
-
-  if (!user.stripeCustomerId) return [];
+  // Les factures de l'entreprise, non celles de la personne qui regarde : un
+  // membre invite n'a rien paye lui-meme et verrait sinon une page vide.
+  const customerId = await organizationCustomerId(organizationId);
+  if (!customerId) return [];
 
   const [stripeInvoices, clientServices] = await Promise.all([
-    stripeClient.invoices.list({ customer: user.stripeCustomerId, limit: 100 }),
+    stripeClient.invoices.list({ customer: customerId, limit: 100 }),
     db.clientService.findMany({
       where: { organizationId },
       select: { id: true, stripeSubscriptionId: true, name: true },

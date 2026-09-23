@@ -32,6 +32,10 @@ import { validatePromoCodeForService } from "@/lib/stripe-promo-codes";
 import { applyDiscount, describeDiscount, firstPaymentCents } from "@/lib/promo-codes";
 import { ActionError, runAction } from "@/lib/run-action";
 import {
+  getOrCreateOrganizationCustomer,
+  organizationCustomerId,
+} from "@/lib/organization-billing";
+import {
   canManageClientServiceBilling,
   canReadClientService,
   viewerOf,
@@ -105,15 +109,22 @@ function promotionErrorMessage(err: unknown): string {
 
 async function createCheckoutSession(
   clientServiceId: string,
+  organizationId: string,
   service: {
     id: string;
     name: string;
     setupFeeCents: number | null;
     monthlyPriceCents: number | null;
   },
-  user: { stripeCustomerId: string | null; email: string },
+  user: { email: string },
   promotionCodeId: string | null = null
 ): Promise<string> {
+  // Le client Stripe appartient a l'organisation : c'est elle qui achete,
+  // et ses factures doivent rester visibles de tous ses membres.
+  const customerId = await getOrCreateOrganizationCustomer(
+    organizationId,
+    user.email
+  );
   const vatRateId = await getIncludedVatRateId();
   const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
   if (service.setupFeeCents !== null) {
@@ -144,8 +155,7 @@ async function createCheckoutSession(
   const checkoutSession = await stripeClient.checkout.sessions.create({
     mode,
     integration_identifier: CHECKOUT_INTEGRATION_ID,
-    customer: user.stripeCustomerId ?? undefined,
-    customer_email: user.stripeCustomerId ? undefined : user.email,
+    customer: customerId,
     line_items: lineItems,
     ...(promotionCodeId && { discounts: [{ promotion_code: promotionCodeId }] }),
     ...(mode === "payment" && {
@@ -230,6 +240,7 @@ export async function activateService(
     try {
       const checkoutUrl = await createCheckoutSession(
         clientService.id,
+        organizationId,
         service,
         user,
         promotion?.promotionCodeId ?? null
@@ -295,6 +306,7 @@ export async function resumeServiceCheckout(
     try {
       checkoutUrl = await createCheckoutSession(
         clientService.id,
+        clientService.organizationId,
         clientService.service,
         user,
         promotion?.promotionCodeId ?? null
@@ -306,7 +318,12 @@ export async function resumeServiceCheckout(
       }
       await db.clientService.update({ where: { id: clientServiceId }, data: { promoCode: null } });
       if (explicitCode) throw new ActionError(promotionErrorMessage(err));
-      checkoutUrl = await createCheckoutSession(clientService.id, clientService.service, user);
+      checkoutUrl = await createCheckoutSession(
+        clientService.id,
+        clientService.organizationId,
+        clientService.service,
+        user
+      );
     }
     revalidateDashboard(clientService.id);
     return { checkoutUrl };
@@ -622,17 +639,23 @@ export async function cancelService(clientServiceId: string) {
   });
 }
 
-export async function openBillingPortal() {
+/**
+ * Le portail Stripe donne la main sur le moyen de paiement et les factures de
+ * l'entreprise : il se reserve donc aux memes roles que la resiliation et
+ * l'achat, et non a tout membre.
+ */
+export async function openBillingPortal(organizationId: string) {
   return runAction(async () => {
     const userId = await requireUserId();
-    const { stripeCustomerId } = await db.user.findUniqueOrThrow({
-      where: { id: userId },
-      select: { stripeCustomerId: true },
-    });
-    if (!stripeCustomerId) {
-      throw new ActionError("Aucun moyen de paiement n'est encore enregistré sur ce compte.");
+    await requireBillingRoleOn({ organizationId }, userId);
+
+    const customerId = await organizationCustomerId(organizationId);
+    if (!customerId) {
+      throw new ActionError(
+        "Aucun moyen de paiement n'est encore enregistré pour cette entreprise."
+      );
     }
-    const url = await createBillingPortalUrl(stripeCustomerId, `${appUrl()}/dashboard/paiements`);
+    const url = await createBillingPortalUrl(customerId, `${appUrl()}/dashboard/paiements`);
     return { url };
   });
 }

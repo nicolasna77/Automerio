@@ -4,10 +4,9 @@ import { CalendarClock, CreditCard, Layers, TriangleAlert, Wallet } from "lucide
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/empty-state";
-import { db } from "@/lib/db";
-import { requireUser } from "@/lib/session";
 import { requireActiveOrganization } from "@/lib/organization";
 import { formatDate } from "@/lib/catalog";
+import { organizationCustomerId } from "@/lib/organization-billing";
 import {
   getMySubscriptions,
   isRunning,
@@ -21,16 +20,10 @@ import { formatCentsWithVat } from "@/lib/vat";
 export const metadata: Metadata = { title: "Abonnements" };
 
 export default async function AbonnementsPage() {
-  const [session, { active: organization }] = await Promise.all([
-    requireUser(),
-    requireActiveOrganization(),
-  ]);
-  const [subscriptions, customer] = await Promise.all([
+  const { active: organization } = await requireActiveOrganization();
+  const [subscriptions, customerId] = await Promise.all([
     getMySubscriptions(organization.id),
-    db.user.findUniqueOrThrow({
-      where: { id: session.user.id },
-      select: { stripeCustomerId: true },
-    }),
+    organizationCustomerId(organization.id),
   ]);
 
   const running = subscriptions.filter(isRunning);
@@ -68,7 +61,7 @@ export default async function AbonnementsPage() {
             la période en cours.
           </p>
         </div>
-        {customer.stripeCustomerId && <BillingPortalButton />}
+        {customerId && <BillingPortalButton organizationId={organization.id} />}
       </div>
 
       {failing.length > 0 && (
@@ -88,7 +81,9 @@ export default async function AbonnementsPage() {
               interruption.
             </span>
           </p>
-          {customer.stripeCustomerId && <BillingPortalButton variant="default" />}
+          {customerId && (
+            <BillingPortalButton organizationId={organization.id} variant="default" />
+          )}
         </div>
       )}
 

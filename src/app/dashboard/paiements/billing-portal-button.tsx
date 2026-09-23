@@ -8,13 +8,19 @@ import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
 import { openBillingPortal } from "../actions";
 
-export function BillingPortalButton({ variant = "outline" }: { variant?: "outline" | "default" }) {
+export function BillingPortalButton({
+  organizationId,
+  variant = "outline",
+}: {
+  organizationId: string;
+  variant?: "outline" | "default";
+}) {
   const [isPending, startTransition] = useTransition();
 
   function handleClick() {
     startTransition(async () => {
       try {
-        const { url } = unwrap(await openBillingPortal());
+        const { url } = unwrap(await openBillingPortal(organizationId));
         window.location.href = url;
       } catch (err) {
         toast.error(getErrorMessage(err, "Le portail de paiement est indisponible. Réessayez."));
@@ -29,7 +35,7 @@ export function BillingPortalButton({ variant = "outline" }: { variant?: "outlin
       ) : (
         <CreditCard aria-hidden="true" data-icon="inline-start" />
       )}
-      Gérer mon moyen de paiement
+      Gérer le moyen de paiement
     </Button>
   );
 }
