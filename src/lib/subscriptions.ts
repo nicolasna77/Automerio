@@ -3,7 +3,7 @@ import type Stripe from "stripe";
 import { db } from "@/lib/db";
 import { stripeClient } from "@/lib/stripe";
 import { formatDate, type ClientServiceStatus } from "@/lib/catalog";
-import { overageCents, readUsageCap, type UsageCap } from "@/lib/usage-cap";
+import { overageCents, readClientUsageCap, type UsageCap } from "@/lib/usage-cap";
 import { formatCentsWithVat } from "@/lib/vat";
 
 export type BillingPeriod = {
@@ -109,7 +109,7 @@ async function toMySubscription(
     ? subscriptions.get(cs.stripeSubscriptionId)
     : undefined;
   const period = (subscription && periodOf(subscription)) ?? fallback;
-  const cap = readUsageCap(cs.service);
+  const cap = readClientUsageCap(cs, cs.service);
   // Une solution resiliee ou impayee n'a plus de quota qui court.
   const tracksUsage = cs.status === "ACTIVE" || cs.status === "CONFIGURING";
 
@@ -127,7 +127,9 @@ async function toMySubscription(
     serviceName: cs.service.name,
     serviceSlug: cs.service.slug,
     status: cs.status,
-    monthlyPriceCents: cs.service.monthlyPriceCents!,
+    // Le prix convenu a la commande, non celui du catalogue : un changement
+    // de tarif ne doit pas modifier ce qu'un client paie deja.
+    monthlyPriceCents: cs.monthlyPriceCents ?? cs.service.monthlyPriceCents!,
     paymentFailedAt: cs.paymentFailedAt,
     canceledAt: cs.canceledAt,
     period,

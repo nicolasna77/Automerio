@@ -16,6 +16,7 @@ import { formatUsageCap } from "@/lib/usage-cap";
 import { getServiceCopy } from "@/lib/service-copy";
 import { FaqList } from "@/components/faq-list";
 import { ServiceGlyphBadge } from "@/components/service-glyph";
+import { ServicePriceSimulator } from "@/components/subscription/service-price-simulator";
 
 export async function generateMetadata({
   params,
@@ -153,7 +154,7 @@ export default async function PrestationDetailPage({
                         </dt>
                       </div>
                     )}
-                    {service.monthlyPriceCents !== null && (
+                    {service.monthlyPriceCents !== null && !service.tier && (
                       <div className="py-4 first:pt-0">
                         <dd className="text-3xl font-semibold tabular-nums text-foreground">
                           {formatCents(service.monthlyPriceCents)}
@@ -166,12 +167,20 @@ export default async function PrestationDetailPage({
                         </dt>
                       </div>
                     )}
-                    {service.usageCap && (
+                    {service.usageCap && !service.tier && (
                       <div className="py-4">
                         <dt className="text-sm text-muted-foreground">Compris</dt>
                         <dd className="mt-1 text-sm text-foreground">
                           {formatUsageCap(service.usageCap)}
                         </dd>
+                      </div>
+                    )}
+                    {service.tier && service.usageCap && (
+                      <div className="py-4 first:pt-0">
+                        <ServicePriceSimulator
+                          tier={service.tier}
+                          overageUnitPriceCents={service.usageCap.overageUnitPriceCents}
+                        />
                       </div>
                     )}
                   </dl>

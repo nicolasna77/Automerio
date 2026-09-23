@@ -3,6 +3,7 @@ import type { Service } from "@prisma/client";
 import { db } from "@/lib/db";
 import type { ConfigField, ServiceDTO } from "@/lib/catalog";
 import { readUsageCap } from "@/lib/usage-cap";
+import { readSubscriptionTier } from "@/lib/subscription-pricing";
 
 export function toServiceDTO(service: Service): ServiceDTO {
   return {
@@ -14,6 +15,7 @@ export function toServiceDTO(service: Service): ServiceDTO {
     setupFeeCents: service.setupFeeCents,
     monthlyPriceCents: service.monthlyPriceCents,
     usageCap: readUsageCap(service),
+    tier: readSubscriptionTier(service),
     configFields: (service.configFields as ConfigField[]) ?? [],
     sortOrder: service.sortOrder,
   };

@@ -1,4 +1,5 @@
 import type { UsageCap } from "@/lib/usage-cap";
+import type { SubscriptionTier } from "@/lib/subscription-pricing";
 import {
   countCatalogItems,
   describeProductCatalog,
@@ -147,6 +148,7 @@ export type ServiceDTO = {
   setupFeeCents: number | null;
   monthlyPriceCents: number | null;
   usageCap: UsageCap | null;
+  tier: SubscriptionTier | null;
   configFields: ConfigField[];
   sortOrder: number;
 };

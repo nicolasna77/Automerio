@@ -11,6 +11,10 @@ export type CatalogService = {
   includedUsageUnits: number | null;
   usageUnit: UsageUnit | null;
   overageUnitPriceCents: number | null;
+  /** Bornes du curseur, quand la solution est personnalisable. */
+  maxUsageUnits?: number | null;
+  usageStepUnits?: number | null;
+  extraUnitPriceCents?: number | null;
   configFields: ConfigField[];
   sortOrder: number;
 };
@@ -34,6 +38,13 @@ export const CATALOG: CatalogService[] = [
     includedUsageUnits: 150,
     usageUnit: "MINUTE",
     overageUnitPriceCents: 30,
+    // Personnalisable : le client choisit son quota entre le plancher
+    // ci-dessus et 500 min, par pas de 10. La minute ajoutee coute moins
+    // cher que le depassement, sans quoi acheter a l'avance n'aurait
+    // aucun interet.
+    maxUsageUnits: 500,
+    usageStepUnits: 10,
+    extraUnitPriceCents: 20,
     configFields: [
       {
         key: "phoneLine",
@@ -74,6 +85,13 @@ export const CATALOG: CatalogService[] = [
     includedUsageUnits: 150,
     usageUnit: "MINUTE",
     overageUnitPriceCents: 30,
+    // Personnalisable : le client choisit son quota entre le plancher
+    // ci-dessus et 500 min, par pas de 10. La minute ajoutee coute moins
+    // cher que le depassement, sans quoi acheter a l'avance n'aurait
+    // aucun interet.
+    maxUsageUnits: 500,
+    usageStepUnits: 10,
+    extraUnitPriceCents: 20,
     configFields: [
       {
         key: "objectives",

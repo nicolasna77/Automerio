@@ -41,6 +41,21 @@ export function formatUsageCap(cap: UsageCap): string {
   return `${included}, puis ${formatCentsWithVat(cap.overageUnitPriceCents)}/${per}`;
 }
 
+/**
+ * Le plafond d'une prestation vendue : celui que le client a choisi s'il a pu
+ * le faire, sinon celui du catalogue. Lire le catalogue seul montrerait a un
+ * client ayant achete 300 minutes le quota par defaut de 150.
+ */
+export function readClientUsageCap(
+  clientService: { includedUsageUnits: number | null },
+  service: ServiceUsageColumns
+): UsageCap | null {
+  const cap = readUsageCap(service);
+  if (!cap) return null;
+  if (clientService.includedUsageUnits === null) return cap;
+  return { ...cap, includedUnits: clientService.includedUsageUnits };
+}
+
 export function usageCapLabelOf(service: ServiceUsageColumns): string | null {
   const cap = readUsageCap(service);
   return cap ? formatUsageCap(cap) : null;

@@ -13,7 +13,7 @@ import type {
   ServiceDTO,
   ServiceEventDTO,
 } from "@/lib/catalog";
-import { readUsageCap } from "@/lib/usage-cap";
+import { readClientUsageCap } from "@/lib/usage-cap";
 import { canReadClientService, viewerOf } from "@/lib/client-service-access";
 
 function toBookingDTO(booking: Booking): BookingDTO {
@@ -75,7 +75,10 @@ export function toMyServiceDTO(
       category: cs.service.category,
       setupFeeCents: cs.service.setupFeeCents,
       monthlyPriceCents: cs.service.monthlyPriceCents,
-      usageCap: readUsageCap(cs.service),
+      usageCap: readClientUsageCap(cs, cs.service),
+      // Nul ici a dessein : une prestation deja vendue ne se repersonnalise
+      // pas depuis son ecran de detail. Le curseur n'a de sens qu'a l'achat.
+      tier: null,
       configFields: (cs.service.configFields as ServiceDTO["configFields"]) ?? [],
       sortOrder: cs.service.sortOrder,
     },
