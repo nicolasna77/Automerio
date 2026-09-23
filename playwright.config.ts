@@ -1,4 +1,11 @@
+import { existsSync } from "node:fs";
 import { defineConfig, devices } from "@playwright/test";
+
+// Les tests qui nettoient derriere eux ont besoin de la base. Next charge `.env`
+// lui-meme, Playwright non : sans cela le processus de test n'a pas de
+// `DATABASE_URL`. En CI le fichier n'existe pas, les variables venant de
+// l'environnement.
+if (existsSync(".env")) process.loadEnvFile(".env");
 
 const PORT = 3100;
 const BASE_URL = `http://127.0.0.1:${PORT}`;
