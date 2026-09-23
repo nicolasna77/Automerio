@@ -19,6 +19,38 @@ export type CatalogService = {
   sortOrder: number;
 };
 
+/**
+ * Ce qu'une synchronisation du catalogue reecrit sur une solution deja en base.
+ *
+ * Deux sources decrivent une solution : ce fichier, et le formulaire de
+ * l'espace admin. Les colonnes que l'admin peut modifier — nom, description,
+ * categorie, rang, prix, quota compris, prix du depassement — ne figurent pas
+ * ici volontairement : une correction faite en ligne doit survivre a la
+ * synchronisation suivante.
+ *
+ * Les colonnes ci-dessous n'appartiennent qu'a ce fichier, aucun ecran ne les
+ * modifie. Les avoir omises les laissait nulles pour toujours sur les solutions
+ * creees avant leur ajout : c'est ce qui a fait disparaitre le curseur de
+ * minutes en production. Sans erreur ni trace — `readSubscriptionTier` rend
+ * `null` des qu'une borne manque, et la solution se vend alors comme si elle
+ * n'etait pas personnalisable.
+ *
+ * `?? null` compte : Prisma ignore `undefined` en mise a jour, si bien qu'une
+ * solution qui cesse d'etre personnalisable garderait ses anciennes bornes. La
+ * synchronisation doit pouvoir les effacer, pas seulement les poser.
+ *
+ * Toute colonne de catalogue ajoutee plus tard a sa place ici, tant que l'admin
+ * ne la modifie pas.
+ */
+export function catalogSyncFields(service: CatalogService) {
+  return {
+    configFields: service.configFields,
+    maxUsageUnits: service.maxUsageUnits ?? null,
+    usageStepUnits: service.usageStepUnits ?? null,
+    extraUnitPriceCents: service.extraUnitPriceCents ?? null,
+  };
+}
+
 const SLOT_DURATION_OPTIONS = [
   { value: "15", label: "15 min" },
   { value: "30", label: "30 min" },

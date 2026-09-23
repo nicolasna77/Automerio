@@ -2,7 +2,7 @@ import { config } from "dotenv";
 config();
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { CATALOG } from "../src/lib/catalog-data";
+import { CATALOG, catalogSyncFields } from "../src/lib/catalog-data";
 import { slugify } from "../src/lib/utils";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
@@ -126,7 +126,7 @@ async function main() {
       db.service.upsert({
         where: { slug: service.slug },
         create: service,
-        update: { configFields: service.configFields },
+        update: catalogSyncFields(service),
       })
     )
   );
