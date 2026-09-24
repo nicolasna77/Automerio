@@ -8,6 +8,7 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
 import { TELEPHONY_SERVICE_SLUGS } from "@/lib/catalog";
+import { PageHeader, PageShell } from "@/components/page-shell";
 
 export const metadata: Metadata = { title: "Calendrier" };
 
@@ -40,16 +41,12 @@ export default async function CalendrierPage() {
   });
 
   return (
-    <div className="flex h-[calc(100svh-3.5rem)] flex-col px-4 py-6 sm:px-6">
-      <div className="mb-5 shrink-0">
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          Calendrier
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Les rendez-vous et commandes pris par téléphone, toutes solutions
-          confondues.
-        </p>
-      </div>
+    <PageShell size="full">
+      <PageHeader
+        title="Calendrier"
+        description="Les rendez-vous et commandes pris par téléphone, toutes solutions confondues."
+        className="mb-5 shrink-0"
+      />
 
       {telephonyServices === 0 && bookings.length === 0 ? (
         <EmptyState
@@ -67,6 +64,6 @@ export default async function CalendrierPage() {
           <BookingsCalendar scheduled={scheduled} unscheduled={unscheduled} />
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }

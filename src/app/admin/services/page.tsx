@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/session";
 import { ServicesTable } from "./services-table";
+import { PageHeader, PageShell } from "@/components/page-shell";
 
 export const metadata: Metadata = { title: "Solutions" };
 
@@ -10,19 +11,13 @@ export default async function AdminServicesPage() {
   const services = await db.service.findMany({ orderBy: { sortOrder: "asc" } });
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          Solutions
-        </h1>
-        <p className="mt-1 text-muted-foreground">
-          Le catalogue affiché sur le site public et proposé aux clients.
-        </p>
-      </div>
+    <PageShell size="wide">
+      <PageHeader
+        title="Solutions"
+        description="Le catalogue affiché sur le site public et proposé aux clients."
+      />
 
-      <div className="mt-6">
-        <ServicesTable services={services} />
-      </div>
-    </div>
+      <ServicesTable services={services} />
+    </PageShell>
   );
 }

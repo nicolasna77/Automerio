@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
 import { requireUser } from "@/lib/session";
 import { getMyService } from "@/app/dashboard/get-my-service";
 import { canEditConfiguration, withCleanProductCatalog } from "@/lib/catalog";
 import { ServiceConfigurationForm } from "./service-configuration-form";
+import { PageHeader, PageShell } from "@/components/page-shell";
 
 export const metadata: Metadata = { title: "Configuration de la solution" };
 
@@ -23,19 +22,17 @@ export default async function ServiceConfigurationPage({
   if (!canEditConfiguration(item)) redirect(detailHref);
 
   return (
-    <div className="mx-auto max-w-3xl px-4 pt-10 sm:px-6">
-      <Link
-        href={detailHref}
-        className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-      >
-        <ArrowLeft className="size-4" aria-hidden="true" />
-        Retour à {item.name}
-      </Link>
-
-      <h1 className="text-2xl font-semibold tracking-tight text-foreground">Configuration</h1>
-      <p className="mt-1 text-muted-foreground">
-        {item.name === item.service.name ? item.service.name : `${item.name}, ${item.service.name}`}
-      </p>
+    <PageShell size="form">
+      <PageHeader
+        breadcrumbs={[
+          { label: "Solutions", href: "/dashboard/prestations" },
+          { label: item.name, href: detailHref },
+          { label: "Configuration" },
+        ]}
+        title="Configuration"
+        description={item.name === item.service.name ? item.service.name : `${item.name}, ${item.service.name}`}
+        className="mb-0"
+      />
 
       <ServiceConfigurationForm
         clientServiceId={item.clientServiceId}
@@ -43,6 +40,6 @@ export default async function ServiceConfigurationPage({
         initialConfiguration={withCleanProductCatalog(item.configuration)}
         backHref={detailHref}
       />
-    </div>
+    </PageShell>
   );
 }

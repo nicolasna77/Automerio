@@ -1,7 +1,5 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import {
   CalendarDays,
   CreditCard,
@@ -15,89 +13,98 @@ import {
 } from "lucide-react";
 import { AutomerioLogo } from "@/components/brand";
 import { OrganizationSwitcher } from "@/components/organization-switcher";
+import { SidebarUserMenu } from "@/components/sidebar-user-menu";
+import { WorkspaceNav, WorkspaceNavLinks } from "@/components/workspace-nav";
 import {
   Sidebar,
   SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
+  SidebarFooter,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuBadge,
-  SidebarMenuButton,
-  SidebarMenuItem,
+  SidebarRail,
+  SidebarSeparator,
 } from "@/components/ui/sidebar";
 import type { OrganizationSummary } from "@/lib/organization";
 
-const NAV_ITEMS = [
-  { href: "/dashboard", label: "Vue d'ensemble", icon: LayoutDashboard },
-  { href: "/dashboard/prestations", label: "Solutions", icon: Layers },
-  { href: "/dashboard/calendrier", label: "Calendrier", icon: CalendarDays },
-  { href: "/dashboard/abonnements", label: "Abonnements", icon: CreditCard },
-  { href: "/dashboard/paiements", label: "Paiements", icon: Receipt },
-  { href: "/dashboard/organisation", label: "Organisation", icon: Users },
-  { href: "/dashboard/profile", label: "Profil", icon: UserRound },
-  { href: "/dashboard/aide", label: "Aide", icon: LifeBuoy },
-];
+const ROOT = "/dashboard";
 
 export function DashboardSidebar({
   isAdmin,
   activeOrganization,
   organizations,
   openHelpRequestCount,
+  name,
+  email,
 }: {
   isAdmin: boolean;
   activeOrganization: OrganizationSummary;
   organizations: OrganizationSummary[];
   openHelpRequestCount: number;
+  name: string;
+  email: string;
 }) {
-  const pathname = usePathname();
-
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <AutomerioLogo
-          href="/dashboard"
+          href={ROOT}
           className="px-2 py-1 group-data-[collapsible=icon]:justify-center [&>span:last-child]:group-data-[collapsible=icon]:hidden"
         />
         <OrganizationSwitcher active={activeOrganization} organizations={organizations} />
       </SidebarHeader>
+      <SidebarSeparator />
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {NAV_ITEMS.map((item) => {
-                const isActive =
-                  item.href === "/dashboard"
-                    ? pathname === "/dashboard"
-                    : pathname.startsWith(item.href);
-                return (
-                  <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton
-                      isActive={isActive}
-                      tooltip={item.label}
-                      render={<Link href={item.href} />}
-                    >
-                      <item.icon />
-                      <span>{item.label}</span>
-                    </SidebarMenuButton>
-                    {item.href === "/dashboard/aide" && openHelpRequestCount > 0 && (
-                      <SidebarMenuBadge>{openHelpRequestCount}</SidebarMenuBadge>
-                    )}
-                  </SidebarMenuItem>
-                );
-              })}
-              {isAdmin && (
-                <SidebarMenuItem>
-                  <SidebarMenuButton tooltip="Administration" render={<Link href="/admin" />}>
-                    <ShieldCheck />
-                    <span>Administration</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              )}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <WorkspaceNav
+          root={ROOT}
+          groups={[
+            {
+              label: "Pilotage",
+              items: [
+                { href: ROOT, label: "Vue d'ensemble", icon: LayoutDashboard },
+                {
+                  href: "/dashboard/prestations",
+                  label: "Solutions",
+                  icon: Layers,
+                  matches: ["/dashboard/services"],
+                },
+                { href: "/dashboard/calendrier", label: "Calendrier", icon: CalendarDays },
+              ],
+            },
+            {
+              label: "Facturation",
+              items: [
+                { href: "/dashboard/abonnements", label: "Abonnements", icon: CreditCard },
+                { href: "/dashboard/paiements", label: "Paiements", icon: Receipt },
+              ],
+            },
+            {
+              label: "Compte",
+              items: [
+                { href: "/dashboard/organisation", label: "Organisation", icon: Users },
+                { href: "/dashboard/profile", label: "Profil", icon: UserRound },
+              ],
+            },
+          ]}
+        />
       </SidebarContent>
+      <SidebarFooter>
+        <WorkspaceNavLinks
+          root={ROOT}
+          items={[
+            {
+              href: "/dashboard/aide",
+              label: "Aide",
+              icon: LifeBuoy,
+              badge: openHelpRequestCount,
+            },
+            ...(isAdmin
+              ? [{ href: "/admin", label: "Administration", icon: ShieldCheck }]
+              : []),
+          ]}
+        />
+        <SidebarSeparator className="mx-0" />
+        <SidebarUserMenu name={name} email={email} />
+      </SidebarFooter>
+      <SidebarRail />
     </Sidebar>
   );
 }

@@ -7,6 +7,7 @@ import { PasswordForm } from "./password-form";
 import { NotificationPreferencesForm } from "./notification-preferences-form";
 import { TwoFactorSection } from "./two-factor-section";
 import { AccountDataSection } from "./account-data-section";
+import { PageHeader, PageShell } from "@/components/page-shell";
 
 export const metadata: Metadata = { title: "Mon profil" };
 
@@ -30,11 +31,11 @@ export default async function ProfilePage() {
   const hasPassword = credentialAccounts > 0;
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
-      <h1 className="text-2xl font-semibold tracking-tight text-foreground">Profil</h1>
-      <p className="mt-1 mb-8 text-muted-foreground">
-        Vos informations, vos e-mails et la sécurité de votre compte.
-      </p>
+    <PageShell size="form">
+      <PageHeader
+        title="Profil"
+        description="Vos informations, vos e-mails et la sécurité de votre compte."
+      />
       <AccountForm initialAccount={initialAccount} />
       <p className="-mt-4 mb-4 text-sm text-muted-foreground">
         Vos entreprises se gèrent depuis le sélecteur d&apos;organisation, en haut de la barre latérale.
@@ -43,6 +44,6 @@ export default async function ProfilePage() {
       {hasPassword && <PasswordForm />}
       <TwoFactorSection enabled={!!user.twoFactorEnabled} requiresPassword={hasPassword} />
       <AccountDataSection requiresPassword={hasPassword} />
-    </div>
+    </PageShell>
   );
 }

@@ -11,6 +11,7 @@ import { OverviewStats } from "./overview-stats";
 import { OverviewServices } from "./overview-services";
 import { SpendChart } from "./spend-chart";
 import { OverviewStatsSkeleton, SpendChartSkeleton } from "./overview-skeletons";
+import { PageHeader, PageShell } from "@/components/page-shell";
 
 export const metadata: Metadata = { title: "Tableau de bord" };
 
@@ -39,13 +40,11 @@ export default async function DashboardPage() {
     (await db.clientService.count({ where: { organizationId: organization.id } })) > 0;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          Bonjour {session.user.name.split(" ")[0]}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">{formatDate(new Date())}</p>
-      </div>
+    <PageShell size="wide">
+      <PageHeader
+        title={`Bonjour ${session.user.name.split(" ")[0]}`}
+        description={formatDate(new Date())}
+      />
 
       {hasEverActivated ? (
         <div className="space-y-4">
@@ -91,6 +90,6 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       )}
-    </div>
+    </PageShell>
   );
 }

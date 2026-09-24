@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AlertTriangle, ArrowLeft } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireUser } from "@/lib/session";
@@ -24,6 +23,7 @@ import { ServiceSetupCard } from "@/app/dashboard/service-setup-card";
 import { ServiceSubscriptionCard } from "@/app/dashboard/service-subscription-card";
 import { getSubscriptionFor } from "@/lib/subscriptions";
 import { formatPriceWithVat } from "@/lib/vat";
+import { PageBreadcrumbs, PageShell } from "@/components/page-shell";
 
 export const metadata: Metadata = { title: "Détail de la solution" };
 
@@ -64,14 +64,13 @@ export default async function ServiceDetailPage({
     });
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <Link
-        href="/dashboard/prestations"
-        className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-      >
-        <ArrowLeft className="size-4" aria-hidden="true" />
-        Retour aux solutions
-      </Link>
+    <PageShell size="wide">
+      <PageBreadcrumbs
+        items={[
+          { label: "Solutions", href: "/dashboard/prestations" },
+          { label: item.name },
+        ]}
+      />
 
       {calendar === "error" && (
         <Alert variant="destructive" className="mb-6">
@@ -146,6 +145,6 @@ export default async function ServiceDetailPage({
           </Card>
         )}
       </div>
-    </div>
+    </PageShell>
   );
 }

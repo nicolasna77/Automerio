@@ -9,6 +9,7 @@ import {
 import { HelpRequestForm } from "./help-request-form";
 import { HelpRequestHistory } from "./help-request-history";
 import { HowItWorks } from "./how-it-works";
+import { PageHeader, PageShell } from "@/components/page-shell";
 
 export const metadata: Metadata = { title: "Aide" };
 
@@ -56,11 +57,11 @@ export default async function AidePage() {
   }));
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
-      <h1 className="text-2xl font-semibold tracking-tight text-foreground">Aide</h1>
-      <p className="mt-1 text-muted-foreground">
-        Une question sur une solution, un souci technique ? L&apos;équipe vous répond ici.
-      </p>
+    <PageShell size="wide">
+      <PageHeader
+        title="Aide"
+        description="Une question sur une solution, un souci technique ? L'équipe vous répond ici."
+      />
 
       {historyItems.length > 0 && <HelpRequestHistory items={historyItems} />}
 
@@ -73,6 +74,6 @@ export default async function AidePage() {
           <HowItWorks />
         </div>
       </section>
-    </div>
+    </PageShell>
   );
 }

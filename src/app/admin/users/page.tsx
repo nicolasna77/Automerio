@@ -4,6 +4,7 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UsersFilters } from "./users-filters";
 import { UsersSection } from "./users-section";
+import { PageHeader, PageShell } from "@/components/page-shell";
 
 export const metadata: Metadata = { title: "Utilisateurs" };
 
@@ -27,16 +28,11 @@ export default async function AdminUsersPage({
   const params = await searchParams;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          Utilisateurs
-        </h1>
-        <p className="mt-1 text-muted-foreground">
-          Gestion des comptes de l&apos;application — rôles, bannissement,
-          sessions.
-        </p>
-      </div>
+    <PageShell size="wide">
+      <PageHeader
+        title="Utilisateurs"
+        description="Gestion des comptes de l'application — rôles, bannissement, sessions."
+      />
 
       <UsersFilters />
       <Suspense
@@ -45,6 +41,6 @@ export default async function AdminUsersPage({
       >
         <UsersSection q={params.q} role={params.role} page={params.page} />
       </Suspense>
-    </div>
+    </PageShell>
   );
 }

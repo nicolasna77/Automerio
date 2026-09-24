@@ -16,6 +16,7 @@ import {
 import { BillingPortalButton } from "../paiements/billing-portal-button";
 import { SubscriptionCard } from "./subscription-card";
 import { formatCentsWithVat } from "@/lib/vat";
+import { PageHeader, PageShell } from "@/components/page-shell";
 
 export const metadata: Metadata = { title: "Abonnements" };
 
@@ -50,19 +51,12 @@ export default async function AbonnementsPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-            Abonnements
-          </h1>
-          <p className="mt-1 text-muted-foreground">
-            Ce qui vous est prélevé chaque mois, et ce que vous avez consommé sur
-            la période en cours.
-          </p>
-        </div>
-        {customerId && <BillingPortalButton organizationId={organization.id} />}
-      </div>
+    <PageShell size="content">
+      <PageHeader
+        title="Abonnements"
+        description="Ce qui vous est prélevé chaque mois, et ce que vous avez consommé sur la période en cours."
+        actions={customerId && <BillingPortalButton organizationId={organization.id} />}
+      />
 
       {failing.length > 0 && (
         <div
@@ -175,6 +169,6 @@ export default async function AbonnementsPage() {
           </p>
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }
