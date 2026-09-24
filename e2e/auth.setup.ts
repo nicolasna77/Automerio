@@ -1,7 +1,8 @@
 import { test as setup, expect } from "@playwright/test";
-import { CLIENT, ADMIN, CLIENT_STATE, ADMIN_STATE } from "./roles";
+import { CLIENT, ADMIN, CLIENT_STATE, ADMIN_STATE, isolatedClientIp } from "./roles";
 
 setup("authentifier un client", async ({ page }) => {
+  await page.setExtraHTTPHeaders(isolatedClientIp());
   await page.goto("/login");
   await page.getByLabel("E-mail").fill(CLIENT.email);
   await page.getByLabel("Mot de passe", { exact: true }).fill(CLIENT.password);
@@ -11,6 +12,7 @@ setup("authentifier un client", async ({ page }) => {
 });
 
 setup("authentifier un admin", async ({ page }) => {
+  await page.setExtraHTTPHeaders(isolatedClientIp());
   await page.goto("/login");
   await page.getByLabel("E-mail").fill(ADMIN.email);
   await page.getByLabel("Mot de passe", { exact: true }).fill(ADMIN.password);

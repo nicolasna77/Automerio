@@ -182,6 +182,8 @@ export type ServiceEventType =
   | "INSTAGRAM_DISCONNECTED"
   | "CONFIGURATION_UPDATED"
   | "QUOTA_CHANGED"
+  | "QUOTA_WARNING"
+  | "QUOTA_EXCEEDED"
   | "CANCELED";
 
 export const SERVICE_EVENT_LABELS: Record<ServiceEventType, string> = {
@@ -200,6 +202,8 @@ export const SERVICE_EVENT_LABELS: Record<ServiceEventType, string> = {
   INSTAGRAM_CONNECTED: "Compte Instagram connecté",
   INSTAGRAM_DISCONNECTED: "Compte Instagram déconnecté",
   QUOTA_CHANGED: "Volume de l'abonnement modifié",
+  QUOTA_WARNING: "80 % du forfait consommé",
+  QUOTA_EXCEEDED: "Forfait dépassé",
   CONFIGURATION_UPDATED: "Configuration mise à jour",
   CANCELED: "Solution résiliée",
 };

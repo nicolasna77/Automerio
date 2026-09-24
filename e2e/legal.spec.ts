@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { db } from "@/lib/db";
-import { ANONYMOUS } from "./roles";
+import { ANONYMOUS, isolatedClientIp } from "./roles";
 
 /** Prefixe des adresses creees par le test d'inscription. */
 const SIGNUP_PREFIX = "inscription-";
@@ -42,17 +42,35 @@ test("les pages portent les en-têtes de sécurité", async ({ page }) => {
 });
 
 /**
- * Les comptes crees par le test ci-dessous, y compris ceux qu'une execution
- * interrompue aurait laisses. Sans ce menage, la liste des utilisateurs
- * s'allonge a chaque passage et finit par repousser en seconde page les comptes
- * que d'autres tests vont chercher.
+ * Les comptes crees par le test ci-dessous. Sans ce menage, la liste des
+ * utilisateurs s'allonge a chaque passage et finit par repousser en seconde
+ * page les comptes que d'autres tests vont chercher.
+ *
+ * Les tests de ce fichier tournent en parallele, et apres chacun d'eux : un
+ * menage par prefixe effacait le compte qu'une inscription voisine etait en
+ * train de creer. On ne supprime donc que les adresses de ce test, plus les
+ * restes d'executions interrompues, trop vieux pour appartenir a celle-ci.
  */
+const createdEmails: string[] = [];
+
 test.afterEach(async () => {
-  await db.user.deleteMany({ where: { email: { startsWith: SIGNUP_PREFIX } } });
+  await db.user.deleteMany({
+    where: {
+      OR: [
+        { email: { in: createdEmails.splice(0) } },
+        {
+          email: { startsWith: SIGNUP_PREFIX },
+          createdAt: { lt: new Date(Date.now() - 10 * 60 * 1000) },
+        },
+      ],
+    },
+  });
 });
 
 test("l'inscription demande de confirmer l'adresse e-mail", async ({ page }) => {
+  await page.setExtraHTTPHeaders(isolatedClientIp());
   const email = `${SIGNUP_PREFIX}${Date.now()}@example.com`;
+  createdEmails.push(email);
   await page.goto("/signup");
   await page.getByLabel("Nom").fill("Camille Test");
   await page.getByLabel("E-mail").fill(email);

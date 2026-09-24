@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { CLIENT, CLIENT_STATE, ANONYMOUS } from "./roles";
+import { CLIENT, CLIENT_STATE, ANONYMOUS, isolatedClientIp } from "./roles";
 
 test.use({ storageState: CLIENT_STATE });
 
@@ -57,6 +57,7 @@ test.describe("depuis un visiteur", () => {
   test.use({ storageState: ANONYMOUS });
 
   test("un client se connecte et atterrit sur son tableau de bord", async ({ page }) => {
+    await page.setExtraHTTPHeaders(isolatedClientIp());
     await page.goto("/login");
     await page.getByLabel("E-mail").fill(CLIENT.email);
     await page.getByLabel("Mot de passe", { exact: true }).fill(CLIENT.password);

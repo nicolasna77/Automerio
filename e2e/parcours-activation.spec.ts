@@ -1,11 +1,12 @@
 import { expect, test } from "@playwright/test";
-import { ANONYMOUS, CLIENT } from "./roles";
+import { ANONYMOUS, CLIENT, isolatedClientIp } from "./roles";
 
 test.use({ storageState: ANONYMOUS });
 
 test("le volume choisi sur la page publique suit le visiteur jusqu'à l'activation", async ({
   page,
 }) => {
+  await page.setExtraHTTPHeaders(isolatedClientIp());
   await page.goto("/prestations/standard-telephonique-ia");
 
   const slider = page.getByRole("slider");

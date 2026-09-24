@@ -4,6 +4,7 @@ import { stripeClient } from "@/lib/stripe";
 import { releasePhoneNumber } from "@/lib/twilio";
 import { logServiceEvent } from "@/lib/service-events";
 import { sendPaymentFailedEmail, sendServiceCanceledEmail } from "@/lib/email/notifications";
+import { billFinalOverage, billOverageOnInvoice } from "@/lib/overage-billing";
 
 function idOf(ref: string | { id: string } | null | undefined): string | null {
   if (!ref) return null;
@@ -132,6 +133,9 @@ export async function handleStripeEvent(event: Stripe.Event): Promise<void> {
     case "checkout.session.async_payment_failed":
       await recordFailedCheckout(event.data.object);
       return;
+    case "invoice.created":
+      await billOverageOnInvoice(event.data.object);
+      return;
     case "invoice.payment_failed":
       await flagPaymentFailure(event.data.object);
       return;
@@ -149,6 +153,11 @@ export async function handleStripeEvent(event: Stripe.Event): Promise<void> {
       return;
     }
     case "customer.subscription.deleted":
+      // Le depassement de la derniere periode n'a pas de facture de
+      // renouvellement ou s'ajouter. Son echec ne doit pas bloquer la resiliation.
+      await billFinalOverage(event.data.object).catch((err) =>
+        console.error("[stripe] facturation du dernier dépassement impossible :", err)
+      );
       await endSubscription(event.data.object.id);
       return;
   }
