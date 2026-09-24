@@ -3,6 +3,7 @@ import {
   canChangeRole,
   canInvite,
   canRemoveMember,
+  canTransferOwnership,
   isInvitableRole,
   isOrganizationManager,
   roleLabel,
@@ -131,5 +132,28 @@ describe("canChangeRole", () => {
     expect(
       canChangeRole(responsable, secondProprietaire, "member", equipeADeuxProprietaires).ok
     ).toBe(false);
+  });
+});
+
+describe("canTransferOwnership", () => {
+  it("laisse le proprietaire transmettre a un responsable ou a un collaborateur", () => {
+    expect(canTransferOwnership(proprietaire, responsable).ok).toBe(true);
+    expect(canTransferOwnership(proprietaire, collaborateur).ok).toBe(true);
+  });
+
+  it("refuse a qui n'est pas proprietaire, meme responsable", () => {
+    expect(canTransferOwnership(responsable, collaborateur)).toEqual({
+      ok: false,
+      reason: "Seul le propriétaire peut transmettre la propriété.",
+    });
+  });
+
+  it("refuse de transmettre a soi-meme ou a un autre proprietaire", () => {
+    expect(canTransferOwnership(proprietaire, proprietaire).ok).toBe(false);
+    expect(canTransferOwnership(proprietaire, secondProprietaire).ok).toBe(false);
+  });
+
+  it("reconnait un proprietaire dont la colonne cumule plusieurs roles", () => {
+    expect(canTransferOwnership({ userId: "u-x", role: "admin,owner" }, collaborateur).ok).toBe(true);
   });
 });

@@ -93,7 +93,7 @@ export function canRemoveMember(
 
 /**
  * Changer le role d'un membre. `owner` ne s'attribue pas ici : il se transmet,
- * ce qui est un autre geste et n'existe pas encore dans l'interface.
+ * ce qui est un autre geste (`canTransferOwnership`).
  */
 export function canChangeRole(
   actor: TeamMember,
@@ -110,6 +110,23 @@ export function canChangeRole(
   }
   if (isOwner(target) && ownerCount(team) <= 1) {
     return { ok: false, reason: LAST_OWNER };
+  }
+  return { ok: true };
+}
+
+/**
+ * Transmettre la propriete : seul le proprietaire le peut, et a un autre
+ * membre. Il devient alors responsable — il garde la gestion, pas le titre.
+ */
+export function canTransferOwnership(actor: TeamMember, target: TeamMember): Verdict {
+  if (!isOwner(actor)) {
+    return { ok: false, reason: "Seul le propriétaire peut transmettre la propriété." };
+  }
+  if (target.userId === actor.userId) {
+    return { ok: false, reason: "Vous êtes déjà propriétaire de cette organisation." };
+  }
+  if (isOwner(target)) {
+    return { ok: false, reason: "Ce membre est déjà propriétaire." };
   }
   return { ok: true };
 }
