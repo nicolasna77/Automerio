@@ -197,7 +197,7 @@ export default async function PrestationDetailPage({
             ) : (
               <div className="mt-8 flex flex-wrap justify-center gap-3">
                 <Link href={primaryHref} className={buttonVariants({ size: "lg" })}>
-                  {session ? "Activer cette solution" : "Créer mon compte"}
+                  Activer cette solution
                   <ArrowRight data-icon="inline-end" />
                 </Link>
                 <Link href="#tarif" className={buttonVariants({ size: "lg", variant: "outline" })}>
@@ -208,9 +208,9 @@ export default async function PrestationDetailPage({
 
             {showDemoCall && (
               <p className="mt-5 text-sm text-muted-foreground">
-                Prêt à l&apos;installer ?{" "}
+                Déjà convaincu ?{" "}
                 <Link href={primaryHref} className="font-medium text-foreground underline-offset-4 hover:underline">
-                  {session ? "Activer cette solution" : "Créer mon compte"}
+                  Activer cette solution
                 </Link>{" "}
                 ou{" "}
                 <Link href="#tarif" className="font-medium text-foreground underline-offset-4 hover:underline">
@@ -336,7 +336,7 @@ export default async function PrestationDetailPage({
                 </dl>
                 {!service.tier && (
                   <Link href={primaryHref} className={buttonVariants({ size: "lg", className: "mt-2 w-full" })}>
-                    {session ? "Activer cette solution" : "Créer mon compte"}
+                    Activer cette solution
                     <ArrowRight data-icon="inline-end" />
                   </Link>
                 )}
@@ -359,7 +359,7 @@ export default async function PrestationDetailPage({
                   <p className="mt-4 leading-relaxed text-pretty text-muted-foreground">{copy.intro}</p>
                 </div>
                 <Link href={primaryHref} className={buttonVariants({ size: "lg", className: "shrink-0 self-start md:self-end" })}>
-                  {session ? "Activer cette solution" : "Créer mon compte"}
+                  Activer cette solution
                 </Link>
               </div>
               <ul className="mt-12 grid gap-10 md:grid-cols-3 md:gap-8">
@@ -471,7 +471,7 @@ export default async function PrestationDetailPage({
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link href={primaryHref} className={buttonVariants({ size: "lg" })}>
-                {session ? "Choisir cette solution" : "Créer mon compte"}
+                Activer cette solution
                 <ArrowRight data-icon="inline-end" />
               </Link>
               {showDemoCall ? (
