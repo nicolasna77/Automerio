@@ -1,25 +1,28 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { Plus } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
 import { db } from "@/lib/db";
 import { requireActiveOrganization } from "@/lib/organization";
-import { getCatalog } from "@/lib/get-catalog";
 import { SETUP_ANCHOR, setupAction, type MyServiceDTO } from "@/lib/catalog";
 import { toMyServiceDTO } from "../get-my-service";
 import { CheckoutNotice } from "../checkout-notice";
 import { MyServices } from "../my-services";
-import { ServiceCatalogGrid } from "./service-catalog-grid";
 import { PageHeader, PageShell } from "@/components/page-shell";
+import { SolutionsTabs } from "./solutions-tabs";
+import { CATALOGUE_PATH } from "./paths";
 
-export const metadata: Metadata = { title: "Solutions" };
+export const metadata: Metadata = { title: "Mes solutions" };
 
 export default async function PrestationsPage({
   searchParams,
 }: {
   searchParams: Promise<{ checkout?: string; clientServiceId?: string }>;
 }) {
-  const [{ active: organization }, params, services] = await Promise.all([
+  const [{ active: organization }, params] = await Promise.all([
     requireActiveOrganization(),
     searchParams,
-    getCatalog(),
   ]);
 
   const clientServices = await db.clientService.findMany({
@@ -27,17 +30,17 @@ export default async function PrestationsPage({
     include: { service: true },
     orderBy: { createdAt: "desc" },
   });
-
-  const statusByServiceId = Object.fromEntries(
-    clientServices.map((cs) => [cs.serviceId, cs.status])
-  );
-  const catalog = services.filter((s) => s.category === "COMMUNICATION");
   const myServices: MyServiceDTO[] = clientServices.map(toMyServiceDTO);
 
   const checkoutStatus =
     params.checkout === "success" || params.checkout === "canceled"
       ? params.checkout
       : null;
+
+  // Rien d'active : une liste vide n'apprend rien, le catalogue si. Le retour
+  // de Stripe reste ici, pour afficher son message quoi qu'il arrive.
+  if (myServices.length === 0 && !checkoutStatus) redirect(CATALOGUE_PATH);
+
   const checkoutTarget = params.clientServiceId
     ? myServices.find((m) => m.clientServiceId === params.clientServiceId)
     : undefined;
@@ -47,15 +50,19 @@ export default async function PrestationsPage({
     <PageShell size="wide">
       <PageHeader
         title="Solutions"
-        description={
-          myServices.length > 0
-            ? "Vos automatisations activées et le catalogue disponible."
-            : "Choisissez votre première automatisation : l'équipe l'installe et la vérifie pour vous."
+        description="Les automatisations que vous avez activées, et où en est chacune."
+        actions={
+          <Link href={CATALOGUE_PATH} className={buttonVariants({ variant: "outline" })}>
+            <Plus aria-hidden="true" data-icon="inline-start" />
+            Ajouter une solution
+          </Link>
         }
+        className="mb-6"
       />
+      <SolutionsTabs myCount={myServices.length} />
 
       {checkoutStatus && (
-        <div className="mt-6">
+        <div className="mb-8">
           <CheckoutNotice
             status={checkoutStatus}
             serviceName={checkoutTarget?.name}
@@ -72,21 +79,7 @@ export default async function PrestationsPage({
         </div>
       )}
 
-      {myServices.length > 0 && (
-        <div className="mt-8">
-          <MyServices items={myServices} />
-        </div>
-      )}
-
-      <section id="catalogue" aria-labelledby="catalogue-heading" className="mt-10 scroll-mt-20">
-        <h2 id="catalogue-heading" className="text-lg font-semibold text-foreground">
-          Catalogue
-        </h2>
-        <p className="mt-1 mb-4 text-sm text-muted-foreground">
-          Prix TTC, le montant hors taxes est rappelé dessous. Vous pouvez activer une même solution plusieurs fois, pour plusieurs boutiques par exemple.
-        </p>
-        <ServiceCatalogGrid services={catalog} statusByServiceId={statusByServiceId} />
-      </section>
+      <MyServices items={myServices} />
     </PageShell>
   );
 }

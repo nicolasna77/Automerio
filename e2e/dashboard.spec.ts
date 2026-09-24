@@ -66,3 +66,16 @@ test.describe("depuis un visiteur", () => {
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   });
 });
+
+test("les solutions actives et le catalogue sont deux onglets distincts", async ({ page }) => {
+  await page.goto("/dashboard/prestations");
+  const tabs = page.getByRole("navigation", { name: "Solutions" });
+  await expect(tabs.getByRole("link", { name: /^Mes solutions/ })).toHaveAttribute("aria-current", "page");
+  // Le catalogue n'est plus empile sous la liste.
+  await expect(page.getByRole("region", { name: "Catalogue" })).toHaveCount(0);
+
+  await tabs.getByRole("link", { name: "Catalogue" }).click();
+  await page.waitForURL("**/dashboard/prestations/catalogue");
+  await expect(page.getByRole("region", { name: "Catalogue" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Mes solutions" })).toHaveCount(0);
+});

@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { LayoutGrid, LayoutList, Search, Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
 import { Input } from "@/components/ui/input";
 import {
@@ -19,6 +20,7 @@ import {
   type MyServiceDTO,
 } from "@/lib/catalog";
 import { MyServiceRow } from "./my-service-row";
+import { CATALOGUE_PATH } from "./prestations/paths";
 
 const STATUS_PRIORITY: Record<ClientServiceStatus, number> = {
   PENDING_PAYMENT: 0,
@@ -90,19 +92,9 @@ export function MyServices({ items }: { items: MyServiceDTO[] }) {
 
   return (
     <section aria-labelledby="my-services-heading">
-      <div className="mb-5 flex items-start gap-3">
-        <div>
-          <h2
-            id="my-services-heading"
-            className="text-lg font-semibold text-foreground"
-          >
-            Mes solutions
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Les automatisations que vous avez activées.
-          </p>
-        </div>
-      </div>
+      <h2 id="my-services-heading" className="sr-only">
+        Mes solutions
+      </h2>
 
       {items.length > 0 && (
         <div className="mb-5 flex flex-wrap items-center gap-2">
@@ -172,7 +164,12 @@ export function MyServices({ items }: { items: MyServiceDTO[] }) {
         <EmptyState
           icon={Sparkles}
           title="Vous n'avez encore activé aucune solution"
-          description="Choisissez une automatisation dans le catalogue ci-dessous pour démarrer."
+          description="Choisissez une automatisation dans le catalogue pour démarrer."
+          action={
+            <Link href={CATALOGUE_PATH} className={buttonVariants({ variant: "outline", size: "sm" })}>
+              Voir le catalogue
+            </Link>
+          }
         />
       ) : filtered.length === 0 ? (
         <EmptyState
