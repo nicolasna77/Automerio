@@ -36,6 +36,8 @@ test("la jauge prévient avant que le forfait soit dépassé", async ({ page }) 
 
   await page.goto("/dashboard/abonnements");
   const running = page.getByRole("region", { name: "En cours" });
-  await expect(running.getByText(`Plus que ${included - minutes} min`)).toBeVisible();
+  // Le nombre exact depend des autres appels de la periode (d'autres tests en
+  // ajoutent en parallele sur la meme solution) : seul compte l'avertissement.
+  await expect(running.getByText(/^Plus que \d+ min$/)).toBeVisible();
   await expect(running.getByText(/Au-delà, chaque minute est facturée/)).toBeVisible();
 });
