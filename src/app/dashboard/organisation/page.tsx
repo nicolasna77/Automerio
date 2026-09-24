@@ -102,6 +102,7 @@ export default async function OrganisationPage() {
                 <TeamMembers
                   organizationId={organization.id}
                   canManage={canManage}
+                  canTransfer={myRole === "owner"}
                   members={members.map((m) => ({
                     id: m.id,
                     role: m.role,

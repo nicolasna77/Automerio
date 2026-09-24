@@ -32,7 +32,7 @@ import {
   ROLE_DESCRIPTIONS,
   roleLabel,
 } from "@/lib/organization-roles";
-import { changeMemberRoleAction, removeMemberAction } from "./actions";
+import { changeMemberRoleAction, removeMemberAction, transferOwnershipAction } from "./actions";
 
 export type TeamMemberRow = {
   id: string;
@@ -47,14 +47,18 @@ export function TeamMembers({
   organizationId,
   members,
   canManage,
+  canTransfer = false,
 }: {
   organizationId: string;
   canManage: boolean;
+  /** Vrai pour le proprietaire : lui seul peut transmettre la propriete. */
+  canTransfer?: boolean;
   members: TeamMemberRow[];
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [toRemove, setToRemove] = useState<TeamMemberRow | null>(null);
+  const [toPromote, setToPromote] = useState<TeamMemberRow | null>(null);
 
   function run(work: () => Promise<void>) {
     startTransition(async () => {
@@ -72,6 +76,14 @@ export function TeamMembers({
     run(async () => {
       unwrap(await changeMemberRoleAction(organizationId, member.id, role));
       toast.success(`${member.name} est maintenant ${roleLabel(role).toLowerCase()}.`);
+    });
+  }
+
+  function handleTransfer(member: TeamMemberRow) {
+    run(async () => {
+      unwrap(await transferOwnershipAction(organizationId, member.id));
+      toast.success(`${member.name} est maintenant propriétaire. Vous restez responsable.`);
+      setToPromote(null);
     });
   }
 
@@ -145,6 +157,16 @@ export function TeamMembers({
                     <Badge variant="secondary">{roleLabel(member.role)}</Badge>
                   )}
 
+                  {canTransfer && !isOwner && !member.isMe && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={pending}
+                      onClick={() => setToPromote(member)}
+                    >
+                      Transmettre la propriété
+                    </Button>
+                  )}
                   {editable && (
                     <Button
                       variant="ghost"
@@ -161,6 +183,31 @@ export function TeamMembers({
           );
         })}
       </ul>
+
+      <AlertDialog
+        open={toPromote !== null}
+        onOpenChange={(open) => !open && setToPromote(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Transmettre la propriété à {toPromote?.name} ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {toPromote?.name} deviendra propriétaire de l&apos;entreprise, et sera la seule
+              personne à pouvoir la transmettre à nouveau. Vous resterez responsable : vous
+              gardez la gestion de l&apos;équipe, des solutions et des paiements.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={pending}>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={pending}
+              onClick={() => toPromote && handleTransfer(toPromote)}
+            >
+              {pending ? "Transmission…" : "Transmettre"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog
         open={toRemove !== null}

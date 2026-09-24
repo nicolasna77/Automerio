@@ -11,6 +11,7 @@ import {
   canChangeRole,
   canInvite,
   canRemoveMember,
+  canTransferOwnership,
   isInvitableRole,
   type TeamMember,
   type Verdict,
@@ -162,6 +163,39 @@ export async function changeMemberRoleAction(
     await auth.api.updateMemberRole({
       body: { memberId: target.id, role, organizationId },
       headers: await headers(),
+    });
+
+    revalidatePath("/dashboard/organisation");
+  });
+}
+
+/**
+ * Transmet la propriete a un autre membre ; l'ancien proprietaire devient
+ * responsable.
+ *
+ * Les deux changements passent dans une seule transaction : deux appels
+ * successifs a better-auth pourraient s'arreter entre les deux, et laisser
+ * l'organisation avec deux proprietaires, ou aucun.
+ */
+export async function transferOwnershipAction(organizationId: string, memberId: string) {
+  return runAction(async () => {
+    const session = await requireUser();
+    const { members, actor } = await loadTeam(organizationId, session.user.id);
+    const target = findTarget(members, memberId);
+    enforce(canTransferOwnership(actor, target));
+
+    await db.$transaction(async (tx) => {
+      // Le role lu plus haut peut avoir change depuis : deux transmissions
+      // lancees ensemble vers deux membres feraient sinon deux proprietaires.
+      // Seule la premiere trouve encore l'acteur dans son role de proprietaire.
+      const demoted = await tx.member.updateMany({
+        where: { id: actor.id, role: actor.role },
+        data: { role: "admin" },
+      });
+      if (demoted.count === 0) {
+        throw new ActionError("Votre rôle a changé entre-temps. Rechargez la page.");
+      }
+      await tx.member.update({ where: { id: target.id }, data: { role: "owner" } });
     });
 
     revalidatePath("/dashboard/organisation");

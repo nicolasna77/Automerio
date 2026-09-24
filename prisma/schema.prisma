@@ -233,6 +233,7 @@ model ClientService {
   usageEvents        UsageEvent[]
   calendarConnection CalendarConnection?
   bookings           Booking[]
+  conversations      Conversation[]
   events             ServiceEvent[]
   helpRequests       HelpRequest[]
 
@@ -545,4 +546,47 @@ model CallSummary {
   createdAt    DateTime   @default(now())
 
   @@map("call_summary")
+}
+
+enum MessagingChannel {
+  WHATSAPP
+  MESSENGER
+  INSTAGRAM
+}
+
+enum MessageDirection {
+  INBOUND
+  OUTBOUND
+}
+
+/// Un fil d'echanges entre l'assistant d'une solution de messagerie et un
+/// contact, sur un canal. Supprime avec la solution.
+model Conversation {
+  id              String                @id @default(cuid())
+  clientServiceId String
+  clientService   ClientService         @relation(fields: [clientServiceId], references: [id], onDelete: Cascade)
+  channel         MessagingChannel
+  /// L'identifiant du contact chez Meta : numero WhatsApp, ou identifiant de page.
+  contactId       String
+  lastMessageAt   DateTime              @default(now())
+  createdAt       DateTime              @default(now())
+  messages        ConversationMessage[]
+
+  @@unique([clientServiceId, channel, contactId])
+  @@index([clientServiceId, lastMessageAt])
+  @@map("conversation")
+}
+
+model ConversationMessage {
+  id             String           @id @default(cuid())
+  conversationId String
+  conversation   Conversation     @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  direction      MessageDirection
+  text           String
+  /// L'identifiant du message chez Meta, pour ignorer un webhook renvoye.
+  externalId     String?          @unique
+  createdAt      DateTime         @default(now())
+
+  @@index([conversationId, createdAt])
+  @@map("conversation_message")
 }

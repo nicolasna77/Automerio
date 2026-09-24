@@ -18,6 +18,18 @@ import { toCalendarBookings } from "@/lib/bookings";
 import { ServiceProgress } from "@/app/dashboard/service-progress";
 import { ServiceTimeline } from "@/app/dashboard/service-timeline";
 import { ServiceDetailTable } from "@/app/dashboard/service-detail-table";
+import { ConversationHistory } from "@/app/dashboard/conversation-history";
+import {
+  FACEBOOK_SERVICE_SLUG,
+  INSTAGRAM_SERVICE_SLUG,
+  WHATSAPP_SERVICE_SLUG,
+} from "@/lib/catalog";
+
+const MESSAGING_SERVICE_SLUGS = new Set([
+  WHATSAPP_SERVICE_SLUG,
+  FACEBOOK_SERVICE_SLUG,
+  INSTAGRAM_SERVICE_SLUG,
+]);
 import { ServiceDetailActions } from "@/app/dashboard/service-detail-actions";
 import { ServiceSetupCard } from "@/app/dashboard/service-setup-card";
 import { ServiceSubscriptionCard } from "@/app/dashboard/service-subscription-card";
@@ -126,6 +138,9 @@ export default async function ServiceDetailPage({
             />
           )}
           <ServiceDetailTable item={item} showUsageCap={!subscriptionShowsCap} />
+          {MESSAGING_SERVICE_SLUGS.has(item.service.slug) && (
+            <ConversationHistory clientServiceId={item.clientServiceId} />
+          )}
           <ServiceTimeline events={item.events} />
         </div>
 
