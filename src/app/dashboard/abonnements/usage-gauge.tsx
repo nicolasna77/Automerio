@@ -6,6 +6,7 @@ import {
   type UsageCap,
 } from "@/lib/usage-cap";
 import { formatCentsWithVat } from "@/lib/vat";
+import { QUOTA_WARNING_RATIO } from "@/lib/quota";
 
 export function UsageGauge({
   cap,
@@ -20,6 +21,8 @@ export function UsageGauge({
   const ratio = usageRatio(consumedUnits, cap);
   const consumed = formatUsageUnits(consumedUnits, cap.unit);
   const included = formatUsageUnits(cap.includedUnits, cap.unit);
+  // Meme seuil que l'e-mail d'alerte : le client lit ici ce qu'on lui a ecrit.
+  const nearLimit = over === 0 && consumedUnits >= cap.includedUnits * QUOTA_WARNING_RATIO;
 
   return (
     <div>
@@ -57,6 +60,14 @@ export function UsageGauge({
               {formatCentsWithVat(overageCents)}
             </span>{" "}
             s&apos;ajouteront à la prochaine facture.
+          </>
+        ) : nearLimit && cap.overageUnitPriceCents > 0 ? (
+          <>
+            <span className="font-medium text-foreground">
+              Plus que {formatUsageUnits(cap.includedUnits - consumedUnits, cap.unit)}
+            </span>{" "}
+            sur cette période. Au-delà, chaque {cap.unit === "MINUTE" ? "minute" : "appel"} est
+            facturé{cap.unit === "MINUTE" ? "e" : ""} {formatCentsWithVat(cap.overageUnitPriceCents)}.
           </>
         ) : (
           <>

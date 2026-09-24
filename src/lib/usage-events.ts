@@ -1,5 +1,6 @@
 import type { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
+import { checkQuotaAlerts } from "@/lib/overage-billing";
 
 export type RecordUsageEventInput = {
   clientServiceId: string;
@@ -57,6 +58,14 @@ export async function recordUsageEvent(
         metadata,
       },
     });
+  }
+
+  // Un appel termine peut faire franchir un seuil du forfait. L'alerte ne doit
+  // jamais faire echouer l'enregistrement de l'appel.
+  if (status === "completed" && type === "call") {
+    await checkQuotaAlerts(clientServiceId, { durationSec: durationSec ?? null }).catch((err) =>
+      console.error(`[quota] vérification impossible pour ${clientServiceId} :`, err)
+    );
   }
 
   const now = new Date();

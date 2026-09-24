@@ -1,0 +1,3 @@
+-- AlterEnum
+ALTER TYPE "ServiceEventType" ADD VALUE 'QUOTA_WARNING';
+ALTER TYPE "ServiceEventType" ADD VALUE 'QUOTA_EXCEEDED';

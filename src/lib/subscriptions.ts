@@ -46,7 +46,7 @@ export type MySubscription = {
  * de paiement, appel Stripe en echec — on retombe sur le mois calendaire, la
  * meme fenetre que le compteur d'appels du tableau de bord.
  */
-function calendarMonth(now = new Date()): BillingPeriod {
+export function calendarMonth(now = new Date()): BillingPeriod {
   return {
     start: new Date(now.getFullYear(), now.getMonth(), 1),
     end: new Date(now.getFullYear(), now.getMonth() + 1, 1),
@@ -57,7 +57,7 @@ function calendarMonth(now = new Date()): BillingPeriod {
  * Stripe a deplace `current_period_*` de l'abonnement vers ses lignes : la
  * periode de facturation est celle qui couvre toutes les lignes.
  */
-function periodOf(subscription: Stripe.Subscription): BillingPeriod | null {
+export function periodOf(subscription: Stripe.Subscription): BillingPeriod | null {
   const items = subscription.items.data;
   if (items.length === 0) return null;
   const start = Math.min(...items.map((item) => item.current_period_start));
@@ -83,7 +83,8 @@ async function fetchSubscriptions(
   return new Map(entries.filter((entry) => entry !== null));
 }
 
-async function consumedUnits(
+/** Ce qui a ete consomme sur une periode : des appels, ou des minutes entamees. */
+export async function consumedUnits(
   clientServiceId: string,
   cap: UsageCap,
   period: BillingPeriod

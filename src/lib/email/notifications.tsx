@@ -13,6 +13,7 @@ import { EmailVerificationEmail } from "./templates/email-verification";
 import { EmailChangeConfirmationEmail } from "./templates/email-change-confirmation";
 import { PaymentFailedEmail } from "./templates/payment-failed";
 import { OrganizationInvitationEmail } from "./templates/organization-invitation";
+import { QuotaAlertEmail } from "./templates/quota-alert";
 
 type Recipient = {
   email: string;
@@ -234,5 +235,27 @@ export async function sendOrganizationInvitationEmail(input: {
         url={input.url}
       />
     ),
+  });
+}
+
+export async function sendQuotaAlertEmail(
+  recipient: Recipient,
+  quota: {
+    alert: "WARNING" | "EXCEEDED";
+    serviceName: string;
+    clientServiceId: string;
+    consumed: string;
+    included: string;
+    overagePrice: string | null;
+  }
+) {
+  if (!isNotificationEnabled(recipient.notificationPreferences, "QUOTA_ALERT")) return;
+  await sendEmail({
+    to: recipient.email,
+    subject:
+      quota.alert === "EXCEEDED"
+        ? `Forfait dépassé sur « ${quota.serviceName} »`
+        : `« ${quota.serviceName} » : 80 % du forfait consommé`,
+    react: <QuotaAlertEmail recipientName={recipient.name} {...quota} />,
   });
 }
