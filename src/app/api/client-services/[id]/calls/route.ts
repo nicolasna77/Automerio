@@ -37,6 +37,11 @@ export async function GET(
       where: { clientServiceId: id, type: "call", status: "completed" },
       orderBy: { occurredAt: "desc" },
       take: RECENT_LIMIT,
+      // Sans la transcription : la liste est interrogee toutes les 5 s, la
+      // transcription n'est chargee qu'a l'ouverture d'un appel.
+      include: {
+        callSummary: { select: { reason: true, summary: true, followUp: true, callerName: true } },
+      },
     }),
   ]);
 
@@ -51,6 +56,7 @@ export async function GET(
       occurredAt: row.occurredAt.toISOString(),
       durationSec: row.durationSec,
       ...readMetadata(row.metadata),
+      summary: row.callSummary,
     })),
   });
 }

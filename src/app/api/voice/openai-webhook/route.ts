@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { getOpenAIClient } from "@/lib/openai";
 import WebSocket from "ws";
 import { db } from "@/lib/db";
@@ -6,11 +6,22 @@ import type { Configuration } from "@/lib/catalog";
 import { buildSystemPrompt } from "@/lib/voice-agent/prompt";
 import { getToolDefinitions, runTool, toRealtimeTools } from "@/lib/voice-agent/tools";
 import { recordUsageEvent } from "@/lib/usage-events";
+import { TranscriptCollector, outcomeFromTools } from "@/lib/voice-agent/call-transcript";
+import { finalizeCallSummary } from "@/lib/voice-agent/call-summary";
 import { readDemoCallId } from "@/lib/demo-call";
 import { buildDemoPrompt } from "@/lib/voice-agent/demo-prompt";
 import { loadDemoCatalog } from "@/lib/voice-agent/demo-catalog";
 
+// Le temps pendant lequel un appel est suivi (voir `after` plus bas). 300 s est
+// le plafond du plan Hobby de Vercel ; sur le plan Pro, 800 couvre les appels
+// plus longs.
+export const maxDuration = 300;
+
 const REALTIME_MODEL = "gpt-realtime";
+
+// La transcription de l'appelant tourne sur un modele a part : sans elle, le
+// resume ne connaitrait que ce que l'assistant a dit.
+const INPUT_TRANSCRIPTION = { model: "gpt-4o-mini-transcribe", language: "fr" } as const;
 
 function extractE164(sipHeaderValue: string): string | null {
   const match = sipHeaderValue.match(/(?:sip|tel):([+0-9]+)/i);
@@ -77,7 +88,7 @@ export async function POST(request: Request) {
       instructions: systemPrompt,
       tools: toRealtimeTools(tools),
       audio: {
-        input: { format: { type: "audio/pcmu" } },
+        input: { format: { type: "audio/pcmu" }, transcription: INPUT_TRANSCRIPTION },
         output: { format: { type: "audio/pcmu" } },
       },
     });
@@ -87,16 +98,23 @@ export async function POST(request: Request) {
   }
 
   const fromHeader = findSipHeader(event.data.sip_headers, "From");
+  const fromNumber = fromHeader ? extractE164(fromHeader) : null;
   await recordUsageEvent({
     clientServiceId: clientService.id,
     externalId: callId,
     status: "in_progress",
-    metadata: { fromNumber: fromHeader ? extractE164(fromHeader) : null },
+    metadata: { fromNumber },
   }).catch((err) => console.error(`[voice] échec d'enregistrement de l'appel ${callId} :`, err));
 
-  listenToCall(callId, clientService.id, configuration).catch((err) => {
-    console.error(`[voice] erreur sur la connexion d'événements de l'appel ${callId} :`, err);
-  });
+  // `after` garde la fonction en vie apres la reponse, jusqu'a `maxDuration` :
+  // une promesse lancee sans attente serait figee des la reponse envoyee, et
+  // la fin de l'appel ne serait jamais enregistree. Au-dela de cette duree,
+  // l'appel se poursuit mais n'est ni clos ni resume.
+  after(() =>
+    listenToCall(callId, clientService.id, configuration, fromNumber).catch((err) => {
+      console.error(`[voice] erreur sur la connexion d'événements de l'appel ${callId} :`, err);
+    })
+  );
 
   return NextResponse.json({ received: true });
 }
@@ -104,29 +122,44 @@ export async function POST(request: Request) {
 function listenToCall(
   sipCallId: string,
   clientServiceId: string,
-  configuration: Configuration
+  configuration: Configuration,
+  fromNumber: string | null
 ): Promise<void> {
   return new Promise((resolve) => {
     const startedAt = Date.now();
+    const transcript = new TranscriptCollector();
+    const toolCalls: { name: string; result: string }[] = [];
+    // Un transfert coupe la session avant que l'outil ait rendu son resultat :
+    // la cloture attend les outils en cours pour ne pas perdre leur issue.
+    const pendingTools = new Set<Promise<void>>();
     const ws = new WebSocket(`wss://api.openai.com/v1/realtime?call_id=${sipCallId}`, {
       headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
     });
 
     ws.on("message", (raw: WebSocket.RawData) => {
-      let realtimeEvent: { type?: string; name?: string; arguments?: string; call_id?: string };
+      let realtimeEvent: {
+        type?: string;
+        name?: string;
+        arguments?: string;
+        call_id?: string;
+        item_id?: string;
+        item?: { id?: string; role?: string };
+        transcript?: string;
+      };
       try {
         realtimeEvent = JSON.parse(raw.toString());
       } catch {
         return;
       }
 
+      if (transcript.handle(realtimeEvent)) return;
       if (realtimeEvent.type !== "response.function_call_arguments.done") return;
 
       const toolCallId = realtimeEvent.call_id;
       const toolName = realtimeEvent.name;
       if (!toolCallId || !toolName) return;
 
-      (async () => {
+      const pending = (async () => {
         let args: Record<string, unknown> = {};
         try {
           args = JSON.parse(realtimeEvent.arguments || "{}");
@@ -138,6 +171,7 @@ function listenToCall(
           callId: sipCallId,
           configuration,
         });
+        toolCalls.push({ name: toolName, result });
 
         ws.send(
           JSON.stringify({
@@ -146,17 +180,36 @@ function listenToCall(
           })
         );
         ws.send(JSON.stringify({ type: "response.create" }));
-      })();
+      })().catch((err) =>
+        console.error(`[voice] échec de l'outil ${toolName} sur l'appel ${sipCallId} :`, err)
+      );
+      pendingTools.add(pending);
+      pending.finally(() => pendingTools.delete(pending));
     });
 
+    // `close` et `error` peuvent se suivre : l'appel ne se clot qu'une fois.
+    let finished = false;
     const finish = () => {
+      if (finished) return;
+      finished = true;
       const durationSec = Math.round((Date.now() - startedAt) / 1000);
-      recordUsageEvent({
-        clientServiceId,
-        externalId: sipCallId,
-        status: "completed",
-        durationSec,
-      })
+      Promise.allSettled(pendingTools)
+        .then(() =>
+          recordUsageEvent({
+            clientServiceId,
+            externalId: sipCallId,
+            status: "completed",
+            durationSec,
+            metadata: { fromNumber, outcome: outcomeFromTools(toolCalls) },
+          })
+        )
+        .then(() =>
+          finalizeCallSummary({
+            usageEventExternalId: sipCallId,
+            clientServiceId,
+            turns: transcript.turns(),
+          })
+        )
         .catch((err) => console.error(`[voice] échec de clôture de l'appel ${sipCallId} :`, err))
         .finally(resolve);
     };
@@ -201,8 +254,10 @@ async function acceptDemoCall(callId: string, demoCallId: string): Promise<void>
     data: { status: "IN_PROGRESS", openaiCallId: callId },
   });
 
-  trackDemoCall(callId, demoCallId).catch((err) =>
-    console.error(`[essai] erreur sur la connexion d'événements de l'appel ${callId} :`, err)
+  after(() =>
+    trackDemoCall(callId, demoCallId).catch((err) =>
+      console.error(`[essai] erreur sur la connexion d'événements de l'appel ${callId} :`, err)
+    )
   );
 }
 

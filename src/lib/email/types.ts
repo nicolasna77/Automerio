@@ -5,6 +5,7 @@ export const NOTIFICATION_TYPES = [
   "SERVICE_NOTE_ADDED",
   "SERVICE_CANCELED",
   "QUOTA_ALERT",
+  "CALL_SUMMARY",
 ] as const;
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -16,6 +17,7 @@ export const NOTIFICATION_TYPE_LABELS: Record<NotificationType, string> = {
   SERVICE_NOTE_ADDED: "Note ajoutée par l'équipe",
   SERVICE_CANCELED: "Confirmation de résiliation",
   QUOTA_ALERT: "Forfait bientôt atteint ou dépassé",
+  CALL_SUMMARY: "Résumé de chaque appel",
 };
 
 export const NOTIFICATION_TYPE_DESCRIPTIONS: Record<NotificationType, string> = {
@@ -27,4 +29,5 @@ export const NOTIFICATION_TYPE_DESCRIPTIONS: Record<NotificationType, string> = 
   SERVICE_NOTE_ADDED: "Quand l'équipe ajoute une note sur une de vos solutions.",
   SERVICE_CANCELED: "Confirmation quand vous résiliez vous-même une solution.",
   QUOTA_ALERT: "Quand une solution atteint 80 % puis 100 % de son forfait du mois, avant que le dépassement soit facturé.",
+  CALL_SUMMARY: "Après chaque appel traité par votre assistant téléphonique : le motif et ce qu'il faut faire.",
 };
