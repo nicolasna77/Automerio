@@ -12,10 +12,9 @@ import { readDemoCallId } from "@/lib/demo-call";
 import { buildDemoPrompt } from "@/lib/voice-agent/demo-prompt";
 import { loadDemoCatalog } from "@/lib/voice-agent/demo-catalog";
 
-// Le temps pendant lequel un appel est suivi (voir `after` plus bas). 300 s est
-// le plafond du plan Hobby de Vercel ; sur le plan Pro, 800 couvre les appels
-// plus longs.
-export const maxDuration = 300;
+// Le temps pendant lequel un appel est suivi (voir `after` plus bas) : 800 s,
+// le plafond du plan Pro de Vercel, soit un peu plus de 13 minutes d'appel.
+export const maxDuration = 800;
 
 const REALTIME_MODEL = "gpt-realtime";
 
