@@ -21,62 +21,66 @@ export async function SiteHeader() {
 
   return (
     <>
-    <a
-      href="#contenu"
-      className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-60 focus:rounded-2xl focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground"
-    >
-      Aller au contenu
-    </a>
-    <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <div className="flex items-center gap-1">
-          <SiteMobileNav
-            services={services}
-            loggedIn={!!user}
-          />
-          <AutomerioLogo />
-        </div>
-        <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
-          <PrestationsMenu services={services} />
-          {SITE_NAV_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="rounded-md transition-colors hover:text-foreground"
-            >
-              {link.label}
-            </Link>
-          ))}
-          {user && (
-            <Link
-              href="/dashboard"
-              className="rounded-md transition-colors hover:text-foreground"
-            >
-              Tableau de bord
-            </Link>
-          )}
-        </nav>
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
-          {user ? (
-            <UserMenu
-              name={user.name}
-              email={user.email}
-              isAdmin={user.isAdmin}
-            />
-          ) : (
-            <div className="hidden items-center gap-2 md:flex">
-              <Link href="/login" className={buttonVariants({ variant: "ghost" })}>
-                Connexion
+      <a
+        href="#contenu"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-60 focus:rounded-2xl focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground"
+      >
+        Aller au contenu
+      </a>
+      <header className="sticky top-0 z-50 border-b bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/75">
+        <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-4 sm:px-6">
+          <div className="flex min-w-0 items-center gap-1">
+            <SiteMobileNav services={services} loggedIn={!!user} />
+            <AutomerioLogo />
+          </div>
+
+          {/* La navigation complete ne tient qu'a partir de lg : en dessous,
+              elle passe dans le menu, et seule l'action principale reste visible. */}
+          <nav
+            aria-label="Navigation principale"
+            className="ml-8 hidden items-center gap-6 text-sm text-muted-foreground lg:flex"
+          >
+            <PrestationsMenu services={services} />
+            {SITE_NAV_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="rounded-md transition-colors hover:text-foreground focus-visible:focus-ring"
+              >
+                {link.label}
               </Link>
-              <Link href="/signup" className={buttonVariants()}>
-                Créer mon compte
+            ))}
+            {user && (
+              <Link
+                href="/dashboard"
+                className="rounded-md transition-colors hover:text-foreground focus-visible:focus-ring"
+              >
+                Tableau de bord
               </Link>
-            </div>
-          )}
+            )}
+          </nav>
+
+          <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
+            <ThemeToggle />
+            {user ? (
+              <UserMenu name={user.name} email={user.email} isAdmin={user.isAdmin} />
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className={buttonVariants({ variant: "ghost", className: "hidden sm:inline-flex" })}
+                >
+                  Connexion
+                </Link>
+                <Link href="/signup" className={buttonVariants({ className: "h-10 px-4 sm:h-9" })}>
+                  <span className="sm:hidden">S&apos;inscrire</span>
+                  <span className="hidden sm:inline">Créer mon compte</span>
+                </Link>
+              </>
+            )}
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
     </>
   );
 }
