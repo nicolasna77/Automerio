@@ -1,9 +1,9 @@
 import {
+  asRuleRows,
   asStringArray,
   WEEK_DAYS,
   WEEK_DAY_LABELS,
   type Configuration,
-  type RuleRow,
   type WeeklyHours,
 } from "@/lib/catalog";
 import {
@@ -58,14 +58,6 @@ function isOpenNow(hours: WeeklyHours | null): boolean {
   const [closeH, closeM] = today.close.split(":").map(Number);
   const currentMinutes = hourPart * 60 + minutePart;
   return currentMinutes >= openH * 60 + openM && currentMinutes < closeH * 60 + closeM;
-}
-
-function asRuleRows(value: Configuration[string] | undefined): RuleRow[] {
-  if (!Array.isArray(value)) return [];
-  return value.filter(
-    (row): row is RuleRow =>
-      typeof row === "object" && row !== null && "trigger" in row && "target" in row
-  );
 }
 
 function buildPriseRdvPrompt(configuration: Configuration, companyName: string, calendarConnected: boolean): string {

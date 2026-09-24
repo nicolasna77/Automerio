@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { authClient } from "@/lib/auth-client";
+import { initialsOf } from "@/lib/initials";
 
 export function UserMenu({
   name,
@@ -26,12 +27,7 @@ export function UserMenu({
   isAdmin?: boolean;
 }) {
   const router = useRouter();
-  const initials = name
-    .split(" ")
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
+  const initials = initialsOf(name);
 
   return (
     <DropdownMenu>
@@ -41,7 +37,7 @@ export function UserMenu({
         }
       >
         <Avatar className="size-10">
-          <AvatarFallback>{initials || "?"}</AvatarFallback>
+          <AvatarFallback>{initials}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">

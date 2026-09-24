@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+import { getOpenAIClient } from "@/lib/openai";
 import type { MarketingChannel } from "@prisma/client";
 import { type ServiceDTO } from "@/lib/catalog";
 import { formatUsageCap } from "@/lib/usage-cap";
@@ -6,9 +6,6 @@ import { channelRule } from "./channels";
 import { detectUnsupportedClaims } from "./claims";
 import { formatCentsWithVat } from "@/lib/vat";
 
-function getOpenAIClient() {
-  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-}
 
 const COPY_MODEL = "gpt-5.5";
 

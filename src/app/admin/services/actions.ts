@@ -5,15 +5,11 @@ import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/session";
 import { logAdminAction } from "@/lib/audit";
 import { ActionError, runAction } from "@/lib/run-action";
-import type { ServiceCategory } from "@/lib/catalog";
+import { formatCents, type ServiceCategory } from "@/lib/catalog";
 import { usageCapLabelOf, type UsageUnit } from "@/lib/usage-cap";
 
-function formatCents(cents: number | null): string {
-  return cents === null
-    ? "aucun"
-    : new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(
-        cents / 100
-      );
+function formatOptionalCents(cents: number | null): string {
+  return cents === null ? "aucun" : formatCents(cents);
 }
 
 function describeServiceChanges(
@@ -37,12 +33,12 @@ function describeServiceChanges(
   }
   if (before.setupFeeCents !== after.setupFeeCents) {
     changes.push(
-      `Mise en place : ${formatCents(before.setupFeeCents)} → ${formatCents(after.setupFeeCents)}`
+      `Mise en place : ${formatOptionalCents(before.setupFeeCents)} → ${formatOptionalCents(after.setupFeeCents)}`
     );
   }
   if (before.monthlyPriceCents !== after.monthlyPriceCents) {
     changes.push(
-      `Abonnement : ${formatCents(before.monthlyPriceCents)} → ${formatCents(after.monthlyPriceCents)}`
+      `Abonnement : ${formatOptionalCents(before.monthlyPriceCents)} → ${formatOptionalCents(after.monthlyPriceCents)}`
     );
   }
   const capBefore = usageCapLabelOf(before);

@@ -1,12 +1,9 @@
-import OpenAI from "openai";
+import { getOpenAIClient } from "@/lib/openai";
 import { db } from "@/lib/db";
 import { createCalendarEvent, isSlotFree } from "@/lib/google-calendar";
-import { asStringArray, type Configuration, type RuleRow } from "@/lib/catalog";
+import { asRuleRows, asStringArray, type Configuration } from "@/lib/catalog";
 import { countCatalogItems, readProductCatalog } from "@/lib/product-catalog";
 
-function getOpenAIClient() {
-  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-}
 
 export type ToolDefinition = {
   type: "function";
@@ -35,14 +32,6 @@ export function toRealtimeTools(tools: ToolDefinition[]): RealtimeToolDefinition
 
 function objectivesOf(configuration: Configuration): string[] {
   return asStringArray(configuration.objectives);
-}
-
-function asRuleRows(value: Configuration[string] | undefined): RuleRow[] {
-  if (!Array.isArray(value)) return [];
-  return value.filter(
-    (row): row is RuleRow =>
-      typeof row === "object" && row !== null && "trigger" in row && "target" in row
-  );
 }
 
 const CHECK_AVAILABILITY: ToolDefinition = {
