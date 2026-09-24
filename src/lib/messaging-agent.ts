@@ -1,11 +1,8 @@
-import OpenAI from "openai";
+import { getOpenAIClient } from "@/lib/openai";
 import type { Configuration } from "@/lib/catalog";
 import { buildSystemPrompt } from "@/lib/voice-agent/prompt";
 import { getToolDefinitions, runTool } from "@/lib/voice-agent/tools";
 
-function getOpenAIClient() {
-  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-}
 const CHAT_MODEL = "gpt-5-mini";
 
 export async function generateMessagingReply(

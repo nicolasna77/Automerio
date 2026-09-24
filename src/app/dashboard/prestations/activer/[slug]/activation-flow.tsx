@@ -259,7 +259,7 @@ export function ActivationFlow({
 
           <div className="flex flex-wrap justify-end gap-2">
             <Link
-              href="/dashboard/prestations#catalogue"
+              href="/dashboard/prestations/catalogue"
               className={buttonVariants({ variant: "outline" })}
             >
               Annuler

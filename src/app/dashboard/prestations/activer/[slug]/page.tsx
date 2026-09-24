@@ -33,7 +33,7 @@ export default async function ActivateServicePage({
     <PageShell size="form">
       <PageHeader
         breadcrumbs={[
-          { label: "Solutions", href: "/dashboard/prestations#catalogue" },
+          { label: "Catalogue", href: "/dashboard/prestations/catalogue" },
           { label: `Activer ${service.name}` },
         ]}
         title={`Activer ${service.name}`}

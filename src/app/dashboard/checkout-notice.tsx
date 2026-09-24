@@ -73,7 +73,7 @@ export function CheckoutNotice({
       </AlertTitle>
       <AlertDescription>
         {status === "canceled" &&
-          "Aucun paiement n'a été effectué. Vous pouvez réessayer quand vous le souhaitez depuis le catalogue ci-dessous."}
+          "Aucun paiement n'a été effectué. Vous pouvez réessayer quand vous le souhaitez depuis votre solution ci-dessous, ou depuis le catalogue."}
         {status === "success" &&
           awaitingPayment &&
           !timedOut &&

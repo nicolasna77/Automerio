@@ -88,7 +88,7 @@ export default async function AbonnementsPage() {
           description="Les solutions facturées au mois apparaîtront ici, avec leur quota d'usage."
           action={
             <Link
-              href="/dashboard/prestations#catalogue"
+              href="/dashboard/prestations/catalogue"
               className={buttonVariants({ variant: "outline", size: "sm" })}
             >
               Voir le catalogue

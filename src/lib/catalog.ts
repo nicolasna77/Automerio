@@ -427,6 +427,14 @@ export function asStringArray(value: ConfigValue | undefined): string[] {
     : [];
 }
 
+export function asRuleRows(value: ConfigValue | undefined): RuleRow[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter(
+    (row): row is RuleRow =>
+      typeof row === "object" && row !== null && "trigger" in row && "target" in row
+  );
+}
+
 export function isFieldVisible(field: ConfigField, values: Configuration): boolean {
   if (!field.showIf) return true;
   const target = values[field.showIf.key];

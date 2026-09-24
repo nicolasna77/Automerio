@@ -20,17 +20,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
-
-function initialsOf(name: string) {
-  return (
-    name
-      .split(" ")
-      .map((part) => part[0])
-      .slice(0, 2)
-      .join("")
-      .toUpperCase() || "?"
-  );
-}
+import { initialsOf } from "@/lib/initials";
 
 // Le compte en pied de sidebar, comme dans la plupart des consoles : il reste
 // a portee en mode replie (avatar seul) et libere l'en-tete de la page.

@@ -14,7 +14,7 @@ test("une erreur de validation serveur reste lisible en production", async ({ pa
 });
 
 test("la page d'activation propose le nom de la solution", async ({ page }) => {
-  await page.goto("/dashboard/prestations");
+  await page.goto("/dashboard/prestations/catalogue");
   const catalogue = page.getByRole("region", { name: "Catalogue" });
   await catalogue.getByRole("link", { name: /^Activer( à nouveau)? / }).first().click();
   await page.waitForURL(/\/dashboard\/prestations\/activer\/[^/]+$/);

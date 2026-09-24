@@ -24,6 +24,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { unwrap } from "@/lib/action-result";
+import { initialsOf } from "@/lib/initials";
 import { getErrorMessage } from "@/lib/utils";
 import {
   INVITABLE_ROLES,
@@ -41,17 +42,6 @@ export type TeamMemberRow = {
   joinedAt: string;
   isMe: boolean;
 };
-
-function initialsOf(name: string): string {
-  return (
-    name
-      .split(" ")
-      .map((part) => part[0])
-      .slice(0, 2)
-      .join("")
-      .toUpperCase() || "?"
-  );
-}
 
 export function TeamMembers({
   organizationId,

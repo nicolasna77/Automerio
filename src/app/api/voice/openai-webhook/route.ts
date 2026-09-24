@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
+import { getOpenAIClient } from "@/lib/openai";
 import WebSocket from "ws";
 import { db } from "@/lib/db";
 import type { Configuration } from "@/lib/catalog";
@@ -7,9 +7,6 @@ import { buildSystemPrompt } from "@/lib/voice-agent/prompt";
 import { getToolDefinitions, runTool, toRealtimeTools } from "@/lib/voice-agent/tools";
 import { recordUsageEvent } from "@/lib/usage-events";
 
-function getOpenAIClient() {
-  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-}
 const REALTIME_MODEL = "gpt-realtime";
 
 function extractE164(sipHeaderValue: string): string | null {

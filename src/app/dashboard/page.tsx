@@ -84,7 +84,7 @@ export default async function DashboardPage() {
                 </li>
               ))}
             </ol>
-            <Link href="/dashboard/prestations#catalogue" className={buttonVariants({ className: "mt-6" })}>
+            <Link href="/dashboard/prestations/catalogue" className={buttonVariants({ className: "mt-6" })}>
               Voir le catalogue
             </Link>
           </CardContent>

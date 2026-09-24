@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+import { getOpenAIClient } from "@/lib/openai";
 import type { MenuDocument } from "@/lib/menu-import";
 import {
   newCatalogId,
@@ -82,7 +82,7 @@ export function toCatalogSections(menu: TranscribedMenu): CatalogSection[] {
 }
 
 export async function transcribeMenuDocuments(documents: MenuDocument[]): Promise<CatalogSection[]> {
-  const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  const client = getOpenAIClient();
   const completion = await client.chat.completions.create({
     model: TRANSCRIPTION_MODEL,
     messages: [

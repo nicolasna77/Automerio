@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
+import { initialsOf } from "@/lib/initials";
 import { ProfileSection } from "./profile-section";
 
 export type InitialAccount = {
@@ -60,12 +61,7 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
   const [isRequestingEmail, startEmailRequest] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const initials = name
-    .split(" ")
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
+  const initials = initialsOf(name);
 
   const isDirty = name !== initialAccount.name || image !== initialAccount.image;
 
@@ -144,7 +140,7 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
             <img src={image} alt="" className="size-full object-cover" />
           ) : (
             <span className="flex size-full items-center justify-center text-xl font-medium text-muted-foreground">
-              {initials || "?"}
+              {initials}
             </span>
           )}
           <span className="absolute inset-0 flex items-center justify-center bg-foreground/60 text-background opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
