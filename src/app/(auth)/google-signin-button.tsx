@@ -27,12 +27,12 @@ function GoogleIcon() {
   );
 }
 
-export function GoogleSignInButton() {
+export function GoogleSignInButton({ next = null }: { next?: string | null }) {
   const [loading, setLoading] = useState(false);
 
   async function handleClick() {
     setLoading(true);
-    await authClient.signIn.social({ provider: "google", callbackURL: "/dashboard" });
+    await authClient.signIn.social({ provider: "google", callbackURL: next ?? "/dashboard" });
   }
 
   return (

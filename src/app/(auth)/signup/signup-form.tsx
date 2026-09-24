@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/password-input";
 import { authClient } from "@/lib/auth-client";
+import { authPathWithNext } from "@/lib/safe-redirect";
 import { GoogleSignInButton } from "../google-signin-button";
 import { cn } from "cn";
 
@@ -17,7 +18,16 @@ const AFTER_VERIFICATION_URL = "/dashboard";
 const MIN_PASSWORD_LENGTH = 8;
 const RESEND_DELAY_SECONDS = 30;
 
-export function SignupForm({ googleEnabled }: { googleEnabled: boolean }) {
+export function SignupForm({
+  googleEnabled,
+  next,
+}: {
+  googleEnabled: boolean;
+  next: string | null;
+}) {
+  // Le lien du mail de confirmation connecte et renvoie ici : la solution
+  // choisie sur le site public, sinon le tableau de bord.
+  const afterVerificationUrl = next ?? AFTER_VERIFICATION_URL;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sentTo, setSentTo] = useState<string | null>(null);
@@ -46,7 +56,7 @@ export function SignupForm({ googleEnabled }: { googleEnabled: boolean }) {
       email,
       password: String(formData.get("password")),
       pendingOrganizationName: company || undefined,
-      callbackURL: AFTER_VERIFICATION_URL,
+      callbackURL: afterVerificationUrl,
     });
 
     setLoading(false);
@@ -66,7 +76,7 @@ export function SignupForm({ googleEnabled }: { googleEnabled: boolean }) {
     if (!sentTo || cooldown > 0) return;
     const { error } = await authClient.sendVerificationEmail({
       email: sentTo,
-      callbackURL: AFTER_VERIFICATION_URL,
+      callbackURL: afterVerificationUrl,
     });
     if (error) {
       toast.error("L'envoi a échoué. Réessayez dans quelques minutes.");
@@ -105,7 +115,7 @@ export function SignupForm({ googleEnabled }: { googleEnabled: boolean }) {
         </div>
 
         <Link
-          href="/login"
+          href={authPathWithNext("/login", next)}
           className="mt-6 inline-flex items-center gap-1.5 rounded-sm text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:focus-ring"
         >
           <ArrowLeft className="size-4" aria-hidden="true" />
@@ -126,7 +136,7 @@ export function SignupForm({ googleEnabled }: { googleEnabled: boolean }) {
 
       {googleEnabled && (
         <div className="mt-8">
-          <GoogleSignInButton />
+          <GoogleSignInButton next={next} />
           <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
             <span className="h-px flex-1 bg-border" />
             ou
@@ -225,7 +235,7 @@ export function SignupForm({ googleEnabled }: { googleEnabled: boolean }) {
       <p className="mt-4 text-sm text-muted-foreground">
         Déjà un compte ?{" "}
         <Link
-          href="/login"
+          href={authPathWithNext("/login", next)}
           className="rounded-sm text-foreground underline underline-offset-4 focus-visible:focus-ring"
         >
           Se connecter

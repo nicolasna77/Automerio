@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { redirectAfterSignIn } from "../redirect-after-sign-in";
 
-export function TwoFactorVerificationForm() {
+export function TwoFactorVerificationForm({ next }: { next: string | null }) {
   const router = useRouter();
   const codeId = useId();
   const trustId = useId();
@@ -45,7 +45,7 @@ export function TwoFactorVerificationForm() {
       return;
     }
 
-    await redirectAfterSignIn(router);
+    await redirectAfterSignIn(router, next);
   }
 
   return (
