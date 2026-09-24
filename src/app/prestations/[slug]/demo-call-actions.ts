@@ -23,9 +23,8 @@ const UNAVAILABLE = "L'appel d'essai n'est pas disponible pour le moment. Réess
 /**
  * Demande l'appel d'essai d'un visiteur non connecte.
  *
- * L'ordre des controles compte : le numero deja appele se signale avant les
- * limites de debit, pour que la personne sache que son essai est consomme
- * plutot que de lui dire de revenir demain.
+ * Les limites de debit passent avant la recherche du numero deja appele :
+ * voir le commentaire plus bas.
  */
 export async function requestDemoCall(input: {
   phone: string;
@@ -50,14 +49,9 @@ export async function requestDemoCall(input: {
     }
     if (!isDemoCallAvailable()) throw new ActionError(UNAVAILABLE);
 
-    const phoneHash = hashPhone(phone);
-    const alreadyCalled = await db.demoCall.findUnique({ where: { phoneHash }, select: { id: true } });
-    if (alreadyCalled) {
-      throw new ActionError(
-        "Ce numéro a déjà reçu son appel d'essai. Pour aller plus loin, créez votre compte ou écrivez-nous."
-      );
-    }
-
+    // Les limites passent avant la recherche du numero : sinon, une fois son
+    // quota epuise, on pourrait interroger sans fin « tel numero a-t-il deja
+    // demande un essai ? », ce que l'empreinte est justement la pour taire.
     const limits = demoCallLimits();
     const ip = await getClientIp();
     if (!(await checkRateLimit("demo-call", ip, "24 h", limits.perIpPerDay))) {
@@ -66,6 +60,14 @@ export async function requestDemoCall(input: {
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
     if ((await db.demoCall.count({ where: { createdAt: { gte: since } } })) >= limits.perDay) {
       throw new ActionError(UNAVAILABLE);
+    }
+
+    const phoneHash = hashPhone(phone);
+    const alreadyCalled = await db.demoCall.findUnique({ where: { phoneHash }, select: { id: true } });
+    if (alreadyCalled) {
+      throw new ActionError(
+        "Ce numéro a déjà reçu son appel d'essai. Pour aller plus loin, créez votre compte ou écrivez-nous."
+      );
     }
 
     let demoCall;
@@ -99,7 +101,9 @@ export async function requestDemoCall(input: {
         data: { status: "CALLING", twilioCallSid: sid },
       });
     } catch (err) {
-      console.error(`[essai] échec de l'appel sortant ${demoCall.id} :`, err);
+      // Le code seul : le message d'erreur de Twilio peut citer le numero appele.
+      const code = err && typeof err === "object" && "code" in err ? err.code : "inconnu";
+      console.error(`[essai] échec de l'appel sortant ${demoCall.id} (code Twilio ${code}).`);
       // L'essai n'a pas eu lieu : il ne doit pas etre compte comme consomme.
       await db.demoCall.delete({ where: { id: demoCall.id } });
       throw new ActionError("L'appel n'a pas pu être lancé. Vérifiez le numéro, puis réessayez.");
