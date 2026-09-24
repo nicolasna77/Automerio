@@ -14,6 +14,7 @@ import { EmailChangeConfirmationEmail } from "./templates/email-change-confirmat
 import { PaymentFailedEmail } from "./templates/payment-failed";
 import { OrganizationInvitationEmail } from "./templates/organization-invitation";
 import { QuotaAlertEmail } from "./templates/quota-alert";
+import { CallSummaryEmail } from "./templates/call-summary";
 
 type Recipient = {
   email: string;
@@ -257,5 +258,24 @@ export async function sendQuotaAlertEmail(
         ? `Forfait dépassé sur « ${quota.serviceName} »`
         : `« ${quota.serviceName} » : 80 % du forfait consommé`,
     react: <QuotaAlertEmail recipientName={recipient.name} {...quota} />,
+  });
+}
+
+export async function sendCallSummaryEmail(
+  recipient: Recipient,
+  call: {
+    serviceName: string;
+    clientServiceId: string;
+    reason: string | null;
+    summary: string;
+    followUp: string | null;
+    callerName: string | null;
+  }
+) {
+  if (!isNotificationEnabled(recipient.notificationPreferences, "CALL_SUMMARY")) return;
+  await sendEmail({
+    to: recipient.email,
+    subject: call.reason ? `Appel : ${call.reason}` : `Nouvel appel sur « ${call.serviceName} »`,
+    react: <CallSummaryEmail recipientName={recipient.name} {...call} />,
   });
 }

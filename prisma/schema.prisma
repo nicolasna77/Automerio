@@ -323,6 +323,7 @@ model UsageEvent {
   externalId      String?       @unique
   metadata        Json?
   createdAt       DateTime      @default(now())
+  callSummary     CallSummary?
 
   @@index([clientServiceId, occurredAt])
   @@index([clientServiceId, status])
@@ -527,4 +528,21 @@ model DemoCall {
 
   @@index([createdAt])
   @@map("demo_call")
+}
+
+/// Ce qui s'est dit pendant un appel traite par l'agent vocal, et son resume.
+/// Genere a la fin de l'appel ; absent si l'appel n'a rien produit d'intelligible.
+model CallSummary {
+  id           String     @id @default(cuid())
+  usageEventId String     @unique
+  usageEvent   UsageEvent @relation(fields: [usageEventId], references: [id], onDelete: Cascade)
+  /// Les tours de parole, dans l'ordre : [{ speaker: "caller" | "assistant", text }]
+  transcript   Json
+  reason       String?
+  summary      String?
+  followUp     String?
+  callerName   String?
+  createdAt    DateTime   @default(now())
+
+  @@map("call_summary")
 }

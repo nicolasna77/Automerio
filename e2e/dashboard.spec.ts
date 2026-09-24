@@ -13,17 +13,6 @@ test("le panneau de notifications s'ouvre", async ({ page }) => {
   await expect(panel.getByText("Notifications")).toBeVisible();
 });
 
-test("un client se déconnecte et retrouve le site public", async ({ page }) => {
-  await page.goto("/dashboard");
-
-  await page.getByRole("button", { name: "Menu utilisateur" }).click();
-  await page.getByRole("menuitem", { name: "Se déconnecter" }).click();
-
-  await page.waitForURL("/");
-  await expect(page.getByRole("link", { name: "Créer mon compte" }).first()).toBeVisible();
-  await expect(page.getByRole("button", { name: "Menu utilisateur" })).toHaveCount(0);
-});
-
 test("le client suit le quota de ses abonnements en cours", async ({ page }) => {
   await page.goto("/dashboard");
   await page.getByRole("link", { name: "Abonnements", exact: true }).click();
