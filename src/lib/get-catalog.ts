@@ -12,7 +12,6 @@ export function toServiceDTO(service: Service): ServiceDTO {
     name: service.name,
     description: service.description,
     category: service.category,
-    setupFeeCents: service.setupFeeCents,
     monthlyPriceCents: service.monthlyPriceCents,
     usageCap: readUsageCap(service),
     tier: readSubscriptionTier(service),

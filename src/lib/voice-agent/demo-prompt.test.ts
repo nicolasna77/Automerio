@@ -7,7 +7,7 @@ describe("buildDemoPrompt", () => {
       {
         name: "Standard téléphonique automatisé",
         description: "Réception et orientation des appels.",
-        price: "900 € à l'installation, puis 79 € par mois",
+        price: "79 € par mois, sans frais de mise en place",
         usage: "150 minutes par mois comprises",
       },
       {
@@ -27,7 +27,7 @@ describe("buildDemoPrompt", () => {
 
   it("donne le catalogue réel avec ses prix et quotas", () => {
     expect(prompt).toContain(
-      "- Standard téléphonique automatisé : Réception et orientation des appels. Tarif : 900 € à l'installation, puis 79 € par mois. 150 minutes par mois comprises."
+      "- Standard téléphonique automatisé : Réception et orientation des appels. Tarif : 79 € par mois, sans frais de mise en place. 150 minutes par mois comprises."
     );
     expect(prompt).toContain("- Résumé de PDF : Synthèse de documents. Tarif : tarif sur demande.");
   });

@@ -6,7 +6,6 @@ export type CatalogService = {
   name: string;
   description: string;
   category: ServiceCategory;
-  setupFeeCents: number | null;
   monthlyPriceCents: number | null;
   includedUsageUnits: number | null;
   usageUnit: UsageUnit | null;
@@ -65,7 +64,6 @@ export const CATALOG: CatalogService[] = [
     description:
       "Réception et orientation automatique de vos appels entrants, 24h/24, avec transfert intelligent vers la bonne personne.",
     category: "COMMUNICATION",
-    setupFeeCents: 90000,
     monthlyPriceCents: 7900,
     includedUsageUnits: 150,
     usageUnit: "MINUTE",
@@ -112,7 +110,6 @@ export const CATALOG: CatalogService[] = [
     description:
       "Votre assistant automatisé décroche le téléphone, prend les rendez-vous et enregistre les commandes de vos clients.",
     category: "COMMUNICATION",
-    setupFeeCents: 45000,
     monthlyPriceCents: 4900,
     includedUsageUnits: 150,
     usageUnit: "MINUTE",
@@ -198,7 +195,6 @@ export const CATALOG: CatalogService[] = [
     description:
       "Réponses instantanées à vos clients sur WhatsApp : questions fréquentes, devis, disponibilités.",
     category: "COMMUNICATION",
-    setupFeeCents: 45000,
     monthlyPriceCents: 5900,
     includedUsageUnits: null,
     usageUnit: null,
@@ -221,7 +217,6 @@ export const CATALOG: CatalogService[] = [
     description:
       "Réponses instantanées à vos clients sur Messenger : questions fréquentes, devis, disponibilités.",
     category: "COMMUNICATION",
-    setupFeeCents: 45000,
     monthlyPriceCents: 5900,
     includedUsageUnits: null,
     usageUnit: null,
@@ -244,7 +239,6 @@ export const CATALOG: CatalogService[] = [
     description:
       "Réponses instantanées à vos clients en messages privés Instagram : questions fréquentes, devis, disponibilités.",
     category: "COMMUNICATION",
-    setupFeeCents: 45000,
     monthlyPriceCents: 5900,
     includedUsageUnits: null,
     usageUnit: null,
@@ -267,7 +261,6 @@ export const CATALOG: CatalogService[] = [
     description:
       "Votre boîte mail se trie et se priorise toute seule, avec des brouillons de réponse déjà prêts à envoyer.",
     category: "COMMUNICATION",
-    setupFeeCents: 35000,
     monthlyPriceCents: 4900,
     includedUsageUnits: null,
     usageUnit: null,
@@ -296,7 +289,6 @@ export const CATALOG: CatalogService[] = [
     description:
       "Vos clients réservent en ligne sur vos créneaux réels : synchronisation directe avec votre agenda.",
     category: "COMMUNICATION",
-    setupFeeCents: 30000,
     monthlyPriceCents: 2900,
     includedUsageUnits: null,
     usageUnit: null,
@@ -327,7 +319,6 @@ export const CATALOG: CatalogService[] = [
     description:
       "Contrats, rapports, devis reçus : l'essentiel de vos documents longs en quelques lignes, sans tout relire.",
     category: "INFORMATION",
-    setupFeeCents: 15000,
     monthlyPriceCents: 1900,
     includedUsageUnits: null,
     usageUnit: null,
@@ -357,7 +348,6 @@ export const CATALOG: CatalogService[] = [
     description:
       "Un compte-rendu structuré de chaque réunion, à partir d'un enregistrement ou d'une transcription — plus besoin de prendre des notes.",
     category: "INFORMATION",
-    setupFeeCents: 20000,
     monthlyPriceCents: 2400,
     includedUsageUnits: null,
     usageUnit: null,
@@ -394,7 +384,6 @@ export const CATALOG: CatalogService[] = [
     description:
       "Les données de vos PDF et factures scannées arrivent directement dans vos outils de gestion, sans ressaisie manuelle.",
     category: "INFORMATION",
-    setupFeeCents: 35000,
     monthlyPriceCents: 3900,
     includedUsageUnits: null,
     usageUnit: null,
@@ -417,7 +406,6 @@ export const CATALOG: CatalogService[] = [
     description:
       "Accompagnement dédié, en plus du support déjà inclus dans chacune de vos solutions.",
     category: "ABONNEMENT",
-    setupFeeCents: null,
     monthlyPriceCents: 9900,
     includedUsageUnits: null,
     usageUnit: null,

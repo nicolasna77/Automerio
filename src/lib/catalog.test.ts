@@ -33,20 +33,12 @@ describe("formatCents", () => {
 });
 
 describe("formatPrice", () => {
-  it("compose les deux lignes du modèle hybride", () => {
-    expect(formatPrice(90000, 7900)).toBe("900 € + 79 €/mois");
-  });
-
-  it("n'affiche que l'abonnement quand il n'y a pas de frais de mise en place", () => {
-    expect(formatPrice(null, 5900)).toBe("59 €/mois");
-  });
-
-  it("n'affiche que la mise en place quand il n'y a pas d'abonnement", () => {
-    expect(formatPrice(45000, null)).toBe("450 €");
+  it("affiche l'abonnement mensuel", () => {
+    expect(formatPrice(5900)).toBe("59 €/mois");
   });
 
   it("renvoie un tiret quand aucun prix n'est défini", () => {
-    expect(formatPrice(null, null)).toBe("—");
+    expect(formatPrice(null)).toBe("—");
   });
 });
 

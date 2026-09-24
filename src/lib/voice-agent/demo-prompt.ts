@@ -3,7 +3,7 @@ import { DEMO_TIME_LIMIT_SEC } from "@/lib/demo-call";
 export type DemoCatalogEntry = {
   name: string;
   description: string;
-  /** Le tarif deja mis en phrase, TTC : « 450 € à l'installation, puis 59 € par mois ». */
+  /** Le tarif deja mis en phrase, TTC : « 59 € par mois, sans frais de mise en place ». */
   price: string;
   /** Le quota compris, s'il y en a un : « 150 minutes par mois comprises ». */
   usage: string | null;

@@ -45,7 +45,7 @@ export async function createPromoCodeAction(
     actor: session.user,
     action: "PROMO_CODE_CREATED",
     target: { type: "promo_code", id: promo.id, label: promo.code },
-    detail: describeDiscount(parsed.value.rule, { hasSetupFee: true, hasSubscription: true }),
+    detail: describeDiscount(parsed.value.rule),
   });
 
   revalidatePath("/admin/codes-promo");

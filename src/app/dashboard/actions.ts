@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
-import type Stripe from "stripe";
 import { db } from "@/lib/db";
 import { stripeClient } from "@/lib/auth";
 import { getSession } from "@/lib/session";
@@ -67,7 +66,7 @@ async function requireUserId() {
  */
 function agreedPricing(clientService: {
   monthlyPriceCents: number | null;
-  service: { id: string; name: string; setupFeeCents: number | null; monthlyPriceCents: number | null };
+  service: { id: string; name: string; monthlyPriceCents: number | null };
 }) {
   return {
     ...clientService.service,
@@ -135,7 +134,6 @@ async function createCheckoutSession(
   service: {
     id: string;
     name: string;
-    setupFeeCents: number | null;
     monthlyPriceCents: number | null;
   },
   user: { email: string },
@@ -148,44 +146,29 @@ async function createCheckoutSession(
     user.email
   );
   const vatRateId = await getIncludedVatRateId();
-  const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
-  if (service.setupFeeCents !== null) {
-    lineItems.push({
-      price_data: {
-        currency: "eur",
-        unit_amount: service.setupFeeCents,
-        product_data: { name: `${service.name} — mise en place` },
-      },
-      quantity: 1,
-      tax_rates: [vatRateId],
-    });
-  }
-  if (service.monthlyPriceCents !== null) {
-    lineItems.push({
-      price_data: {
-        currency: "eur",
-        unit_amount: service.monthlyPriceCents,
-        recurring: { interval: "month" },
-        product_data: { name: service.name },
-      },
-      quantity: 1,
-      tax_rates: [vatRateId],
-    });
+  // Une solution ne se vend qu'en abonnement mensuel : sans prix mensuel, il
+  // n'y a rien a vendre, et aucun paiement ponctuel ne doit partir.
+  if (service.monthlyPriceCents === null) {
+    throw new ActionError("Cette solution n'a pas encore de prix. Contactez-nous pour l'activer.");
   }
 
-  const mode = service.monthlyPriceCents !== null ? "subscription" : "payment";
   const checkoutSession = await stripeClient.checkout.sessions.create({
-    mode,
+    mode: "subscription",
     integration_identifier: CHECKOUT_INTEGRATION_ID,
     customer: customerId,
-    line_items: lineItems,
-    ...(promotionCodeId && { discounts: [{ promotion_code: promotionCodeId }] }),
-    ...(mode === "payment" && {
-      invoice_creation: {
-        enabled: true,
-        invoice_data: { metadata: { clientServiceId } },
+    line_items: [
+      {
+        price_data: {
+          currency: "eur",
+          unit_amount: service.monthlyPriceCents,
+          recurring: { interval: "month" },
+          product_data: { name: service.name },
+        },
+        quantity: 1,
+        tax_rates: [vatRateId],
       },
-    }),
+    ],
+    ...(promotionCodeId && { discounts: [{ promotion_code: promotionCodeId }] }),
     metadata: { clientServiceId, serviceId: service.id },
     success_url: `${appUrl()}/dashboard/prestations?checkout=success&clientServiceId=${clientServiceId}`,
     cancel_url: `${appUrl()}/dashboard/prestations?checkout=canceled&clientServiceId=${clientServiceId}`,
@@ -399,10 +382,7 @@ export async function previewPromoCode(serviceId: string, code: string): Promise
   return {
     ok: true,
     code: result.code,
-    description: describeDiscount(result.rule, {
-      hasSetupFee: service.setupFeeCents !== null,
-      hasSubscription: service.monthlyPriceCents !== null,
-    }),
+    description: describeDiscount(result.rule),
     firstPaymentCents: first,
     discountedFirstPaymentCents: applyDiscount(first, result.rule),
   };

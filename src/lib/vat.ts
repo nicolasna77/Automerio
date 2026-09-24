@@ -44,30 +44,20 @@ export function excludingVatSuffix(inclusiveCents: number): string {
 }
 
 /**
- * La meme forme que `formatPrice`, mais hors taxes : « 750 € + 65,83 €/mois ».
+ * La meme forme que `formatPrice`, mais hors taxes : « 65,83 €/mois ».
  * Sert la ligne secondaire des tableaux et des tuiles de statistiques, sous le
  * montant TTC.
  */
-export function formatPriceExcludingVat(
-  setupFeeCents: number | null,
-  monthlyPriceCents: number | null
-): string {
-  return formatPrice(
-    setupFeeCents === null ? null : centsExcludingVat(setupFeeCents),
-    monthlyPriceCents === null ? null : centsExcludingVat(monthlyPriceCents)
-  );
+export function formatPriceExcludingVat(monthlyPriceCents: number | null): string {
+  return formatPrice(monthlyPriceCents === null ? null : centsExcludingVat(monthlyPriceCents));
 }
 
 /**
- * Les deux formes du couple prix sur une ligne :
- * « 900 € + 79 €/mois TTC (750 € + 65,83 €/mois HT) ». Pour les rangees ou la
- * mention HT ne peut pas etre empilee sous le montant.
+ * Les deux formes du prix sur une ligne : « 79 €/mois TTC (65,83 €/mois HT) ».
+ * Pour les rangees ou la mention HT ne peut pas etre empilee sous le montant.
  */
-export function formatPriceWithVat(
-  setupFeeCents: number | null,
-  monthlyPriceCents: number | null
-): string {
-  const inclusive = formatPrice(setupFeeCents, monthlyPriceCents);
+export function formatPriceWithVat(monthlyPriceCents: number | null): string {
+  const inclusive = formatPrice(monthlyPriceCents);
   if (inclusive === "—") return inclusive;
-  return `${inclusive} TTC (${formatPriceExcludingVat(setupFeeCents, monthlyPriceCents)} HT)`;
+  return `${inclusive} TTC (${formatPriceExcludingVat(monthlyPriceCents)} HT)`;
 }

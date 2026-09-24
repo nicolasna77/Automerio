@@ -69,23 +69,17 @@ describe("excludingVatSuffix", () => {
 });
 
 describe("formatPriceExcludingVat", () => {
-  it("retire la TVA des deux montants du modele hybride", () => {
-    expect(formatPriceExcludingVat(90000, 7900)).toBe("750 € + 65,83 €/mois");
-  });
-
-  it("n'affiche que l'abonnement quand il n'y a pas de mise en place", () => {
-    expect(formatPriceExcludingVat(null, 7900)).toBe("65,83 €/mois");
+  it("retire la TVA de l'abonnement", () => {
+    expect(formatPriceExcludingVat(7900)).toBe("65,83 €/mois");
   });
 });
 
 describe("formatPriceWithVat", () => {
   it("compose les deux formes sur une ligne", () => {
-    expect(formatPriceWithVat(90000, 7900)).toBe(
-      "900 € + 79 €/mois TTC (750 € + 65,83 €/mois HT)"
-    );
+    expect(formatPriceWithVat(7900)).toBe("79 €/mois TTC (65,83 €/mois HT)");
   });
 
   it("laisse le tiret cadratin quand il n'y a aucun prix", () => {
-    expect(formatPriceWithVat(null, null)).toBe("—");
+    expect(formatPriceWithVat(null)).toBe("—");
   });
 });

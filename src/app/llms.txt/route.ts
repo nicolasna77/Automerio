@@ -19,13 +19,10 @@ export async function GET() {
     byCategory.set(service.category, list);
   }
 
-  function price(setupFeeCents: number | null, monthlyPriceCents: number | null): string {
-    const parts: string[] = [];
-    if (setupFeeCents !== null)
-      parts.push(`${formatCentsWithVat(setupFeeCents)} à l'installation`);
-    if (monthlyPriceCents !== null)
-      parts.push(`${formatCentsWithVat(monthlyPriceCents)} par mois`);
-    return parts.length > 0 ? parts.join(", puis ") : "tarif sur demande";
+  function price(monthlyPriceCents: number | null): string {
+    return monthlyPriceCents !== null
+      ? `${formatCentsWithVat(monthlyPriceCents)} par mois, sans frais de mise en place`
+      : "tarif sur demande";
   }
 
   const lines = [
@@ -44,7 +41,7 @@ export async function GET() {
     for (const service of list) {
       lines.push(
         `- [${service.name}](${absoluteUrl(`/prestations/${service.slug}`)}) — ${service.description}`,
-        `  Tarif : ${price(service.setupFeeCents, service.monthlyPriceCents)}.${
+        `  Tarif : ${price(service.monthlyPriceCents)}.${
           usageCapLabelOf(service) ? ` ${usageCapLabelOf(service)}.` : ""
         }`
       );

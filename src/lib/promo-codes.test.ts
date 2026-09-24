@@ -27,7 +27,6 @@ const fixed = (cents: number, duration: DiscountRule["duration"] = "once", month
   duration,
   durationInMonths: months,
 });
-const HYBRID = { hasSetupFee: true, hasSubscription: true };
 
 describe("normalizePromoCode", () => {
   it("ignore la casse et les espaces autour", () => {
@@ -36,18 +35,18 @@ describe("normalizePromoCode", () => {
 });
 
 describe("applyDiscount", () => {
-  const first = firstPaymentCents({ setupFeeCents: 45000, monthlyPriceCents: 5900 });
+  const first = firstPaymentCents({ monthlyPriceCents: 5900 });
 
-  it("additionne mise en place et premier mois", () => {
-    expect(first).toBe(50900);
+  it("prend le premier mois d'abonnement, sans frais de mise en place", () => {
+    expect(first).toBe(5900);
   });
 
-  it("applique un pourcentage à tout le premier paiement, comme Stripe", () => {
-    expect(applyDiscount(first, percent(20))).toBe(40720);
+  it("applique un pourcentage au premier paiement, comme Stripe", () => {
+    expect(applyDiscount(first, percent(20))).toBe(4720);
   });
 
   it("retranche un montant fixe du total, comme Stripe", () => {
-    expect(applyDiscount(first, fixed(5000))).toBe(45900);
+    expect(applyDiscount(first, fixed(1000))).toBe(4900);
   });
 
   it("ne descend jamais sous zéro", () => {
@@ -57,52 +56,47 @@ describe("applyDiscount", () => {
 
 describe("describeDiscount", () => {
   it("précise qu'un pourcentage porte sur la mise en place", () => {
-    expect(describeDiscount(percent(20), HYBRID)).toBe(
-      `−20${NBSP}% sur le premier paiement, mise en place comprise`
+    expect(describeDiscount(percent(20))).toBe(
+      `−20${NBSP}% sur le premier paiement`
     );
   });
 
   it("ne le précise pas quand il n'y a pas de mise en place", () => {
-    expect(describeDiscount(percent(20), { hasSetupFee: false, hasSubscription: true })).toBe(
+    expect(describeDiscount(percent(20))).toBe(
       `−20${NBSP}% sur le premier paiement`
     );
   });
 
   it("n'en parle pas pour un montant fixe, qui se retranche du total", () => {
-    expect(describeDiscount(fixed(5000), HYBRID)).toBe(
+    expect(describeDiscount(fixed(5000))).toBe(
       `−${formatCents(5000)} TTC (−${formatCentsExcludingVat(5000)} HT) sur le premier paiement`
     );
   });
 
   it("annonce une durée en mois", () => {
-    expect(describeDiscount(percent(20, "repeating", 3), HYBRID)).toBe(
-      `−20${NBSP}% pendant 3 mois, mise en place comprise`
+    expect(describeDiscount(percent(20, "repeating", 3))).toBe(
+      `−20${NBSP}% pendant 3 mois`
     );
-    expect(describeDiscount(fixed(1000, "repeating", 3), HYBRID)).toBe(
+    expect(describeDiscount(fixed(1000, "repeating", 3))).toBe(
       `−${formatCents(1000)} TTC (−${formatCentsExcludingVat(1000)} HT) sur chacun des 3 premiers paiements`
     );
   });
 
   it("traite une durée d'un mois comme un premier paiement", () => {
-    expect(describeDiscount(percent(10, "repeating", 1), HYBRID)).toBe(
-      `−10${NBSP}% sur le premier paiement, mise en place comprise`
+    expect(describeDiscount(percent(10, "repeating", 1))).toBe(
+      `−10${NBSP}% sur le premier paiement`
     );
   });
 
   it("annonce une remise permanente", () => {
-    expect(describeDiscount(percent(15, "forever"), HYBRID)).toBe(
-      `−15${NBSP}% sur tous les paiements, mise en place comprise`
+    expect(describeDiscount(percent(15, "forever"))).toBe(
+      `−15${NBSP}% sur tous les paiements`
     );
   });
 
-  it("ignore la durée quand il n'y a qu'un paiement", () => {
-    expect(
-      describeDiscount(percent(20, "forever"), { hasSetupFee: true, hasSubscription: false })
-    ).toBe(`−20${NBSP}% sur le paiement`);
-  });
 
   it("écrit les décimales à la française", () => {
-    expect(describeDiscount(percent(12.5), { hasSetupFee: false, hasSubscription: true })).toBe(
+    expect(describeDiscount(percent(12.5))).toBe(
       `−12,5${NBSP}% sur le premier paiement`
     );
   });

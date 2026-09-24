@@ -157,7 +157,7 @@ export function MyServiceRow({
               </span>
             )}
             <span className="tabular-nums text-muted-foreground">
-              {formatPriceWithVat(service.setupFeeCents, service.monthlyPriceCents)}
+              {formatPriceWithVat(service.monthlyPriceCents)}
             </span>
           </div>
         </CardContent>

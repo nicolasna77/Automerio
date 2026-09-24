@@ -105,7 +105,7 @@ export default async function ServiceDetailPage({
               </h1>
               <StatusBadge status={item.status} />
               <span className="text-base tabular-nums text-foreground">
-                {formatPriceWithVat(item.service.setupFeeCents, item.service.monthlyPriceCents)}
+                {formatPriceWithVat(item.service.monthlyPriceCents)}
               </span>
             </div>
 

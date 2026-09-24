@@ -144,7 +144,6 @@ model Service {
   name              String
   description       String
   category          ServiceCategory
-  setupFeeCents     Int?
   monthlyPriceCents Int?
 
   // Plafond d'usage inclus dans l'abonnement. Les trois champs vont ensemble :
