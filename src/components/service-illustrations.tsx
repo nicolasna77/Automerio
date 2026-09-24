@@ -362,16 +362,22 @@ export function ServiceIllustration({ slug, className }: { slug: string; classNa
  * Le renvoi d'appel, en schema : le client compose le numero habituel, le
  * renvoi l'amene a l'assistant, qui repond ou vous transfere.
  */
-export function ForwardingDiagram() {
+export function ForwardingDiagram({ vertical = false }: { vertical?: boolean }) {
   const steps = [
     { icon: Phone, label: "Votre client", detail: "compose votre numéro" },
     { icon: PhoneForwarded, label: "Renvoi d'appel", detail: "depuis votre ligne" },
     { icon: Headset, label: "Assistant", detail: "répond ou transfère" },
   ];
   return (
-    <div aria-hidden="true" className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
+    <div
+      aria-hidden="true"
+      className={cn("flex flex-col items-stretch gap-2", !vertical && "sm:flex-row sm:items-center")}
+    >
       {steps.map((step, index) => (
-        <div key={step.label} className="flex flex-1 flex-col items-stretch gap-2 sm:flex-row sm:items-center">
+        <div
+          key={step.label}
+          className={cn("flex flex-1 flex-col items-stretch gap-2", !vertical && "sm:flex-row sm:items-center")}
+        >
           <div
             className={cn(
               "flex flex-1 items-center gap-3 rounded-2xl border bg-card px-4 py-3",
@@ -393,11 +399,81 @@ export function ForwardingDiagram() {
           </div>
           {index < steps.length - 1 && (
             <span className="flex justify-center text-muted-foreground">
-              <ArrowRight className="size-4 rotate-90 sm:rotate-0" />
+              <ArrowRight className={cn("size-4 rotate-90", !vertical && "sm:rotate-0")} />
             </span>
           )}
         </div>
       ))}
+    </div>
+  );
+}
+
+/** Apercu de la fiche d'activation : les premiers champs que le client remplira. */
+export function ConfigPreview({ labels }: { labels: string[] }) {
+  return (
+    <div aria-hidden="true" className="space-y-3">
+      {labels.map((label) => (
+        <div key={label}>
+          <p className="text-xs font-medium text-foreground">{label}</p>
+          <span className="mt-1.5 block h-8 rounded-lg border border-dashed border-border bg-card" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** Apercu de l'installation par l'equipe, pour les solutions sans renvoi d'appel. */
+export function SetupPreview() {
+  return (
+    <ul aria-hidden="true" className="space-y-2">
+      {["Connexion à vos outils", "Tests sur vos cas réels", "Mise en service"].map((item, index) => (
+        <li key={item} className="flex items-center gap-3 rounded-xl border border-border bg-card px-3 py-2.5">
+          <span
+            className={cn(
+              "flex size-5 shrink-0 items-center justify-center rounded-full",
+              index < 2 ? "bg-primary text-primary-foreground" : "border border-primary/40 text-primary"
+            )}
+          >
+            <Check className="size-3" />
+          </span>
+          <span className="text-sm text-foreground">{item}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+const ACTIVITY_BY_FAMILY: Record<Family, string[]> = {
+  call: ["Appel traité · horaires", "Appel transféré · urgence", "Appel traité · adresse"],
+  "booking-call": ["Rendez-vous inscrit · jeudi", "Commande enregistrée", "Créneau proposé · lundi"],
+  chat: ["Message répondu · devis", "Message répondu · horaires", "Conversation reprise par vous"],
+  email: ["E-mail classé · prioritaire", "Brouillon prêt à relire", "E-mail classé · facture"],
+  calendar: ["Réservation · mardi 9 h", "Réservation · jeudi 14 h", "Réservation · vendredi 11 h"],
+  document: ["Contrat résumé · 18 pages", "Devis résumé · 4 pages", "Rapport résumé · 32 pages"],
+  meeting: ["Compte-rendu · réunion d'équipe", "Compte-rendu · point client", "Actions à suivre · 3"],
+  support: ["Demande prise en charge", "Réglage appliqué", "Question traitée par l'équipe"],
+};
+
+/** Apercu du fil d'activite une fois la solution en service. */
+export function ActivityPreview({ slug }: { slug: string }) {
+  const lines = ACTIVITY_BY_FAMILY[FAMILY_BY_SLUG[slug] ?? "support"];
+  return (
+    <div aria-hidden="true" className="rounded-xl border border-border bg-card">
+      <div className="flex items-center justify-between border-b border-border px-3 py-2">
+        <Label>Aujourd&apos;hui</Label>
+        <span className="flex items-center gap-1.5 rounded-full bg-primary/10 px-2 py-0.5 font-mono text-[0.6875rem] text-primary">
+          <span className="size-1.5 rounded-full bg-primary" />
+          active
+        </span>
+      </div>
+      <ul className="divide-y divide-border">
+        {lines.map((line) => (
+          <li key={line} className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-foreground">
+            <Check className="size-3.5 shrink-0 text-primary" />
+            {line}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

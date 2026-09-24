@@ -107,7 +107,7 @@ export function DemoCallForm({ serviceSlug }: { serviceSlug: string }) {
       <Button
         type="submit"
         size="lg"
-        className="w-full sm:w-auto"
+        className="w-full"
         disabled={isPending || phone.trim() === ""}
         aria-busy={isPending}
       >
