@@ -77,6 +77,6 @@ export const FAQS: Faq[] = [
   {
     question: "Mes données sont-elles en sécurité ?",
     answer:
-      "Vos données restent liées à vos outils existants. Nous ne les revendons ni ne les partageons avec des tiers.",
+      "Nous ne les revendons ni ne les partageons. Elles ne passent que par les prestataires nécessaires au service — téléphonie, IA, paiement, e-mails — listés dans notre politique de confidentialité, et vous pouvez les exporter ou les supprimer depuis votre profil.",
   },
 ];

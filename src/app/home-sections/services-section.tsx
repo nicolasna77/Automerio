@@ -155,10 +155,10 @@ export function ServicesSection({ services }: { services: ServiceDTO[] }) {
   })).filter(({ categoryServices }) => categoryServices.length > 0);
 
   return (
-    <section id="prestations" className="border-b border-border py-20 sm:py-24">
+    <section id="prestations" aria-labelledby="prestations-heading" className="scroll-mt-16 border-t border-border py-20 sm:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="max-w-2xl">
-          <h2 className="text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 id="prestations-heading" className="text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl">
             Choisissez ce que vous voulez arrêter de faire vous-même
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
@@ -173,7 +173,7 @@ export function ServicesSection({ services }: { services: ServiceDTO[] }) {
           return (
             <div key={category} className={index > 0 ? "mt-14" : "mt-12"}>
               <div className="mb-5">
-                <div className="max-w-2xl">
+                <div className="mx-auto max-w-2xl text-center">
                   <h3 className="text-xl font-semibold tracking-tight text-foreground">
                     {CATEGORY_LABELS[category]}
                   </h3>

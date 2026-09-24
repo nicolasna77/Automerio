@@ -1,36 +1,53 @@
+import { ConfigPreview, SetupPreview } from "@/components/service-illustrations";
+
+const SIDES = [
+  {
+    label: "Vous",
+    title: "Ce que vous faites",
+    description:
+      "Vous choisissez une solution, vous répondez à quelques questions sur votre activité, et vous suivez le tout depuis un tableau de bord. Rien à installer, rien à paramétrer.",
+    preview: <ConfigPreview labels={["Votre activité", "Vos horaires"]} />,
+  },
+  {
+    label: "Nous",
+    title: "Ce qu'on fait",
+    description:
+      "On installe l'automatisation, on la connecte à vos outils, on la teste, puis on la surveille et on l'ajuste chaque mois.",
+    preview: <SetupPreview />,
+  },
+];
+
 export function PresentationSection() {
   return (
-    <section className="border-b border-border py-20 sm:py-24">
-      <div className="mx-auto grid max-w-6xl gap-12 px-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <div>
-          <h2 className="text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl">
+    <section aria-labelledby="agence-heading" className="py-20 sm:py-24">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2
+            id="agence-heading"
+            className="text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"
+          >
             Une agence, pas un logiciel à configurer
           </h2>
-          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-foreground">
-            Automerio installe des automatisations pour les artisans, coachs,
-            indépendants et TPE/PME. Chaque solution est connectée à vos outils
-            existants puis vérifiée par notre équipe avant d&apos;être activée
-            chez vous.
+          <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
+            Automerio installe des automatisations pour les artisans, coachs, indépendants et
+            TPE/PME. Chaque solution est connectée à vos outils existants puis vérifiée par notre
+            équipe avant d&apos;être activée chez vous.
           </p>
         </div>
-        <dl className="space-y-6 border-t border-border pt-6 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-8">
-          <div>
-            <dt className="font-medium text-foreground">Ce que vous faites</dt>
-            <dd className="mt-1 text-sm leading-relaxed text-foreground">
-              Vous choisissez une solution, vous répondez à quelques questions
-              sur votre activité, et vous suivez le tout depuis un tableau de
-              bord. Rien à installer, rien à paramétrer.
-            </dd>
-          </div>
-          <div>
-            <dt className="font-medium text-foreground">Ce qu&apos;on fait</dt>
-            <dd className="mt-1 text-sm leading-relaxed text-foreground">
-              On installe l&apos;automatisation, on la connecte à vos outils,
-              on la teste, puis on la surveille et on l&apos;ajuste chaque
-              mois.
-            </dd>
-          </div>
-        </dl>
+        <ul className="mt-12 grid gap-4 md:grid-cols-2">
+          {SIDES.map((side) => (
+            <li key={side.label} className="flex flex-col overflow-hidden rounded-3xl border border-border bg-card">
+              <div className="p-6 sm:p-8">
+                <span className="inline-flex rounded-full bg-muted px-2.5 py-1 font-mono text-[0.6875rem] tracking-wide text-muted-foreground uppercase">
+                  {side.label}
+                </span>
+                <h3 className="mt-4 font-sans text-xl font-semibold text-foreground">{side.title}</h3>
+                <p className="mt-2 leading-relaxed text-muted-foreground">{side.description}</p>
+              </div>
+              <div className="mt-auto border-t border-border bg-muted/40 p-6 sm:p-8">{side.preview}</div>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );

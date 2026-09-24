@@ -30,7 +30,7 @@ export function MaintenanceSection({ services }: { services: ServiceDTO[] }) {
   if (!support) return null;
 
   return (
-    <section id="abonnement" className="border-b border-border py-20 sm:py-24">
+    <section id="abonnement" className="border-t border-border py-20 sm:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <Card className="mx-auto max-w-3xl">
           <CardHeader>
