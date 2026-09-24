@@ -15,6 +15,7 @@ import { PaginationNav } from "@/components/pagination-nav";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/session";
 import { AUDIT_ACTION_LABELS, SENSITIVE_AUDIT_ACTIONS } from "@/lib/audit";
+import { PageHeader, PageShell } from "@/components/page-shell";
 
 export const metadata: Metadata = { title: "Journal d'administration" };
 
@@ -51,18 +52,13 @@ export default async function AdminJournalPage({
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          Journal d&apos;administration
-        </h1>
-        <p className="mt-1 text-muted-foreground">
-          Qui a fait quoi sur les comptes et le catalogue. Les entrées ne sont
-          ni modifiables ni supprimables depuis l&apos;application.
-        </p>
-      </div>
+    <PageShell size="wide">
+      <PageHeader
+        title="Journal d'administration"
+        description="Qui a fait quoi sur les comptes et le catalogue. Les entrées ne sont ni modifiables ni supprimables depuis l'application."
+      />
 
-      <Card className="mt-6">
+      <Card>
         <CardContent>
           {entries.length === 0 ? (
             <p className="text-sm text-muted-foreground">
@@ -133,6 +129,6 @@ export default async function AdminJournalPage({
         params={{}}
         label="Pagination du journal"
       />
-    </div>
+    </PageShell>
   );
 }

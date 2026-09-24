@@ -11,6 +11,7 @@ import {
 } from "@/lib/promo-codes";
 import { PromoCodeCreateDialog } from "./promo-code-create-dialog";
 import { PromoCodesTable, type PromoCodeRow, type PromoCodeState } from "./promo-codes-table";
+import { PageHeader, PageShell } from "@/components/page-shell";
 
 export const metadata: Metadata = { title: "Codes promo" };
 
@@ -66,21 +67,14 @@ export default async function AdminPromoCodesPage() {
   const rows = await loadPromoCodes(new Map(services.map((s) => [s.slug, s.name])));
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-            Codes promo
-          </h1>
-          <p className="mt-1 max-w-2xl text-muted-foreground">
-            Les remises que vos clients saisissent en activant une solution.
-            Stripe compte les utilisations et fait respecter les limites.
-          </p>
-        </div>
-        <PromoCodeCreateDialog services={services} />
-      </div>
+    <PageShell size="wide">
+      <PageHeader
+        title="Codes promo"
+        description="Les remises que vos clients saisissent en activant une solution. Stripe compte les utilisations et fait respecter les limites."
+        actions={<PromoCodeCreateDialog services={services} />}
+      />
 
-      <div className="mt-6">
+      <div>
         {rows === null ? (
           <EmptyState
             icon={CloudOff}
@@ -100,6 +94,6 @@ export default async function AdminPromoCodesPage() {
           </div>
         )}
       </div>
-    </div>
+    </PageShell>
   );
 }

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Building2 } from "lucide-react";
+import { Building2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookingsCalendar } from "@/components/bookings-calendar";
@@ -14,6 +13,7 @@ import { ClientServiceCard } from "../../client-service-card";
 import { ServiceHistory } from "./service-history";
 import { LiveRefreshToggle } from "../../live-refresh-toggle";
 import { toMyServiceDTO } from "@/app/dashboard/get-my-service";
+import { PageHeader, PageShell } from "@/components/page-shell";
 
 export const metadata: Metadata = { title: "Détail utilisateur" };
 
@@ -75,21 +75,15 @@ export default async function AdminUserDetailPage({
     });
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-      <Link
-        href="/admin/users"
-        className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-      >
-        <ArrowLeft className="size-4" aria-hidden="true" />
-        Retour aux utilisateurs
-      </Link>
-
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-            {user.name}
-          </h1>
-          <p className="flex items-center gap-2 text-muted-foreground">
+    <PageShell size="content">
+      <PageHeader
+        breadcrumbs={[
+          { label: "Utilisateurs", href: "/admin/users" },
+          { label: user.name },
+        ]}
+        title={user.name}
+        description={
+          <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
             {user.email}
             {memberships.length > 0 && (
               <span className="flex items-center gap-1 text-sm">
@@ -98,14 +92,17 @@ export default async function AdminUserDetailPage({
               </span>
             )}
           </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge variant={user.role === "ADMIN" ? "default" : "secondary"}>
-            {user.role ?? "CLIENT"}
-          </Badge>
-          <LiveRefreshToggle />
-        </div>
-      </div>
+        }
+        actions={
+          <>
+            <Badge variant={user.role === "ADMIN" ? "default" : "secondary"}>
+              {user.role ?? "CLIENT"}
+            </Badge>
+            <LiveRefreshToggle />
+          </>
+        }
+        className="mb-0"
+      />
 
       <UserAccessCards user={user} isSelf={isSelf} />
       <UserSessionsTable
@@ -148,6 +145,6 @@ export default async function AdminUserDetailPage({
           </CardContent>
         </Card>
       )}
-    </div>
+    </PageShell>
   );
 }

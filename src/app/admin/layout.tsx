@@ -23,9 +23,13 @@ export default async function AdminLayout({
 
   return (
     <WorkspaceLayout
-      sidebar={<AdminSidebar openHelpRequestCount={openHelpRequestCount} />}
-      name={session.user.name}
-      email={session.user.email}
+      sidebar={
+        <AdminSidebar
+          openHelpRequestCount={openHelpRequestCount}
+          name={session.user.name}
+          email={session.user.email}
+        />
+      }
       notifications={notifications}
     >
       {!viewer?.twoFactorEnabled && (

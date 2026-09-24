@@ -34,10 +34,10 @@ export default async function DashboardLayout({
           activeOrganization={active}
           organizations={organizations}
           openHelpRequestCount={openHelpRequestCount}
+          name={session.user.name}
+          email={session.user.email}
         />
       }
-      name={session.user.name}
-      email={session.user.email}
       notifications={notifications}
     >
       {children}

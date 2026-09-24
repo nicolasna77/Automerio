@@ -5,6 +5,7 @@ import { ClientsSection } from "./clients-section";
 import { ClientsFilters } from "./clients-filters";
 import { LiveRefreshToggle } from "./live-refresh-toggle";
 import { StatsSkeleton, ClientsSectionSkeleton } from "./admin-skeletons";
+import { PageHeader, PageShell } from "@/components/page-shell";
 
 export const metadata: Metadata = { title: "Administration" };
 
@@ -16,20 +17,14 @@ export default async function AdminPage({
   const params = await searchParams;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-            Vue d&apos;ensemble
-          </h1>
-          <p className="mt-1 text-muted-foreground">
-            Supervision de l&apos;ensemble des clients Automerio.
-          </p>
-        </div>
-        <LiveRefreshToggle />
-      </div>
+    <PageShell size="wide">
+      <PageHeader
+        title="Vue d'ensemble"
+        description="Supervision de l'ensemble des clients Automerio."
+        actions={<LiveRefreshToggle />}
+      />
 
-      <div className="mt-6">
+      <div>
         <Suspense fallback={<StatsSkeleton />}>
           <Stats />
         </Suspense>
@@ -50,6 +45,6 @@ export default async function AdminPage({
           />
         </Suspense>
       </div>
-    </div>
+    </PageShell>
   );
 }

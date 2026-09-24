@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/session";
 import { GeneratePanel } from "./generate-panel";
 import { PostCard } from "./post-card";
+import { PageHeader, PageShell } from "@/components/page-shell";
 
 export const metadata: Metadata = { title: "Marketing" };
 
@@ -49,19 +50,13 @@ export default async function AdminMarketingPage() {
   });
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          Marketing
-        </h1>
-        <p className="mt-1 max-w-2xl text-muted-foreground">
-          Les comptes sociaux d&apos;Automerio, pas ceux de vos clients. L&apos;agent
-          rédige à partir du catalogue réel — il n&apos;a le droit d&apos;affirmer
-          que ce qui s&apos;y trouve.
-        </p>
-      </div>
+    <PageShell size="content">
+      <PageHeader
+        title="Marketing"
+        description="Les comptes sociaux d'Automerio, pas ceux de vos clients. L'agent rédige à partir du catalogue réel — il n'a le droit d'affirmer que ce qui s'y trouve."
+      />
 
-      <div className="mt-8">
+      <div>
         <GeneratePanel />
       </div>
 
@@ -110,6 +105,6 @@ export default async function AdminMarketingPage() {
           </section>
         );
       })}
-    </div>
+    </PageShell>
   );
 }

@@ -7,6 +7,7 @@ import { toMyServiceDTO } from "../get-my-service";
 import { CheckoutNotice } from "../checkout-notice";
 import { MyServices } from "../my-services";
 import { ServiceCatalogGrid } from "./service-catalog-grid";
+import { PageHeader, PageShell } from "@/components/page-shell";
 
 export const metadata: Metadata = { title: "Solutions" };
 
@@ -43,13 +44,15 @@ export default async function PrestationsPage({
   const checkoutNextStep = checkoutTarget ? setupAction(checkoutTarget) : null;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <h1 className="text-2xl font-semibold tracking-tight text-foreground">Solutions</h1>
-      <p className="mt-1 text-muted-foreground">
-        {myServices.length > 0
-          ? "Vos automatisations activées et le catalogue disponible."
-          : "Choisissez votre première automatisation : l'équipe l'installe et la vérifie pour vous."}
-      </p>
+    <PageShell size="wide">
+      <PageHeader
+        title="Solutions"
+        description={
+          myServices.length > 0
+            ? "Vos automatisations activées et le catalogue disponible."
+            : "Choisissez votre première automatisation : l'équipe l'installe et la vérifie pour vous."
+        }
+      />
 
       {checkoutStatus && (
         <div className="mt-6">
@@ -84,6 +87,6 @@ export default async function PrestationsPage({
         </p>
         <ServiceCatalogGrid services={catalog} statusByServiceId={statusByServiceId} />
       </section>
-    </div>
+    </PageShell>
   );
 }

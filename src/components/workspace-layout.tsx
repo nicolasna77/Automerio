@@ -6,7 +6,6 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { UserMenu } from "@/components/user-menu";
 import { NotificationsMenu } from "@/components/notifications-menu";
 import type { NotificationDTO } from "@/lib/notifications";
 
@@ -14,14 +13,10 @@ const SIDEBAR_COOKIE_NAME = "sidebar_state";
 
 export async function WorkspaceLayout({
   sidebar,
-  name,
-  email,
   notifications,
   children,
 }: {
   sidebar: React.ReactNode;
-  name: string;
-  email: string;
   notifications: NotificationDTO[];
   children: React.ReactNode;
 }) {
@@ -45,7 +40,6 @@ export async function WorkspaceLayout({
               <div className="flex items-center gap-2">
                 <NotificationsMenu notifications={notifications} />
                 <ThemeToggle />
-                <UserMenu name={name} email={email} />
               </div>
             </header>
             <main id="main-content" className="flex-1">

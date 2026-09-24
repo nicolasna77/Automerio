@@ -18,6 +18,7 @@ import { getMyInvoices, type InvoiceDTO } from "../get-invoices";
 import { organizationCustomerId } from "@/lib/organization-billing";
 import { BillingPortalButton } from "./billing-portal-button";
 import { VAT_PERCENTAGE, excludingVatSuffix } from "@/lib/vat";
+import { PageHeader, PageShell } from "@/components/page-shell";
 
 export const metadata: Metadata = { title: "Paiements" };
 
@@ -48,19 +49,19 @@ export default async function PaiementsPage() {
   ]);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-            Paiements
-          </h1>
-          <p className="mt-1 text-muted-foreground">
+    <PageShell size="wide">
+      <PageHeader
+        title="Paiements"
+        description={
+          <>
             Vos factures, par solution. Montant prélevé TTC, TVA à {VAT_PERCENTAGE} % incluse ;
             le hors taxes est rappelé sous chaque montant.
-          </p>
-        </div>
-        {customerId && invoices.length > 0 && <BillingPortalButton organizationId={organization.id} />}
-      </div>
+          </>
+        }
+        actions={
+          customerId && invoices.length > 0 && <BillingPortalButton organizationId={organization.id} />
+        }
+      />
 
       {failing.length > 0 && (
         <div
@@ -141,6 +142,6 @@ export default async function PaiementsPage() {
           </Table>
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }
