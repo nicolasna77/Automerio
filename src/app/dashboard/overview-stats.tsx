@@ -46,9 +46,9 @@ export async function OverviewStats({ organizationId }: { organizationId: string
     {
       icon: Wallet,
       label: "Dépense mensuelle",
-      value: `${formatPrice(null, monthlySpendCents)} TTC`,
+      value: `${formatPrice(monthlySpendCents)} TTC`,
       note: [
-        `soit ${formatPriceExcludingVat(null, monthlySpendCents)} HT`,
+        `soit ${formatPriceExcludingVat(monthlySpendCents)} HT`,
         settingUpNote ? "hors solutions en cours d'installation" : null,
       ]
         .filter((part): part is string => part !== null)

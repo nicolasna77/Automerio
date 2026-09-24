@@ -48,9 +48,9 @@ export function ServiceCatalogGrid({
               </CardHeader>
               <CardContent className="mt-auto">
                 <p className="border-t border-border pt-4 font-medium text-foreground tabular-nums">
-                  {formatPrice(service.setupFeeCents, service.monthlyPriceCents)} TTC
+                  {formatPrice(service.monthlyPriceCents)} TTC
                   <span className="block text-xs font-normal text-muted-foreground">
-                    soit {formatPriceExcludingVat(service.setupFeeCents, service.monthlyPriceCents)} HT
+                    soit {formatPriceExcludingVat(service.monthlyPriceCents)} HT
                   </span>
                 </p>
                 {service.usageCap && (

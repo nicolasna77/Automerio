@@ -121,14 +121,9 @@ export const STATUS_LABELS: Record<ClientServiceStatus, string> = {
   CANCELED: "Résilié",
 };
 
-export function formatPrice(
-  setupFeeCents: number | null,
-  monthlyPriceCents: number | null
-): string {
-  const parts: string[] = [];
-  if (setupFeeCents !== null) parts.push(formatCents(setupFeeCents));
-  if (monthlyPriceCents !== null) parts.push(`${formatCents(monthlyPriceCents)}/mois`);
-  return parts.join(" + ") || "—";
+/** Le prix d'une solution : un abonnement mensuel, sans frais de mise en place. */
+export function formatPrice(monthlyPriceCents: number | null): string {
+  return monthlyPriceCents === null ? "—" : `${formatCents(monthlyPriceCents)}/mois`;
 }
 
 export function formatCents(cents: number): string {
@@ -145,7 +140,6 @@ export type ServiceDTO = {
   name: string;
   description: string;
   category: ServiceCategory;
-  setupFeeCents: number | null;
   monthlyPriceCents: number | null;
   usageCap: UsageCap | null;
   tier: SubscriptionTier | null;

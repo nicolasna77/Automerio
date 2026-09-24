@@ -36,17 +36,6 @@ function PriceList({ service }: { service: ServiceDTO }) {
   return (
     <>
       <dl className="space-y-1.5 border-t border-border pt-4 text-xs">
-        {service.setupFeeCents !== null && (
-          <div className="flex items-center justify-between">
-            <dt className="text-muted-foreground">Mise en place</dt>
-            <dd className="text-right tabular-nums text-foreground">
-              {formatCents(service.setupFeeCents)} TTC
-              <span className="block text-[0.6875rem] font-normal text-muted-foreground">
-                {excludingVatSuffix(service.setupFeeCents)}
-              </span>
-            </dd>
-          </div>
-        )}
         {service.monthlyPriceCents !== null && (
           <div className="flex items-center justify-between">
             <dt className="text-muted-foreground">Abonnement</dt>

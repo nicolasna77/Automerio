@@ -22,10 +22,8 @@ function describeCatalog(services: ServiceDTO[]): string {
     .map((service) => {
       const price =
         service.monthlyPriceCents !== null
-          ? `${formatCentsWithVat(service.monthlyPriceCents)} par mois`
-          : service.setupFeeCents !== null
-            ? `${formatCentsWithVat(service.setupFeeCents)} à l'installation`
-            : "tarif non précisé";
+          ? `${formatCentsWithVat(service.monthlyPriceCents)} par mois, sans frais de mise en place`
+          : "tarif non précisé";
       const cap = service.usageCap ? ` (${formatUsageCap(service.usageCap)})` : "";
       return `- ${service.name} [${service.slug}] — ${service.description} Tarif : ${price}${cap}.`;
     })

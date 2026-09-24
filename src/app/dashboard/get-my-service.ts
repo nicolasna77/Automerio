@@ -73,7 +73,6 @@ export function toMyServiceDTO(
       name: cs.service.name,
       description: cs.service.description,
       category: cs.service.category,
-      setupFeeCents: cs.service.setupFeeCents,
       monthlyPriceCents: cs.service.monthlyPriceCents,
       usageCap: readClientUsageCap(cs, cs.service),
       // Nul ici a dessein : une prestation deja vendue ne se repersonnalise

@@ -20,7 +20,7 @@ export const HOSTING_PROVIDER = {
   website: "https://vercel.com",
 };
 
-export const LEGAL_LAST_UPDATED = "11 septembre 2026";
+export const LEGAL_LAST_UPDATED = "25 septembre 2026";
 
 export const REFUND_GUARANTEE_DAYS = 30;
 

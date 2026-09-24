@@ -295,17 +295,6 @@ export default async function PrestationDetailPage({
               <Card className="gap-0 px-(--card-spacing) lg:sticky lg:top-24 lg:order-first">
                 <p className="text-sm font-medium text-muted-foreground">{service.name}</p>
                 <dl className="mt-4 divide-y divide-border">
-                  {service.setupFeeCents !== null && (
-                    <div className="pb-4">
-                      <dd className="text-3xl font-semibold tabular-nums text-foreground">
-                        {formatCents(service.setupFeeCents)}
-                      </dd>
-                      <dt className="mt-0.5 text-sm text-muted-foreground">
-                        TTC, &agrave; l&apos;installation
-                        <span className="block text-xs">{excludingVatSuffix(service.setupFeeCents)}</span>
-                      </dt>
-                    </div>
-                  )}
                   {service.monthlyPriceCents !== null && !service.tier && (
                     <div className="py-4 first:pt-0">
                       <dd className="text-3xl font-semibold tabular-nums text-foreground">

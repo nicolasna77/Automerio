@@ -19,7 +19,6 @@ export function ClientServiceCard({
     service: {
       slug: string;
       name: string;
-      setupFeeCents: number | null;
       monthlyPriceCents: number | null;
       configFields: unknown;
     };
@@ -48,9 +47,9 @@ export function ClientServiceCard({
         <div className="flex gap-2">
           <dt className="shrink-0 text-muted-foreground">Prix</dt>
           <dd className="ml-auto text-right text-foreground">
-            {formatPrice(cs.service.setupFeeCents, cs.service.monthlyPriceCents)} TTC
+            {formatPrice(cs.service.monthlyPriceCents)} TTC
             <span className="block text-xs text-muted-foreground">
-              soit {formatPriceExcludingVat(cs.service.setupFeeCents, cs.service.monthlyPriceCents)} HT
+              soit {formatPriceExcludingVat(cs.service.monthlyPriceCents)} HT
             </span>
           </dd>
         </div>

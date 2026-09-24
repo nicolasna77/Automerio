@@ -71,9 +71,9 @@ export function ServicesTable({ services }: { services: EditableService[] }) {
                     {CATEGORY_LABELS[service.category]}
                   </TableCell>
                   <TableCell className="tabular-nums text-foreground">
-                    {formatPrice(service.setupFeeCents, service.monthlyPriceCents)} TTC
+                    {formatPrice(service.monthlyPriceCents)} TTC
                     <span className="block text-xs text-muted-foreground">
-                      soit {formatPriceExcludingVat(service.setupFeeCents, service.monthlyPriceCents)} HT
+                      soit {formatPriceExcludingVat(service.monthlyPriceCents)} HT
                     </span>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">

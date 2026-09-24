@@ -27,18 +27,6 @@ export async function GET() {
       value: (r) => STATUS_LABELS[r.status as ClientServiceStatus] ?? r.status,
     },
     {
-      header: "Frais de mise en place TTC",
-      value: (r) =>
-        r.service.setupFeeCents === null ? "" : formatCents(r.service.setupFeeCents),
-    },
-    {
-      header: "Frais de mise en place HT",
-      value: (r) =>
-        r.service.setupFeeCents === null
-          ? ""
-          : formatCentsExcludingVat(r.service.setupFeeCents),
-    },
-    {
       header: "Abonnement mensuel TTC",
       value: (r) =>
         r.service.monthlyPriceCents === null

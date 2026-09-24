@@ -310,17 +310,6 @@ export function ActivationFlow({
             </CardHeader>
             <CardContent className="space-y-5">
               <dl className="space-y-2 text-sm">
-                {service.setupFeeCents !== null && (
-                  <div className="flex justify-between gap-4">
-                    <dt className="text-muted-foreground">Mise en place, payée une fois</dt>
-                    <dd className="text-right font-medium text-foreground tabular-nums">
-                      {formatCents(service.setupFeeCents)} TTC
-                      <span className="block text-xs font-normal text-muted-foreground">
-                        {excludingVatSuffix(service.setupFeeCents)}
-                      </span>
-                    </dd>
-                  </div>
-                )}
                 {monthlyPriceCents !== null && (
                   <div className="flex justify-between gap-4">
                     <dt className="text-muted-foreground">Abonnement</dt>
@@ -411,7 +400,7 @@ export function ActivationFlow({
             <Button type="button" onClick={handlePay} disabled={isPending} aria-busy={isPending}>
               {isPending
                 ? "Redirection vers le paiement…"
-                : `Payer ${formatPrice(service.setupFeeCents, monthlyPriceCents)} TTC`}
+                : `Payer ${formatPrice(monthlyPriceCents)} TTC`}
             </Button>
           </div>
         </>

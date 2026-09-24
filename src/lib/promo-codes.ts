@@ -38,10 +38,7 @@ function formatPercent(percent: number): string {
   return `${new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 }).format(percent)} %`;
 }
 
-export function describeDiscount(
-  rule: DiscountRule,
-  pricing: { hasSetupFee: boolean; hasSubscription: boolean }
-): string {
+export function describeDiscount(rule: DiscountRule): string {
   const isPercent = rule.percentOff !== null;
   const amount = isPercent
     ? `−${formatPercent(rule.percentOff!)}`
@@ -49,29 +46,24 @@ export function describeDiscount(
         rule.amountOffCents ?? 0
       )} HT)`;
 
-  if (!pricing.hasSubscription) return `${amount} sur le paiement`;
-
-  const setupClause = isPercent && pricing.hasSetupFee ? ", mise en place comprise" : "";
   const months = rule.durationInMonths ?? 1;
 
   if (rule.duration === "once" || (rule.duration === "repeating" && months === 1)) {
-    return `${amount} sur le premier paiement${setupClause}`;
+    return `${amount} sur le premier paiement`;
   }
   if (rule.duration === "repeating") {
     return isPercent
-      ? `${amount} pendant ${months} mois${setupClause}`
+      ? `${amount} pendant ${months} mois`
       : `${amount} sur chacun des ${months} premiers paiements`;
   }
   return isPercent
-    ? `${amount} sur tous les paiements${setupClause}`
+    ? `${amount} sur tous les paiements`
     : `${amount} sur chaque paiement`;
 }
 
-export function firstPaymentCents(pricing: {
-  setupFeeCents: number | null;
-  monthlyPriceCents: number | null;
-}): number {
-  return (pricing.setupFeeCents ?? 0) + (pricing.monthlyPriceCents ?? 0);
+/** Le premier prelevement : le premier mois d'abonnement. */
+export function firstPaymentCents(pricing: { monthlyPriceCents: number | null }): number {
+  return pricing.monthlyPriceCents ?? 0;
 }
 
 export function applyDiscount(totalCents: number, rule: DiscountRule): number {

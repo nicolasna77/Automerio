@@ -34,7 +34,6 @@ export type EditableService = {
   name: string;
   description: string;
   category: ServiceCategory;
-  setupFeeCents: number | null;
   monthlyPriceCents: number | null;
   includedUsageUnits: number | null;
   usageUnit: UsageUnit | null;
@@ -76,7 +75,6 @@ export function ServiceEditDialog({
     if (!service) return;
 
     const formData = new FormData(event.currentTarget);
-    const setupFeeRaw = String(formData.get("setupFeeEuros") ?? "").trim();
     const monthlyPriceRaw = String(formData.get("monthlyPriceEuros") ?? "").trim();
     const usageUnitRaw = String(formData.get("usageUnit") ?? "none");
     const includedUnitsRaw = String(formData.get("includedUsageUnits") ?? "").trim();
@@ -90,7 +88,6 @@ export function ServiceEditDialog({
           name: String(formData.get("name") ?? ""),
           description: String(formData.get("description") ?? ""),
           category: String(formData.get("category") ?? service.category) as ServiceCategory,
-          setupFeeEuros: setupFeeRaw ? Number(setupFeeRaw) : null,
           monthlyPriceEuros: monthlyPriceRaw ? Number(monthlyPriceRaw) : null,
           includedUsageUnits: hasCap && includedUnitsRaw ? Number(includedUnitsRaw) : null,
           usageUnit: hasCap ? (usageUnitRaw as UsageUnit) : null,
@@ -176,40 +173,24 @@ export function ServiceEditDialog({
                 </div>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="service-setup-fee">
-                    Frais de mise en place (€)
-                  </Label>
-                  <Input
-                    id="service-setup-fee"
-                    name="setupFeeEuros"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    placeholder="Aucun"
-                    defaultValue={centsToEurosInput(service.setupFeeCents)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="service-monthly-price">
-                    Abonnement mensuel (€)
-                  </Label>
-                  <Input
-                    id="service-monthly-price"
-                    name="monthlyPriceEuros"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    placeholder="Aucun"
-                    defaultValue={centsToEurosInput(service.monthlyPriceCents)}
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="service-monthly-price">
+                  Abonnement mensuel TTC (€)
+                </Label>
+                <Input
+                  id="service-monthly-price"
+                  name="monthlyPriceEuros"
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  required
+                  defaultValue={centsToEurosInput(service.monthlyPriceCents)}
+                  aria-describedby="service-monthly-price-help"
+                />
+                <p id="service-monthly-price-help" className="text-xs text-muted-foreground">
+                  Les solutions ne se vendent qu&apos;en abonnement : pas de frais de mise en place.
+                </p>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Laissez un champ de prix vide pour l&apos;omettre — au moins
-                l&apos;un des deux est requis.
-              </p>
 
               <fieldset className="space-y-2">
                 <legend className="text-sm font-medium text-foreground">

@@ -17,7 +17,6 @@ function describeServiceChanges(
     name: string;
     description: string;
     category: ServiceCategory;
-    setupFeeCents: number | null;
     monthlyPriceCents: number | null;
     includedUsageUnits: number | null;
     usageUnit: UsageUnit | null;
@@ -30,11 +29,6 @@ function describeServiceChanges(
   if (before.name !== after.name) changes.push(`Nom : ${before.name} → ${after.name}`);
   if (before.category !== after.category) {
     changes.push(`Catégorie : ${before.category} → ${after.category}`);
-  }
-  if (before.setupFeeCents !== after.setupFeeCents) {
-    changes.push(
-      `Mise en place : ${formatOptionalCents(before.setupFeeCents)} → ${formatOptionalCents(after.setupFeeCents)}`
-    );
   }
   if (before.monthlyPriceCents !== after.monthlyPriceCents) {
     changes.push(
@@ -57,7 +51,6 @@ export type ServiceUpdateInput = {
   name: string;
   description: string;
   category: ServiceCategory;
-  setupFeeEuros: number | null;
   monthlyPriceEuros: number | null;
   includedUsageUnits: number | null;
   usageUnit: UsageUnit | null;
@@ -76,10 +69,9 @@ export async function updateServiceAction(
     const description = input.description.trim();
     if (!name) throw new ActionError("Le nom est requis.");
     if (!description) throw new ActionError("La description est requise.");
-    if (input.setupFeeEuros === null && input.monthlyPriceEuros === null) {
-      throw new ActionError(
-        "Au moins un prix (mise en place ou abonnement) est requis."
-      );
+    // Une solution ne se vend qu'en abonnement : le prix mensuel est requis.
+    if (input.monthlyPriceEuros === null || input.monthlyPriceEuros <= 0) {
+      throw new ActionError("Le prix de l'abonnement mensuel est requis.");
     }
 
     // Quantite et unite vont ensemble : l'une sans l'autre ne decrit aucun
@@ -102,12 +94,7 @@ export async function updateServiceAction(
         name,
         description,
         category: input.category,
-        setupFeeCents:
-          input.setupFeeEuros !== null ? Math.round(input.setupFeeEuros * 100) : null,
-        monthlyPriceCents:
-          input.monthlyPriceEuros !== null
-            ? Math.round(input.monthlyPriceEuros * 100)
-            : null,
+        monthlyPriceCents: Math.round(input.monthlyPriceEuros * 100),
         includedUsageUnits: hasCap ? includedUnits : null,
         usageUnit: hasCap ? input.usageUnit : null,
         overageUnitPriceCents: hasCap

@@ -63,8 +63,9 @@ export default function CgvPage() {
             chaque facture.
           </li>
           <li>
-            Selon la solution, le prix comprend des frais de mise en place, payés
-            une fois, et/ou un abonnement mensuel.
+            Chaque solution est facturée sous forme d&apos;un abonnement mensuel,
+            sans frais de mise en place : l&apos;installation, le paramétrage et le
+            suivi sont compris dans l&apos;abonnement.
           </li>
           <li>
             Le prix appliqué est celui affiché au moment de la commande. Un code
@@ -102,9 +103,8 @@ export default function CgvPage() {
           Les abonnements sont <strong>sans engagement de durée</strong>. Le client
           peut résilier une solution à tout moment depuis le tableau de bord ; la
           résiliation prend effet immédiatement et arrête les prélèvements
-          suivants. Le mois entamé reste dû, de même que les frais de mise en
-          place déjà réglés, sous réserve de la garantie de remboursement
-          (article 7).
+          suivants. Le mois entamé reste dû, sous réserve de la garantie de
+          remboursement (article 7).
         </p>
       </LegalSection>
 
@@ -120,15 +120,6 @@ export default function CgvPage() {
             La demande se fait depuis la rubrique « Aide » du tableau de bord ou
             par e-mail à <a href={`mailto:${LEGAL_ENTITY.email}`}>{LEGAL_ENTITY.email}</a>,
             sans avoir à se justifier.
-          </li>
-          <li>
-            Les frais de mise en place sont remboursés en totalité tant que la
-            solution n&apos;a pas été mise en service, c&apos;est-à-dire tant
-            qu&apos;elle n&apos;est pas passée au statut « Actif » dans le tableau
-            de bord du client. Une fois ce statut atteint, ils restent acquis à
-            Automerio : ils rémunèrent l&apos;installation, le paramétrage et les
-            vérifications déjà réalisés, ainsi que les frais engagés auprès des
-            opérateurs (achat du numéro de téléphone notamment).
           </li>
           <li>
             Le remboursement est versé sur le moyen de paiement d&apos;origine sous

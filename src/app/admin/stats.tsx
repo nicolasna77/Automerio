@@ -137,9 +137,9 @@ export async function Stats() {
           label="Revenu récurrent mensuel"
           value={
             <>
-              {formatPrice(null, mrrCents)} TTC
+              {formatPrice(mrrCents)} TTC
               <span className="block text-xs font-normal text-muted-foreground">
-                soit {formatPriceExcludingVat(null, mrrCents)} HT
+                soit {formatPriceExcludingVat(mrrCents)} HT
               </span>
             </>
           }

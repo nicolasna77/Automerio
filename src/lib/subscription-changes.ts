@@ -14,8 +14,9 @@ import { getIncludedVatRateId } from "@/lib/stripe-billing";
 /**
  * La ligne recurrente de l'abonnement.
  *
- * Cherchee, non prise au premier rang : la premiere facture porte aussi les
- * frais de mise en place, et rien ne garantit l'ordre que Stripe renvoie.
+ * Cherchee, non prise au premier rang : les abonnements souscrits avant la
+ * suppression des frais de mise en place portent encore cette ligne ponctuelle,
+ * et rien ne garantit l'ordre que Stripe renvoie.
  */
 function recurringItem(subscription: Stripe.Subscription): Stripe.SubscriptionItem {
   const item = subscription.items.data.find((line) => line.price.recurring);

@@ -237,7 +237,7 @@ export function PromoCodeCreateDialog({
                 ) : preview.ok ? (
                   <span>
                     <span className="text-muted-foreground">Vos clients liront : </span>
-                    {describeDiscount(preview.rule, { hasSetupFee: true, hasSubscription: true })}.
+                    {describeDiscount(preview.rule)}.
                   </span>
                 ) : (
                   <span className="text-destructive">{preview.error}</span>

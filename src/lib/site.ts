@@ -67,7 +67,7 @@ export const FAQS: Faq[] = [
   {
     question: "Je peux arrêter quand je veux ?",
     answer:
-      "Oui, aucun engagement de durée. Et votre abonnement est remboursé si vous n'êtes pas satisfait dans les 30 premiers jours. Les frais de mise en place restent dus une fois la solution installée et active.",
+      "Oui, aucun engagement de durée. Et votre abonnement est remboursé si vous n'êtes pas satisfait dans les 30 premiers jours.",
   },
   {
     question: "Et si j'ai déjà un agenda ou un outil de facturation ?",
