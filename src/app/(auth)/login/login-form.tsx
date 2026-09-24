@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/password-input";
 import { authClient } from "@/lib/auth-client";
 import { GoogleSignInButton } from "../google-signin-button";
+import { authPathWithNext } from "@/lib/safe-redirect";
 import { redirectAfterSignIn } from "./redirect-after-sign-in";
 
 function describeSignInError(error: { status: number; code?: string }): string {
@@ -25,7 +26,13 @@ function describeSignInError(error: { status: number; code?: string }): string {
   return "La connexion a échoué. Réessayez dans un instant.";
 }
 
-export function LoginForm({ googleEnabled }: { googleEnabled: boolean }) {
+export function LoginForm({
+  googleEnabled,
+  next,
+}: {
+  googleEnabled: boolean;
+  next: string | null;
+}) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,11 +55,11 @@ export function LoginForm({ googleEnabled }: { googleEnabled: boolean }) {
     }
 
     if (data && "twoFactorRedirect" in data && data.twoFactorRedirect) {
-      router.push("/login/verification");
+      router.push(next ? `/login/verification?next=${encodeURIComponent(next)}` : "/login/verification");
       return;
     }
 
-    await redirectAfterSignIn(router);
+    await redirectAfterSignIn(router, next);
   }
 
   return (
@@ -66,7 +73,7 @@ export function LoginForm({ googleEnabled }: { googleEnabled: boolean }) {
 
       {googleEnabled && (
         <div className="mt-8">
-          <GoogleSignInButton />
+          <GoogleSignInButton next={next} />
           <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
             <span className="h-px flex-1 bg-border" />
             ou
@@ -125,7 +132,7 @@ export function LoginForm({ googleEnabled }: { googleEnabled: boolean }) {
       <p className="mt-6 text-sm text-muted-foreground">
         Pas encore de compte ?{" "}
         <Link
-          href="/signup"
+          href={authPathWithNext("/signup", next)}
           className="rounded-sm text-foreground underline underline-offset-4 focus-visible:focus-ring"
         >
           Créer mon compte

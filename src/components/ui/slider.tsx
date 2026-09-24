@@ -20,11 +20,16 @@ function Slider({
   getAriaLabel?: SliderPrimitive.Thumb.Props["getAriaLabel"];
   getAriaValueText?: SliderPrimitive.Thumb.Props["getAriaValueText"];
 }) {
+  // Une valeur simple n'a qu'une poignee. Le gabarit shadcn retombait sur
+  // `[min, max]` des qu'elle n'etait pas un tableau, et rendait donc deux
+  // poignees superposees — deux curseurs annonces pour un seul choix.
   const _values = Array.isArray(value)
     ? value
     : Array.isArray(defaultValue)
       ? defaultValue
-      : [min, max]
+      : value !== undefined || defaultValue !== undefined
+        ? [0]
+        : [min, max]
 
   return (
     <SliderPrimitive.Root

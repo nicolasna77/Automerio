@@ -43,9 +43,12 @@ const STEPS = ["Réglages", "Récapitulatif et paiement"] as const;
 export function ActivationFlow({
   service,
   organizationId,
+  initialUnits = null,
 }: {
   service: ServiceDTO;
   organizationId: string;
+  /** Le volume deja choisi sur la page publique de la solution. */
+  initialUnits?: number | null;
 }) {
   const nameFieldId = useId();
   const promoFieldId = useId();
@@ -56,9 +59,12 @@ export function ActivationFlow({
   const [name, setName] = useState(service.name);
   const [values, setValues] = useState<Configuration>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
-  // Le quota choisi part du plancher : rester la coute le prix du catalogue,
-  // et le client voit ce qu'il paierait sans rien decider.
-  const [chosenUnits, setChosenUnits] = useState(service.tier?.minUnits ?? 0);
+  // Le quota part du volume choisi sur la page publique s'il y en a un, sinon
+  // du plancher : rester la coute le prix du catalogue, et le client voit ce
+  // qu'il paierait sans rien decider.
+  const [chosenUnits, setChosenUnits] = useState(
+    initialUnits ?? service.tier?.minUnits ?? 0
+  );
   const [promoInput, setPromoInput] = useState("");
 
   // Le prix a montrer : celui du quota choisi quand la solution est

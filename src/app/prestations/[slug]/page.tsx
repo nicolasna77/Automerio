@@ -17,6 +17,7 @@ import { getServiceCopy } from "@/lib/service-copy";
 import { FaqList } from "@/components/faq-list";
 import { ServiceGlyphBadge } from "@/components/service-glyph";
 import { ServicePriceSimulator } from "@/components/subscription/service-price-simulator";
+import { activationPath, authPathWithNext } from "@/lib/safe-redirect";
 
 export async function generateMetadata({
   params,
@@ -110,18 +111,21 @@ export default async function PrestationDetailPage({
 
                 <div className="mt-8 flex flex-wrap gap-3">
                   {session ? (
-                    <Link href="/dashboard" className={buttonVariants({ size: "lg" })}>
-                      Aller à mon tableau de bord
+                    <Link href={activationPath(service.slug)} className={buttonVariants({ size: "lg" })}>
+                      Activer cette solution
                       <ArrowRight data-icon="inline-end" />
                     </Link>
                   ) : (
                     <>
-                      <Link href="/signup" className={buttonVariants({ size: "lg" })}>
+                      <Link
+                        href={authPathWithNext("/signup", activationPath(service.slug))}
+                        className={buttonVariants({ size: "lg" })}
+                      >
                         Créer mon compte
                         <ArrowRight data-icon="inline-end" />
                       </Link>
                       <Link
-                        href="/login"
+                        href={authPathWithNext("/login", activationPath(service.slug))}
                         className={buttonVariants({ size: "lg", variant: "secondary" })}
                       >
                         Se connecter
@@ -180,6 +184,8 @@ export default async function PrestationDetailPage({
                         <ServicePriceSimulator
                           tier={service.tier}
                           overageUnitPriceCents={service.usageCap.overageUnitPriceCents}
+                          slug={service.slug}
+                          signedIn={Boolean(session)}
                         />
                       </div>
                     )}
@@ -401,7 +407,11 @@ export default async function PrestationDetailPage({
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                href={session ? "/dashboard/prestations" : "/signup"}
+                href={
+                  session
+                    ? activationPath(service.slug)
+                    : authPathWithNext("/signup", activationPath(service.slug))
+                }
                 className={buttonVariants({ size: "lg" })}
               >
                 {session ? "Choisir cette solution" : "Créer mon compte"}
