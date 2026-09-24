@@ -62,3 +62,22 @@ export async function releasePhoneNumber(sid: string): Promise<void> {
   } catch {
   }
 }
+
+/**
+ * Appelle un visiteur pour un essai. `timeLimit` est applique par Twilio : le
+ * cout d'un essai est borne meme si notre serveur ne reprend jamais la main.
+ */
+export async function placeDemoCall(input: {
+  to: string;
+  from: string;
+  twiml: string;
+  timeLimitSec: number;
+}): Promise<string> {
+  const call = await getTwilioClient().calls.create({
+    to: input.to,
+    from: input.from,
+    twiml: input.twiml,
+    timeLimit: input.timeLimitSec,
+  });
+  return call.sid;
+}

@@ -18,6 +18,8 @@ import { FaqList } from "@/components/faq-list";
 import { ServiceGlyphBadge } from "@/components/service-glyph";
 import { ServicePriceSimulator } from "@/components/subscription/service-price-simulator";
 import { activationPath, authPathWithNext } from "@/lib/safe-redirect";
+import { isDemoCallAvailable } from "@/lib/demo-call";
+import { DemoCallForm } from "./demo-call-form";
 
 export async function generateMetadata({
   params,
@@ -199,6 +201,27 @@ export default async function PrestationDetailPage({
             </div>
           </div>
         </section>
+
+        {isTelephony && isDemoCallAvailable() && (
+          <section aria-labelledby="essai-heading" className="border-b border-border bg-muted/40">
+            <div className="mx-auto grid max-w-5xl gap-8 px-4 py-14 sm:px-6 sm:py-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-center">
+              <div>
+                <h2
+                  id="essai-heading"
+                  className="text-2xl font-semibold tracking-tight text-balance text-foreground"
+                >
+                  Faites-vous appeler par notre assistant
+                </h2>
+                <p className="mt-3 max-w-xl leading-relaxed text-muted-foreground">
+                  Laissez votre numéro : l&apos;assistant IA d&apos;Automerio vous appelle,
+                  vous présente ce qu&apos;il peut faire pour votre activité et répond à vos
+                  questions. Gratuit, sans compte, un essai par numéro.
+                </p>
+              </div>
+              <DemoCallForm serviceSlug={service.slug} />
+            </div>
+          </section>
+        )}
 
         {copy && (
           <section aria-labelledby="benefices-heading" className="border-b border-border">

@@ -31,7 +31,13 @@ export default defineConfig({
   webServer: {
     command: `npx next start --port ${PORT}`,
     url: BASE_URL,
-    env: { BETTER_AUTH_URL: BASE_URL },
+    env: {
+      BETTER_AUTH_URL: BASE_URL,
+      // L'essai telephonique s'execute jusqu'au bout sans appeler personne.
+      DEMO_CALL_DRY_RUN: "true",
+      DEMO_CALLS_PER_IP_PER_DAY: "1000",
+      DEMO_CALLS_PER_DAY: "100000",
+    },
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },
