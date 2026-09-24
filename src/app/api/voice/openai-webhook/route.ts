@@ -6,6 +6,9 @@ import type { Configuration } from "@/lib/catalog";
 import { buildSystemPrompt } from "@/lib/voice-agent/prompt";
 import { getToolDefinitions, runTool, toRealtimeTools } from "@/lib/voice-agent/tools";
 import { recordUsageEvent } from "@/lib/usage-events";
+import { readDemoCallId } from "@/lib/demo-call";
+import { buildDemoPrompt } from "@/lib/voice-agent/demo-prompt";
+import { loadDemoCatalog } from "@/lib/voice-agent/demo-catalog";
 
 const REALTIME_MODEL = "gpt-realtime";
 
@@ -36,6 +39,15 @@ export async function POST(request: Request) {
   }
 
   const callId = event.data.call_id;
+
+  // Un appel d'essai porte son identifiant en en-tete SIP : il ne correspond a
+  // aucun numero client et suit son propre chemin.
+  const demoCallId = readDemoCallId(event.data.sip_headers);
+  if (demoCallId) {
+    await acceptDemoCall(callId, demoCallId);
+    return NextResponse.json({ received: true });
+  }
+
   const toHeader = findSipHeader(event.data.sip_headers, "To");
   const calledNumber = toHeader ? extractE164(toHeader) : null;
 
@@ -146,6 +158,72 @@ function listenToCall(
         durationSec,
       })
         .catch((err) => console.error(`[voice] échec de clôture de l'appel ${sipCallId} :`, err))
+        .finally(resolve);
+    };
+
+    ws.on("close", finish);
+    ws.on("error", finish);
+  });
+}
+
+async function acceptDemoCall(callId: string, demoCallId: string): Promise<void> {
+  // Seul un essai en cours d'appel est accepte : un identifiant rejoue, deja
+  // termine ou inconnu ne rouvre pas de conversation.
+  const demoCall = await db.demoCall.findUnique({ where: { id: demoCallId } });
+  if (!demoCall || demoCall.status !== "CALLING") {
+    console.warn(`[essai] appel ${callId} ignoré : essai ${demoCallId} introuvable ou déjà traité.`);
+    return;
+  }
+
+  const [catalog, requested] = await Promise.all([
+    loadDemoCatalog(),
+    db.service.findUnique({ where: { slug: demoCall.serviceSlug }, select: { name: true } }),
+  ]);
+
+  try {
+    await getOpenAIClient().realtime.calls.accept(callId, {
+      type: "realtime",
+      model: REALTIME_MODEL,
+      instructions: buildDemoPrompt(catalog, requested?.name ?? "Standard téléphonique"),
+      audio: {
+        input: { format: { type: "audio/pcmu" } },
+        output: { format: { type: "audio/pcmu" } },
+      },
+    });
+  } catch (err) {
+    console.error(`[essai] échec de l'acceptation de l'appel ${callId} :`, err);
+    await db.demoCall.update({ where: { id: demoCallId }, data: { status: "FAILED" } });
+    return;
+  }
+
+  await db.demoCall.update({
+    where: { id: demoCallId },
+    data: { status: "IN_PROGRESS", openaiCallId: callId },
+  });
+
+  trackDemoCall(callId, demoCallId).catch((err) =>
+    console.error(`[essai] erreur sur la connexion d'événements de l'appel ${callId} :`, err)
+  );
+}
+
+/** Garde la connexion d'evenements ouverte pour noter la fin et la duree de l'essai. */
+function trackDemoCall(sipCallId: string, demoCallId: string): Promise<void> {
+  return new Promise((resolve) => {
+    const startedAt = Date.now();
+    const ws = new WebSocket(`wss://api.openai.com/v1/realtime?call_id=${sipCallId}`, {
+      headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+    });
+
+    let finished = false;
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      db.demoCall
+        .update({
+          where: { id: demoCallId },
+          data: { status: "COMPLETED", durationSec: Math.round((Date.now() - startedAt) / 1000) },
+        })
+        .catch((err) => console.error(`[essai] échec de clôture de l'essai ${demoCallId} :`, err))
         .finally(resolve);
     };
 

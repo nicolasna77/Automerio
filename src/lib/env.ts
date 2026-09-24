@@ -66,6 +66,10 @@ export const FEATURES: FeatureGroup[] = [
     ],
   },
   {
+    feature: "Appel d'essai depuis le site public",
+    vars: ["DEMO_CALLER_NUMBER"],
+  },
+  {
     feature: "Agenda Google (prise de rendez-vous)",
     vars: [
       "GOOGLE_CLIENT_ID",

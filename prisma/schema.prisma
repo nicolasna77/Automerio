@@ -500,3 +500,29 @@ model MarketingPost {
   @@index([status, createdAt])
   @@map("marketing_post")
 }
+
+enum DemoCallStatus {
+  REQUESTED
+  CALLING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
+/// Appel d'essai demande depuis le site public. Le numero n'est jamais stocke
+/// en clair : seule son empreinte HMAC sert a n'accorder qu'un essai par numero.
+model DemoCall {
+  id            String         @id @default(cuid())
+  phoneHash     String         @unique
+  ipHash        String
+  serviceSlug   String
+  status        DemoCallStatus @default(REQUESTED)
+  twilioCallSid String?        @unique
+  openaiCallId  String?        @unique
+  durationSec   Int?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([createdAt])
+  @@map("demo_call")
+}
