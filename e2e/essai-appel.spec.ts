@@ -37,12 +37,13 @@ test("un visiteur se fait appeler une fois, pas deux", async ({ page }) => {
   await submit.click();
   await expect(section.getByRole("alert")).toContainText("numéro de mobile ou de fixe français");
 
-  // Consentement manquant.
+  // Pas de case a cocher : le consentement tient a la demande, annoncee sous le bouton.
+  await expect(section.getByRole("checkbox")).toHaveCount(0);
+  await expect(section.getByRole("link", { name: /politique de confidentialité/ })).toHaveAttribute(
+    "href",
+    "/confidentialite"
+  );
   await phone.fill(number);
-  await submit.click();
-  await expect(section.getByRole("alert")).toContainText("Cochez la case");
-
-  await section.getByRole("checkbox").click();
   await submit.click();
   await expect(section.getByRole("status")).toContainText("Votre téléphone va sonner");
   await expect(section.getByRole("status")).toContainText(
@@ -52,7 +53,6 @@ test("un visiteur se fait appeler une fois, pas deux", async ({ page }) => {
   // Le meme numero, depuis une nouvelle visite : l'essai est consomme.
   await page.reload();
   await section.getByLabel("Votre numéro de téléphone").fill(number);
-  await section.getByRole("checkbox").click();
   await section.getByRole("button", { name: "Recevoir l'appel" }).click();
   await expect(section.getByRole("alert")).toContainText("déjà reçu son appel d'essai");
 });
