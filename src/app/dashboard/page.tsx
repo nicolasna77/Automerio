@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { formatDate } from "@/lib/catalog";
 import { OverviewStats } from "./overview-stats";
 import { OverviewServices } from "./overview-services";
+import { PendingCallbacks } from "./pending-callbacks";
 import { SpendChart } from "./spend-chart";
 import { OverviewStatsSkeleton, SpendChartSkeleton } from "./overview-skeletons";
 import { PageHeader, PageShell } from "@/components/page-shell";
@@ -48,6 +49,9 @@ export default async function DashboardPage() {
 
       {hasEverActivated ? (
         <div className="space-y-4">
+          <Suspense fallback={null}>
+            <PendingCallbacks organizationId={organization.id} />
+          </Suspense>
           <Suspense fallback={<OverviewStatsSkeleton />}>
             <OverviewStats organizationId={organization.id} />
           </Suspense>
