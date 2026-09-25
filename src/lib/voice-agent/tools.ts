@@ -170,6 +170,12 @@ export type ToolContext = {
   clientServiceId: string;
   callId: string | null;
   configuration: Configuration;
+  /**
+   * Appel de test du client : l'agent recoit les memes reponses qu'en vrai,
+   * pour se comporter pareil, mais rien n'est ecrit — ni rendez-vous, ni
+   * commande, ni evenement d'agenda — et aucun appel n'est transfere.
+   */
+  testMode?: boolean;
 };
 
 export async function runTool(
@@ -195,6 +201,7 @@ export async function runTool(
       const durationMinutes = Number(args.durationMinutes);
       const endAt = new Date(startAt.getTime() + durationMinutes * 60_000);
       const notes = typeof args.notes === "string" ? args.notes : null;
+      if (context.testMode) return "Rendez-vous confirmé et ajouté à l'agenda.";
 
       const googleEventId = await createCalendarEvent(context.clientServiceId, {
         summary: `RDV — ${customerName}`,
@@ -228,6 +235,7 @@ export async function runTool(
       const fulfillment = args.fulfillment === "delivery" ? "delivery" : "pickup";
       const address = typeof args.address === "string" ? args.address : null;
       const notes = typeof args.notes === "string" ? args.notes : null;
+      if (context.testMode) return "Commande enregistrée.";
 
       await db.booking.create({
         data: {
@@ -250,8 +258,8 @@ export async function runTool(
       if (!target) {
         return "Aucun numéro de transfert n'est configuré pour ce motif — propose de prendre un message à la place.";
       }
-      if (!context.callId) {
-        return `Transfert simulé vers ${target} (motif : « ${reason} »).`;
+      if (!context.callId || context.testMode) {
+        return `Transfert simulé vers ${target} (motif : « ${reason} »). Explique à l'appelant qu'en situation réelle, l'appel serait maintenant transféré.`;
       }
       try {
         await getOpenAIClient().realtime.calls.refer(context.callId, { target_uri: `tel:${target}` });
@@ -265,6 +273,7 @@ export async function runTool(
       const customerName = String(args.customerName ?? "");
       const customerPhone = String(args.customerPhone ?? "");
       const reason = typeof args.reason === "string" ? args.reason : null;
+      if (context.testMode) return "Message enregistré, l'entreprise rappellera.";
 
       await db.booking.create({
         data: {

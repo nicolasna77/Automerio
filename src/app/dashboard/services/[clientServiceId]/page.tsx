@@ -18,6 +18,8 @@ import { toCalendarBookings } from "@/lib/bookings";
 import { ServiceProgress } from "@/app/dashboard/service-progress";
 import { ServiceTimeline } from "@/app/dashboard/service-timeline";
 import { ServiceDetailTable } from "@/app/dashboard/service-detail-table";
+import { TestCallCard } from "@/app/dashboard/test-call-card";
+import { isDemoCallAvailable } from "@/lib/demo-call";
 import { ConversationHistory } from "@/app/dashboard/conversation-history";
 import {
   FACEBOOK_SERVICE_SLUG,
@@ -137,6 +139,7 @@ export default async function ServiceDetailPage({
               organizationId={organization.id}
             />
           )}
+          {isLive && isDemoCallAvailable() && <TestCallCard clientServiceId={item.clientServiceId} />}
           <ServiceDetailTable item={item} showUsageCap={!subscriptionShowsCap} />
           {MESSAGING_SERVICE_SLUGS.has(item.service.slug) && (
             <ConversationHistory clientServiceId={item.clientServiceId} />
