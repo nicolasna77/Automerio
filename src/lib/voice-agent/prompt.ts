@@ -11,14 +11,10 @@ import {
   formatCatalogForAgent,
   readProductCatalog,
 } from "@/lib/product-catalog";
+import { asWeeklyHours, isOpenAt } from "@/lib/business-hours";
 
 function asString(value: Configuration[string] | undefined): string {
   return typeof value === "string" ? value : "";
-}
-
-function asWeeklyHours(value: Configuration[string] | undefined): WeeklyHours | null {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
-  return value as WeeklyHours;
 }
 
 function formatWeeklyHours(hours: WeeklyHours | null): string {
@@ -26,38 +22,6 @@ function formatWeeklyHours(hours: WeeklyHours | null): string {
   return WEEK_DAYS.filter((day) => !hours[day].closed)
     .map((day) => `${WEEK_DAY_LABELS[day]} ${hours[day].open}-${hours[day].close}`)
     .join(", ") || "fermé toute la semaine";
-}
-
-const INTL_WEEKDAY_TO_WEEK_DAY: Record<string, (typeof WEEK_DAYS)[number]> = {
-  Mon: "mon",
-  Tue: "tue",
-  Wed: "wed",
-  Thu: "thu",
-  Fri: "fri",
-  Sat: "sat",
-  Sun: "sun",
-};
-
-function isOpenNow(hours: WeeklyHours | null): boolean {
-  if (!hours) return true;
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: "Europe/Paris",
-    weekday: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-  }).formatToParts(new Date());
-  const weekdayPart = parts.find((p) => p.type === "weekday")?.value ?? "Mon";
-  const hourPart = Number(parts.find((p) => p.type === "hour")?.value ?? "0");
-  const minutePart = Number(parts.find((p) => p.type === "minute")?.value ?? "0");
-  const day = INTL_WEEKDAY_TO_WEEK_DAY[weekdayPart] ?? "mon";
-
-  const today = hours[day];
-  if (!today || today.closed) return false;
-  const [openH, openM] = today.open.split(":").map(Number);
-  const [closeH, closeM] = today.close.split(":").map(Number);
-  const currentMinutes = hourPart * 60 + minutePart;
-  return currentMinutes >= openH * 60 + openM && currentMinutes < closeH * 60 + closeM;
 }
 
 function buildPriseRdvPrompt(configuration: Configuration, companyName: string, calendarConnected: boolean): string {
@@ -129,7 +93,7 @@ function buildStandardTelephoniquePrompt(configuration: Configuration, companyNa
   const openingHours = asWeeklyHours(configuration.openingHours);
   const greetingMessage = asString(configuration.greetingMessage);
   const callRouting = asRuleRows(configuration.callRouting);
-  const open = isOpenNow(openingHours);
+  const open = isOpenAt(openingHours, new Date());
 
   const lines = [
     `Tu es le standard téléphonique de ${companyName}. Tu réponds en français,`,
