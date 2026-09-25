@@ -19,6 +19,8 @@ export type WorkspaceNavItem = {
   label: string;
   icon: LucideIcon;
   badge?: number;
+  /** Ce que compte le badge, pour un lecteur d'ecran (« 3 appels a rappeler »). */
+  badgeLabel?: string;
   /** Autres sections qui rattachent leurs pages a cette entree. */
   matches?: string[];
 };
@@ -66,12 +68,16 @@ export function WorkspaceNavLinks({
             >
               <item.icon aria-hidden="true" />
               <span>{item.label}</span>
+              {/* Dans le lien : un lecteur d'ecran l'annonce avec la page, au
+                  lieu d'un nombre isole que rien ne rattache au lien. */}
+              {item.badge ? (
+                <span className="sr-only">
+                  , {item.badge} {item.badgeLabel ?? "en attente"}
+                </span>
+              ) : null}
             </SidebarMenuButton>
             {item.badge ? (
-              <SidebarMenuBadge>
-                {item.badge}
-                <span className="sr-only"> en attente</span>
-              </SidebarMenuBadge>
+              <SidebarMenuBadge aria-hidden="true">{item.badge}</SidebarMenuBadge>
             ) : null}
           </SidebarMenuItem>
         );

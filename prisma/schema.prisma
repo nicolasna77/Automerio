@@ -323,6 +323,8 @@ model UsageEvent {
   externalId      String?       @unique
   metadata        Json?
   createdAt       DateTime      @default(now())
+  /// Quand le client a marque l'appel comme traite (rappele, regle…).
+  handledAt       DateTime?
   callSummary     CallSummary?
 
   @@index([clientServiceId, occurredAt])

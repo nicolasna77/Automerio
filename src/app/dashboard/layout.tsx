@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { isAdmin, requireUser } from "@/lib/session";
 import { requireActiveOrganization } from "@/lib/organization";
 import { getClientNotifications } from "@/lib/notifications";
+import { countPendingCallbacks } from "@/lib/call-callbacks";
 
 export default async function DashboardLayout({
   children,
@@ -14,10 +15,11 @@ export default async function DashboardLayout({
     requireUser(),
     requireActiveOrganization(),
   ]);
-  const [openHelpRequestCount, notifications] = await Promise.all([
+  const [openHelpRequestCount, pendingCallbackCount, notifications] = await Promise.all([
     db.helpRequest.count({
       where: { organizationId: active.id, status: "OPEN" },
     }),
+    countPendingCallbacks(active.id),
     db.user
       .findUnique({
         where: { id: session.user.id },
@@ -34,6 +36,7 @@ export default async function DashboardLayout({
           activeOrganization={active}
           organizations={organizations}
           openHelpRequestCount={openHelpRequestCount}
+          pendingCallbackCount={pendingCallbackCount}
           name={session.user.name}
           email={session.user.email}
         />

@@ -1,11 +1,15 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
-import { ChevronDown, ListChecks, PhoneCall, PhoneOff } from "lucide-react";
+import { useEffect, useId, useState, useTransition } from "react";
+import { toast } from "sonner";
+import { Check, ChevronDown, ListChecks, Phone, PhoneCall, PhoneOff, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { unwrap } from "@/lib/action-result";
+import { getErrorMessage } from "@/lib/utils";
+import { setCallHandledAction } from "./call-actions";
 
 const POLL_INTERVAL_MS = 5_000;
 
@@ -30,6 +34,7 @@ type RecentCall = {
   outcome: string | null;
   endedReason: string | null;
   summary: CallSummary | null;
+  handled: boolean;
 };
 
 type CallsResponse = { inProgress: InProgressCall[]; recent: RecentCall[] };
@@ -143,8 +148,32 @@ function RecentCallItem({
 }) {
   const panelId = useId();
   const [showTranscript, setShowTranscript] = useState(false);
+  // L'etat affiche suit le clic tout de suite ; la prochaine interrogation de
+  // la liste le confirme.
+  const [handledOverride, setHandledOverride] = useState<boolean | null>(null);
+  const [isPending, startTransition] = useTransition();
+  // Une fois la liste d'accord avec le clic, on la suit de nouveau : sinon un
+  // collegue qui rouvre l'appel ne se verrait jamais ici.
+  if (handledOverride !== null && !isPending && call.handled === handledOverride) {
+    setHandledOverride(null);
+  }
+  const handled = handledOverride ?? call.handled;
   const caller = call.summary?.callerName ?? call.fromNumber ?? "Numéro masqué";
   const hasDetail = call.summary !== null;
+  const needsCallback = Boolean(call.summary?.followUp) && !handled;
+
+  function toggleHandled() {
+    const next = !handled;
+    setHandledOverride(next);
+    startTransition(async () => {
+      try {
+        unwrap(await setCallHandledAction(clientServiceId, call.id, next));
+      } catch (err) {
+        setHandledOverride(null);
+        toast.error(getErrorMessage(err, "L'appel n'a pas pu être mis à jour."));
+      }
+    });
+  }
 
   const header = (
     <>
@@ -159,6 +188,12 @@ function RecentCallItem({
         <span className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
           {call.summary?.reason && <span>{caller}</span>}
           <OutcomeBadge outcome={call.outcome} />
+          {needsCallback && <Badge className="shrink-0">À rappeler</Badge>}
+          {handled && call.summary?.followUp && (
+            <Badge variant="outline" className="shrink-0">
+              Traité
+            </Badge>
+          )}
         </span>
       </span>
     </>
@@ -205,6 +240,27 @@ function RecentCallItem({
               Numéro : <span className="tabular-nums">{call.fromNumber}</span>
             </p>
           )}
+          <div className="flex flex-wrap gap-2">
+            {call.fromNumber && (
+              <a href={`tel:${call.fromNumber}`} className={buttonVariants({ size: "sm" })}>
+                <Phone aria-hidden="true" data-icon="inline-start" />
+                Rappeler
+              </a>
+            )}
+            <Button type="button" variant="outline" size="sm" disabled={isPending} onClick={toggleHandled}>
+              {handled ? (
+                <>
+                  <RotateCcw aria-hidden="true" data-icon="inline-start" />
+                  Rouvrir
+                </>
+              ) : (
+                <>
+                  <Check aria-hidden="true" data-icon="inline-start" />
+                  Marquer comme traité
+                </>
+              )}
+            </Button>
+          </div>
           <div>
             <Button
               type="button"
