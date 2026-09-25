@@ -17,6 +17,15 @@ export const DEMO_TIME_LIMIT_SEC = 180;
 /** L'en-tete SIP qui signale au webhook OpenAI qu'il s'agit d'un essai. */
 export const DEMO_SIP_HEADER = "X-Automerio-Demo";
 
+/**
+ * L'en-tete d'un appel de test lance par un client depuis son tableau de bord :
+ * l'agent y parle avec la configuration de sa solution, pas en vendeur.
+ */
+export const TEST_SIP_HEADER = "X-Automerio-Test";
+
+/** Nombre d'appels de test qu'une solution peut demander par 24 h. */
+export const TEST_CALLS_PER_DAY = 5;
+
 const DEFAULT_PER_IP_PER_DAY = 2;
 const DEFAULT_PER_DAY = 30;
 
@@ -105,15 +114,18 @@ function escapeXml(value: string): string {
  * l'appel a l'agent OpenAI en ajoutant l'identifiant de l'essai en en-tete
  * SIP personnalise.
  */
-export function buildDemoTwiml(sipUri: string, demoCallId: string): string {
+export function buildDemoTwiml(sipUri: string, callId: string, header: string = DEMO_SIP_HEADER): string {
   const separator = sipUri.includes("?") ? "&" : "?";
-  const target = `${sipUri}${separator}${DEMO_SIP_HEADER}=${encodeURIComponent(demoCallId)}`;
+  const target = `${sipUri}${separator}${header}=${encodeURIComponent(callId)}`;
   return `<?xml version="1.0" encoding="UTF-8"?><Response><Dial><Sip>${escapeXml(target)}</Sip></Dial></Response>`;
 }
 
-/** L'identifiant d'essai porte par les en-tetes SIP d'un appel entrant, s'il y en a un. */
-export function readDemoCallId(headers: { name: string; value: string }[]): string | null {
-  const header = headers.find((h) => h.name.toLowerCase() === DEMO_SIP_HEADER.toLowerCase());
+/** L'identifiant porte par un en-tete SIP d'un appel entrant, s'il y en a un. */
+export function readDemoCallId(
+  headers: { name: string; value: string }[],
+  headerName: string = DEMO_SIP_HEADER
+): string | null {
+  const header = headers.find((h) => h.name.toLowerCase() === headerName.toLowerCase());
   const value = header?.value.trim();
   return value && /^[a-z0-9]{10,40}$/i.test(value) ? value : null;
 }

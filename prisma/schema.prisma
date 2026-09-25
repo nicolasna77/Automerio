@@ -32,6 +32,7 @@ model User {
   auditLogs               AuditLog[]
 
   members     Member[]
+  testCalls               TestCall[]
   invitations Invitation[]
 
   @@unique([email])
@@ -233,6 +234,7 @@ model ClientService {
   calendarConnection CalendarConnection?
   bookings           Booking[]
   conversations      Conversation[]
+  testCalls          TestCall[]
   events             ServiceEvent[]
   helpRequests       HelpRequest[]
 
@@ -590,4 +592,23 @@ model ConversationMessage {
 
   @@index([conversationId, createdAt])
   @@map("conversation_message")
+}
+
+/// Appel de test demande par un client depuis son tableau de bord : l'agent
+/// l'appelle avec la configuration de sa solution, sans rien enregistrer.
+model TestCall {
+  id              String         @id @default(cuid())
+  clientServiceId String
+  clientService   ClientService  @relation(fields: [clientServiceId], references: [id], onDelete: Cascade)
+  requestedById   String
+  requestedBy     User           @relation(fields: [requestedById], references: [id], onDelete: Cascade)
+  status          DemoCallStatus @default(REQUESTED)
+  twilioCallSid   String?        @unique
+  openaiCallId    String?        @unique
+  durationSec     Int?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([clientServiceId, createdAt])
+  @@map("test_call")
 }

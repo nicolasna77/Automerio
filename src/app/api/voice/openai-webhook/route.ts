@@ -8,7 +8,8 @@ import { getToolDefinitions, runTool, toRealtimeTools } from "@/lib/voice-agent/
 import { recordUsageEvent } from "@/lib/usage-events";
 import { TranscriptCollector, outcomeFromTools } from "@/lib/voice-agent/call-transcript";
 import { finalizeCallSummary } from "@/lib/voice-agent/call-summary";
-import { readDemoCallId } from "@/lib/demo-call";
+import { TEST_SIP_HEADER, readDemoCallId } from "@/lib/demo-call";
+import type { TranscriptTurn } from "@/lib/voice-agent/call-transcript";
 import { buildDemoPrompt } from "@/lib/voice-agent/demo-prompt";
 import { loadDemoCatalog } from "@/lib/voice-agent/demo-catalog";
 
@@ -49,6 +50,14 @@ export async function POST(request: Request) {
   }
 
   const callId = event.data.call_id;
+
+  // Un appel de test porte son propre en-tete : l'agent y joue la solution du
+  // client avec sa configuration, sans rien enregistrer.
+  const testCallId = readDemoCallId(event.data.sip_headers, TEST_SIP_HEADER);
+  if (testCallId) {
+    await acceptTestCall(callId, testCallId);
+    return NextResponse.json({ received: true });
+  }
 
   // Un appel d'essai porte son identifiant en en-tete SIP : il ne correspond a
   // aucun numero client et suit son propre chemin.
@@ -110,7 +119,21 @@ export async function POST(request: Request) {
   // la fin de l'appel ne serait jamais enregistree. Au-dela de cette duree,
   // l'appel se poursuit mais n'est ni clos ni resume.
   after(() =>
-    listenToCall(callId, clientService.id, configuration, fromNumber).catch((err) => {
+    listenToCall({
+      sipCallId: callId,
+      clientServiceId: clientService.id,
+      configuration,
+      onFinish: async ({ durationSec, toolCalls, turns }) => {
+        await recordUsageEvent({
+          clientServiceId: clientService.id,
+          externalId: callId,
+          status: "completed",
+          durationSec,
+          metadata: { fromNumber, outcome: outcomeFromTools(toolCalls) },
+        });
+        await finalizeCallSummary({ usageEventExternalId: callId, clientServiceId: clientService.id, turns });
+      },
+    }).catch((err) => {
       console.error(`[voice] erreur sur la connexion d'événements de l'appel ${callId} :`, err);
     })
   );
@@ -118,12 +141,31 @@ export async function POST(request: Request) {
   return NextResponse.json({ received: true });
 }
 
-function listenToCall(
-  sipCallId: string,
-  clientServiceId: string,
-  configuration: Configuration,
-  fromNumber: string | null
-): Promise<void> {
+type CallEnd = {
+  durationSec: number;
+  toolCalls: { name: string; result: string }[];
+  turns: TranscriptTurn[];
+};
+
+/**
+ * Suit un appel accepte : execute les outils que l'agent demande, garde la
+ * transcription, puis passe la main a `onFinish` a la fin de l'appel. Le meme
+ * suivi sert aux vrais appels et aux appels de test ; seuls les outils
+ * (`testMode`) et la cloture different.
+ */
+function listenToCall({
+  sipCallId,
+  clientServiceId,
+  configuration,
+  testMode = false,
+  onFinish,
+}: {
+  sipCallId: string;
+  clientServiceId: string;
+  configuration: Configuration;
+  testMode?: boolean;
+  onFinish: (end: CallEnd) => Promise<void>;
+}): Promise<void> {
   return new Promise((resolve) => {
     const startedAt = Date.now();
     const transcript = new TranscriptCollector();
@@ -169,6 +211,7 @@ function listenToCall(
           clientServiceId,
           callId: sipCallId,
           configuration,
+          testMode,
         });
         toolCalls.push({ name: toolName, result });
 
@@ -193,22 +236,7 @@ function listenToCall(
       finished = true;
       const durationSec = Math.round((Date.now() - startedAt) / 1000);
       Promise.allSettled(pendingTools)
-        .then(() =>
-          recordUsageEvent({
-            clientServiceId,
-            externalId: sipCallId,
-            status: "completed",
-            durationSec,
-            metadata: { fromNumber, outcome: outcomeFromTools(toolCalls) },
-          })
-        )
-        .then(() =>
-          finalizeCallSummary({
-            usageEventExternalId: sipCallId,
-            clientServiceId,
-            turns: transcript.turns(),
-          })
-        )
+        .then(() => onFinish({ durationSec, toolCalls, turns: transcript.turns() }))
         .catch((err) => console.error(`[voice] échec de clôture de l'appel ${sipCallId} :`, err))
         .finally(resolve);
     };
@@ -284,4 +312,64 @@ function trackDemoCall(sipCallId: string, demoCallId: string): Promise<void> {
     ws.on("close", finish);
     ws.on("error", finish);
   });
+}
+
+async function acceptTestCall(callId: string, testCallId: string): Promise<void> {
+  // Comme pour l'essai : seul un test en cours d'appel ouvre une conversation.
+  const testCall = await db.testCall.findUnique({
+    where: { id: testCallId },
+    include: {
+      clientService: { include: { service: true, organization: true, calendarConnection: true } },
+    },
+  });
+  if (!testCall || testCall.status !== "CALLING") {
+    console.warn(`[test] appel ${callId} ignoré : test ${testCallId} introuvable ou déjà traité.`);
+    return;
+  }
+
+  const { clientService } = testCall;
+  const configuration = (clientService.configuration ?? {}) as Configuration;
+  const calendarConnected = !!clientService.calendarConnection;
+
+  try {
+    await getOpenAIClient().realtime.calls.accept(callId, {
+      type: "realtime",
+      model: REALTIME_MODEL,
+      instructions: buildSystemPrompt(clientService.service.slug, configuration, {
+        calendarConnected,
+        companyName: clientService.organization.name,
+      }),
+      tools: toRealtimeTools(getToolDefinitions(clientService.service.slug, configuration, calendarConnected)),
+      audio: {
+        input: { format: { type: "audio/pcmu" } },
+        output: { format: { type: "audio/pcmu" } },
+      },
+    });
+  } catch (err) {
+    console.error(`[test] échec de l'acceptation de l'appel ${callId} :`, err);
+    await db.testCall.update({ where: { id: testCallId }, data: { status: "FAILED" } });
+    return;
+  }
+
+  await db.testCall.update({
+    where: { id: testCallId },
+    data: { status: "IN_PROGRESS", openaiCallId: callId },
+  });
+
+  // Ni evenement d'usage ni resume : un test ne compte pas dans le forfait et
+  // n'apparait pas dans l'historique des appels.
+  after(() =>
+    listenToCall({
+      sipCallId: callId,
+      clientServiceId: clientService.id,
+      configuration,
+      testMode: true,
+      onFinish: async ({ durationSec }) => {
+        await db.testCall.update({
+          where: { id: testCallId },
+          data: { status: "COMPLETED", durationSec },
+        });
+      },
+    }).catch((err) => console.error(`[test] erreur sur la connexion d'événements de l'appel ${callId} :`, err))
+  );
 }
