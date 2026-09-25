@@ -395,6 +395,8 @@ model Organization {
   // ses factures doivent suivre la meme frontiere. Cree a la premiere commande
   // seulement — une entreprise qui n'achete rien n'encombre pas Stripe.
   stripeCustomerId String?        @unique
+  /// Dernier envoi du bilan hebdomadaire : une relance du cron n'en envoie pas un second.
+  lastWeeklyDigestAt DateTime?
   members        Member[]
   invitations    Invitation[]
   clientServices ClientService[]

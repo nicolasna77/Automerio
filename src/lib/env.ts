@@ -70,6 +70,10 @@ export const FEATURES: FeatureGroup[] = [
     vars: ["DEMO_CALLER_NUMBER"],
   },
   {
+    feature: "Bilan hebdomadaire (tâche planifiée Vercel)",
+    vars: ["CRON_SECRET"],
+  },
+  {
     feature: "Agenda Google (prise de rendez-vous)",
     vars: [
       "GOOGLE_CLIENT_ID",
