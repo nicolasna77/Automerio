@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { Resend } from "resend";
 import type { ReactElement } from "react";
 
@@ -31,17 +32,25 @@ export async function sendEmail({
     return;
   }
 
-  try {
-    const { error } = await resend.emails.send({
-      from: FROM_ADDRESS,
-      to,
-      subject,
-      react,
-    });
-    if (error) {
-      console.error(`Échec d'envoi de l'e-mail "${subject}" à ${to} :`, error);
+  const deliver = async () => {
+    try {
+      const { error } = await resend.emails.send({
+        from: FROM_ADDRESS,
+        to,
+        subject,
+        react,
+      });
+      if (error) {
+        console.error(`Échec d'envoi de l'e-mail "${subject}" à ${to} :`, error);
+      }
+    } catch (err) {
+      console.error(`Échec d'envoi de l'e-mail "${subject}" à ${to} :`, err);
     }
-  } catch (err) {
-    console.error(`Échec d'envoi de l'e-mail "${subject}" à ${to} :`, err);
+  };
+
+  try {
+    after(deliver);
+  } catch {
+    await deliver();
   }
 }

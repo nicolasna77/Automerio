@@ -1,5 +1,5 @@
 import { getMyInvoices } from "./get-invoices";
-import { SpendChartView } from "./spend-chart-view";
+import { SpendChartLazy } from "./spend-chart-lazy";
 
 const MONTHS_SHOWN = 6;
 
@@ -30,5 +30,5 @@ export async function SpendChart({
 
   const totalCents = buckets.reduce((sum, b) => sum + b.totalCents, 0);
 
-  return <SpendChartView data={buckets} totalCents={totalCents} />;
+  return <SpendChartLazy data={buckets} totalCents={totalCents} />;
 }

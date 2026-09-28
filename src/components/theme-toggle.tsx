@@ -1,20 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 
+const subscribeToNothing = () => () => {};
+
 export function ThemeToggle({ className }: { className?: string }) {
   const t = useTranslations("Site.theme");
   const { resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(
+    subscribeToNothing,
+    () => true,
+    () => false
+  );
 
   const isDark = mounted && resolvedTheme === "dark";
 

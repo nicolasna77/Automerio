@@ -10,6 +10,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
 import { setCallHandledAction } from "./call-actions";
+import { pollWhileVisible } from "@/lib/poll-while-visible";
 
 const POLL_INTERVAL_MS = 5_000;
 
@@ -296,10 +297,10 @@ export function CallActivity({ clientServiceId }: { clientServiceId: string }) {
     }
 
     poll();
-    const id = setInterval(poll, POLL_INTERVAL_MS);
+    const stopPolling = pollWhileVisible(poll, POLL_INTERVAL_MS);
     return () => {
       cancelled = true;
-      clearInterval(id);
+      stopPolling();
     };
   }, [clientServiceId]);
 

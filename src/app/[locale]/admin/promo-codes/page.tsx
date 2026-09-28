@@ -15,9 +15,12 @@ import { PageHeader, PageShell } from "@/components/page-shell";
 
 export const generateMetadata = titleMetadata("adminPromoCodes");
 
-async function loadPromoCodes(nameBySlug: Map<string, string>): Promise<PromoCodeRow[] | null> {
+async function loadPromoCodes(
+  codesPromise: ReturnType<typeof listPromotionCodes>,
+  nameBySlug: Map<string, string>
+): Promise<PromoCodeRow[] | null> {
   try {
-    const codes = await listPromotionCodes();
+    const codes = await codesPromise;
     const now = Date.now();
     return codes.map((promo) => {
       const coupon = couponOf(promo);
@@ -56,12 +59,14 @@ async function loadPromoCodes(nameBySlug: Map<string, string>): Promise<PromoCod
 export default async function AdminPromoCodesPage() {
   await requireAdmin();
 
+  const codesPromise = listPromotionCodes();
+  codesPromise.catch(() => {});
   const services = await db.service.findMany({
     where: { isActive: true },
     orderBy: { sortOrder: "asc" },
     select: { slug: true, name: true },
   });
-  const rows = await loadPromoCodes(new Map(services.map((s) => [s.slug, s.name])));
+  const rows = await loadPromoCodes(codesPromise, new Map(services.map((s) => [s.slug, s.name])));
 
   return (
     <PageShell size="wide">

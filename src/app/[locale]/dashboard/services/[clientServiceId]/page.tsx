@@ -48,11 +48,9 @@ export default async function ServiceDetailPage({
   params: Promise<{ clientServiceId: string }>;
   searchParams: Promise<{ calendar?: string }>;
 }) {
-  const [{ clientServiceId }, { calendar }] = await Promise.all([
+  const [{ clientServiceId }, { calendar }, session, { active: organization }] = await Promise.all([
     params,
     searchParams,
-  ]);
-  const [session, { active: organization }] = await Promise.all([
     requireUser(),
     requireActiveOrganization(),
   ]);

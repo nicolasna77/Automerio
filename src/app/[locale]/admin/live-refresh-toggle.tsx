@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { RadioIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { pollWhileVisible } from "@/lib/poll-while-visible";
 
 const REFRESH_INTERVAL_MS = 20_000;
 
@@ -13,8 +14,7 @@ export function LiveRefreshToggle() {
 
   useEffect(() => {
     if (!enabled) return;
-    const id = setInterval(() => router.refresh(), REFRESH_INTERVAL_MS);
-    return () => clearInterval(id);
+    return pollWhileVisible(() => router.refresh(), REFRESH_INTERVAL_MS);
   }, [enabled, router]);
 
   return (
