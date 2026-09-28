@@ -218,12 +218,12 @@ export function SignupForm({
 
       <p className="mt-5 text-xs leading-relaxed text-muted-foreground">
         En créant un compte, vous acceptez nos{" "}
-        <Link href="/cgv" className="rounded-sm underline underline-offset-4 hover:text-foreground focus-visible:focus-ring">
+        <Link href="/terms" className="rounded-sm underline underline-offset-4 hover:text-foreground focus-visible:focus-ring">
           conditions générales de vente
         </Link>{" "}
         et notre{" "}
         <Link
-          href="/confidentialite"
+          href="/privacy"
           className="rounded-sm underline underline-offset-4 hover:text-foreground focus-visible:focus-ring"
         >
           politique de confidentialité

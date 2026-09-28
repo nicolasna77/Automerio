@@ -35,7 +35,7 @@ export function ServiceCanceledEmail({
         Vous pouvez réactiver cette solution à tout moment depuis votre
         tableau de bord.
       </Text>
-      <Link href={appUrl("/dashboard/prestations")} style={emailButtonStyle}>
+      <Link href={appUrl("/dashboard/services")} style={emailButtonStyle}>
         Voir mes solutions
       </Link>
     </EmailLayout>

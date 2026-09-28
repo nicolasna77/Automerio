@@ -4,8 +4,8 @@ import { activationPath, authPathWithNext, safeNextPath } from "./safe-redirect"
 describe("safeNextPath", () => {
   it("garde un chemin des espaces connectes, requete comprise", () => {
     expect(safeNextPath("/dashboard")).toBe("/dashboard");
-    expect(safeNextPath("/dashboard/prestations/activer/standard?minutes=300")).toBe(
-      "/dashboard/prestations/activer/standard?minutes=300"
+    expect(safeNextPath("/dashboard/services/activate/standard?minutes=300")).toBe(
+      "/dashboard/services/activate/standard?minutes=300"
     );
     expect(safeNextPath("/admin/users")).toBe("/admin/users");
   });
@@ -32,8 +32,8 @@ describe("safeNextPath", () => {
 
 describe("authPathWithNext", () => {
   it("encode la destination, ou l'omet si elle est refusee", () => {
-    expect(authPathWithNext("/signup", "/dashboard/prestations/activer/a?minutes=300")).toBe(
-      "/signup?next=%2Fdashboard%2Fprestations%2Factiver%2Fa%3Fminutes%3D300"
+    expect(authPathWithNext("/signup", "/dashboard/services/activate/a?minutes=300")).toBe(
+      "/signup?next=%2Fdashboard%2Fservices%2Factivate%2Fa%3Fminutes%3D300"
     );
     expect(authPathWithNext("/login", "https://evil.fr")).toBe("/login");
     expect(authPathWithNext("/login", null)).toBe("/login");
@@ -42,9 +42,9 @@ describe("authPathWithNext", () => {
 
 describe("activationPath", () => {
   it("n'ajoute le volume que s'il est choisi", () => {
-    expect(activationPath("standard")).toBe("/dashboard/prestations/activer/standard");
+    expect(activationPath("standard")).toBe("/dashboard/services/activate/standard");
     expect(activationPath("standard", 300)).toBe(
-      "/dashboard/prestations/activer/standard?minutes=300"
+      "/dashboard/services/activate/standard?minutes=300"
     );
   });
 });

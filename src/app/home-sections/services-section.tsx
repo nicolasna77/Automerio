@@ -70,7 +70,7 @@ function ServiceCard({
 
   return (
     <Link
-      href={`/prestations/${service.slug}`}
+      href={`/services/${service.slug}`}
       id={service.slug}
       className={cn(
         "group/service block scroll-mt-20 rounded-4xl text-inherit no-underline outline-none focus-visible:focus-ring",
@@ -144,10 +144,10 @@ export function ServicesSection({ services }: { services: ServiceDTO[] }) {
   })).filter(({ categoryServices }) => categoryServices.length > 0);
 
   return (
-    <section id="prestations" aria-labelledby="prestations-heading" className="scroll-mt-16 border-t border-border py-20 sm:py-24">
+    <section id="services" aria-labelledby="services-heading" className="scroll-mt-16 border-t border-border py-20 sm:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 id="prestations-heading" className="text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl">
+          <h2 id="services-heading" className="text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl">
             Choisissez ce que vous voulez arrêter de faire vous-même
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">

@@ -69,25 +69,25 @@ export function DashboardSidebar({
                   badgeLabel: "appels à rappeler",
                 },
                 {
-                  href: "/dashboard/prestations",
+                  href: "/dashboard/services",
                   label: "Solutions",
                   icon: Layers,
                   matches: ["/dashboard/services"],
                 },
-                { href: "/dashboard/calendrier", label: "Calendrier", icon: CalendarDays },
+                { href: "/dashboard/calendar", label: "Calendrier", icon: CalendarDays },
               ],
             },
             {
               label: "Facturation",
               items: [
-                { href: "/dashboard/abonnements", label: "Abonnements", icon: CreditCard },
-                { href: "/dashboard/paiements", label: "Paiements", icon: Receipt },
+                { href: "/dashboard/subscriptions", label: "Abonnements", icon: CreditCard },
+                { href: "/dashboard/payments", label: "Paiements", icon: Receipt },
               ],
             },
             {
               label: "Compte",
               items: [
-                { href: "/dashboard/organisation", label: "Organisation", icon: Users },
+                { href: "/dashboard/organization", label: "Organisation", icon: Users },
                 { href: "/dashboard/profile", label: "Profil", icon: UserRound },
               ],
             },
@@ -99,7 +99,7 @@ export function DashboardSidebar({
           root={ROOT}
           items={[
             {
-              href: "/dashboard/aide",
+              href: "/dashboard/help",
               label: "Aide",
               icon: LifeBuoy,
               badge: openHelpRequestCount,

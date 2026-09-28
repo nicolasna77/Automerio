@@ -40,7 +40,7 @@ export async function GET() {
     lines.push(`### ${CATEGORY_LABELS[category]}`, "");
     for (const service of list) {
       lines.push(
-        `- [${service.name}](${absoluteUrl(`/prestations/${service.slug}`)}) — ${service.description}`,
+        `- [${service.name}](${absoluteUrl(`/services/${service.slug}`)}) — ${service.description}`,
         `  Tarif : ${price(service.monthlyPriceCents)}.${
           usageCapLabelOf(service) ? ` ${usageCapLabelOf(service)}.` : ""
         }`

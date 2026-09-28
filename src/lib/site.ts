@@ -6,7 +6,7 @@ export const SITE_TITLE =
   "Automerio — Automatisation pour artisans, coachs et TPE/PME";
 
 export const SITE_NAV_LINKS = [
-  { href: "/#methode", label: "Notre méthode" },
+  { href: "/#method", label: "Notre méthode" },
   { href: "/contact", label: "Contact" },
 ];
 

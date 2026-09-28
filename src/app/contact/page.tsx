@@ -29,7 +29,7 @@ export default function ContactPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
-      <main id="contenu" className="flex-1">
+      <main id="content" className="flex-1">
         <section className="border-b border-border py-20 sm:py-28">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <h1 className="max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl">

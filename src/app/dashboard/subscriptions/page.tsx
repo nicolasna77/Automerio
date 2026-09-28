@@ -1,0 +1,174 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { CalendarClock, CreditCard, Layers, TriangleAlert, Wallet } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState } from "@/components/empty-state";
+import { requireActiveOrganization } from "@/lib/organization";
+import { formatDate } from "@/lib/catalog";
+import { organizationCustomerId } from "@/lib/organization-billing";
+import {
+  getMySubscriptions,
+  isRunning,
+  monthlyTotalCents,
+  nextRenewal,
+} from "@/lib/subscriptions";
+import { BillingPortalButton } from "../payments/billing-portal-button";
+import { SubscriptionCard } from "./subscription-card";
+import { formatCentsWithVat } from "@/lib/vat";
+import { PageHeader, PageShell } from "@/components/page-shell";
+
+export const metadata: Metadata = { title: "Abonnements" };
+
+export default async function AbonnementsPage() {
+  const { active: organization } = await requireActiveOrganization();
+  const [subscriptions, customerId] = await Promise.all([
+    getMySubscriptions(organization.id),
+    organizationCustomerId(organization.id),
+  ]);
+
+  const running = subscriptions.filter(isRunning);
+  const stopped = subscriptions.filter((subscription) => !isRunning(subscription));
+  const failing = running.filter((subscription) => subscription.paymentFailedAt !== null);
+  const renewal = nextRenewal(subscriptions);
+
+  const stats = [
+    {
+      icon: Layers,
+      label: "Abonnements en cours",
+      value: String(running.length),
+    },
+    {
+      icon: Wallet,
+      label: "Total mensuel",
+      value: formatCentsWithVat(monthlyTotalCents(subscriptions)),
+    },
+    {
+      icon: CalendarClock,
+      label: "Prochain prélèvement",
+      value: renewal ? formatDate(renewal) : "—",
+    },
+  ];
+
+  return (
+    <PageShell size="content">
+      <PageHeader
+        title="Abonnements"
+        description="Ce qui vous est prélevé chaque mois, et ce que vous avez consommé sur la période en cours."
+        actions={customerId && <BillingPortalButton organizationId={organization.id} />}
+      />
+
+      {failing.length > 0 && (
+        <div
+          role="alert"
+          className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-destructive/30 bg-destructive/5 p-4"
+        >
+          <p className="flex items-start gap-2 text-sm text-foreground">
+            <TriangleAlert
+              className="mt-0.5 size-4 shrink-0 text-destructive"
+              aria-hidden="true"
+            />
+            <span>
+              Le dernier paiement de{" "}
+              {failing.map((subscription) => `« ${subscription.name} »`).join(", ")} a
+              été refusé. Mettez à jour votre moyen de paiement pour éviter une
+              interruption.
+            </span>
+          </p>
+          {customerId && (
+            <BillingPortalButton organizationId={organization.id} variant="default" />
+          )}
+        </div>
+      )}
+
+      {subscriptions.length === 0 ? (
+        <EmptyState
+          icon={CreditCard}
+          title="Vous n'avez aucun abonnement"
+          description="Les solutions facturées au mois apparaîtront ici, avec leur quota d'usage."
+          action={
+            <Link
+              href="/dashboard/services/catalog"
+              className={buttonVariants({ variant: "outline", size: "sm" })}
+            >
+              Voir le catalogue
+            </Link>
+          }
+        />
+      ) : (
+        <div className="space-y-8">
+          <Card>
+            <CardContent>
+              <div className="grid grid-cols-1 divide-y divide-border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+                {stats.map((stat) => (
+                  <div
+                    key={stat.label}
+                    className="py-3 first:pt-0 sm:px-5 sm:py-0 sm:first:pt-0 sm:first:pl-0 sm:last:pr-0"
+                  >
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <stat.icon className="size-3.5 shrink-0" aria-hidden="true" />
+                      {stat.label}
+                    </div>
+                    <p className="mt-1.5 text-2xl font-semibold tabular-nums text-foreground">
+                      {stat.value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {running.length > 0 && (
+            <section aria-labelledby="active-subscriptions" className="space-y-3">
+              <h2
+                id="active-subscriptions"
+                className="text-lg font-semibold text-foreground"
+              >
+                En cours
+              </h2>
+              {running.map((subscription) => (
+                <SubscriptionCard
+                  key={subscription.clientServiceId}
+                  subscription={subscription}
+                />
+              ))}
+            </section>
+          )}
+
+          {stopped.length > 0 && (
+            <section aria-labelledby="inactive-subscriptions" className="space-y-3">
+              <div>
+                <h2
+                  id="inactive-subscriptions"
+                  className="text-lg font-semibold text-foreground"
+                >
+                  Inactifs
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Résiliés ou jamais démarrés : aucun prélèvement en cours.
+                </p>
+              </div>
+              {stopped.map((subscription) => (
+                <SubscriptionCard
+                  key={subscription.clientServiceId}
+                  subscription={subscription}
+                />
+              ))}
+            </section>
+          )}
+
+          <p className="text-sm text-muted-foreground">
+            Le détail de chaque prélèvement et vos factures se trouvent dans{" "}
+            <Link
+              href="/dashboard/payments"
+              className="text-primary underline-offset-4 hover:underline"
+            >
+              Paiements
+            </Link>
+            .
+          </p>
+        </div>
+      )}
+    </PageShell>
+  );
+}

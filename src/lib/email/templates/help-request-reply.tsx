@@ -43,7 +43,7 @@ export function HelpRequestReplyEmail({
       <Text style={emailMutedTextStyle}>
         Vous pouvez répondre directement depuis votre centre d&apos;aide.
       </Text>
-      <Link href={appUrl("/dashboard/aide")} style={emailButtonStyle}>
+      <Link href={appUrl("/dashboard/help")} style={emailButtonStyle}>
         Répondre
       </Link>
     </EmailLayout>

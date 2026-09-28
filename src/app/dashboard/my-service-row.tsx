@@ -107,7 +107,7 @@ export function MyServiceRow({
                   />
                   <p className="text-sm text-foreground">
                     Le dernier paiement a été refusé.{" "}
-                    <Link href="/dashboard/paiements" className="font-medium underline underline-offset-4">
+                    <Link href="/dashboard/payments" className="font-medium underline underline-offset-4">
                       Mettez à jour votre moyen de paiement
                     </Link>{" "}
                     pour éviter une interruption.

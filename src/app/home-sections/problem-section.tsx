@@ -25,11 +25,11 @@ const PROBLEMS = [
 
 export function ProblemSection() {
   return (
-    <section aria-labelledby="probleme-heading" className="border-y border-border bg-muted/40 py-20 sm:py-24">
+    <section aria-labelledby="problem-heading" className="border-y border-border bg-muted/40 py-20 sm:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="mx-auto max-w-2xl text-center">
           <h2
-            id="probleme-heading"
+            id="problem-heading"
             className="text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"
           >
             Chaque tâche répétitive vous coûte du temps que vous ne facturez pas
@@ -53,7 +53,7 @@ export function ProblemSection() {
           <p className="text-lg font-medium text-balance text-foreground">
             Ces trois-là, une automatisation s&apos;en charge pendant que vous travaillez.
           </p>
-          <Link href="#prestations" className={buttonVariants({ size: "lg" })}>
+          <Link href="#services" className={buttonVariants({ size: "lg" })}>
             Voir les solutions
             <ArrowRight data-icon="inline-end" />
           </Link>

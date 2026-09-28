@@ -38,7 +38,7 @@ export function HelpRequestClientReplyInternalEmail({
       >
         <Text style={{ ...emailTextStyle, margin: 0 }}>{body}</Text>
       </Section>
-      <Link href={appUrl("/admin/aide")} style={emailButtonStyle}>
+      <Link href={appUrl("/admin/help")} style={emailButtonStyle}>
         Ouvrir le centre d&apos;aide
       </Link>
     </EmailLayout>

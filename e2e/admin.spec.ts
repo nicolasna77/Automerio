@@ -16,7 +16,7 @@ test("le détail d'un utilisateur montre ce que voit le client", async ({ page }
 });
 
 test("le centre d'aide propose le direct et l'export", async ({ page }) => {
-  await page.goto("/admin/aide");
+  await page.goto("/admin/help");
 
   await expect(page.getByRole("button", { name: /Direct|En pause/ })).toBeVisible();
   await expect(page.getByRole("link", { name: "Exporter en CSV" })).toBeVisible();
@@ -46,7 +46,7 @@ test("la liste clients bascule en cartes sur mobile", async ({ page }) => {
 });
 
 test("la page des codes promo s'ouvre", async ({ page }) => {
-  await page.goto("/admin/codes-promo");
+  await page.goto("/admin/promo-codes");
   await expect(page.getByRole("heading", { level: 1, name: "Codes promo" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Créer un code" })).toBeVisible();
 });

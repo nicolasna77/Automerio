@@ -115,7 +115,7 @@ export function TwoFactorSection({
 
   return (
     <ProfileSection
-      id="double-authentification"
+      id="two-factor"
       title="Double authentification"
       description={description}
       action={

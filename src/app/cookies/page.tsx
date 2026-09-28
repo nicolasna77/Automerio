@@ -108,7 +108,7 @@ export default function CookiesPage() {
           Vous pouvez effacer ces éléments à tout moment depuis les réglages de
           votre navigateur ; vous serez alors simplement déconnecté. Pour le reste
           de vos données, voir la{" "}
-          <Link href="/confidentialite">politique de confidentialité</Link>.
+          <Link href="/privacy">politique de confidentialité</Link>.
         </p>
       </LegalSection>
     </LegalPage>

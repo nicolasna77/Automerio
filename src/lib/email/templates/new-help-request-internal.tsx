@@ -43,7 +43,7 @@ export function NewHelpRequestInternalEmail({
       >
         <Text style={{ ...emailTextStyle, margin: 0 }}>{message}</Text>
       </Section>
-      <Link href={appUrl("/admin/aide")} style={emailButtonStyle}>
+      <Link href={appUrl("/admin/help")} style={emailButtonStyle}>
         Ouvrir le centre d&apos;aide
       </Link>
     </EmailLayout>

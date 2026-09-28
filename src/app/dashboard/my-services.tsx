@@ -20,7 +20,7 @@ import {
   type MyServiceDTO,
 } from "@/lib/catalog";
 import { MyServiceRow } from "./my-service-row";
-import { CATALOGUE_PATH } from "./prestations/paths";
+import { CATALOGUE_PATH } from "./services/paths";
 
 const STATUS_PRIORITY: Record<ClientServiceStatus, number> = {
   PENDING_PAYMENT: 0,

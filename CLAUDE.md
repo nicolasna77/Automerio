@@ -8,12 +8,12 @@ répond aux appels), prise de rendez-vous automatique, réponses e-mail
 automatisées, génération de documents administratifs, etc.
 
 Trois espaces :
-- Site public (`/`, `/prestations/[slug]`, `/contact`) — landing page et
+- Site public (`/`, `/services/[slug]`, `/contact`) — landing page et
   catalogue, vitrine commerciale de l'agence.
 - Tableau de bord client (`/dashboard`, rôle `CLIENT`) — un client peut avoir
   plusieurs entreprises (organisations), activer une même prestation
   plusieurs fois (ex. deux boutiques), payer via Stripe, suivre le statut de
-  chaque prestation et contacter l'équipe (`/dashboard/aide`).
+  chaque prestation et contacter l'équipe (`/dashboard/help`).
 - Espace admin (`/admin`, rôle `ADMIN`) — supervision de tous les clients,
   gestion du catalogue, centre d'aide.
 
@@ -131,7 +131,7 @@ Skills installées spécifiquement pour ce projet (`.claude/skills/`, orientées
 contenu/marketing du site public) : **landing-page-copywriter**,
 **copywriting**, **copy-editing**, **ad-creative**, **ai-seo**,
 **ab-testing**, **co-marketing** — pertinentes pour la page d'accueil,
-`/contact`, les pages `/prestations/[slug]` et toute itération marketing.
+`/contact`, les pages `/services/[slug]` et toute itération marketing.
 
 <!-- BEGIN:nextjs-agent-rules -->
 
