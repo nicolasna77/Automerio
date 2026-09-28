@@ -28,7 +28,6 @@ const UNAVAILABLE = "L'appel d'essai n'est pas disponible pour le moment. Réess
  */
 export async function requestDemoCall(input: {
   phone: string;
-  consent: boolean;
   serviceSlug: string;
   /** Champ piege, invisible pour un humain : rempli, c'est un robot. */
   website: string;
@@ -43,9 +42,6 @@ export async function requestDemoCall(input: {
       throw new ActionError(
         "Saisissez un numéro de mobile ou de fixe français, par exemple 06 12 34 56 78."
       );
-    }
-    if (!input.consent) {
-      throw new ActionError("Cochez la case pour accepter de recevoir l'appel d'essai.");
     }
     if (!isDemoCallAvailable()) throw new ActionError(UNAVAILABLE);
 

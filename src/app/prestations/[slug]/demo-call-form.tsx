@@ -1,20 +1,19 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, useTransition, type FormEvent } from "react";
+import Link from "next/link";
 import { Loader2, PhoneCall, PhoneIncoming } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { requestDemoCall } from "./demo-call-actions";
 
 export function DemoCallForm({ serviceSlug }: { serviceSlug: string }) {
   const phoneId = useId();
-  const consentId = useId();
+  const noticeId = useId();
   const errorId = useId();
   const [isPending, startTransition] = useTransition();
   const [phone, setPhone] = useState("");
-  const [consent, setConsent] = useState(false);
   const [website, setWebsite] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [calledNumber, setCalledNumber] = useState<string | null>(null);
@@ -28,7 +27,7 @@ export function DemoCallForm({ serviceSlug }: { serviceSlug: string }) {
     event.preventDefault();
     setError(null);
     startTransition(async () => {
-      const result = await requestDemoCall({ phone, consent, serviceSlug, website });
+      const result = await requestDemoCall({ phone, serviceSlug, website });
       if (result.ok) setCalledNumber(result.data.displayNumber);
       else setError(result.error);
     });
@@ -84,20 +83,6 @@ export function DemoCallForm({ serviceSlug }: { serviceSlug: string }) {
         />
       </div>
 
-      <div className="flex items-start gap-3">
-        <Checkbox
-          id={consentId}
-          checked={consent}
-          onCheckedChange={(checked) => setConsent(checked === true)}
-          disabled={isPending}
-          className="mt-0.5"
-        />
-        <Label htmlFor={consentId} className="text-sm leading-relaxed font-normal text-muted-foreground">
-          J&apos;accepte de recevoir un appel unique de l&apos;assistant IA d&apos;Automerio à ce
-          numéro. Il ne sert qu&apos;à cet appel, jamais à de la prospection.
-        </Label>
-      </div>
-
       {error && (
         <p id={errorId} role="alert" className="text-sm text-destructive">
           {error}
@@ -110,6 +95,7 @@ export function DemoCallForm({ serviceSlug }: { serviceSlug: string }) {
         className="w-full"
         disabled={isPending || phone.trim() === ""}
         aria-busy={isPending}
+        aria-describedby={noticeId}
       >
         {isPending ? (
           <Loader2 className="animate-spin" aria-hidden="true" data-icon="inline-start" />
@@ -118,6 +104,19 @@ export function DemoCallForm({ serviceSlug }: { serviceSlug: string }) {
         )}
         Recevoir l&apos;appel
       </Button>
+
+      {/* Le consentement tient a la demande elle-meme : le texte est lie au
+          bouton pour qu'un lecteur d'ecran l'annonce avant l'envoi. */}
+      <p id={noticeId} className="text-xs leading-relaxed text-muted-foreground">
+        En demandant cet appel, vous confirmez avoir pris connaissance de{" "}
+        <Link
+          href="/confidentialite"
+          className="underline underline-offset-4 rounded-sm hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+        >
+          nos modalités de contact et de notre politique de confidentialité
+        </Link>
+        . Votre numéro ne sert qu&apos;à cet appel, jamais à de la prospection.
+      </p>
     </form>
   );
 }
