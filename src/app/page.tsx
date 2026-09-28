@@ -6,7 +6,6 @@ import { SiteFooter } from "@/components/site-footer";
 import { getCatalog } from "@/lib/get-catalog";
 import { HeroSection } from "./home-sections/hero-section";
 import { ProblemSection } from "./home-sections/problem-section";
-import { PresentationSection } from "./home-sections/presentation-section";
 import { ServicesSection } from "./home-sections/services-section";
 import { MethodSection } from "./home-sections/method-section";
 import { MaintenanceSection } from "./home-sections/maintenance-section";
@@ -28,9 +27,8 @@ export default async function HomePage() {
       <main id="contenu" className="flex-1">
         <HeroSection services={services} />
         <ProblemSection />
-        <PresentationSection />
-        <ServicesSection services={services} />
         <MethodSection />
+        <ServicesSection services={services} />
         {hasSupportPlan && (
           <MaintenanceSection services={services} />
         )}
