@@ -44,6 +44,7 @@ export default defineConfig({
       DEMO_CALL_DRY_RUN: "true",
       DEMO_CALLS_PER_IP_PER_DAY: "1000",
       DEMO_CALLS_PER_DAY: "100000",
+      CRON_SECRET: "secret-de-test-du-cron",
     },
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

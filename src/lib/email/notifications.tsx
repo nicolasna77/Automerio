@@ -15,6 +15,7 @@ import { PaymentFailedEmail } from "./templates/payment-failed";
 import { OrganizationInvitationEmail } from "./templates/organization-invitation";
 import { QuotaAlertEmail } from "./templates/quota-alert";
 import { CallSummaryEmail } from "./templates/call-summary";
+import { WeeklyDigestEmail } from "./templates/weekly-digest";
 
 type Recipient = {
   email: string;
@@ -277,5 +278,17 @@ export async function sendCallSummaryEmail(
     to: recipient.email,
     subject: call.reason ? `Appel : ${call.reason}` : `Nouvel appel sur « ${call.serviceName} »`,
     react: <CallSummaryEmail recipientName={recipient.name} {...call} />,
+  });
+}
+
+export async function sendWeeklyDigestEmail(
+  recipient: Recipient,
+  digest: { organizationName: string; highlights: string[] }
+) {
+  if (!isNotificationEnabled(recipient.notificationPreferences, "WEEKLY_DIGEST")) return;
+  await sendEmail({
+    to: recipient.email,
+    subject: `Votre semaine : ${digest.highlights[0]}`,
+    react: <WeeklyDigestEmail recipientName={recipient.name} {...digest} />,
   });
 }
