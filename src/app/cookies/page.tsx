@@ -20,6 +20,11 @@ const STORED_ITEMS: { name: string; purpose: string; lifetime: string }[] = [
     lifetime: "30 jours",
   },
   {
+    name: "Menu du tableau de bord (sidebar_state)",
+    purpose: "Retenir si le menu latéral est ouvert ou replié.",
+    lifetime: "7 jours",
+  },
+  {
     name: "Thème (stockage local « theme »)",
     purpose: "Retenir le choix entre thème clair et sombre.",
     lifetime: "Jusqu'à ce que vous le changiez",
@@ -39,8 +44,8 @@ export default function CookiesPage() {
         <p>
           Automerio ne dépose ni cookie publicitaire, ni cookie de mesure
           d&apos;audience. C&apos;est pourquoi aucun bandeau ne vous demande votre
-          consentement : les éléments ci-dessous sont strictement nécessaires au
-          service.
+          consentement : les éléments ci-dessous sont nécessaires au service ou
+          retiennent vos préférences d&apos;affichage.
         </p>
       }
     >
@@ -65,6 +70,19 @@ export default function CookiesPage() {
             </tbody>
           </table>
         </div>
+      </LegalSection>
+
+      <LegalSection title="Mesure d'audience sans cookie">
+        <p>
+          Nous utilisons Vercel Analytics et Vercel Speed Insights pour compter
+          les visites et mesurer la vitesse des pages. Ils ne déposent aucun
+          cookie et n&apos;écrivent rien sur votre appareil. Ils enregistrent la
+          page consultée, le site d&apos;origine, le pays, le type
+          d&apos;appareil et de navigateur. Les visites d&apos;une même journée
+          sont regroupées à l&apos;aide d&apos;une empreinte temporaire qui
+          n&apos;est pas conservée : ces statistiques ne permettent pas de vous
+          identifier ni de vous suivre d&apos;un site à l&apos;autre.
+        </p>
       </LegalSection>
 
       <LegalSection title="Services tiers">

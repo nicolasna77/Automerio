@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 const PROCESSORS: [string, string][] = [
-  [HOSTING_PROVIDER.name, "hébergement du site et de l'application"],
+  [HOSTING_PROVIDER.name, "hébergement du site et de l'application, statistiques de visite sans cookie"],
   [LEGAL_ENTITY.databaseHost, "hébergement de la base de données"],
   ["Stripe", "paiement, facturation et gestion des moyens de paiement"],
   ["Resend", "envoi des e-mails (confirmation d'adresse, notifications)"],
@@ -57,12 +57,24 @@ export default function ConfidentialitePage() {
           </li>
           <li>
             <strong>Activité de vos solutions</strong> : numéro et horaires des
-            appels reçus, durée, demandes de rendez-vous et messages traités pour
-            vous.
+            appels reçus, durée, transcription et résumé des appels, demandes de
+            rendez-vous et historique des messages traités pour vous.
           </li>
           <li>
             <strong>Échanges</strong> : messages envoyés via le formulaire de
             contact ou le centre d&apos;aide.
+          </li>
+          <li>
+            <strong>Appel d&apos;essai</strong> : si vous demandez à être appelé
+            depuis une page de nos solutions, votre numéro sert uniquement à
+            passer cet appel, jamais à de la prospection. Nous n&apos;en gardons
+            qu&apos;une empreinte chiffrée, qui empêche de demander un second
+            essai, avec la date et la durée de l&apos;appel.
+          </li>
+          <li>
+            <strong>Statistiques de visite</strong> : pages consultées, site
+            d&apos;origine, pays, type d&apos;appareil et de navigateur, sans
+            cookie et sans permettre de vous identifier.
           </li>
           <li>
             <strong>Sécurité</strong> : adresse IP et navigateur de chaque
@@ -84,8 +96,12 @@ export default function ConfidentialitePage() {
             Sécuriser les comptes et prévenir la fraude — intérêt légitime.
           </li>
           <li>
-            Répondre à une demande envoyée depuis le formulaire de contact —
-            mesures précontractuelles.
+            Répondre à une demande envoyée depuis le formulaire de contact, ou
+            passer l&apos;appel d&apos;essai que vous avez demandé — mesures
+            précontractuelles.
+          </li>
+          <li>
+            Mesurer la fréquentation et la vitesse du site — intérêt légitime.
           </li>
         </ul>
         <p>Aucune donnée n&apos;est utilisée à des fins publicitaires.</p>
@@ -159,7 +175,8 @@ export default function ConfidentialitePage() {
       <LegalSection title="Cookies">
         <p>
           Automerio n&apos;utilise que des cookies nécessaires au fonctionnement du
-          service. Le détail est dans la <Link href="/cookies">politique cookies</Link>.
+          service ou à vos préférences d&apos;affichage, et mesure son audience
+          sans cookie. Le détail est dans la <Link href="/cookies">politique cookies</Link>.
         </p>
       </LegalSection>
     </LegalPage>
