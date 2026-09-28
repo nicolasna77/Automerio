@@ -6,8 +6,6 @@ test.use({ storageState: CLIENT_STATE });
 
 const EXTERNAL_PREFIX = "e2e-resume-";
 
-// Chaque test ne nettoie que ce qu'il a cree : les tests de ce fichier tournent
-// en parallele, un menage par prefixe effacerait l'appel d'un voisin en cours.
 const createdCallIds: string[] = [];
 
 async function clientServiceOf(email: string, slug: string) {
@@ -49,8 +47,6 @@ async function seedSummarizedCall(clientServiceId: string) {
   return call;
 }
 
-// La section des appels n'apparait qu'une fois un numero attribue : le test
-// en pose un le temps de s'executer, puis rend la solution dans son etat.
 const restoreNumbers: { id: string; externalPhoneNumber: string | null }[] = [];
 
 async function withPhoneNumber(clientServiceId: string) {
@@ -90,7 +86,6 @@ test("un appel traité se lit en résumé, puis en transcription", async ({ page
   await expect(page.getByText("souhaite une intervention aujourd'hui")).toBeVisible();
   await expect(page.getByText("Rappeler Mme Durand avant 18 h")).toBeVisible();
 
-  // La liste est rafraichie toutes les 5 s : l'appel ouvert doit le rester.
   await page.waitForTimeout(5_500);
   await expect(call).toHaveAttribute("aria-expanded", "true");
 
@@ -108,7 +103,6 @@ test("la transcription d'une autre entreprise reste inaccessible", async ({ page
   const foreignCall = await seedSummarizedCall(other.id);
   const own = await clientServiceOf(CLIENT.email, "standard-telephonique-ia");
 
-  // Ni par la solution d'origine, ni en glissant l'appel sous sa propre solution.
   const direct = await page.request.get(`/api/client-services/${other.id}/calls/${foreignCall.id}`);
   expect(direct.status()).toBe(404);
   const smuggled = await page.request.get(`/api/client-services/${own.id}/calls/${foreignCall.id}`);

@@ -1,12 +1,6 @@
 import { Slider as SliderPrimitive } from "@base-ui/react/slider"
 import { cn } from "cn"
 
-/**
- * `getAriaLabel` et `getAriaValueText` visent la poignee, non la racine : c'est
- * l'`input` qu'elle rend qui porte la valeur pour un lecteur d'ecran. Poses sur
- * la racine, ils atterriraient sur un conteneur de role `group` et n'auraient
- * jamais ete lus.
- */
 function Slider({
   className,
   defaultValue,
@@ -20,9 +14,6 @@ function Slider({
   getAriaLabel?: SliderPrimitive.Thumb.Props["getAriaLabel"];
   getAriaValueText?: SliderPrimitive.Thumb.Props["getAriaValueText"];
 }) {
-  // Une valeur simple n'a qu'une poignee. Le gabarit shadcn retombait sur
-  // `[min, max]` des qu'elle n'etait pas un tableau, et rendait donc deux
-  // poignees superposees — deux curseurs annonces pour un seul choix.
   const _values = Array.isArray(value)
     ? value
     : Array.isArray(defaultValue)

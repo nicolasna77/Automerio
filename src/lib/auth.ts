@@ -115,8 +115,6 @@ export const auth = betterAuth({
     }),
     organization({
       organizationLimit: 20,
-      // Sans ce rappel, `invite-member` cree bien une ligne `Invitation` mais
-      // personne n'est prevenu : l'invite ne saurait jamais qu'on l'attend.
       async sendInvitationEmail(data) {
         await sendOrganizationInvitationEmail({
           to: data.email,
@@ -135,12 +133,6 @@ export const auth = betterAuth({
     stripe({
       stripeClient,
       stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
-      // Plus de client Stripe par utilisateur : c'est l'organisation qui achete
-      // et qui est facturee, et sa fiche se cree a sa premiere commande
-      // (`src/lib/organization-billing.ts`). Laisser ce rappel actif remplirait
-      // Stripe d'une fiche par inscription, que rien ne facturerait jamais.
-      // `User.stripeCustomerId` demeure — better-auth possede la colonne — mais
-      // l'application ne la lit plus.
       onEvent: handleStripeEvent,
     }),
   ],

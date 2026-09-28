@@ -8,8 +8,6 @@ import { ActionError, runAction } from "@/lib/run-action";
 
 export async function acceptInvitationAction(invitationId: string) {
   return runAction(async () => {
-    // La session suffit : better-auth verifie lui-meme que l'invitation vise
-    // bien l'adresse du compte connecte, qu'elle est en attente et non expiree.
     await requireUser();
 
     try {

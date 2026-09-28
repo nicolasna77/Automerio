@@ -15,7 +15,6 @@ describe("signOAuthState / verifyOAuthState", () => {
   });
 
   it("ne produit jamais deux fois la même chaîne pour un même identifiant", () => {
-    // C'est l'apport de l'aléa : un state intercepté ne dit rien des suivants.
     const a = signOAuthState(SECRET, ID, T0);
     const b = signOAuthState(SECRET, ID, T0);
     expect(a).not.toBe(b);
@@ -61,7 +60,6 @@ describe("signOAuthState / verifyOAuthState", () => {
   });
 
   it("refuse un ancien state à deux segments, celui d'avant l'expiration", () => {
-    // Les jetons émis par l'ancienne forme ne doivent plus être honorés.
     expect(verifyOAuthState(SECRET, `${ID}.abcdef0123456789`, T0)).toBeNull();
   });
 });

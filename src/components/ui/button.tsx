@@ -37,10 +37,6 @@ const buttonStyles = cva(
   }
 )
 
-// Passe par cn() : la classe de base pose border-transparent et les variantes
-// posent leur propre couleur de bordure. Sans tailwind-merge les deux coexistent
-// et la bordure disparait, ce qui rendait les boutons outline invisibles partout
-// ou buttonVariants() etait appele directement.
 function buttonVariants(props?: Parameters<typeof buttonStyles>[0]) {
   return cn(buttonStyles(props))
 }

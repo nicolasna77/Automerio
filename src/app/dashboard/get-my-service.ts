@@ -75,8 +75,6 @@ export function toMyServiceDTO(
       category: cs.service.category,
       monthlyPriceCents: cs.service.monthlyPriceCents,
       usageCap: readClientUsageCap(cs, cs.service),
-      // Nul ici a dessein : une prestation deja vendue ne se repersonnalise
-      // pas depuis son ecran de detail. Le curseur n'a de sens qu'a l'achat.
       tier: null,
       configFields: (cs.service.configFields as ServiceDTO["configFields"]) ?? [],
       sortOrder: cs.service.sortOrder,

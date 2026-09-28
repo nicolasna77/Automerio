@@ -7,9 +7,6 @@ const fixes = CATALOG.filter((service) => service.maxUsageUnits == null);
 
 describe("catalogSyncFields", () => {
   it("porte les bornes du curseur sur une solution deja en base", () => {
-    // Le vrai defaut : la synchronisation ne reecrivait que `configFields`, si
-    // bien que les bornes restaient nulles sur les solutions creees avant leur
-    // ajout — et le curseur disparaissait sans erreur en production.
     for (const service of personnalisables) {
       const champs = catalogSyncFields(service);
       expect(champs.maxUsageUnits, service.slug).toBe(service.maxUsageUnits);
@@ -19,8 +16,6 @@ describe("catalogSyncFields", () => {
   });
 
   it("efface les bornes d'une solution qui n'est plus personnalisable", () => {
-    // `null`, non `undefined` : Prisma ignore `undefined` en mise a jour, et de
-    // vieilles bornes survivraient a leur retrait du catalogue.
     for (const service of fixes) {
       const champs = catalogSyncFields(service);
       expect(champs.maxUsageUnits, service.slug).toBeNull();
@@ -32,7 +27,6 @@ describe("catalogSyncFields", () => {
 
 describe("CATALOG", () => {
   it("decrit au moins une solution personnalisable", () => {
-    // Sans cela les deux tests ci-dessus passeraient a vide.
     expect(personnalisables.length).toBeGreaterThan(0);
   });
 
@@ -53,8 +47,6 @@ describe("CATALOG", () => {
   });
 
   it("vend la minute ajoutee moins cher que le depassement", () => {
-    // Sinon acheter son quota a l'avance couterait plus que de depasser, et le
-    // curseur ne servirait a rien.
     for (const service of personnalisables) {
       expect(service.extraUnitPriceCents!, service.slug).toBeLessThan(
         service.overageUnitPriceCents!

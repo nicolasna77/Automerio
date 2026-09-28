@@ -33,7 +33,6 @@ export function ServiceFacts({
 }: {
   item: MyServiceDTO;
   showPhoneNumber?: boolean;
-  /** Faux quand une jauge montre deja ce plafond, pour ne pas le dire deux fois. */
   showUsageCap?: boolean;
 }) {
   return (

@@ -1,18 +1,3 @@
-// Simule en texte, dans le terminal, une conversation avec l'agent vocal
-// (standard téléphonique ou prise de RDV/commande) pour une prestation
-// donnée — permet de valider le prompt, le choix des tools et les
-// écritures réelles (agenda Google, Booking) sans passer par Twilio ni
-// l'API Realtime (voir src/app/api/voice/openai-webhook/route.ts).
-//
-// Usage : npx tsx scripts/test-voice-agent.ts <clientServiceId>
-
-// "dotenv/config" (effet de bord au chargement) plutôt que
-// `import { config } from "dotenv"; config();` — en ESM les imports sont
-// évalués avant le reste du corps du module, donc un `config()` appelé
-// comme instruction normale s'exécuterait APRÈS l'import de
-// voice-agent/tools (qui importe @/lib/db, lequel lit DATABASE_URL dès son
-// propre chargement) : la connexion Postgres serait construite avec une
-// chaîne de connexion vide.
 import "dotenv/config";
 import { createInterface } from "node:readline/promises";
 import { stdin, stdout } from "node:process";
@@ -74,13 +59,10 @@ async function main() {
     try {
       userInput = await rl.question("Appelant> ");
     } catch {
-      // stdin fermé (Ctrl+D ou fin d'un flux redirigé) — fin normale.
       break;
     }
     messages.push({ role: "user", content: userInput });
 
-    // Boucle tant que le modèle enchaîne des tool calls (ex. vérifie la
-    // disponibilité puis réserve dans le même tour de parole).
     for (;;) {
       const completion = await openai.chat.completions.create({
         model,

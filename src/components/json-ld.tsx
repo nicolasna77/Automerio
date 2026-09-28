@@ -27,7 +27,6 @@ export function organizationSchema() {
     "@type": "Organization",
     name: SITE_NAME,
     url: siteUrl(),
-    // Rattachent le site a une entite reelle plutot qu'a un nom seul.
     logo: absoluteUrl("/icon.svg"),
     email: LEGAL_ENTITY.email,
     description: SITE_DESCRIPTION,
@@ -88,8 +87,6 @@ export function serviceSchema(service: ServiceDTO) {
 }
 
 export function priceSummary(service: ServiceDTO): string {
-  // Sert la meta description et le pied de l'image OG, tous deux contraints en
-  // longueur : le prix y reste TTC seul, mais dit qu'il l'est.
   if (service.monthlyPriceCents === null) return "Tarif sur demande.";
   return `${formatCents(service.monthlyPriceCents)} TTC par mois, sans frais d'installation.`;
 }

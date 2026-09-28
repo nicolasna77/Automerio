@@ -24,15 +24,6 @@ import {
 } from "@/lib/subscription-pricing";
 import { changeSubscriptionQuota } from "@/app/dashboard/actions";
 
-/**
- * Changer le volume d'un abonnement en cours.
- *
- * La difference est annoncee avant d'etre prelevee : le client augmente au
- * milieu d'un mois qu'il a deja paye, et decouvrir le prorata sur son releve
- * serait une mauvaise surprise meme quand le montant est juste. Le montant
- * exact vient de Stripe apres coup — celui-ci n'est qu'une estimation, et le
- * texte le dit.
- */
 export function ChangeQuotaDialog({
   clientServiceId,
   tier,

@@ -61,7 +61,6 @@ export function describeDiscount(rule: DiscountRule): string {
     : `${amount} sur chaque paiement`;
 }
 
-/** Le premier prelevement : le premier mois d'abonnement. */
 export function firstPaymentCents(pricing: { monthlyPriceCents: number | null }): number {
   return pricing.monthlyPriceCents ?? 0;
 }

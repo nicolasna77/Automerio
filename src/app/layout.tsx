@@ -9,17 +9,11 @@ import { SITE_DESCRIPTION, SITE_TITLE, siteOpenGraph, siteUrl } from "@/lib/site
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
-// Les variables portent le nom de la police, non celui de son role. Le theme
-// compose ensuite les piles par-dessus (`globals.css`). Sans cette separation,
-// la classe posee par next/font et la regle `:root` du theme se disputeraient
-// le meme nom, et le gagnant dependrait de l'ordre des feuilles de style.
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
   subsets: ["latin"],
 });
 
-// PT Serif et Space Mono n'ont pas de fonte variable : leurs graisses se
-// declarent une par une.
 const ptSerif = PT_Serif({
   variable: "--font-pt-serif",
   subsets: ["latin"],
@@ -32,10 +26,6 @@ const spaceMono = Space_Mono({
   weight: ["400", "700"],
 });
 
-// Ni `alternates.canonical` ni `openGraph.url` ne figurent ici : Next fait
-// heriter tout champ qu'une page ne redefinit pas, si bien qu'une URL posee au
-// niveau du layout se propage a tout le site et que chaque page se declare
-// canonique vers l'accueil. Chaque page publique pose donc la sienne.
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
   title: { default: SITE_TITLE, template: "%s | Automerio" },

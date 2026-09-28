@@ -20,23 +20,9 @@ import {
 import { formatCentsWithVat } from "@/lib/vat";
 import { QUOTA_WARNING_RATIO } from "@/lib/quota";
 
-/**
- * Le depassement du quota : prevenir quand il approche, le facturer a
- * l'echeance.
- *
- * Le site annonce « au-dela de ce quota, chaque minute est facturee ». Le
- * tableau de bord calculait ce depassement sans jamais le transmettre a Stripe :
- * les minutes en trop n'etaient pas payees.
- */
-
 
 export type QuotaAlert = "WARNING" | "EXCEEDED";
 
-/**
- * Le seuil franchi par la derniere consommation, s'il y en a un. Un seul
- * seuil par passage : depasser 80 % et 100 % d'un coup ne previent qu'une fois,
- * du plus grave.
- */
 export function quotaThresholdCrossed(before: number, after: number, included: number): QuotaAlert | null {
   if (included <= 0 || after <= before) return null;
   if (before < included && after >= included) return "EXCEEDED";
@@ -45,7 +31,6 @@ export function quotaThresholdCrossed(before: number, after: number, included: n
   return null;
 }
 
-/** Libelle de la ligne de facture : ce qu'on facture, et a quel prix. */
 export function overageLineDescription(units: number, cap: UsageCap, serviceName: string): string {
   return `${serviceName} — ${formatUsageUnits(units, cap.unit)} au-delà du forfait (${formatCentsWithVat(cap.overageUnitPriceCents)} l'unité)`;
 }
@@ -59,14 +44,6 @@ function idOf(ref: string | { id: string } | null | undefined): string | null {
   return typeof ref === "string" ? ref : ref.id;
 }
 
-/**
- * Ajoute le depassement de la periode ecoulee a la facture de renouvellement.
- *
- * Stripe cree cette facture en brouillon (`invoice.created`) avant de la
- * finaliser : c'est la fenetre pour y ajouter des lignes. `period_start` et
- * `period_end` couvrent alors la periode qui vient de se terminer. La cle
- * d'idempotence empeche une double ligne si Stripe renvoie l'evenement.
- */
 export async function billOverageOnInvoice(invoice: Stripe.Invoice): Promise<void> {
   if (invoice.billing_reason !== "subscription_cycle" || invoice.status !== "draft") return;
   const subscriptionId = idOf(invoice.parent?.subscription_details?.subscription);
@@ -82,14 +59,6 @@ export async function billOverageOnInvoice(invoice: Stripe.Invoice): Promise<voi
   );
 }
 
-/**
- * Facture le depassement de la derniere periode quand l'abonnement s'arrete.
- *
- * Sans renouvellement, il n'y a pas de facture ou ajouter la ligne : on en
- * cree une a part. Elle porte le moyen de paiement de l'abonnement, qui n'est
- * pas forcement celui du client par defaut, et n'embarque aucune autre ligne
- * en attente.
- */
 export async function billFinalOverage(subscription: Stripe.Subscription): Promise<void> {
   const customerId = idOf(subscription.customer);
   const period = periodOf(subscription);
@@ -127,7 +96,6 @@ type Overage = {
   amount: number;
 };
 
-/** Le depassement d'un abonnement sur une periode, ou null s'il n'y en a pas. */
 async function overageFor(subscriptionId: string, period: BillingPeriod): Promise<Overage | null> {
   const clientService = await db.clientService.findFirst({
     where: { stripeSubscriptionId: subscriptionId },
@@ -150,8 +118,6 @@ async function overageLine(overage: Overage) {
   return {
     currency: "eur",
     amount: overage.amount,
-    // Le prix du depassement est TTC, comme tout le catalogue : sans le taux
-    // inclusif, la ligne sortirait sans TVA sur la facture.
     tax_rates: [await getIncludedVatRateId()],
     description: overageLineDescription(overage.extra, overage.cap, overage.serviceName),
     metadata: { clientServiceId: overage.clientServiceId, overageUnits: String(overage.extra) },
@@ -169,12 +135,6 @@ async function currentPeriod(stripeSubscriptionId: string | null): Promise<Billi
   }
 }
 
-/**
- * Previent l'equipe du client quand un appel fait franchir 80 % puis 100 % du
- * quota. Un evenement de service est enregistre a chaque seuil : il apparait
- * dans les notifications du tableau de bord, et sert de garde pour ne prevenir
- * qu'une fois par periode.
- */
 export async function checkQuotaAlerts(
   clientServiceId: string,
   lastCall: { durationSec: number | null }
@@ -190,7 +150,6 @@ export async function checkQuotaAlerts(
 
   const period = await currentPeriod(clientService.stripeSubscriptionId);
   const after = await consumedUnits(clientServiceId, cap, period);
-  // Ce que le dernier appel a ajoute : un appel, ou ses minutes entamees.
   const justConsumed = cap.unit === "CALL" ? 1 : Math.ceil((lastCall.durationSec ?? 0) / 60);
   if (justConsumed <= 0) return;
   const alert = quotaThresholdCrossed(Math.max(0, after - justConsumed), after, cap.includedUnits);

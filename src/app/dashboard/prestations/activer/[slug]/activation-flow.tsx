@@ -47,7 +47,6 @@ export function ActivationFlow({
 }: {
   service: ServiceDTO;
   organizationId: string;
-  /** Le volume deja choisi sur la page publique de la solution. */
   initialUnits?: number | null;
 }) {
   const nameFieldId = useId();
@@ -59,17 +58,11 @@ export function ActivationFlow({
   const [name, setName] = useState(service.name);
   const [values, setValues] = useState<Configuration>({});
   const [submitAttempted, setSubmitAttempted] = useState(false);
-  // Le quota part du volume choisi sur la page publique s'il y en a un, sinon
-  // du plancher : rester la coute le prix du catalogue, et le client voit ce
-  // qu'il paierait sans rien decider.
   const [chosenUnits, setChosenUnits] = useState(
     initialUnits ?? service.tier?.minUnits ?? 0
   );
   const [promoInput, setPromoInput] = useState("");
 
-  // Le prix a montrer : celui du quota choisi quand la solution est
-  // personnalisable, celui du catalogue sinon. Le serveur le recalcule de son
-  // cote avant de facturer — celui-ci n'est qu'un affichage.
   const monthlyPriceCents = service.tier
     ? calculateMonthlyPriceCents(service.tier, chosenUnits)
     : service.monthlyPriceCents;

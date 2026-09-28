@@ -1,10 +1,6 @@
 import { existsSync } from "node:fs";
 import { defineConfig, devices } from "@playwright/test";
 
-// Les tests qui nettoient derriere eux ont besoin de la base. Next charge `.env`
-// lui-meme, Playwright non : sans cela le processus de test n'a pas de
-// `DATABASE_URL`. En CI le fichier n'existe pas, les variables venant de
-// l'environnement.
 if (existsSync(".env")) process.loadEnvFile(".env");
 
 const PORT = 3100;
@@ -27,7 +23,6 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
       dependencies: ["setup"],
     },
-    // Les tests qui revoquent la session partagee passent en dernier.
     {
       name: "fin",
       testMatch: /\.last\.ts$/,
@@ -40,7 +35,6 @@ export default defineConfig({
     url: BASE_URL,
     env: {
       BETTER_AUTH_URL: BASE_URL,
-      // L'essai telephonique s'execute jusqu'au bout sans appeler personne.
       DEMO_CALL_DRY_RUN: "true",
       DEMO_CALLS_PER_IP_PER_DAY: "1000",
       DEMO_CALLS_PER_DAY: "100000",

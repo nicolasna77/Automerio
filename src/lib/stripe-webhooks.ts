@@ -153,8 +153,6 @@ export async function handleStripeEvent(event: Stripe.Event): Promise<void> {
       return;
     }
     case "customer.subscription.deleted":
-      // Le depassement de la derniere periode n'a pas de facture de
-      // renouvellement ou s'ajouter. Son echec ne doit pas bloquer la resiliation.
       await billFinalOverage(event.data.object).catch((err) =>
         console.error("[stripe] facturation du dernier dépassement impossible :", err)
       );

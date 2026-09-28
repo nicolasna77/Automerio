@@ -9,7 +9,6 @@ function describePrice(monthlyPriceCents: number | null): string {
     : "tarif sur demande";
 }
 
-/** Le catalogue actif, dans les mots que l'agent d'essai prononcera. */
 export async function loadDemoCatalog(): Promise<DemoCatalogEntry[]> {
   const services = await db.service.findMany({
     where: { isActive: true },

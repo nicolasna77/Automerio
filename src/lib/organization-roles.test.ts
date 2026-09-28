@@ -115,8 +115,6 @@ describe("canChangeRole", () => {
   });
 
   it("empêche de rétrograder le dernier propriétaire", () => {
-    // Sans cette règle, l'organisation se retrouverait sans personne
-    // pour payer ni résilier.
     const verdict = canChangeRole(proprietaire, proprietaire, "member", equipe);
     expect(verdict.ok).toBe(false);
     expect(verdict.ok === false && verdict.reason).toContain("garder un propriétaire");

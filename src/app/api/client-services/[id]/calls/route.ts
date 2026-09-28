@@ -41,12 +41,8 @@ export async function GET(
       where: { clientServiceId: id, type: "call", status: "completed" },
       orderBy: { occurredAt: "desc" },
       take: RECENT_LIMIT,
-      // Sans la transcription : la liste est interrogee toutes les 5 s, la
-      // transcription n'est chargee qu'a l'ouverture d'un appel.
       include: summaryInclude,
     }),
-    // Les appels a rappeler plus anciens que les derniers : le tableau de bord
-    // renvoie ici pour les traiter, ils doivent donc y figurer.
     db.usageEvent.findMany({
       where: {
         clientServiceId: id,

@@ -12,7 +12,6 @@ import { formatCentsWithVat } from "@/lib/vat";
 
 export type BillingPeriod = {
   start: Date;
-  /** Null quand la periode n'est pas connue de Stripe : rien a prelever ensuite. */
   end: Date | null;
 };
 
@@ -31,21 +30,12 @@ export type MySubscription = {
   paymentFailedAt: Date | null;
   canceledAt: Date | null;
   period: BillingPeriod;
-  /** Faux des que Stripe sait que l'abonnement s'arrete a la fin de la periode. */
   renews: boolean;
-  /** Ce que l'abonnement comprend, resilie ou non. */
   cap: UsageCap | null;
-  /** La consommation sur la periode — nulle hors des periodes facturees. */
   usage: SubscriptionUsage | null;
-  /** Les bornes du volume, quand il est modifiable. Nulles sinon. */
   tier: SubscriptionTier | null;
 };
 
-/**
- * A defaut de periode Stripe — abonnement pas encore cree, solution en attente
- * de paiement, appel Stripe en echec — on retombe sur le mois calendaire, la
- * meme fenetre que le compteur d'appels du tableau de bord.
- */
 export function calendarMonth(now = new Date()): BillingPeriod {
   return {
     start: new Date(now.getFullYear(), now.getMonth(), 1),
@@ -53,10 +43,6 @@ export function calendarMonth(now = new Date()): BillingPeriod {
   };
 }
 
-/**
- * Stripe a deplace `current_period_*` de l'abonnement vers ses lignes : la
- * periode de facturation est celle qui couvre toutes les lignes.
- */
 export function periodOf(subscription: Stripe.Subscription): BillingPeriod | null {
   const items = subscription.items.data;
   if (items.length === 0) return null;
@@ -73,8 +59,6 @@ async function fetchSubscriptions(
       try {
         return [id, await stripeClient.subscriptions.retrieve(id)] as const;
       } catch (err) {
-        // Un abonnement introuvable ne doit pas vider la page : on affiche la
-        // solution avec la periode calendaire plutot que rien.
         console.error("[abonnement] lecture Stripe impossible :", err);
         return null;
       }
@@ -83,7 +67,6 @@ async function fetchSubscriptions(
   return new Map(entries.filter((entry) => entry !== null));
 }
 
-/** Ce qui a ete consomme sur une periode : des appels, ou des minutes entamees. */
 export async function consumedUnits(
   clientServiceId: string,
   cap: UsageCap,
@@ -103,7 +86,6 @@ export async function consumedUnits(
     where,
     _sum: { durationSec: true },
   });
-  // Une seconde entamee est une minute due, comme chez l'operateur.
   return Math.ceil((_sum.durationSec ?? 0) / 60);
 }
 
@@ -117,7 +99,6 @@ async function toMySubscription(
     : undefined;
   const period = (subscription && periodOf(subscription)) ?? fallback;
   const cap = readClientUsageCap(cs, cs.service);
-  // Une solution resiliee ou impayee n'a plus de quota qui court.
   const tracksUsage = cs.status === "ACTIVE" || cs.status === "CONFIGURING";
 
   const usage =
@@ -134,8 +115,6 @@ async function toMySubscription(
     serviceName: cs.service.name,
     serviceSlug: cs.service.slug,
     status: cs.status,
-    // Le prix convenu a la commande, non celui du catalogue : un changement
-    // de tarif ne doit pas modifier ce qu'un client paie deja.
     monthlyPriceCents: cs.monthlyPriceCents ?? cs.service.monthlyPriceCents!,
     tier: readSubscriptionTier(cs.service),
     paymentFailedAt: cs.paymentFailedAt,
@@ -151,10 +130,6 @@ async function toMySubscription(
   };
 }
 
-/**
- * Les solutions de l'organisation qui portent un abonnement mensuel, avec leur
- * periode de facturation Stripe et la consommation du quota sur cette periode.
- */
 export async function getMySubscriptions(
   organizationId: string
 ): Promise<MySubscription[]> {
@@ -176,10 +151,6 @@ export async function getMySubscriptions(
   );
 }
 
-/**
- * Un abonnement precis, pour la page d'une solution. Renvoie null quand la
- * solution n'est pas facturee au mois : il n'y a alors pas d'abonnement.
- */
 export async function getSubscriptionFor(
   clientServiceId: string
 ): Promise<MySubscription | null> {
@@ -209,7 +180,6 @@ export function describePeriod(subscription: MySubscription): string {
   return `Période du ${formatShortDate(start)} au ${formatShortDate(end)}`;
 }
 
-/** La phrase qui repond a « quand, et combien ? ». */
 export function describeNextCharge(subscription: MySubscription): string {
   if (subscription.status === "CANCELED") {
     return subscription.canceledAt
@@ -236,7 +206,6 @@ export function monthlyTotalCents(subscriptions: MySubscription[]): number {
     .reduce((sum, subscription) => sum + subscription.monthlyPriceCents, 0);
 }
 
-/** Le prochain prelevement : la fin de periode la plus proche qui se renouvelle. */
 export function nextRenewal(subscriptions: MySubscription[]): Date | null {
   const dates = subscriptions
     .filter((subscription) => isRunning(subscription) && subscription.renews)

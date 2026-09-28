@@ -25,8 +25,6 @@ export function SignupForm({
   googleEnabled: boolean;
   next: string | null;
 }) {
-  // Le lien du mail de confirmation connecte et renvoie ici : la solution
-  // choisie sur le site public, sinon le tableau de bord.
   const afterVerificationUrl = next ?? AFTER_VERIFICATION_URL;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

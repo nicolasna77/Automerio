@@ -18,7 +18,6 @@ test("un appel à rappeler s'affiche en tête du tableau de bord, puis se marque
     },
     select: { id: true },
   });
-  // Un motif unique : d'autres tests creent des appels sur la meme solution.
   const reason = `Devis salle de bain ${Date.now()}`;
   const call = await db.usageEvent.create({
     data: {

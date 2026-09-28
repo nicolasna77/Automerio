@@ -11,13 +11,6 @@ export type ServiceCopy = {
   faq: Faq[];
 };
 
-/**
- * Le texte de vente des pages `/prestations/[slug]`. Il vit dans le depot et
- * non dans la table `Service`, qui porte ce que l'admin change seul (nom,
- * description courte, prix, plafond) : cette copie-ci se relit, se versionne
- * et se teste avec le site. Une solution sans entree ici rend une page sans
- * ces sections, jamais une page cassee.
- */
 export const SERVICE_COPY: Record<string, ServiceCopy> = {
   "standard-telephonique-ia": {
     intro:

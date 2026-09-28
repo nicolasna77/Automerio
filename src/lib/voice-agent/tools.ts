@@ -170,11 +170,6 @@ export type ToolContext = {
   clientServiceId: string;
   callId: string | null;
   configuration: Configuration;
-  /**
-   * Appel de test du client : l'agent recoit les memes reponses qu'en vrai,
-   * pour se comporter pareil, mais rien n'est ecrit — ni rendez-vous, ni
-   * commande, ni evenement d'agenda — et aucun appel n'est transfere.
-   */
   testMode?: boolean;
 };
 

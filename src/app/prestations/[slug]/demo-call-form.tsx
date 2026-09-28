@@ -105,8 +105,6 @@ export function DemoCallForm({ serviceSlug }: { serviceSlug: string }) {
         Recevoir l&apos;appel
       </Button>
 
-      {/* Le consentement tient a la demande elle-meme : le texte est lie au
-          bouton pour qu'un lecteur d'ecran l'annonce avant l'envoi. */}
       <p id={noticeId} className="text-xs leading-relaxed text-muted-foreground">
         En demandant cet appel, vous confirmez avoir pris connaissance de{" "}
         <Link

@@ -36,11 +36,6 @@ async function summarize(turns: TranscriptTurn[], companyName: string): Promise<
   return parseSummaryResponse(completion.choices[0]?.message.content);
 }
 
-/**
- * Enregistre la transcription d'un appel termine, la resume, et previent
- * l'equipe du client. Chaque etape echoue sans emporter les autres : sans
- * resume, la transcription reste ; sans e-mail, le resume reste.
- */
 export async function finalizeCallSummary(input: {
   usageEventExternalId: string;
   clientServiceId: string;

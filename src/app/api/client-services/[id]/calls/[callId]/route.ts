@@ -15,7 +15,6 @@ function readTranscript(value: unknown): TranscriptTurn[] {
   );
 }
 
-/** La transcription d'un appel, pour qui peut lire la solution qui l'a recu. */
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string; callId: string }> }
@@ -30,8 +29,6 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  // L'appel doit appartenir a la solution verifiee ci-dessus : sans ce filtre,
-  // un identifiant d'appel d'une autre entreprise suffirait a lire sa transcription.
   const summary = await db.callSummary.findFirst({
     where: { usageEventId: callId, usageEvent: { clientServiceId: id } },
     select: { transcript: true },

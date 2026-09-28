@@ -78,7 +78,6 @@ function OutcomeBadge({ outcome }: { outcome: string | null }) {
   );
 }
 
-/** La transcription, chargee une seule fois, a la premiere demande. */
 function Transcript({ clientServiceId, callId }: { clientServiceId: string; callId: string }) {
   const [state, setState] = useState<
     { status: "loading" } | { status: "error" } | { status: "ready"; turns: TranscriptTurn[] }
@@ -148,12 +147,8 @@ function RecentCallItem({
 }) {
   const panelId = useId();
   const [showTranscript, setShowTranscript] = useState(false);
-  // L'etat affiche suit le clic tout de suite ; la prochaine interrogation de
-  // la liste le confirme.
   const [handledOverride, setHandledOverride] = useState<boolean | null>(null);
   const [isPending, startTransition] = useTransition();
-  // Une fois la liste d'accord avec le clic, on la suit de nouveau : sinon un
-  // collegue qui rouvre l'appel ne se verrait jamais ici.
   if (handledOverride !== null && !isPending && call.handled === handledOverride) {
     setHandledOverride(null);
   }
@@ -285,8 +280,6 @@ function RecentCallItem({
 
 export function CallActivity({ clientServiceId }: { clientServiceId: string }) {
   const [data, setData] = useState<CallsResponse | null>(null);
-  // Hors des lignes : la liste est remplacee a chaque interrogation, un appel
-  // ouvert doit le rester.
   const [expandedIds, setExpandedIds] = useState<ReadonlySet<string>>(new Set());
 
   useEffect(() => {

@@ -19,11 +19,6 @@ import { placeDemoCall } from "@/lib/twilio";
 
 const TESTABLE_STATUSES = new Set(["CONFIGURING", "ACTIVE"]);
 
-/**
- * Fait appeler le client par l'agent de sa solution, avec sa configuration
- * actuelle, pour l'entendre avant ses clients. Rien n'est enregistre pendant
- * l'appel (voir `testMode` des outils), et il ne compte pas dans le forfait.
- */
 export async function requestTestCallAction(clientServiceId: string, phone: string) {
   return runAction(async () => {
     const session = await requireUser();
@@ -50,10 +45,6 @@ export async function requestTestCallAction(clientServiceId: string, phone: stri
       throw new ActionError("Le test d'appel n'est pas disponible pour le moment. Réessayez plus tard.");
     }
 
-    // Compte en base plutot qu'en memoire : la limite tient d'une instance a
-    // l'autre et apres un redemarrage. Le verrou de transaction sur la
-    // solution sérialise le comptage et la création : sans lui, des demandes
-    // simultanees liraient toutes le meme compte et passeraient la limite.
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const { testCall, recent } = await db.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${clientServiceId}))`;
@@ -84,7 +75,6 @@ export async function requestTestCallAction(clientServiceId: string, phone: stri
     } catch (err) {
       const code = err && typeof err === "object" && "code" in err ? err.code : "inconnu";
       console.error(`[test] échec de l'appel sortant ${testCall.id} (code Twilio ${code}).`);
-      // Un appel qui n'est pas parti ne doit pas consommer un des tests du jour.
       await db.testCall.delete({ where: { id: testCall.id } });
       throw new ActionError("L'appel n'a pas pu être lancé. Vérifiez le numéro, puis réessayez.");
     }

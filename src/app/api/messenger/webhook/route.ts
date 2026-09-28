@@ -55,10 +55,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ received: true });
   }
 
-  // Meta renvoie un webhook mal acquitte, souvent pendant que la premiere
-  // reponse se redige : le message est inscrit avant d'y repondre, et un
-  // message deja inscrit ne recoit pas une seconde reponse. Si l'inscription
-  // echoue, l'assistant repond quand meme, sans historique.
   const conversationId = await claimInboundMessage({
     clientServiceId: clientService.id,
     channel: "MESSENGER",
@@ -73,7 +69,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ received: true });
   }
 
-  // La reponse n'entre dans l'historique qu'une fois reellement envoyee.
   let sentReply: string | null = null;
   try {
     const replyText = await generateMessagingReply(clientService, message.text);

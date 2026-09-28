@@ -51,8 +51,6 @@ const GENERIC_FIELD_KEYS = new Set(["companyName"]);
 
 const TRUST_POINTS = ["Installé par notre équipe", "Sans engagement", "Prix TTC affichés"];
 
-// Des icones de resultat plutot qu'une coche repetee : chaque benefice a sa
-// propre forme, sans pretendre illustrer un contenu qui varie d'une solution a l'autre.
 const BENEFIT_ICONS = [Target, Clock3, ListChecks];
 
 const INCLUDED = [
@@ -76,7 +74,6 @@ export default async function PrestationDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  // En parallele : la session et le catalogue n'attendent pas la solution.
   const [service, session, allServices] = await Promise.all([
     getServiceBySlug(slug),
     getSession(),

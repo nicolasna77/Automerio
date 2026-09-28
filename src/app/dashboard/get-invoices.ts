@@ -24,8 +24,6 @@ function subscriptionIdOf(invoice: Stripe.Invoice): string | null {
 export async function getMyInvoices(
   organizationId: string
 ): Promise<InvoiceDTO[]> {
-  // Les factures de l'entreprise, non celles de la personne qui regarde : un
-  // membre invite n'a rien paye lui-meme et verrait sinon une page vide.
   const customerId = await organizationCustomerId(organizationId);
   if (!customerId) return [];
 

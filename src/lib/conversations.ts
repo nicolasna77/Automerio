@@ -1,24 +1,6 @@
 import { Prisma, type MessagingChannel } from "@prisma/client";
 import { db } from "@/lib/db";
 
-/**
- * L'historique des conversations tenues par l'assistant sur WhatsApp,
- * Messenger et Instagram.
- *
- * Le tableau de bord ne montrait qu'un compteur de messages : le client ne
- * pouvait pas relire ce que l'assistant avait repondu en son nom.
- */
-
-/**
- * Enregistre un message recu, avant toute reponse, et renvoie l'identifiant de
- * sa conversation — ou `null` si Meta a deja livre ce message.
- *
- * Meta renvoie un webhook qui n'a pas ete acquitte assez vite, c'est-a-dire
- * pendant que l'assistant redige encore sa reponse au premier envoi : le
- * message doit etre inscrit des son arrivee, sans quoi le second envoi ne le
- * trouverait pas et l'assistant repondrait deux fois. L'unicite de
- * `externalId` tranche entre deux livraisons simultanees.
- */
 export async function claimInboundMessage(input: {
   clientServiceId: string;
   channel: MessagingChannel;
@@ -59,9 +41,6 @@ export async function claimInboundMessage(input: {
       return conversation.id;
     });
   } catch (err) {
-    // Le conflit peut aussi venir de la conversation (deux premiers messages
-    // simultanes d'un meme contact) : seul un message deja present est un
-    // doublon.
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
       const existing = await db.conversationMessage.findUnique({
         where: { externalId: input.externalId },
@@ -73,7 +52,6 @@ export async function claimInboundMessage(input: {
   }
 }
 
-/** Enregistre la reponse de l'assistant, une fois reellement envoyee. */
 export async function recordReply(conversationId: string, text: string): Promise<void> {
   const now = new Date();
   await db.$transaction([
@@ -84,11 +62,6 @@ export async function recordReply(conversationId: string, text: string): Promise
   ]);
 }
 
-/**
- * Comment designer un contact sans exposer plus que necessaire : un numero
- * WhatsApp se lit tel quel, un identifiant Messenger ou Instagram n'a de sens
- * pour personne et se resume a ses derniers caracteres.
- */
 export function contactLabel(channel: MessagingChannel, contactId: string): string {
   if (channel === "WHATSAPP") {
     const digits = contactId.replace(/\D/g, "");
@@ -110,7 +83,6 @@ export type ConversationView = {
   messages: { id: string; direction: "INBOUND" | "OUTBOUND"; text: string; createdAt: Date }[];
 };
 
-/** Les dernieres conversations d'une solution, messages dans l'ordre. */
 export async function getConversations(clientServiceId: string): Promise<ConversationView[]> {
   const conversations = await db.conversation.findMany({
     where: { clientServiceId },

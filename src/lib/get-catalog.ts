@@ -28,8 +28,6 @@ export const getCatalog = cache(async (): Promise<ServiceDTO[]> => {
   return services.map(toServiceDTO);
 });
 
-// Dedoublonne par requete : `generateMetadata` et la page lisent la meme
-// solution, une seule requete part vers la base.
 export const getServiceBySlug = cache(async (slug: string): Promise<ServiceDTO | null> => {
   const service = await db.service.findFirst({ where: { slug, isActive: true } });
   return service ? toServiceDTO(service) : null;

@@ -40,7 +40,6 @@ export function DashboardSidebar({
   activeOrganization: OrganizationSummary;
   organizations: OrganizationSummary[];
   openHelpRequestCount: number;
-  /** Les appels a rappeler : ils s'affichent en tete de la vue d'ensemble. */
   pendingCallbackCount?: number;
   name: string;
   email: string;

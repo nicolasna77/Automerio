@@ -11,9 +11,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     orderBy: { sortOrder: "asc" },
   });
 
-  // L'accueil expose le catalogue : il change quand une solution change.
-  // Les pages sans date reelle n'en portent pas — les moteurs ignorent un
-  // `lastmod` qu'ils jugent peu fiable, mieux vaut se taire que l'inventer.
   const catalogUpdatedAt = services.reduce<Date | undefined>(
     (latest, service) =>
       latest && latest >= service.updatedAt ? latest : service.updatedAt,

@@ -147,33 +147,19 @@ model Service {
   category          ServiceCategory
   monthlyPriceCents Int?
 
-  // Plafond d'usage inclus dans l'abonnement. Les trois champs vont ensemble :
-  // sans unite ni quantite, la solution n'a pas de plafond. L'etiquette lue par
-  // le client (« 150 min incluses, puis 0,30 EUR/min ») en est derivee
-  // (`formatUsageCap`), pour qu'elle ne puisse pas contredire la jauge.
   includedUsageUnits    Int?
   usageUnit             UsageUnit?
   overageUnitPriceCents Int?
 
-  // Bornes du curseur par lequel le client choisit son quota.
-  // `includedUsageUnits` en est le plancher et correspond a
-  // `monthlyPriceCents` : rester au minimum coute le prix affiche au catalogue.
-  // Sans `maxUsageUnits`, la solution n'est pas personnalisable.
   maxUsageUnits         Int?
   usageStepUnits        Int?
 
-  // Ce que coute une unite ajoutee au quota. Doit rester sous
-  // `overageUnitPriceCents`, sinon le client n'a aucune raison d'acheter a
-  // l'avance plutot que de payer son depassement.
   extraUnitPriceCents   Int?
 
   configFields      Json            @default("[]")
   sortOrder         Int             @default(0)
   isActive          Boolean         @default(true)
 
-  // Date de derniere modification, publiee en `lastmod` dans le sitemap. Les
-  // moteurs ignorent une date qu'ils jugent peu fiable : elle doit donc suivre
-  // les vraies editions du catalogue, pas la date de deploiement.
   updatedAt         DateTime        @updatedAt
   clientServices    ClientService[]
   marketingPosts    MarketingPost[]
@@ -200,10 +186,6 @@ model ClientService {
   status                  ClientServiceStatus @default(PENDING_PAYMENT)
   configuration           Json                @default("{}")
 
-  // Le quota choisi a la commande et le prix convenu alors. Nuls quand la
-  // solution n'est pas personnalisable : les valeurs du catalogue font foi.
-  // Le prix est fige a l'achat — un changement de tarif ne doit pas modifier
-  // retroactivement ce qu'un client paie deja.
   includedUsageUnits      Int?
   monthlyPriceCents       Int?
   adminNote               String?
@@ -325,7 +307,6 @@ model UsageEvent {
   externalId      String?       @unique
   metadata        Json?
   createdAt       DateTime      @default(now())
-  /// Quand le client a marque l'appel comme traite (rappele, regle…).
   handledAt       DateTime?
   callSummary     CallSummary?
 
@@ -394,12 +375,7 @@ model Organization {
   createdAt      DateTime
   metadata       String?
 
-  // Le client Stripe de l'entreprise, non de la personne qui a commande. Une
-  // prestation appartient a une organisation et se partage entre ses membres :
-  // ses factures doivent suivre la meme frontiere. Cree a la premiere commande
-  // seulement — une entreprise qui n'achete rien n'encombre pas Stripe.
   stripeCustomerId String?        @unique
-  /// Dernier envoi du bilan hebdomadaire : une relance du cron n'en envoie pas un second.
   lastWeeklyDigestAt DateTime?
   members        Member[]
   invitations    Invitation[]
@@ -518,8 +494,6 @@ enum DemoCallStatus {
   FAILED
 }
 
-/// Appel d'essai demande depuis le site public. Le numero n'est jamais stocke
-/// en clair : seule son empreinte HMAC sert a n'accorder qu'un essai par numero.
 model DemoCall {
   id            String         @id @default(cuid())
   phoneHash     String         @unique
@@ -536,13 +510,10 @@ model DemoCall {
   @@map("demo_call")
 }
 
-/// Ce qui s'est dit pendant un appel traite par l'agent vocal, et son resume.
-/// Genere a la fin de l'appel ; absent si l'appel n'a rien produit d'intelligible.
 model CallSummary {
   id           String     @id @default(cuid())
   usageEventId String     @unique
   usageEvent   UsageEvent @relation(fields: [usageEventId], references: [id], onDelete: Cascade)
-  /// Les tours de parole, dans l'ordre : [{ speaker: "caller" | "assistant", text }]
   transcript   Json
   reason       String?
   summary      String?
@@ -564,14 +535,11 @@ enum MessageDirection {
   OUTBOUND
 }
 
-/// Un fil d'echanges entre l'assistant d'une solution de messagerie et un
-/// contact, sur un canal. Supprime avec la solution.
 model Conversation {
   id              String                @id @default(cuid())
   clientServiceId String
   clientService   ClientService         @relation(fields: [clientServiceId], references: [id], onDelete: Cascade)
   channel         MessagingChannel
-  /// L'identifiant du contact chez Meta : numero WhatsApp, ou identifiant de page.
   contactId       String
   lastMessageAt   DateTime              @default(now())
   createdAt       DateTime              @default(now())
@@ -588,7 +556,6 @@ model ConversationMessage {
   conversation   Conversation     @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   direction      MessageDirection
   text           String
-  /// L'identifiant du message chez Meta, pour ignorer un webhook renvoye.
   externalId     String?          @unique
   createdAt      DateTime         @default(now())
 
@@ -596,8 +563,6 @@ model ConversationMessage {
   @@map("conversation_message")
 }
 
-/// Appel de test demande par un client depuis son tableau de bord : l'agent
-/// l'appelle avec la configuration de sa solution, sans rien enregistrer.
 model TestCall {
   id              String         @id @default(cuid())
   clientServiceId String

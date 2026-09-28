@@ -1,8 +1,3 @@
-// Passe toutes les prestations non résiliées d'un utilisateur en ACTIVE,
-// pour prévisualiser le dashboard sans repasser par un vrai paiement Stripe.
-//
-// Usage : npx tsx scripts/mark-paid.ts <email>
-
 import { config } from "dotenv";
 config();
 import { PrismaClient } from "@prisma/client";

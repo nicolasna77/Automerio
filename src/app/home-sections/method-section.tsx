@@ -1,12 +1,5 @@
 import { cn } from "@/lib/utils";
 
-/**
- * Les cinq etapes decrivent le parcours que l'application fait reellement vivre
- * au client : il choisit au catalogue, renseigne sa configuration, paie, et
- * l'equipe deploie — `PENDING_PAYMENT`, puis `CONFIGURING`, puis `ACTIVE`.
- * Promettre ici un audit ou une formation qui n'existent nulle part dans le
- * produit ferait attendre au visiteur un rendez-vous qui ne viendra pas.
- */
 const METHOD_STEPS = [
   {
     step: "01",

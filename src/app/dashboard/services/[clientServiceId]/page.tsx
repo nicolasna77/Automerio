@@ -59,9 +59,7 @@ export default async function ServiceDetailPage({
   const item = await getMyService(clientServiceId, session.user.id);
   if (!item) notFound();
 
-  // Null pour une solution sans abonnement mensuel : elle n'a pas de periode.
   const subscription = await getSubscriptionFor(clientServiceId);
-  // La carte d'abonnement dit deja le plafond : le tableau ne le repete pas.
   const subscriptionShowsCap = Boolean(subscription?.cap);
 
   const isLive =

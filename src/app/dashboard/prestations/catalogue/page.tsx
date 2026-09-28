@@ -19,7 +19,6 @@ export default async function CataloguePage() {
     select: { serviceId: true, status: true },
     orderBy: { createdAt: "asc" },
   });
-  // La plus recente l'emporte : c'est elle que le badge doit refleter.
   const statusByServiceId = Object.fromEntries(
     clientServices.map((cs) => [cs.serviceId, cs.status])
   );

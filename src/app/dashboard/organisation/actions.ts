@@ -19,13 +19,6 @@ import {
 
 const TOO_MANY_ATTEMPTS = "Trop de tentatives. Réessayez dans quelques minutes.";
 
-/**
- * L'equipe telle qu'elle est maintenant, et la place de celui qui agit.
- *
- * Les regles se decident sur l'equipe entiere et non sur le seul couple
- * acteur/cible : « ne pas retirer le dernier proprietaire » demande de savoir
- * combien il en reste.
- */
 async function loadTeam(organizationId: string, actorUserId: string) {
   const members = await db.member.findMany({
     where: { organizationId },
@@ -42,10 +35,6 @@ function enforce(verdict: Verdict) {
 
 type TeamRow = TeamMember & { id: string };
 
-/**
- * better-auth designe un membre par l'identifiant de sa ligne `member`, non par
- * celui de l'utilisateur : passer le second ne retrouverait personne.
- */
 function findTarget(members: TeamRow[], memberId: string): TeamRow {
   const target = members.find((m) => m.id === memberId);
   if (!target) throw new ActionError("Ce membre ne fait pas partie de l'organisation.");
@@ -74,8 +63,6 @@ export async function inviteMemberAction(
     const { members, actor } = await loadTeam(organizationId, session.user.id);
     enforce(canInvite(actor));
 
-    // Deux verifications que better-auth ne fait pas a notre place, et dont
-    // l'absence produirait des messages incomprehensibles.
     const alreadyMember = await db.member.findFirst({
       where: { organizationId, user: { email: trimmedEmail } },
       select: { id: true },
@@ -110,8 +97,6 @@ export async function cancelInvitationAction(
     const { actor } = await loadTeam(organizationId, session.user.id);
     enforce(canInvite(actor));
 
-    // L'invitation doit appartenir a cette organisation : sans ce controle,
-    // son seul identifiant suffirait a annuler celle d'une autre entreprise.
     const invitation = await db.invitation.findUnique({
       where: { id: invitationId },
       select: { organizationId: true },
@@ -169,14 +154,6 @@ export async function changeMemberRoleAction(
   });
 }
 
-/**
- * Transmet la propriete a un autre membre ; l'ancien proprietaire devient
- * responsable.
- *
- * Les deux changements passent dans une seule transaction : deux appels
- * successifs a better-auth pourraient s'arreter entre les deux, et laisser
- * l'organisation avec deux proprietaires, ou aucun.
- */
 export async function transferOwnershipAction(organizationId: string, memberId: string) {
   return runAction(async () => {
     const session = await requireUser();
@@ -185,9 +162,6 @@ export async function transferOwnershipAction(organizationId: string, memberId: 
     enforce(canTransferOwnership(actor, target));
 
     await db.$transaction(async (tx) => {
-      // Le role lu plus haut peut avoir change depuis : deux transmissions
-      // lancees ensemble vers deux membres feraient sinon deux proprietaires.
-      // Seule la premiere trouve encore l'acteur dans son role de proprietaire.
       const demoted = await tx.member.updateMany({
         where: { id: actor.id, role: actor.role },
         data: { role: "admin" },

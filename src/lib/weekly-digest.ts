@@ -3,12 +3,6 @@ import type { Configuration } from "@/lib/catalog";
 import { hoursOf, isOpenAt } from "@/lib/business-hours";
 import { sendWeeklyDigestEmail } from "@/lib/email/notifications";
 
-/**
- * Le bilan de la semaine, envoye chaque lundi : ce que les solutions ont fait
- * pour le client. C'est ce qui lui montre que l'abonnement travaille — et ce
- * qui le retient de resilier.
- */
-
 export type WeeklyDigest = {
   calls: number;
   afterHoursCalls: number;
@@ -21,7 +15,6 @@ export type DigestPeriod = { start: Date; end: Date };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-/** Les sept jours qui precedent `now`. */
 export function lastSevenDays(now: Date): DigestPeriod {
   return { start: new Date(now.getTime() - 7 * DAY_MS), end: now };
 }
@@ -39,7 +32,6 @@ function plural(count: number, singular: string, pluralForm = `${singular}s`): s
   return `${count} ${count > 1 ? pluralForm : singular}`;
 }
 
-/** Les lignes du bilan, dans l'ordre ou le client les lira. Rien pour un zero. */
 export function digestHighlights(digest: WeeklyDigest): string[] {
   const lines: string[] = [];
   if (digest.calls > 0) {
@@ -82,7 +74,6 @@ export async function computeWeeklyDigest(organizationId: string, period: Digest
   return { calls: calls.length, afterHoursCalls, appointments, orders, messagesAnswered };
 }
 
-/** Un bilan par semaine : un second passage du cron dans les six jours ne renvoie rien. */
 const MIN_INTERVAL_MS = 6 * DAY_MS;
 
 export async function sendWeeklyDigests(now = new Date()): Promise<{ sent: number; empty: number; skipped: number }> {
@@ -95,8 +86,6 @@ export async function sendWeeklyDigests(now = new Date()): Promise<{ sent: numbe
 
   const result = { sent: 0, empty: 0, skipped: 0 };
   for (const organization of organizations) {
-    // L'entreprise est reservee avant tout calcul : deux executions
-    // simultanees du cron ne peuvent pas envoyer deux bilans.
     const { count } = await db.organization.updateMany({
       where: {
         id: organization.id,
@@ -127,8 +116,6 @@ export async function sendWeeklyDigests(now = new Date()): Promise<{ sent: numbe
       result.sent += 1;
     } catch (err) {
       console.error(`[bilan] échec pour l'organisation ${organization.id} :`, err);
-      // Rendre la reservation : sans quoi une erreur passagere prive
-      // l'entreprise de son bilan pour toute la semaine.
       await db.organization
         .updateMany({
           where: { id: organization.id, lastWeeklyDigestAt: now },

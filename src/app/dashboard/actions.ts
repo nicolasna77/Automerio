@@ -59,11 +59,6 @@ async function requireUserId() {
   return session.user.id;
 }
 
-/**
- * Le tarif convenu a la commande, qui prime sur celui du catalogue : une
- * solution personnalisable a ete vendue a un prix que le client a choisi, et
- * reprendre son paiement ne doit pas lui en presenter un autre.
- */
 function agreedPricing(clientService: {
   monthlyPriceCents: number | null;
   service: { id: string; name: string; monthlyPriceCents: number | null };
@@ -75,7 +70,6 @@ function agreedPricing(clientService: {
   };
 }
 
-/** Consulter et configurer : il suffit d'appartenir a l'organisation porteuse. */
 async function requireMemberOn(
   clientService: { organizationId: string },
   userId: string
@@ -85,12 +79,6 @@ async function requireMemberOn(
   }
 }
 
-/**
- * Engager de l'argent ou couper un service en marche : l'appartenance ne
- * suffit plus, il faut le role. Le message distingue les deux refus — un
- * membre a qui l'on dit « cette solution n'existe pas » cherchera le probleme
- * au mauvais endroit.
- */
 async function requireBillingRoleOn(
   clientService: { organizationId: string },
   userId: string
@@ -139,15 +127,11 @@ async function createCheckoutSession(
   user: { email: string },
   promotionCodeId: string | null = null
 ): Promise<string> {
-  // Le client Stripe appartient a l'organisation : c'est elle qui achete,
-  // et ses factures doivent rester visibles de tous ses membres.
   const customerId = await getOrCreateOrganizationCustomer(
     organizationId,
     user.email
   );
   const vatRateId = await getIncludedVatRateId();
-  // Une solution ne se vend qu'en abonnement mensuel : sans prix mensuel, il
-  // n'y a rien a vendre, et aucun paiement ponctuel ne doit partir.
   if (service.monthlyPriceCents === null) {
     throw new ActionError("Cette solution n'a pas encore de prix. Contactez-nous pour l'activer.");
   }
@@ -206,10 +190,6 @@ export async function activateService(
       throw new ActionError("Merci de donner un nom à cette activation.");
     }
 
-    // Le quota choisi et son prix sont recalcules ici : ceux que le navigateur
-    // a affiches ne servaient qu'a montrer. Une valeur entre deux crans est
-    // refusee plutot que corrigee — facturer autre chose que ce qui a ete
-    // choisi serait pire que refuser.
     const tier = readSubscriptionTier(service);
     let includedUsageUnits: number | null = null;
     let monthlyPriceCents: number | null = null;
@@ -265,8 +245,6 @@ export async function activateService(
       const checkoutUrl = await createCheckoutSession(
         clientService.id,
         organizationId,
-        // Le prix convenu, non celui du catalogue : le client a choisi son
-        // quota, c'est ce choix qui est facture.
         { ...service, monthlyPriceCents: monthlyPriceCents ?? service.monthlyPriceCents },
         user,
         promotion?.promotionCodeId ?? null
@@ -662,11 +640,6 @@ export async function cancelService(clientServiceId: string) {
   });
 }
 
-/**
- * Le portail Stripe donne la main sur le moyen de paiement et les factures de
- * l'entreprise : il se reserve donc aux memes roles que la resiliation et
- * l'achat, et non a tout membre.
- */
 export async function openBillingPortal(organizationId: string) {
   return runAction(async () => {
     const userId = await requireUserId();
@@ -683,18 +656,6 @@ export async function openBillingPortal(organizationId: string) {
   });
 }
 
-/**
- * Changer le quota d'une solution deja active.
- *
- * Le role est exige, non la simple appartenance : l'operation preleve tout de
- * suite le prorata de la difference. Le quota est revalide comme a l'achat —
- * une valeur entre deux crans est refusee, pas corrigee — et le prix recalcule
- * ici, jamais repris du navigateur.
- *
- * Stripe est modifie avant la base : si le prelevement echoue, le client garde
- * son ancien quota et son ancien prix, ce qui est l'etat vrai. L'inverse lui
- * promettrait des minutes qu'il n'a pas payees.
- */
 export async function changeSubscriptionQuota(
   clientServiceId: string,
   units: number

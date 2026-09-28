@@ -2,9 +2,6 @@ import { expect, test } from "@playwright/test";
 import { db } from "@/lib/db";
 import { CLIENT, CLIENT_STATE } from "./roles";
 
-// Le serveur de test tourne avec DEMO_CALL_DRY_RUN : le test s'enregistre,
-// seul l'appel Twilio est saute. Les deux tests partagent le compteur du jour
-// de la meme solution : ils passent l'un apres l'autre.
 test.use({ storageState: CLIENT_STATE });
 test.describe.configure({ mode: "serial" });
 

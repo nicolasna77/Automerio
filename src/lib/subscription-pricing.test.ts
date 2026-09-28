@@ -8,7 +8,6 @@ import {
   type SubscriptionTier,
 } from "./subscription-pricing";
 
-/** Le standard téléphonique tel qu'il est au catalogue. */
 const COLUMNS = {
   monthlyPriceCents: 7900,
   includedUsageUnits: 150,
@@ -33,7 +32,6 @@ describe("readSubscriptionTier", () => {
   });
 
   it("refuse une solution dont une seule borne manque", () => {
-    // Un maximum sans pas décrit un curseur dont on ne sait pas lire les crans.
     for (const missing of [
       "maxUsageUnits",
       "usageStepUnits",
@@ -59,7 +57,6 @@ describe("readSubscriptionTier", () => {
 
 describe("calculateMonthlyPriceCents", () => {
   it("au plancher, facture exactement le prix du catalogue", () => {
-    // La garantie qui compte : personnaliser ne renchérit pas l'offre existante.
     expect(calculateMonthlyPriceCents(tier, 150)).toBe(7900);
   });
 
@@ -70,7 +67,6 @@ describe("calculateMonthlyPriceCents", () => {
   });
 
   it("reste moins cher que le dépassement, ce qui est sa raison d'être", () => {
-    // 150 minutes de plus : 30 € à l'avance, contre 45 € en dépassement.
     const enAvance = calculateMonthlyPriceCents(tier, 300) - calculateMonthlyPriceCents(tier, 150);
     const enDepassement = 150 * 30;
     expect(enAvance).toBeLessThan(enDepassement);
@@ -96,7 +92,6 @@ describe("clampToStep", () => {
   });
 
   it("ne dépasse pas le maximum quand l'écart n'est pas un multiple du pas", () => {
-    // 150 → 495 par pas de 100 : le dernier cran tomberait à 550.
     const irregulier = readSubscriptionTier({
       ...COLUMNS,
       maxUsageUnits: 495,
@@ -120,7 +115,6 @@ describe("isValidUnitSelection", () => {
   });
 
   it("refuse une valeur entre deux crans", () => {
-    // Le cas d'une requête forgée : le prix serait juste, le quota non.
     expect(isValidUnitSelection(tier, 155)).toBe(false);
   });
 
@@ -131,7 +125,6 @@ describe("isValidUnitSelection", () => {
   });
 
   it("refuse ce que le clamp aurait accepté en le corrigeant", () => {
-    // La distinction qui justifie deux fonctions : l'une affiche, l'autre vend.
     expect(clampToStep(tier, 155)).toBe(160);
     expect(isValidUnitSelection(tier, 155)).toBe(false);
   });

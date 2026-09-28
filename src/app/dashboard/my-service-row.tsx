@@ -61,10 +61,6 @@ export function MyServiceRow({
     <>
       <Card className="relative shadow-sm transition-shadow has-[a:hover]:shadow-md has-[a:focus-visible]:shadow-md has-[a:focus-visible]:focus-ring">
         <CardHeader>
-          {/* min-w-0 : CardHeader est une grille, et un enfant de grille refuse
-              par defaut de descendre sous sa largeur min-content. Sans cela le
-              titre et la frise depassent la carte, qui est en overflow-hidden :
-              le texte est coupe, pas defilable. */}
           <div className="flex min-w-0 items-start gap-3">
             <ServiceGlyph
               slug={service.slug}

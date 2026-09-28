@@ -52,7 +52,6 @@ function centsToEurosInput(cents: number | null): string {
   return cents === null ? "" : String(Math.round(cents) / 100);
 }
 
-/** Ce que le client lira sur le site et dans sa jauge, avec les valeurs en base. */
 function usageCapPreview(service: EditableService): string | null {
   const cap = readUsageCap(service);
   return cap ? `Affiché au client : « ${formatUsageCap(cap)} »` : null;
