@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
+import { getTranslations } from "next-intl/server";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { LEGAL_LAST_UPDATED } from "@/lib/legal";
 
-export function LegalPage({
+export async function LegalPage({
   title,
   intro,
   children,
@@ -12,6 +13,7 @@ export function LegalPage({
   intro?: ReactNode;
   children: ReactNode;
 }) {
+  const t = await getTranslations("Legal");
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
@@ -21,7 +23,7 @@ export function LegalPage({
             {title}
           </h1>
           <p className="mt-4 text-sm text-muted-foreground">
-            Dernière mise à jour : {LEGAL_LAST_UPDATED}
+            {t("lastUpdated", { date: LEGAL_LAST_UPDATED })}
           </p>
           {intro && (
             <div className="mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground">

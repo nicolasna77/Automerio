@@ -14,22 +14,10 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const NEXT_STEPS = [
-  {
-    label: "Réponse sous 24h ouvrées",
-    detail: "Un premier retour rapide sur votre message.",
-  },
-  {
-    label: "Échange de 15 minutes",
-    detail: "Sans engagement, pour comprendre vos besoins.",
-  },
-  {
-    label: "Devis personnalisé",
-    detail: "Adapté à votre activité, sous 48h.",
-  },
-];
+const NEXT_STEPS = ["reply", "call", "quote"] as const;
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const t = await getTranslations("Contact");
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
@@ -37,12 +25,10 @@ export default function ContactPage() {
         <section className="border-b border-border py-20 sm:py-28">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <h1 className="max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl">
-              Parlons de votre activité
+              {t("heading")}
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
-              Décrivez-nous ce qui vous prend le plus de temps aujourd&apos;hui
-              — nous vous recommandons les automatisations les plus utiles
-              pour votre métier.
+              {t("lead")}
             </p>
           </div>
         </section>
@@ -51,18 +37,18 @@ export default function ContactPage() {
           <div className="mx-auto grid max-w-6xl gap-12 px-4 sm:px-6 lg:grid-cols-[1fr_18rem]">
             <ContactForm />
             <aside>
-              <h2 className="text-sm font-medium text-muted-foreground">Ensuite</h2>
+              <h2 className="text-sm font-medium text-muted-foreground">{t("next")}</h2>
               <ol className="mt-4">
                 {NEXT_STEPS.map((step, index) => (
-                  <li key={step.label} className="border-t border-border py-4">
+                  <li key={step} className="border-t border-border py-4">
                     <span className="text-sm tabular-nums text-muted-foreground">
                       {index + 1}
                     </span>
                     <p className="mt-1 text-sm font-medium text-foreground">
-                      {step.label}
+                      {t(`steps.${step}.label`)}
                     </p>
                     <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">
-                      {step.detail}
+                      {t(`steps.${step}.detail`)}
                     </p>
                   </li>
                 ))}

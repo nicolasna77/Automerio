@@ -8,6 +8,7 @@ import {
   type FormEvent,
 } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -25,6 +26,7 @@ const EMPTY_VALUES = {
 };
 
 export function ContactForm() {
+  const t = useTranslations("Contact.form");
   const [isPending, startTransition] = useTransition();
   const [sent, setSent] = useState(false);
   const [values, setValues] = useState(EMPTY_VALUES);
@@ -45,7 +47,7 @@ export function ContactForm() {
       if (result.status === "success") {
         setSent(true);
       } else {
-        toast.error(result.error ?? "Une erreur est survenue.");
+        toast.error(result.error ?? t("genericError"));
       }
     });
   }
@@ -55,9 +57,9 @@ export function ContactForm() {
       <Card className="flex flex-col items-center justify-center gap-4 py-12 text-center">
         <CardContent>
           <div ref={confirmationRef} tabIndex={-1} className="outline-none">
-            <p className="font-medium text-foreground">Message envoyé.</p>
+            <p className="font-medium text-foreground">{t("sent")}</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Nous revenons vers vous sous 24h ouvrées.
+              {t("sentDetail")}
             </p>
           </div>
         </CardContent>
@@ -70,7 +72,7 @@ export function ContactForm() {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="absolute left-[-9999px]" aria-hidden="true">
-            <Label htmlFor="website">Site web</Label>
+            <Label htmlFor="website">{t("honeypot")}</Label>
             <Input
               id="website"
               name="website"
@@ -82,7 +84,7 @@ export function ContactForm() {
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="name">Nom</Label>
+              <Label htmlFor="name">{t("name")}</Label>
               <Input
                 id="name"
                 autoComplete="name"
@@ -92,7 +94,7 @@ export function ContactForm() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">E-mail</Label>
+              <Label htmlFor="email">{t("email")}</Label>
               <Input
                 id="email"
                 type="email"
@@ -105,25 +107,25 @@ export function ContactForm() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="activity">
-              Votre activité
+              {t("activity")}
               <span className="font-normal text-muted-foreground">
-                (facultatif)
+                {t("optional")}
               </span>
             </Label>
             <Input
               id="activity"
-              placeholder="Ex. artisan plombier, coach sportif…"
+              placeholder={t("activityPlaceholder")}
               value={values.activity}
               onChange={(e) => set("activity", e.target.value)}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="message">Message</Label>
+            <Label htmlFor="message">{t("message")}</Label>
             <Textarea
               id="message"
               required
               rows={5}
-              placeholder="Quelle tâche répétitive vous prend le plus de temps, à vous ou votre équipe ?"
+              placeholder={t("messagePlaceholder")}
               value={values.message}
               onChange={(e) => set("message", e.target.value)}
             />
@@ -142,11 +144,11 @@ export function ContactForm() {
                   data-icon="inline-start"
                   aria-hidden="true"
                 />
-                Envoi…
+                {t("sending")}
               </>
             ) : (
               <>
-                Envoyer le message
+                {t("submit")}
                 <ArrowRight data-icon="inline-end" aria-hidden="true" />
               </>
             )}

@@ -1,5 +1,6 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { db } from "@/lib/db";
 import { sendNewContactMessageInternalEmail } from "@/lib/email/notifications";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
@@ -22,11 +23,12 @@ export async function submitContactMessage(
     return { status: "success" };
   }
 
+  const t = await getTranslations("Contact.errors");
   const allowed = await checkRateLimit("contact-form", await getClientIp(), "10 m", 5);
   if (!allowed) {
     return {
       status: "error",
-      error: "Trop de messages envoyés récemment — merci de réessayer dans quelques minutes.",
+      error: t("rateLimited"),
     };
   }
 
@@ -35,10 +37,10 @@ export async function submitContactMessage(
   const message = input.message.trim();
 
   if (!name || !email || !message) {
-    return { status: "error", error: "Merci de renseigner votre nom, votre e-mail et votre message." };
+    return { status: "error", error: t("missingFields") };
   }
   if (!email.includes("@")) {
-    return { status: "error", error: "L'adresse e-mail saisie n'est pas valide." };
+    return { status: "error", error: t("invalidEmail") };
   }
 
   const activity = input.activity.trim() || null;

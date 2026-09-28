@@ -21,6 +21,7 @@ export function createPriceFormatter(t: PriceTranslator, locale: string) {
     perMonth: (monthly: number | null) =>
       monthly === null ? t("none") : t("perMonth", { amount: cents(monthly) }),
     perMonthWithVat: (inclusive: number) => t("perMonthWithVat", { amount: cents(inclusive) }),
+    amountWithVat: (inclusive: number) => t("amountWithVat", { amount: cents(inclusive) }),
     usageUnits: (count: number, unit: UsageUnit) => t("units", { count, unit }),
     usageCap: (cap: UsageCap) => {
       const included = t("included", { count: cap.includedUnits, unit: cap.unit });

@@ -1,4 +1,5 @@
 import { ArrowRight, Check, FileText, Headset, ListChecks, Phone, PhoneForwarded } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { ServiceGlyph } from "@/components/service-glyph";
 import { cn } from "@/lib/utils";
 
@@ -82,6 +83,7 @@ function Waveform() {
 }
 
 function CallIllustration({ booking }: { booking: boolean }) {
+  const t = useTranslations("Illustrations.call");
   return (
     <Frame>
       <Panel>
@@ -92,11 +94,11 @@ function CallIllustration({ booking }: { booking: boolean }) {
               <span className="absolute inset-0 animate-ping rounded-full bg-primary/20 motion-reduce:hidden" />
             </span>
             <div className="leading-tight">
-              <p className="text-sm font-medium text-foreground">Appel entrant</p>
+              <p className="text-sm font-medium text-foreground">{t("incoming")}</p>
               <p className="font-mono text-xs text-muted-foreground">06 •• •• 42 18</p>
             </div>
           </div>
-          <Label>12:47 · décroché</Label>
+          <Label>{t("answeredAt")}</Label>
         </div>
         <div className="mt-4 flex items-center justify-between gap-3 rounded-xl bg-muted/60 px-3 py-2">
           <Waveform />
@@ -105,14 +107,14 @@ function CallIllustration({ booking }: { booking: boolean }) {
         <div className="mt-4 space-y-2">
           {booking ? (
             <>
-              <Bubble from="them">Bonjour, je voudrais un rendez-vous jeudi matin.</Bubble>
-              <Bubble from="us">Jeudi, j&apos;ai 9 h 30 ou 10 h 30. Lequel vous convient ?</Bubble>
-              <Bubble from="them">10 h 30, parfait.</Bubble>
+              <Bubble from="them">{t("bookingThem1")}</Bubble>
+              <Bubble from="us">{t("bookingUs")}</Bubble>
+              <Bubble from="them">{t("bookingThem2")}</Bubble>
             </>
           ) : (
             <>
-              <Bubble from="them">Bonjour, j&apos;ai une fuite sous l&apos;évier, vous intervenez aujourd&apos;hui ?</Bubble>
-              <Bubble from="us">Je note votre adresse et je préviens le technicien tout de suite.</Bubble>
+              <Bubble from="them">{t("leakThem")}</Bubble>
+              <Bubble from="us">{t("leakUs")}</Bubble>
             </>
           )}
         </div>
@@ -124,23 +126,23 @@ function CallIllustration({ booking }: { booking: boolean }) {
             <Check className="size-3" />
           </span>
           <p className="text-sm font-medium text-foreground">
-            {booking ? "Rendez-vous ajouté à l'agenda" : "Résumé envoyé"}
+            {booking ? t("booked") : t("summarySent")}
           </p>
         </div>
         <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-xs">
           {booking ? (
             <>
-              <dt className="text-muted-foreground">Quand</dt>
-              <dd className="text-foreground">Jeudi · 10 h 30</dd>
-              <dt className="text-muted-foreground">Agenda</dt>
-              <dd className="text-foreground">Créneau inscrit automatiquement</dd>
+              <dt className="text-muted-foreground">{t("when")}</dt>
+              <dd className="text-foreground">{t("whenValue")}</dd>
+              <dt className="text-muted-foreground">{t("calendar")}</dt>
+              <dd className="text-foreground">{t("calendarValue")}</dd>
             </>
           ) : (
             <>
-              <dt className="text-muted-foreground">Motif</dt>
-              <dd className="text-foreground">Fuite · urgent</dd>
-              <dt className="text-muted-foreground">Suite</dt>
-              <dd className="text-foreground">Appel transféré au technicien</dd>
+              <dt className="text-muted-foreground">{t("reason")}</dt>
+              <dd className="text-foreground">{t("reasonValue")}</dd>
+              <dt className="text-muted-foreground">{t("next")}</dt>
+              <dd className="text-foreground">{t("nextValue")}</dd>
             </>
           )}
         </dl>
@@ -150,6 +152,7 @@ function CallIllustration({ booking }: { booking: boolean }) {
 }
 
 function ChatIllustration({ slug }: { slug: string }) {
+  const t = useTranslations("Illustrations.chat");
   return (
     <Frame>
       <Panel className="p-0">
@@ -157,35 +160,36 @@ function ChatIllustration({ slug }: { slug: string }) {
           <ServiceGlyph slug={slug} className="size-6" />
           <div className="leading-tight">
             <p className="text-sm font-medium text-foreground">Camille R.</p>
-            <Label>en ligne</Label>
+            <Label>{t("online")}</Label>
           </div>
         </div>
         <div className="space-y-2 px-4 py-4">
-          <Bubble from="them">Bonsoir, vous faites les devis pour une salle de bain ?</Bubble>
-          <Bubble from="us">Bonsoir Camille, oui, le devis est gratuit. Nous avons un créneau de visite mardi ou jeudi : lequel vous arrange ?</Bubble>
-          <Bubble from="them">Jeudi, en fin de journée.</Bubble>
-          <Bubble from="us">C&apos;est noté pour jeudi. L&apos;équipe vous confirme l&apos;heure demain matin.</Bubble>
+          <Bubble from="them">{t("them1")}</Bubble>
+          <Bubble from="us">{t("us1")}</Bubble>
+          <Bubble from="them">{t("them2")}</Bubble>
+          <Bubble from="us">{t("us2")}</Bubble>
         </div>
       </Panel>
       <div className="relative -mt-4 ml-auto flex w-fit items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 shadow-sm">
         <span className="size-1.5 rounded-full bg-primary" />
-        <Label className="normal-case">Répondu en 4 s, à 22 h 14</Label>
+        <Label className="normal-case">{t("answered")}</Label>
       </div>
     </Frame>
   );
 }
 
 function EmailIllustration() {
+  const t = useTranslations("Illustrations.email");
   return (
     <Frame>
       <Panel className="p-0">
         <div className="border-b border-border px-4 py-3">
-          <Label>Boîte de réception</Label>
+          <Label>{t("inbox")}</Label>
         </div>
         {[
-          { from: "M. Durand", subject: "Demande de devis cuisine", state: "Prioritaire" },
-          { from: "Sophie L.", subject: "Horaires samedi ?", state: "Brouillon prêt" },
-          { from: "Fournisseur Bois", subject: "Facture n° 2291", state: "Classé" },
+          { from: "M. Durand", subject: t("mail1Subject"), state: t("mail1State") },
+          { from: "Sophie L.", subject: t("mail2Subject"), state: t("mail2State") },
+          { from: t("mail3From"), subject: t("mail3Subject"), state: t("mail3State") },
         ].map((mail) => (
           <div key={mail.subject} className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 last:border-b-0">
             <div className="min-w-0 leading-tight">
@@ -199,33 +203,40 @@ function EmailIllustration() {
         ))}
       </Panel>
       <Panel className="relative -mt-3 ml-8 sm:ml-16">
-        <Label>Brouillon prêt · à relire</Label>
+        <Label>{t("draftLabel")}</Label>
         <p className="mt-2 text-[0.8125rem] leading-snug text-foreground">
-          Bonjour M. Durand, merci pour votre demande. Pour préparer le devis, pourriez-vous
-          nous indiquer les dimensions de la pièce ?
+          {t("draft")}
         </p>
       </Panel>
     </Frame>
   );
 }
 
+const CALENDAR_DAYS = ["mon", "tue", "wed", "thu", "fri"] as const;
+const BOOKED_SLOTS: Record<(typeof CALENDAR_DAYS)[number], number[]> = {
+  mon: [1],
+  tue: [0, 2],
+  wed: [1],
+  thu: [0, 1],
+  fri: [2],
+};
+
 function CalendarIllustration() {
-  const days = ["Lun", "Mar", "Mer", "Jeu", "Ven"];
-  const booked: Record<string, number[]> = { Lun: [1], Mar: [0, 2], Mer: [1], Jeu: [0, 1], Ven: [2] };
+  const t = useTranslations("Illustrations.calendar");
   return (
     <Frame>
       <Panel>
         <div className="flex items-center justify-between">
-          <p className="text-sm font-medium text-foreground">Semaine 39</p>
-          <Label>synchronisé</Label>
+          <p className="text-sm font-medium text-foreground">{t("week")}</p>
+          <Label>{t("synced")}</Label>
         </div>
         <div className="mt-4 grid grid-cols-5 gap-2">
-          {days.map((day) => (
+          {CALENDAR_DAYS.map((day) => (
             <div key={day} className="space-y-1.5">
-              <Label className="block text-center">{day}</Label>
+              <Label className="block text-center">{t(`days.${day}`)}</Label>
               {[0, 1, 2].map((slot) => {
-                const isBooked = booked[day]?.includes(slot);
-                const isNew = day === "Jeu" && slot === 1;
+                const isBooked = BOOKED_SLOTS[day].includes(slot);
+                const isNew = day === "thu" && slot === 1;
                 return (
                   <div
                     key={slot}
@@ -249,22 +260,23 @@ function CalendarIllustration() {
           <span className="flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
             <Check className="size-3" />
           </span>
-          <p className="text-sm font-medium text-foreground">Nouveau rendez-vous</p>
+          <p className="text-sm font-medium text-foreground">{t("newBooking")}</p>
         </div>
-        <p className="mt-1.5 text-xs text-muted-foreground">Jeudi 10 h 30 · réservé en ligne par votre client, inscrit dans votre agenda</p>
+        <p className="mt-1.5 text-xs text-muted-foreground">{t("newBookingDetail")}</p>
       </Panel>
     </Frame>
   );
 }
 
 function DocumentIllustration({ meeting }: { meeting: boolean }) {
+  const t = useTranslations("Illustrations.document");
   return (
     <Frame>
       <div className="grid grid-cols-[1fr_auto_1.15fr] items-center gap-3">
         <Panel className="space-y-2 p-3">
           <div className="flex items-center gap-1.5">
             <FileText className="size-4 text-muted-foreground" />
-            <Label>{meeting ? "réunion.m4a" : "contrat.pdf"}</Label>
+            <Label>{meeting ? t("meetingFile") : t("contractFile")}</Label>
           </div>
           {meeting ? (
             <div className="pt-1">
@@ -279,7 +291,7 @@ function DocumentIllustration({ meeting }: { meeting: boolean }) {
               />
             ))
           )}
-          <Label className="block pt-1">{meeting ? "47 min" : "18 pages"}</Label>
+          <Label className="block pt-1">{meeting ? t("meetingLength") : t("contractLength")}</Label>
         </Panel>
         <span className="flex size-8 items-center justify-center rounded-full border border-border bg-card text-primary">
           <ArrowRight className="size-4" />
@@ -287,12 +299,12 @@ function DocumentIllustration({ meeting }: { meeting: boolean }) {
         <Panel className="border-primary/30 p-3">
           <div className="flex items-center gap-1.5">
             <ListChecks className="size-3.5 text-primary" />
-            <Label className="text-primary">Synthèse</Label>
+            <Label className="text-primary">{t("summary")}</Label>
           </div>
           <ul className="mt-2 space-y-1.5 text-xs leading-snug text-foreground">
             {(meeting
-              ? ["Lancement validé pour le 14", "Budget : +10 % accordé", "Julie envoie le planning"]
-              : ["Durée : 24 mois", "Résiliation : préavis 3 mois", "Pénalité de retard : 1 %/mois"]
+              ? [t("meeting1"), t("meeting2"), t("meeting3")]
+              : [t("contract1"), t("contract2"), t("contract3")]
             ).map((line) => (
               <li key={line} className="flex gap-1.5">
                 <Check className="mt-0.5 size-3 shrink-0 text-primary" />
@@ -307,23 +319,24 @@ function DocumentIllustration({ meeting }: { meeting: boolean }) {
 }
 
 function SupportIllustration() {
+  const t = useTranslations("Illustrations.support");
   return (
     <Frame>
       <Panel>
         <div className="flex items-center justify-between">
-          <p className="text-sm font-medium text-foreground">Demande n° 184</p>
+          <p className="text-sm font-medium text-foreground">{t("request")}</p>
           <span className="rounded-full bg-primary/10 px-2 py-0.5 font-mono text-[0.6875rem] text-primary">
-            prioritaire
+            {t("priority")}
           </span>
         </div>
         <div className="mt-4 space-y-2">
-          <Bubble from="them">Pouvez-vous ajouter nos nouveaux horaires d&apos;été ?</Bubble>
-          <Bubble from="us">C&apos;est fait, ils s&apos;appliquent dès ce soir.</Bubble>
+          <Bubble from="them">{t("them")}</Bubble>
+          <Bubble from="us">{t("us")}</Bubble>
         </div>
       </Panel>
       <div className="relative -mt-4 ml-auto flex w-fit items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 shadow-sm">
         <span className="size-1.5 rounded-full bg-primary" />
-        <Label className="normal-case">Pris en charge en priorité</Label>
+        <Label className="normal-case">{t("handled")}</Label>
       </div>
     </Frame>
   );
@@ -346,10 +359,11 @@ export function ServiceIllustration({ slug, className }: { slug: string; classNa
 }
 
 export function ForwardingDiagram({ vertical = false }: { vertical?: boolean }) {
+  const t = useTranslations("Illustrations.forwarding");
   const steps = [
-    { icon: Phone, label: "Votre client", detail: "compose votre numéro" },
-    { icon: PhoneForwarded, label: "Renvoi d'appel", detail: "depuis votre ligne" },
-    { icon: Headset, label: "Assistant", detail: "répond ou transfère" },
+    { icon: Phone, label: t("caller"), detail: t("callerDetail") },
+    { icon: PhoneForwarded, label: t("forward"), detail: t("forwardDetail") },
+    { icon: Headset, label: t("assistant"), detail: t("assistantDetail") },
   ];
   return (
     <div
@@ -405,9 +419,10 @@ export function ConfigPreview({ labels }: { labels: string[] }) {
 }
 
 export function SetupPreview() {
+  const t = useTranslations("Illustrations.setup");
   return (
     <ul aria-hidden="true" className="space-y-2">
-      {["Connexion à vos outils", "Tests sur vos cas réels", "Mise en service"].map((item, index) => (
+      {[t("tools"), t("tests"), t("live")].map((item, index) => (
         <li key={item} className="flex items-center gap-3 rounded-xl border border-border bg-card px-3 py-2.5">
           <span
             className={cn(
@@ -424,26 +439,19 @@ export function SetupPreview() {
   );
 }
 
-const ACTIVITY_BY_FAMILY: Record<Family, string[]> = {
-  call: ["Appel traité · horaires", "Appel transféré · urgence", "Appel traité · adresse"],
-  "booking-call": ["Rendez-vous inscrit · jeudi", "Commande enregistrée", "Créneau proposé · lundi"],
-  chat: ["Message répondu · devis", "Message répondu · horaires", "Conversation reprise par vous"],
-  email: ["E-mail classé · prioritaire", "Brouillon prêt à relire", "E-mail classé · facture"],
-  calendar: ["Réservation · mardi 9 h", "Réservation · jeudi 14 h", "Réservation · vendredi 11 h"],
-  document: ["Contrat résumé · 18 pages", "Devis résumé · 4 pages", "Rapport résumé · 32 pages"],
-  meeting: ["Compte-rendu · réunion d'équipe", "Compte-rendu · point client", "Actions à suivre · 3"],
-  support: ["Demande prise en charge", "Réglage appliqué", "Question traitée par l'équipe"],
-};
+const ACTIVITY_LINES = ["a", "b", "c"] as const;
 
 export function ActivityPreview({ slug }: { slug: string }) {
-  const lines = ACTIVITY_BY_FAMILY[FAMILY_BY_SLUG[slug] ?? "support"];
+  const t = useTranslations("Illustrations.activity");
+  const family = FAMILY_BY_SLUG[slug] ?? "support";
+  const lines = ACTIVITY_LINES.map((line) => t(`lines.${family}.${line}`));
   return (
     <div aria-hidden="true" className="rounded-xl border border-border bg-card">
       <div className="flex items-center justify-between border-b border-border px-3 py-2">
-        <Label>Aujourd&apos;hui</Label>
+        <Label>{t("today")}</Label>
         <span className="flex items-center gap-1.5 rounded-full bg-primary/10 px-2 py-0.5 font-mono text-[0.6875rem] text-primary">
           <span className="size-1.5 rounded-full bg-primary" />
-          active
+          {t("active")}
         </span>
       </div>
       <ul className="divide-y divide-border">

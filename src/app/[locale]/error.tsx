@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { AlertTriangle } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -11,6 +12,7 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = useTranslations("Errors.generic");
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="border-b border-border bg-card">
@@ -21,18 +23,17 @@ export default function GlobalError({
       <main className="flex flex-1 flex-col items-center justify-center px-4 py-24 text-center">
         <AlertTriangle className="size-8 text-destructive" aria-hidden="true" />
         <h1 className="mt-4 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-          Une erreur est survenue
+          {t("heading")}
         </h1>
         <p className="mt-4 max-w-md text-muted-foreground">
-          Quelque chose s&apos;est mal passé de notre côté. Vous pouvez
-          réessayer, ou revenir à l&apos;accueil.
+          {t("lead")}
         </p>
         <div className="mt-8 flex gap-3">
           <Button variant="outline" onClick={() => reset()}>
-            Réessayer
+            {t("retry")}
           </Button>
           <Link href="/" className={buttonVariants()}>
-            Retour à l&apos;accueil
+            {t("home")}
           </Link>
         </div>
       </main>

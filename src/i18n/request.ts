@@ -16,6 +16,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
   const locale = hasLocale(routing.locales, candidate) ? candidate : routing.defaultLocale;
   return {
     locale,
+    timeZone: "Europe/Paris",
     messages: (await import(`../../messages/${locale}.json`)).default,
   };
 });

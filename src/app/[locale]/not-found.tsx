@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { ArrowLeft } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
@@ -6,9 +8,13 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "Page introuvable" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("PageTitles");
+  return { title: t("notFound") };
+}
 
 export default function NotFound() {
+  const t = useTranslations("Errors.notFound");
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
@@ -17,17 +23,17 @@ export default function NotFound() {
         className="flex flex-1 flex-col items-center justify-center px-4 py-24 text-center"
       >
         <p className="text-sm tracking-widest text-primary uppercase">
-          Erreur 404
+          {t("eyebrow")}
         </p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-          Cette page n&apos;existe pas
+          {t("heading")}
         </h1>
         <p className="mt-4 max-w-md text-muted-foreground">
-          Le lien est peut-être obsolète, ou l&apos;adresse mal orthographiée.
+          {t("lead")}
         </p>
         <Link href="/" className={cn(buttonVariants(), "mt-8")}>
           <ArrowLeft data-icon="inline-start" />
-          Retour à l&apos;accueil
+          {t("home")}
         </Link>
       </main>
       <SiteFooter />

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { notFound } from "next/navigation";
 import { ArrowRight, Check, Clock3, ListChecks, Target } from "lucide-react";
@@ -13,15 +14,10 @@ import { Card } from "@/components/ui/card";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { getSession } from "@/lib/session";
-import {
-  CATEGORY_LABELS,
-  TELEPHONY_SERVICE_SLUGS,
-  formatCents,
-} from "@/lib/catalog";
+import { TELEPHONY_SERVICE_SLUGS } from "@/lib/catalog";
 import { getCatalog, getServiceBySlug } from "@/lib/get-catalog";
 import { siteOpenGraph } from "@/lib/site-metadata";
-import { excludingVatSuffix } from "@/lib/vat";
-import { formatUsageCap } from "@/lib/usage-cap";
+import { getPriceFormatter } from "@/lib/price-format-server";
 import { getServiceCopy } from "@/lib/service-copy";
 import { FaqList } from "@/components/faq-list";
 import { ServiceGlyph, ServiceGlyphBadge } from "@/components/service-glyph";
@@ -43,9 +39,13 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const service = await getServiceBySlug(slug);
+  const [service, t, price] = await Promise.all([
+    getServiceBySlug(slug),
+    getTranslations("ServicePage"),
+    getPriceFormatter(),
+  ]);
   if (!service) return {};
-  const description = `${service.description} ${priceSummary(service)}`;
+  const description = `${service.description} ${priceSummary(service, t, price.cents)}`;
   const url = `/services/${service.slug}`;
   return {
     title: service.name,
@@ -58,31 +58,11 @@ export async function generateMetadata({
 
 const GENERIC_FIELD_KEYS = new Set(["companyName"]);
 
-const TRUST_POINTS = [
-  "Installé par notre équipe",
-  "Sans engagement",
-  "Prix TTC affichés",
-];
+const TRUST_POINTS = ["installed", "noCommitment", "vatIncluded"] as const;
 
 const BENEFIT_ICONS = [Target, Clock3, ListChecks];
 
-const INCLUDED = [
-  {
-    title: "L'installation, faite par notre équipe",
-    description:
-      "Nous la connectons à vos outils et la testons sur vos vrais cas avant l'activation.",
-  },
-  {
-    title: "Le suivi chaque mois",
-    description:
-      "Nous surveillons son fonctionnement et l'ajustons quand votre activité change.",
-  },
-  {
-    title: "Votre tableau de bord et le support",
-    description:
-      "Vous suivez son activité en ligne et l'équipe répond à vos questions.",
-  },
-];
+const INCLUDED = ["setup", "monitoring", "dashboard"] as const;
 
 export default async function PrestationDetailPage({
   params,
@@ -90,13 +70,18 @@ export default async function PrestationDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [service, session, allServices] = await Promise.all([
+  const [service, session, allServices, t, tCatalog, locale, price] = await Promise.all([
     getServiceBySlug(slug),
     getSession(),
     getCatalog(),
+    getTranslations("ServicePage"),
+    getTranslations("Catalog"),
+    getLocale(),
+    getPriceFormatter(),
   ]);
   if (!service) notFound();
-  const copy = getServiceCopy(service.slug);
+  const copy = getServiceCopy(service.slug, locale);
+  const categoryLabel = tCatalog(`categories.${service.category}`);
   const isTelephony = TELEPHONY_SERVICE_SLUGS.has(service.slug);
   const configFields = service.configFields.filter(
     (field) => !GENERIC_FIELD_KEYS.has(field.key),
@@ -117,24 +102,21 @@ export default async function PrestationDetailPage({
 
   const steps = [
     {
-      title: "Vous réglez l'essentiel",
+      title: t("steps.configure.title"),
       description:
-        configFields.length > 0
-          ? "Quelques informations sur votre activité, en quelques minutes et sans jargon."
-          : "Vous choisissez la solution et l'activez en ligne, en quelques minutes.",
+        configFields.length > 0 ? t("steps.configure.withFields") : t("steps.configure.withoutFields"),
       preview: (
         <>
           <ConfigPreview
             labels={
               previewFields.length > 0
                 ? previewFields
-                : ["Nom de votre entreprise", "Vos horaires"]
+                : [t("steps.configure.defaultFields.companyName"), t("steps.configure.defaultFields.hours")]
             }
           />
           {hiddenFieldCount > 0 && (
             <p className="mt-3 text-xs text-muted-foreground">
-              + {hiddenFieldCount} autre{hiddenFieldCount > 1 ? "s" : ""}{" "}
-              information{hiddenFieldCount > 1 ? "s" : ""}
+              {t("steps.configure.moreFields", { count: hiddenFieldCount })}
             </p>
           )}
         </>
@@ -142,28 +124,30 @@ export default async function PrestationDetailPage({
     },
     isTelephony
       ? {
-          title: "Vous gardez votre numéro",
-          description:
-            "Un renvoi d'appel depuis votre ligne, gratuit et réversible : vos clients composent le numéro qu'ils connaissent.",
+          title: t("steps.keepNumber.title"),
+          description: t("steps.keepNumber.description"),
           preview: <ForwardingDiagram vertical />,
         }
       : {
-          title: "Notre équipe installe",
-          description:
-            "Nous la connectons à vos outils et la testons sur vos vrais cas avant de l'activer.",
+          title: t("steps.teamSetup.title"),
+          description: t("steps.teamSetup.description"),
           preview: <SetupPreview />,
         },
     {
-      title: "Elle travaille pour vous",
-      description:
-        "Vous suivez son activité dans votre tableau de bord ; nous la surveillons chaque mois.",
+      title: t("steps.working.title"),
+      description: t("steps.working.description"),
       preview: <ActivityPreview slug={service.slug} />,
     },
   ];
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <JsonLd data={serviceSchema(service)} />
+      <JsonLd
+        data={serviceSchema(service, {
+          offerName: t("offerName"),
+          termsOfService: service.usageCap ? price.usageCap(service.usageCap) : null,
+        })}
+      />
       {copy && <JsonLd data={faqSchema(copy.faq)} />}
       <SiteHeader />
       <main id="content" className="flex-1">
@@ -178,7 +162,7 @@ export default async function PrestationDetailPage({
           />
 
           <div className="mx-auto max-w-3xl px-4 pt-12 text-center sm:px-6 sm:pt-16">
-            <nav aria-label="Fil d'Ariane" className="flex justify-center">
+            <nav aria-label={t("breadcrumb")} className="flex justify-center">
               <ol className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground shadow-sm">
                 <li>
                   <ServiceGlyph
@@ -191,12 +175,12 @@ export default async function PrestationDetailPage({
                     href="/#services"
                     className="rounded-sm transition-colors hover:text-foreground focus-visible:focus-ring"
                   >
-                    Solutions
+                    {t("solutions")}
                   </Link>
                 </li>
                 <li aria-hidden="true">/</li>
                 <li className="text-foreground">
-                  {CATEGORY_LABELS[service.category]}
+                  {categoryLabel}
                 </li>
               </ol>
             </nav>
@@ -222,12 +206,10 @@ export default async function PrestationDetailPage({
                     <span className="absolute inline-flex size-full animate-ping rounded-full bg-primary/60 motion-reduce:hidden" />
                     <span className="relative inline-flex size-2 rounded-full bg-primary" />
                   </span>
-                  Faites-vous appeler par notre assistant
+                  {t("demo.heading")}
                 </h2>
                 <p className="mt-1.5 mb-5 text-sm leading-relaxed text-muted-foreground">
-                  Laissez votre numéro : l&apos;assistant vous appelle, se
-                  présente et répond à vos questions. Gratuit, sans compte, un
-                  essai par numéro.
+                  {t("demo.lead")}
                 </p>
                 <DemoCallForm serviceSlug={service.slug} />
               </section>
@@ -237,35 +219,38 @@ export default async function PrestationDetailPage({
                   href={primaryHref}
                   className={buttonVariants({ size: "lg" })}
                 >
-                  Activer cette solution
+                  {t("activate")}
                   <ArrowRight data-icon="inline-end" />
                 </Link>
                 <Link
                   href="#pricing"
                   className={buttonVariants({ size: "lg", variant: "outline" })}
                 >
-                  Voir le tarif
+                  {t("seePricing")}
                 </Link>
               </div>
             )}
 
             {showDemoCall && (
               <p className="mt-5 text-sm text-muted-foreground">
-                Déjà convaincu ?{" "}
-                <Link
-                  href={primaryHref}
-                  className="font-medium text-foreground underline-offset-4 hover:underline"
-                >
-                  Activer cette solution
-                </Link>{" "}
-                ou{" "}
-                <Link
-                  href="#pricing"
-                  className="font-medium text-foreground underline-offset-4 hover:underline"
-                >
-                  voir le tarif
-                </Link>
-                .
+                {t.rich("demo.alreadyConvinced", {
+                  activate: (chunks) => (
+                    <Link
+                      href={primaryHref}
+                      className="font-medium text-foreground underline-offset-4 hover:underline"
+                    >
+                      {chunks}
+                    </Link>
+                  ),
+                  pricing: (chunks) => (
+                    <Link
+                      href="#pricing"
+                      className="font-medium text-foreground underline-offset-4 hover:underline"
+                    >
+                      {chunks}
+                    </Link>
+                  ),
+                })}
               </p>
             )}
 
@@ -273,7 +258,7 @@ export default async function PrestationDetailPage({
               {TRUST_POINTS.map((point) => (
                 <li key={point} className="flex items-center gap-2">
                   <Check className="size-4 text-primary" aria-hidden="true" />
-                  {point}
+                  {t(`trust.${point}`)}
                 </li>
               ))}
             </ul>
@@ -296,11 +281,10 @@ export default async function PrestationDetailPage({
                 id="steps-heading"
                 className="text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"
               >
-                En place en quelques jours
+                {t("steps.heading")}
               </h2>
               <p className="mt-4 text-muted-foreground">
-                Aucune connaissance technique requise : notre équipe
-                s&apos;occupe du reste.
+                {t("steps.lead")}
               </p>
             </div>
             <ol className="mt-12 grid gap-4 md:grid-cols-3">
@@ -343,26 +327,25 @@ export default async function PrestationDetailPage({
                 id="pricing-heading"
                 className="text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"
               >
-                Tarif
+                {t("pricing.heading")}
               </h2>
               <p className="mt-4 text-muted-foreground">
-                Un prix affiché, sans devis à attendre. Sans engagement de
-                durée.
+                {t("pricing.lead")}
               </p>
             </div>
             <div className="mt-12 grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-16">
               <ul className="divide-y divide-border border-y border-border">
                 {INCLUDED.map((item) => (
-                  <li key={item.title} className="flex gap-4 py-5">
+                  <li key={item} className="flex gap-4 py-5">
                     <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                       <Check className="size-3.5" aria-hidden="true" />
                     </span>
                     <div>
                       <p className="font-medium text-foreground">
-                        {item.title}
+                        {t(`included.${item}.title`)}
                       </p>
                       <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">
-                        {item.description}
+                        {t(`included.${item}.description`)}
                       </p>
                     </div>
                   </li>
@@ -377,21 +360,21 @@ export default async function PrestationDetailPage({
                   {service.monthlyPriceCents !== null && !service.tier && (
                     <div className="py-4 first:pt-0">
                       <dd className="text-3xl font-semibold tabular-nums text-foreground">
-                        {formatCents(service.monthlyPriceCents)}
+                        {price.cents(service.monthlyPriceCents)}
                       </dd>
                       <dt className="mt-0.5 text-sm text-muted-foreground">
-                        TTC par mois
+                        {t("pricing.perMonthVat")}
                         <span className="block text-xs">
-                          {excludingVatSuffix(service.monthlyPriceCents)}
+                          {price.excludingVatSuffix(service.monthlyPriceCents)}
                         </span>
                       </dt>
                     </div>
                   )}
                   {service.usageCap && !service.tier && (
                     <div className="py-4">
-                      <dt className="text-sm text-muted-foreground">Compris</dt>
+                      <dt className="text-sm text-muted-foreground">{t("pricing.included")}</dt>
                       <dd className="mt-1 text-sm text-foreground">
-                        {formatUsageCap(service.usageCap)}
+                        {price.usageCap(service.usageCap)}
                       </dd>
                     </div>
                   )}
@@ -416,12 +399,12 @@ export default async function PrestationDetailPage({
                       className: "mt-2 w-full",
                     })}
                   >
-                    Activer cette solution
+                    {t("activate")}
                     <ArrowRight data-icon="inline-end" />
                   </Link>
                 )}
                 <p className="mt-4 border-t border-border pt-4 text-sm text-muted-foreground">
-                  Sans engagement, r&eacute;siliable &agrave; tout moment.
+                  {t("pricing.cancelAnytime")}
                 </p>
               </Card>
             </div>
@@ -440,7 +423,7 @@ export default async function PrestationDetailPage({
                     id="benefits-heading"
                     className="text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"
                   >
-                    Ce que &ccedil;a change pour vous
+                    {t("benefitsHeading")}
                   </h2>
                   <p className="mt-4 leading-relaxed text-pretty text-muted-foreground">
                     {copy.intro}
@@ -453,7 +436,7 @@ export default async function PrestationDetailPage({
                     className: "shrink-0 self-start md:self-end",
                   })}
                 >
-                  Activer cette solution
+                  {t("activate")}
                 </Link>
               </div>
               <ul className="mt-12 grid gap-10 md:grid-cols-3 md:gap-8">
@@ -490,12 +473,10 @@ export default async function PrestationDetailPage({
                   id="situations-heading"
                   className="text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"
                 >
-                  Des situations o&ugrave; elle travaille pour vous
+                  {t("useCases.heading")}
                 </h2>
                 <p className="mt-4 text-muted-foreground">
-                  Des exemples typiques : l&apos;&eacute;quipe adapte la
-                  solution &agrave; vos cas r&eacute;els pendant
-                  l&apos;installation.
+                  {t("useCases.lead")}
                 </p>
               </div>
               <dl className="mt-12 grid gap-4 md:grid-cols-3">
@@ -529,18 +510,20 @@ export default async function PrestationDetailPage({
                 id="faq-heading"
                 className="text-center text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"
               >
-                Questions fr&eacute;quentes
+                {t("faq.heading")}
               </h2>
               <FaqList items={copy.faq} className="mt-10" />
               <p className="mt-6 text-center text-sm text-muted-foreground">
-                Votre question n&apos;est pas l&agrave; ?{" "}
-                <Link
-                  href="/contact"
-                  className="font-medium text-primary underline-offset-4 hover:underline"
-                >
-                  &Eacute;crivez-nous
-                </Link>
-                , on r&eacute;pond sous 24h ouvr&eacute;es.
+                {t.rich("faq.notHere", {
+                  link: (chunks) => (
+                    <Link
+                      href="/contact"
+                      className="font-medium text-primary underline-offset-4 hover:underline"
+                    >
+                      {chunks}
+                    </Link>
+                  ),
+                })}
               </p>
             </div>
           </section>
@@ -556,8 +539,7 @@ export default async function PrestationDetailPage({
                 id="related-heading"
                 className="text-2xl font-semibold tracking-tight text-foreground"
               >
-                Autres solutions en{" "}
-                {CATEGORY_LABELS[service.category].toLowerCase()}
+                {t("related.heading", { category: categoryLabel.toLocaleLowerCase(locale) })}
               </h2>
               <ul className="mt-8 grid gap-4 md:grid-cols-3">
                 {related.map((relatedService) => (
@@ -574,7 +556,7 @@ export default async function PrestationDetailPage({
                         {relatedService.description}
                       </p>
                       <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-foreground">
-                        Découvrir
+                        {t("related.discover")}
                         <ArrowRight
                           className="size-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none"
                           aria-hidden="true"
@@ -602,19 +584,18 @@ export default async function PrestationDetailPage({
               className="mx-auto max-w-2xl text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"
             >
               {session
-                ? `Activez « ${service.name} » depuis votre tableau de bord`
-                : `Prêt à activer « ${service.name} » ?`}
+                ? t("cta.headingSignedIn", { name: service.name })
+                : t("cta.headingSignedOut", { name: service.name })}
             </h2>
             <p className="mx-auto mt-4 max-w-xl leading-relaxed text-muted-foreground">
-              Notre équipe l&apos;installe, la connecte à vos outils et la
-              surveille chaque mois.
+              {t("cta.lead")}
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link
                 href={primaryHref}
                 className={buttonVariants({ size: "lg" })}
               >
-                Activer cette solution
+                {t("activate")}
                 <ArrowRight data-icon="inline-end" />
               </Link>
               {showDemoCall ? (
@@ -622,14 +603,14 @@ export default async function PrestationDetailPage({
                   href="#demo"
                   className={buttonVariants({ size: "lg", variant: "outline" })}
                 >
-                  Tester l&apos;assistant
+                  {t("cta.tryAssistant")}
                 </Link>
               ) : (
                 <Link
                   href="/contact"
                   className={buttonVariants({ size: "lg", variant: "outline" })}
                 >
-                  Poser une question
+                  {t("cta.ask")}
                 </Link>
               )}
             </div>

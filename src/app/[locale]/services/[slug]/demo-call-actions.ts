@@ -1,6 +1,7 @@
 "use server";
 
 import { Prisma } from "@prisma/client";
+import { getTranslations } from "next-intl/server";
 import { TELEPHONY_SERVICE_SLUGS } from "@/lib/catalog";
 import { db } from "@/lib/db";
 import {
@@ -18,8 +19,6 @@ import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { ActionError, runAction } from "@/lib/run-action";
 import { placeDemoCall } from "@/lib/twilio";
 
-const UNAVAILABLE = "L'appel d'essai n'est pas disponible pour le moment. Réessayez plus tard ou écrivez-nous.";
-
 export async function requestDemoCall(input: {
   phone: string;
   serviceSlug: string;
@@ -27,32 +26,29 @@ export async function requestDemoCall(input: {
 }) {
   return runAction(async () => {
     if (input.website.trim()) return { displayNumber: "" };
+    const t = await getTranslations("DemoCall.errors");
 
-    if (!TELEPHONY_SERVICE_SLUGS.has(input.serviceSlug)) throw new ActionError(UNAVAILABLE);
+    if (!TELEPHONY_SERVICE_SLUGS.has(input.serviceSlug)) throw new ActionError(t("unavailable"));
     const phone = normalizeFrenchPhone(input.phone);
     if (!phone) {
-      throw new ActionError(
-        "Saisissez un numéro de mobile ou de fixe français, par exemple 06 12 34 56 78."
-      );
+      throw new ActionError(t("invalidNumber"));
     }
-    if (!isDemoCallAvailable()) throw new ActionError(UNAVAILABLE);
+    if (!isDemoCallAvailable()) throw new ActionError(t("unavailable"));
 
     const limits = demoCallLimits();
     const ip = await getClientIp();
     if (!(await checkRateLimit("demo-call", ip, "24 h", limits.perIpPerDay))) {
-      throw new ActionError("Trop d'essais demandés depuis cette connexion. Réessayez demain.");
+      throw new ActionError(t("tooManyFromIp"));
     }
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
     if ((await db.demoCall.count({ where: { createdAt: { gte: since } } })) >= limits.perDay) {
-      throw new ActionError(UNAVAILABLE);
+      throw new ActionError(t("unavailable"));
     }
 
     const phoneHash = hashPhone(phone);
     const alreadyCalled = await db.demoCall.findUnique({ where: { phoneHash }, select: { id: true } });
     if (alreadyCalled) {
-      throw new ActionError(
-        "Ce numéro a déjà reçu son appel d'essai. Pour aller plus loin, créez votre compte ou écrivez-nous."
-      );
+      throw new ActionError(t("alreadyCalledLong"));
     }
 
     let demoCall;
@@ -62,7 +58,7 @@ export async function requestDemoCall(input: {
       });
     } catch (err) {
       if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
-        throw new ActionError("Ce numéro a déjà reçu son appel d'essai.");
+        throw new ActionError(t("alreadyCalled"));
       }
       throw err;
     }
@@ -88,7 +84,7 @@ export async function requestDemoCall(input: {
       const code = err && typeof err === "object" && "code" in err ? err.code : "inconnu";
       console.error(`[essai] échec de l'appel sortant ${demoCall.id} (code Twilio ${code}).`);
       await db.demoCall.delete({ where: { id: demoCall.id } });
-      throw new ActionError("L'appel n'a pas pu être lancé. Vérifiez le numéro, puis réessayez.");
+      throw new ActionError(t("callFailed"));
     }
 
     return { displayNumber: formatFrenchPhone(phone) };

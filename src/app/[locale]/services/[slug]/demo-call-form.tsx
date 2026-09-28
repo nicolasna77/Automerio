@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, useTransition, type FormEvent } from "react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Loader2, PhoneCall, PhoneIncoming } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { requestDemoCall } from "./demo-call-actions";
 
 export function DemoCallForm({ serviceSlug }: { serviceSlug: string }) {
+  const t = useTranslations("DemoCall");
   const phoneId = useId();
   const noticeId = useId();
   const errorId = useId();
@@ -43,11 +45,10 @@ export function DemoCallForm({ serviceSlug }: { serviceSlug: string }) {
       >
         <PhoneIncoming className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden="true" />
         <div>
-          <p className="font-medium text-foreground">Votre téléphone va sonner.</p>
+          <p className="font-medium text-foreground">{t("ringing")}</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            {calledNumber ? `Nous appelons le ${calledNumber} dans quelques secondes. ` : ""}
-            Décrochez : l&apos;assistant d&apos;Automerio se présente et répond à vos
-            questions pendant trois minutes.
+            {calledNumber ? `${t("callingNumber", { number: calledNumber })} ` : ""}
+            {t("pickUp")}
           </p>
         </div>
       </div>
@@ -57,7 +58,7 @@ export function DemoCallForm({ serviceSlug }: { serviceSlug: string }) {
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-4">
       <div className="absolute left-[-9999px]" aria-hidden="true">
-        <label htmlFor={`${phoneId}-website`}>Site web</label>
+        <label htmlFor={`${phoneId}-website`}>{t("honeypot")}</label>
         <input
           id={`${phoneId}-website`}
           tabIndex={-1}
@@ -68,13 +69,13 @@ export function DemoCallForm({ serviceSlug }: { serviceSlug: string }) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor={phoneId}>Votre numéro de téléphone</Label>
+        <Label htmlFor={phoneId}>{t("phoneLabel")}</Label>
         <Input
           id={phoneId}
           type="tel"
           inputMode="tel"
           autoComplete="tel-national"
-          placeholder="06 12 34 56 78"
+          placeholder={t("phonePlaceholder")}
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           aria-invalid={error ? true : undefined}
@@ -102,18 +103,20 @@ export function DemoCallForm({ serviceSlug }: { serviceSlug: string }) {
         ) : (
           <PhoneCall aria-hidden="true" data-icon="inline-start" />
         )}
-        Recevoir l&apos;appel
+        {t("submit")}
       </Button>
 
       <p id={noticeId} className="text-xs leading-relaxed text-muted-foreground">
-        En demandant cet appel, vous confirmez avoir pris connaissance de{" "}
-        <Link
-          href="/privacy"
-          className="underline underline-offset-4 rounded-sm hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-        >
-          nos modalités de contact et de notre politique de confidentialité
-        </Link>
-        . Votre numéro ne sert qu&apos;à cet appel, jamais à de la prospection.
+        {t.rich("notice", {
+          link: (chunks) => (
+            <Link
+              href="/privacy"
+              className="underline underline-offset-4 rounded-sm hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+            >
+              {chunks}
+            </Link>
+          ),
+        })}
       </p>
     </form>
   );

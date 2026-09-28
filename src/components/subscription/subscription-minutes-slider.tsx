@@ -3,9 +3,8 @@
 import { Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { formatUsageUnits } from "@/lib/usage-cap";
-import { formatCents } from "@/lib/catalog";
-import { excludingVatSuffix, formatCentsWithVat } from "@/lib/vat";
+import { useTranslations } from "next-intl";
+import { usePriceFormatter } from "@/hooks/use-price-formatter";
 import {
   calculateMonthlyPriceCents,
   clampToStep,
@@ -25,8 +24,10 @@ export function SubscriptionMinutesSlider({
   label: string;
   disabled?: boolean;
 }) {
+  const t = useTranslations("MinutesSlider");
+  const price = usePriceFormatter();
   const priceCents = calculateMonthlyPriceCents(tier, value);
-  const quantity = formatUsageUnits(value, tier.unit);
+  const quantity = price.usageUnits(value, tier.unit);
   const atMin = value <= tier.minUnits;
   const atMax = value >= tier.maxUnits;
 
@@ -42,7 +43,7 @@ export function SubscriptionMinutesSlider({
         <p className="text-3xl font-semibold tabular-nums text-foreground">
           {quantity}
         </p>
-        <p className="mt-1 text-sm text-muted-foreground">par mois</p>
+        <p className="mt-1 text-sm text-muted-foreground">{t("perMonth")}</p>
       </div>
 
       <div className="flex items-center gap-3">
@@ -52,7 +53,7 @@ export function SubscriptionMinutesSlider({
           size="icon"
           onClick={() => shift(-tier.stepUnits)}
           disabled={disabled || atMin}
-          aria-label={`Retirer ${formatUsageUnits(tier.stepUnits, tier.unit)}`}
+          aria-label={t("remove", { units: price.usageUnits(tier.stepUnits, tier.unit) })}
         >
           <Minus aria-hidden="true" />
         </Button>
@@ -69,9 +70,10 @@ export function SubscriptionMinutesSlider({
           }
           getAriaLabel={() => label}
           getAriaValueText={(_formatted, units) =>
-            `${formatUsageUnits(units, tier.unit)}, ${formatCentsWithVat(
-              calculateMonthlyPriceCents(tier, units)
-            )} par mois`
+            t("valueText", {
+              units: price.usageUnits(units, tier.unit),
+              price: price.withVat(calculateMonthlyPriceCents(tier, units)),
+            })
           }
         />
 
@@ -81,15 +83,15 @@ export function SubscriptionMinutesSlider({
           size="icon"
           onClick={() => shift(tier.stepUnits)}
           disabled={disabled || atMax}
-          aria-label={`Ajouter ${formatUsageUnits(tier.stepUnits, tier.unit)}`}
+          aria-label={t("add", { units: price.usageUnits(tier.stepUnits, tier.unit) })}
         >
           <Plus aria-hidden="true" />
         </Button>
       </div>
 
       <div className="flex justify-between text-xs tabular-nums text-muted-foreground">
-        <span>{formatUsageUnits(tier.minUnits, tier.unit)}</span>
-        <span>{formatUsageUnits(tier.maxUnits, tier.unit)}</span>
+        <span>{price.usageUnits(tier.minUnits, tier.unit)}</span>
+        <span>{price.usageUnits(tier.maxUnits, tier.unit)}</span>
       </div>
 
       <p
@@ -98,13 +100,13 @@ export function SubscriptionMinutesSlider({
         className="rounded-2xl bg-muted px-4 py-3 text-center"
       >
         <span className="block text-2xl font-semibold tabular-nums text-foreground">
-          {formatCents(priceCents)} TTC
+          {price.amountWithVat(priceCents)}
         </span>
         <span className="block text-xs text-muted-foreground">
-          {excludingVatSuffix(priceCents)}
+          {price.excludingVatSuffix(priceCents)}
         </span>
         <span className="mt-1 block text-sm text-muted-foreground">
-          par mois, pour {quantity}
+          {t("perMonthFor", { units: quantity })}
         </span>
       </p>
     </div>
