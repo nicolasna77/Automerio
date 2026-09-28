@@ -1,74 +1,86 @@
 import { cn } from "@/lib/utils";
+import {
+  BriefIllustration,
+  ChooseIllustration,
+  FollowIllustration,
+  SetupIllustration,
+} from "./method-illustrations";
 
 const METHOD_STEPS = [
   {
     step: "01",
-    title: "Vous choisissez",
+    who: "Vous · 2 minutes",
+    title: "Vous choisissez ce qui vous fait perdre du temps",
     description:
-      "Au catalogue, prix affiché, sans devis ni rendez-vous préalable. Vous voyez ce que chaque solution coûte avant de vous décider.",
+      "Les appels manqués, les rendez-vous à caler, les e-mails qui s'accumulent : chaque solution a son prix affiché. Pas de devis, pas de rendez-vous commercial, un abonnement mensuel sans engagement.",
+    illustration: <ChooseIllustration />,
   },
   {
     step: "02",
-    title: "Vous réglez l'essentiel",
+    who: "Vous · 5 minutes",
+    title: "Vous nous dites comment vous travaillez",
     description:
-      "Quelques champs suffisent : vos horaires, votre adresse, ce que vous proposez. Cinq minutes, depuis votre téléphone.",
+      "Votre activité, vos horaires, ce qu'il faut faire en cas d'urgence. Quelques champs à remplir depuis votre téléphone, rien à installer ni à paramétrer.",
+    illustration: <BriefIllustration />,
   },
   {
     step: "03",
-    title: "Nous déployons",
+    who: "Nous · quelques jours",
+    title: "Nous installons, nous testons, nous activons",
     description:
-      "Notre équipe installe l'automatisation, la connecte à vos outils existants et la teste sur vos vrais cas.",
+      "Notre équipe connecte la solution à vos outils existants et la teste sur vos cas réels. Vous recevez un e-mail le jour où elle est active.",
+    illustration: <SetupIllustration />,
   },
   {
     step: "04",
-    title: "C'est actif",
+    who: "Nous · chaque mois",
+    title: "Nous surveillons et nous ajustons",
     description:
-      "En quelques jours, sans que vous ayez ouvert le moindre logiciel technique. Vous recevez un e-mail à la mise en service.",
-  },
-  {
-    step: "05",
-    title: "Nous surveillons",
-    description:
-      "Nous veillons sur vos automatisations et les ajustons au fil du temps. Inclus dans l'abonnement, sans engagement de durée.",
+      "Vous suivez son activité dans votre tableau de bord. Quand votre activité change, nous adaptons les réglages. C'est compris dans l'abonnement.",
+    illustration: <FollowIllustration />,
   },
 ];
 
 export function MethodSection() {
   return (
-    <section id="methode" aria-labelledby="methode-heading" className="border-t border-border py-20 sm:py-24">
+    <section id="methode" aria-labelledby="methode-heading" className="scroll-mt-20 py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 id="methode-heading" className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-            De votre choix à la mise en service
+          <span className="font-mono text-xs tracking-wide text-muted-foreground uppercase">Notre méthode</span>
+          <h2
+            id="methode-heading"
+            className="mt-3 text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"
+          >
+            Vous décidez, nous faisons le reste
           </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            Vous choisissez et vous payez ; nous faisons le reste. Aucune étape
-            ne vous demande de compétence technique, et aucune ne vous fait
-            attendre un rendez-vous.
+          <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
+            Quatre étapes, dont deux seulement vous demandent quelque chose. Aucune ne vous demande de
+            compétence technique.
           </p>
         </div>
-        <ol className="relative mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-5 lg:gap-6">
-          <span
-            aria-hidden="true"
-            className="absolute top-5 right-[10%] left-[10%] hidden h-px bg-border lg:block"
-          />
+
+        <ol className="mt-16 space-y-16 sm:space-y-24">
           {METHOD_STEPS.map((step, index) => (
-            <li key={step.step} className="relative lg:text-center">
-              <span
-                aria-hidden="true"
-                className={cn(
-                  "relative flex size-10 items-center justify-center rounded-full font-mono text-sm lg:mx-auto",
-                  index === METHOD_STEPS.length - 1
-                    ? "bg-primary text-primary-foreground"
-                    : "border border-border bg-card text-foreground"
-                )}
-              >
-                {step.step}
-              </span>
-              <h3 className="mt-4 font-sans font-semibold text-foreground">{step.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                {step.description}
-              </p>
+            <li key={step.step} className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16">
+              <div className={cn("max-w-lg", index % 2 === 1 && "lg:order-2")}>
+                <div className="flex items-center gap-3">
+                  <span
+                    aria-hidden="true"
+                    className={cn(
+                      "flex size-10 items-center justify-center rounded-full font-mono text-sm",
+                      index >= 2 ? "bg-primary text-primary-foreground" : "border border-border bg-card text-foreground"
+                    )}
+                  >
+                    {step.step}
+                  </span>
+                  <span className="font-mono text-xs tracking-wide text-muted-foreground uppercase">{step.who}</span>
+                </div>
+                <h3 className="mt-5 text-2xl font-semibold tracking-tight text-balance text-foreground">
+                  {step.title}
+                </h3>
+                <p className="mt-3 text-base leading-relaxed text-muted-foreground sm:text-lg">{step.description}</p>
+              </div>
+              <div className={cn(index % 2 === 1 && "lg:order-1")}>{step.illustration}</div>
             </li>
           ))}
         </ol>
