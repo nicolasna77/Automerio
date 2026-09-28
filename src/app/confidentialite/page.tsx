@@ -130,6 +130,11 @@ export default function ConfidentialitePage() {
       <LegalSection title="Combien de temps">
         <ul>
           <li>Compte et configuration : tant que le compte existe.</li>
+          <li>
+            Transcriptions et résumés des appels, historique des messages : tant
+            que le compte existe, pour que vous puissiez toujours les retrouver
+            depuis votre tableau de bord.
+          </li>
           <li>Factures : 10 ans, comme l&apos;exige le Code de commerce.</li>
           <li>Sessions de connexion : jusqu&apos;à leur expiration.</li>
           <li>Messages de contact sans suite : 3 ans.</li>
