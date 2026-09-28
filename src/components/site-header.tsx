@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { AutomerioLogo } from "@/components/brand";
 import { ServicesMenu } from "@/components/services-menu";

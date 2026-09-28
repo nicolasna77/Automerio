@@ -56,6 +56,9 @@ jobs:
       - name: Générer le client Prisma
         run: npx prisma generate
 
+      - name: Générer les types des routes
+        run: npx next typegen
+
       - name: Vérifier les types
         run: npx tsc --noEmit
 
