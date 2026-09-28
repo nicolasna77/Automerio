@@ -12,25 +12,6 @@ import {
   type SubscriptionTier,
 } from "@/lib/subscription-pricing";
 
-/**
- * Le curseur par lequel le client choisit son quota.
- *
- * Il ne connait aucun prix : il recoit les bornes et rend le calcul a
- * `subscription-pricing`, pour qu'un changement de tarif ne demande pas d'y
- * revenir. Il ne decide rien non plus — le serveur recalcule et revalide avant
- * de facturer quoi que ce soit.
- *
- * Trois details qui ne sont pas du confort. Les boutons moins et plus ne sont
- * pas une commodite : WCAG 2.2 demande une alternative au glissement pour qui
- * manie un pointeur sans pouvoir trainer. Le prix est annonce comme un statut
- * complet — « 200 minutes, 89 € par mois » — plutot que comme un nombre nu,
- * qu'un lecteur d'ecran enoncerait sans dire de quoi il parle.
- *
- * Et le libelle appartient au composant plutot qu'a ses appelants. Affiche et
- * enonce depuis la meme chaine, il ne peut pas diverger : commander « combien
- * de minutes » a la voix trouve le curseur, ce qui ne serait pas le cas si le
- * texte visible et le nom accessible etaient ecrits a deux endroits.
- */
 export function SubscriptionMinutesSlider({
   tier,
   value,
@@ -41,7 +22,6 @@ export function SubscriptionMinutesSlider({
   tier: SubscriptionTier;
   value: number;
   onChange: (units: number) => void;
-  /** Affiche au-dessus du curseur, et donne son nom a la commande. */
   label: string;
   disabled?: boolean;
 }) {
@@ -112,14 +92,11 @@ export function SubscriptionMinutesSlider({
         <span>{formatUsageUnits(tier.maxUnits, tier.unit)}</span>
       </div>
 
-      {/* Un statut, non un nombre : ce qui est annonce doit se comprendre seul. */}
       <p
         role="status"
         aria-atomic="true"
         className="rounded-2xl bg-muted px-4 py-3 text-center"
       >
-        {/* TTC en tete, HT dessous : la forme en ligne se coupe en deux dans
-            une colonne etroite, et c'est la convention du reste du site. */}
         <span className="block text-2xl font-semibold tabular-nums text-foreground">
           {formatCents(priceCents)} TTC
         </span>

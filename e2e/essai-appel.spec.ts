@@ -3,8 +3,6 @@ import { db } from "@/lib/db";
 import { hashPhone, normalizeFrenchPhone } from "@/lib/demo-call";
 import { ANONYMOUS } from "./roles";
 
-// Le serveur de test tourne avec DEMO_CALL_DRY_RUN : tout le parcours
-// s'execute, seul l'appel Twilio est saute.
 test.use({ storageState: ANONYMOUS });
 
 const TELEPHONY_PAGE = "/prestations/standard-telephonique-ia";
@@ -32,12 +30,10 @@ test("un visiteur se fait appeler une fois, pas deux", async ({ page }) => {
   const phone = section.getByLabel("Votre numéro de téléphone");
   const submit = section.getByRole("button", { name: "Recevoir l'appel" });
 
-  // Numero surtaxe : refuse avant tout appel.
   await phone.fill("08 99 12 34 56");
   await submit.click();
   await expect(section.getByRole("alert")).toContainText("numéro de mobile ou de fixe français");
 
-  // Pas de case a cocher : le consentement tient a la demande, annoncee sous le bouton.
   await expect(section.getByRole("checkbox")).toHaveCount(0);
   await expect(section.getByRole("link", { name: /politique de confidentialité/ })).toHaveAttribute(
     "href",
@@ -50,7 +46,6 @@ test("un visiteur se fait appeler une fois, pas deux", async ({ page }) => {
     number.replace(/(\d{2})(?=\d)/g, "$1 ")
   );
 
-  // Le meme numero, depuis une nouvelle visite : l'essai est consomme.
   await page.reload();
   await section.getByLabel("Votre numéro de téléphone").fill(number);
   await section.getByRole("button", { name: "Recevoir l'appel" }).click();

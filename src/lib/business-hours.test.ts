@@ -16,7 +16,6 @@ const HOURS: WeeklyHours = {
 };
 
 describe("isOpenAt", () => {
-  // Le lundi 28 septembre 2026 ; Paris est a UTC+2 en ete.
   it("lit l'heure a Paris, pas celle du serveur", () => {
     expect(isOpenAt(HOURS, new Date("2026-09-28T07:30:00Z"))).toBe(true); // 9 h 30 a Paris
     expect(isOpenAt(HOURS, new Date("2026-09-28T06:30:00Z"))).toBe(false); // 8 h 30 a Paris

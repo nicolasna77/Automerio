@@ -1,9 +1,3 @@
-// Attribue le rôle ADMIN à un utilisateur existant, identifié par e-mail.
-// Le rôle ne peut jamais être choisi à l'inscription : seul cet accès direct
-// à la base permet de créer un administrateur.
-//
-// Usage : npx tsx scripts/make-admin.ts admin@automerio.fr
-
 import { config } from "dotenv";
 config();
 import { PrismaClient } from "@prisma/client";

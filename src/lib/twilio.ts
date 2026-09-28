@@ -63,10 +63,6 @@ export async function releasePhoneNumber(sid: string): Promise<void> {
   }
 }
 
-/**
- * Appelle un visiteur pour un essai. `timeLimit` est applique par Twilio : le
- * cout d'un essai est borne meme si notre serveur ne reprend jamais la main.
- */
 export async function placeDemoCall(input: {
   to: string;
   from: string;

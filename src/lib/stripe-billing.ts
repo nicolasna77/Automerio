@@ -23,10 +23,6 @@ function memoize(
 
 async function findOrCreateVatRate(): Promise<string> {
   const rates = await stripeClient.taxRates.list({ active: true, inclusive: true, limit: 100 });
-  // Le pourcentage est verifie en plus de la cle : la cle heritee porte le taux
-  // d'alors (20), si bien qu'un changement de VAT_PERCENTAGE lui ferait sinon
-  // reutiliser l'ancien taux — l'application afficherait le nouveau et
-  // preleverait l'ancien.
   const existing = rates.data.find(
     (rate) =>
       rate.percentage === VAT_PERCENTAGE &&

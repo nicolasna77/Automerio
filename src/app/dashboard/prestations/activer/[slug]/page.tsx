@@ -23,8 +23,6 @@ export default async function ActivateServicePage({
   const service = await getServiceBySlug(slug);
   if (!service) notFound();
 
-  // Le volume choisi sur la page publique, ramene dans les bornes : une URL
-  // retouchee ne fait que deplacer le curseur, le serveur revalide au paiement.
   const requested = typeof minutes === "string" ? Number(minutes) : NaN;
   const initialUnits =
     service.tier && Number.isFinite(requested) ? clampToStep(service.tier, requested) : null;

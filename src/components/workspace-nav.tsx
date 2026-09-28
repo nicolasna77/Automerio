@@ -19,9 +19,7 @@ export type WorkspaceNavItem = {
   label: string;
   icon: LucideIcon;
   badge?: number;
-  /** Ce que compte le badge, pour un lecteur d'ecran (« 3 appels a rappeler »). */
   badgeLabel?: string;
-  /** Autres sections qui rattachent leurs pages a cette entree. */
   matches?: string[];
 };
 
@@ -30,8 +28,6 @@ export type WorkspaceNavGroup = {
   items: WorkspaceNavItem[];
 };
 
-// La racine d'un espace (`/dashboard`, `/admin`) n'est active que sur sa
-// propre URL, sans quoi elle resterait allumee sur toutes les pages.
 function isActiveItem(pathname: string, item: WorkspaceNavItem, root: string) {
   if (item.href === root) return pathname === root;
   return [item.href, ...(item.matches ?? [])].some(
@@ -68,8 +64,6 @@ export function WorkspaceNavLinks({
             >
               <item.icon aria-hidden="true" />
               <span>{item.label}</span>
-              {/* Dans le lien : un lecteur d'ecran l'annonce avec la page, au
-                  lieu d'un nombre isole que rien ne rattache au lien. */}
               {item.badge ? (
                 <span className="sr-only">
                   , {item.badge} {item.badgeLabel ?? "en attente"}

@@ -8,7 +8,6 @@ const GLOBALS = readFileSync(
 );
 
 function readBlock(selector: string): Record<string, string> {
-  // `\r?` : le fichier de thème peut arriver d'un éditeur Windows, en CRLF.
   const block = new RegExp(`^${selector} \\{\\r?\\n([\\s\\S]*?)^\\}`, "m").exec(
     GLOBALS
   );
@@ -21,7 +20,6 @@ function readBlock(selector: string): Record<string, string> {
   return declarations;
 }
 
-/** oklch() -> sRGB, la conversion que fait le navigateur avant d'afficher. */
 function oklchToHex(declaration: string): string {
   const parsed = /^oklch\(([\d.]+)\s+([\d.]+)\s+([\d.]+)\)$/.exec(declaration);
   if (!parsed) throw new Error(`Valeur oklch inattendue : ${declaration}`);

@@ -13,7 +13,6 @@ import { ChangeQuotaDialog } from "./change-quota-dialog";
 import { BillingPortalButton } from "./paiements/billing-portal-button";
 import { excludingVatSuffix } from "@/lib/vat";
 
-/** Le quota de cette solution, sur sa periode de facturation. */
 export function ServiceSubscriptionCard({
   subscription,
   organizationId,
@@ -49,9 +48,6 @@ export function ServiceSubscriptionCard({
                 currentUnits={subscription.cap.includedUnits}
               />
             )}
-            {/* Le moyen de paiement se change ici aussi : c'est depuis la
-                solution qu'un client y pense, pas depuis une page Paiements
-                qu'il doit d'abord trouver. */}
             {organizationId && (
               <BillingPortalButton organizationId={organizationId} size="sm" />
             )}
@@ -65,8 +61,6 @@ export function ServiceSubscriptionCard({
             overageCents={subscription.usage.overageCents}
           />
         ) : subscription.cap ? (
-          // Hors periode facturee, le plafond reste une information utile :
-          // c'est ce que l'abonnement comprendra au redemarrage.
           <p className="text-sm text-muted-foreground">
             Plafond d&apos;usage : {formatUsageCap(subscription.cap)}
           </p>

@@ -43,12 +43,9 @@ export default async function OrganisationPage() {
   ]);
 
   const me = members.find((m) => m.userId === session.user.id);
-  // Le serveur reste seul juge : l'interface cesse seulement de proposer ce qui
-  // serait refuse, et chaque action revalide de son cote.
   const canManage = me ? isOrganizationManager(me.role) : false;
   const isAlone = members.length === 1 && invitations.length === 0;
 
-  // better-auth peut cumuler plusieurs roles : on affiche le plus eleve.
   const myRoles = me?.role.split(",").map((part) => part.trim()) ?? [];
   const myRole = ["owner", "admin", "member"].find((role) => myRoles.includes(role));
 

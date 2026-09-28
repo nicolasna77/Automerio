@@ -212,11 +212,6 @@ export async function sendPaymentFailedEmail(
   });
 }
 
-/**
- * L'invitation ne passe par aucune preference de notification : elle s'adresse
- * a quelqu'un qui n'a peut-etre pas encore de compte, donc pas de preferences,
- * et c'est un message sollicite par un tiers, non une notification de service.
- */
 export async function sendOrganizationInvitationEmail(input: {
   to: string;
   organizationName: string;

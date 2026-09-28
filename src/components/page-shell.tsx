@@ -2,10 +2,6 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Trois largeurs seulement pour les espaces client et admin : un formulaire se
-// lit sur une colonne etroite, un contenu courant sur une colonne moyenne, et
-// les tableaux ou tableaux de bord occupent toute la largeur utile. `full`
-// est reserve aux vues pleine hauteur (calendriers).
 const SIZES = {
   form: "mx-auto max-w-3xl px-4 py-10 sm:px-6",
   content: "mx-auto max-w-4xl px-4 py-10 sm:px-6",

@@ -6,11 +6,6 @@ export function isBrandService(slug: string): boolean {
   return slug in SERVICE_BRANDS;
 }
 
-/**
- * L'icone d'une solution : le logo officiel de la plateforme quand il y en a
- * une, sinon notre glyphe maison. Le logo est servi tel que Meta le fournit —
- * aucune classe de couleur ne l'atteint, un `<img>` ignorant `currentColor`.
- */
 export function ServiceGlyph({
   slug,
   className,
@@ -20,8 +15,6 @@ export function ServiceGlyph({
 }) {
   const brand = SERVICE_BRANDS[slug];
   if (brand) {
-    // `next/image` refuse les SVG sans `dangerouslyAllowSVG`, et n'apporterait
-    // rien sur un fichier local de 1 ko affiche a 20 px.
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
@@ -42,11 +35,6 @@ const BADGE_SIZES = {
   lg: { box: "size-11 rounded-lg", icon: "size-5", brand: "size-9" },
 } as const;
 
-/**
- * La pastille qui entoure l'icone. Un logo de marque n'y reçoit pas le fond
- * teinte des glyphes maison : Meta demande ses couleurs d'origine sur un fond
- * neutre, et sa zone de respiration — d'ou un logo plus petit que la pastille.
- */
 export function ServiceGlyphBadge({
   slug,
   size = "md",

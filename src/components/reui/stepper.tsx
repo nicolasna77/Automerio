@@ -15,7 +15,6 @@ import { useRender } from "@base-ui/react/use-render"
 
 import { cn } from "cn"
 
-// Types
 type StepperOrientation = "horizontal" | "vertical"
 type StepState = "active" | "completed" | "inactive" | "loading"
 type StepIndicators = {
@@ -84,7 +83,6 @@ function Stepper({
   const [activeStep, setActiveStep] = useState(defaultValue)
   const [triggerNodes, setTriggerNodes] = useState<HTMLButtonElement[]>([])
 
-  // Register/unregister triggers
   const registerTrigger = useCallback((node: HTMLButtonElement | null) => {
     setTriggerNodes((prev) => {
       if (node && !prev.includes(node)) {
@@ -109,9 +107,6 @@ function Stepper({
 
   const currentStep = value ?? activeStep
 
-  // Navigation au clavier. Memorisees, car elles entrent dans la valeur de
-  // contexte : redefinies a chaque rendu, elles feraient changer celle-ci a
-  // chaque fois, et le memo ne servirait plus a rien.
   const focusTrigger = useCallback(
     (idx: number) => {
       if (triggerNodes[idx]) triggerNodes[idx].focus()
@@ -133,7 +128,6 @@ function Stepper({
     [focusTrigger, triggerNodes.length]
   )
 
-  // Context value
   const contextValue = useMemo<StepperContextValue>(
     () => ({
       activeStep: currentStep,
@@ -256,10 +250,6 @@ function StepperTrigger({
   const id = `stepper-tab-${step}`
   const panelId = `stepper-panel-${step}`
 
-  // Le noeud passe par un etat, non par un ref lu pendant le rendu : un ref ne
-  // declenche aucune mise a jour, si bien que l'index calcule ci-dessous
-  // restait a -1 au premier rendu et que les fleches du clavier ne
-  // deplacaient rien. React signale d'ailleurs cette lecture comme une erreur.
   const [triggerNode, setTriggerNode] = useState<HTMLButtonElement | null>(null)
   const attachTrigger = useCallback(
     (node: HTMLButtonElement | null) => {
@@ -269,7 +259,6 @@ function StepperTrigger({
     [registerTrigger]
   )
 
-  // Notre rang parmi les declencheurs, pour la navigation au clavier.
   const myIdx = useMemo(
     () => (triggerNode ? triggerNodes.indexOf(triggerNode) : -1),
     [triggerNodes, triggerNode]
@@ -418,8 +407,6 @@ function StepperNav({
   const { activeStep, orientation } = useStepper()
 
   return (
-    // Les props sont transmises : sans cela le `<nav>` ne pouvait pas etre
-    // nomme, et un point de repere sans nom desoriente plus qu'il n'aide.
     <nav
       {...props}
       data-slot="stepper-nav"

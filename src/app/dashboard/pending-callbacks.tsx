@@ -11,16 +11,10 @@ function formatDateTime(date: Date): string {
     month: "short",
     hour: "2-digit",
     minute: "2-digit",
-    // Rendu cote serveur, en UTC sur Vercel : l'heure doit etre celle du client.
     timeZone: "Europe/Paris",
   });
 }
 
-/**
- * Les appels qui attendent un rappel, en tete du tableau de bord : c'est la
- * premiere chose a faire en revenant d'un chantier. Rien ne s'affiche quand il
- * n'y en a aucun.
- */
 export async function PendingCallbacks({ organizationId }: { organizationId: string }) {
   const [callbacks, total] = await Promise.all([
     listPendingCallbacks(organizationId),

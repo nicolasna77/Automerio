@@ -1,11 +1,6 @@
 import type { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 
-/**
- * Les appels qui attendent un geste du client : ceux dont le resume dit quoi
- * faire ensuite (« rappeler avant 18 h ») et qu'il n'a pas encore marques
- * comme traites.
- */
 export function pendingCallbacksWhere(organizationId: string): Prisma.UsageEventWhereInput {
   return {
     type: "call",

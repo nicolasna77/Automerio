@@ -10,20 +10,10 @@ import { getSession } from "@/lib/session";
 import { roleLabel } from "@/lib/organization-roles";
 import { AcceptInvitation } from "./accept-invitation";
 
-// La page lit la session : elle ne peut pas etre rendue a l'avance. Pas de
-// `generateStaticParams` ici — sur une base vide il ne renverrait rien, Next
-// classerait la route comme statique et chaque requete repondrait 500.
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = { title: "Invitation" };
 
-/**
- * La page vers laquelle pointe l'e-mail d'invitation.
- *
- * Elle est publique a dessein : l'invite n'a le plus souvent pas encore de
- * compte. Elle ne divulgue que le nom de l'entreprise et le role propose — ce
- * que l'e-mail disait deja — et l'acceptation, elle, exige une session.
- */
 export default async function InvitationPage({
   params,
 }: {
@@ -84,9 +74,6 @@ export default async function InvitationPage({
                       <AcceptInvitation
                         invitationId={invitation.id}
                         organizationName={invitation.organization.name}
-                        // L'invitation vise une adresse : la rejoindre depuis un
-                        // autre compte ferait entrer quelqu'un que personne
-                        // n'a invite.
                         addressedToAnotherAccount={
                           session.user.email.toLowerCase() !==
                           invitation.email.toLowerCase()

@@ -12,11 +12,6 @@ function formatDateTime(date: Date): string {
   });
 }
 
-/**
- * Ce que l'assistant a repondu, conversation par conversation. Des `details`
- * natifs plutot qu'un composant client : l'ouverture marche au clavier et au
- * lecteur d'ecran sans une ligne de JavaScript.
- */
 export async function ConversationHistory({ clientServiceId }: { clientServiceId: string }) {
   const conversations = await getConversations(clientServiceId);
 

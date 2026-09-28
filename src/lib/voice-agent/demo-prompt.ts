@@ -3,20 +3,10 @@ import { DEMO_TIME_LIMIT_SEC } from "@/lib/demo-call";
 export type DemoCatalogEntry = {
   name: string;
   description: string;
-  /** Le tarif deja mis en phrase, TTC : « 59 € par mois, sans frais de mise en place ». */
   price: string;
-  /** Le quota compris, s'il y en a un : « 150 minutes par mois comprises ». */
   usage: string | null;
 };
 
-/**
- * Les consignes de l'agent qui rappelle un visiteur du site.
- *
- * Il fait deux choses a la fois : montrer, par sa seule facon de parler, ce
- * qu'un client obtiendrait, et aider la personne a trouver ce qu'elle cherche.
- * Il ne connait du catalogue que ce qu'on lui donne ici — et on le lui dit,
- * pour qu'il n'invente ni un prix ni une fonctionnalite.
- */
 export function buildDemoPrompt(catalog: DemoCatalogEntry[], requestedServiceName: string): string {
   const minutes = Math.round(DEMO_TIME_LIMIT_SEC / 60);
   const catalogLines = catalog.map(

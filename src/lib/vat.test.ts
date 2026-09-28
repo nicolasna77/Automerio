@@ -15,7 +15,6 @@ describe("centsExcludingVat", () => {
   });
 
   it("arrondit au centime le plus proche", () => {
-    // 7900 / 1,2 = 6583,33…
     expect(centsExcludingVat(7900)).toBe(6583);
   });
 

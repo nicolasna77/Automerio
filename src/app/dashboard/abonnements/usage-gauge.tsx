@@ -21,7 +21,6 @@ export function UsageGauge({
   const ratio = usageRatio(consumedUnits, cap);
   const consumed = formatUsageUnits(consumedUnits, cap.unit);
   const included = formatUsageUnits(cap.includedUnits, cap.unit);
-  // Meme seuil que l'e-mail d'alerte : le client lit ici ce qu'on lui a ecrit.
   const nearLimit = over === 0 && consumedUnits >= cap.includedUnits * QUOTA_WARNING_RATIO;
 
   return (

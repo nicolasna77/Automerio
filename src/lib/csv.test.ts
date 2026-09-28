@@ -85,14 +85,11 @@ describe("toCsv — neutralisation des formules", () => {
   type Cell = { label: string };
   const cell = [{ header: "Libellé", value: (r: Cell) => r.label }];
 
-  /** La seule ligne de données, BOM et en-tête retirés. */
   function line(label: string): string {
     return toCsv([{ label }], cell).split("\r\n")[1];
   }
 
   it("désamorce une valeur commençant par un signe égal", () => {
-    // Apostrophe ajoutée, puis guillemetage car la valeur contient des
-    // guillemets — qui sont doublés.
     expect(line('=HYPERLINK("https://exemple.test")')).toBe(
       `"'=HYPERLINK(""https://exemple.test"")"`
     );
@@ -106,7 +103,6 @@ describe("toCsv — neutralisation des formules", () => {
   });
 
   it("désamorce la formule DDE, celle qui vise l'exécution de commande", () => {
-    // Pas de guillemetage : ni guillemet ni séparateur dans la valeur.
     expect(line("=cmd|'/c calc'!A0")).toBe("'=cmd|'/c calc'!A0");
   });
 

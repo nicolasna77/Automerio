@@ -1,12 +1,3 @@
-/**
- * La transcription d'un appel, reconstruite a partir des evenements Realtime.
- *
- * Les deux cotes n'arrivent pas dans l'ordre : la transcription de l'appelant
- * tourne sur un modele a part et peut aboutir apres la reponse de l'assistant.
- * On retient donc l'ordre d'apparition des elements de conversation
- * (`conversation.item.added`) et on range les textes dedans quand ils arrivent.
- */
-
 export type Speaker = "caller" | "assistant";
 export type TranscriptTurn = { speaker: Speaker; text: string };
 
@@ -29,10 +20,8 @@ export class TranscriptCollector {
     }
   }
 
-  /** Rend `true` si l'evenement a ete pris en compte. */
   handle(event: RealtimeEvent): boolean {
     switch (event.type) {
-      // Nom GA, puis nom de la beta : les deux circulent encore.
       case "conversation.item.added":
       case "conversation.item.created": {
         const id = event.item?.id;
@@ -72,7 +61,6 @@ export type CallOutcome =
   | "message_taken"
   | "no_action";
 
-/** Ce que l'appel a produit, du plus au moins engageant. */
 const OUTCOME_PRIORITY: CallOutcome[] = [
   "appointment_booked",
   "order_taken",
@@ -80,10 +68,6 @@ const OUTCOME_PRIORITY: CallOutcome[] = [
   "message_taken",
 ];
 
-/**
- * Le resultat de l'appel, deduit des outils que l'assistant a vraiment
- * menes a bien : un transfert refuse ou un creneau pris ne comptent pas pareil.
- */
 export function outcomeFromTools(calls: { name: string; result: string }[]): CallOutcome {
   const achieved = new Set<CallOutcome>();
   for (const { name, result } of calls) {
@@ -102,7 +86,6 @@ export type CallSummaryFields = {
   callerName: string | null;
 };
 
-/** Transcription mise en forme pour le modele qui la resume. */
 export function formatTranscriptForSummary(turns: TranscriptTurn[]): string {
   return turns
     .map((turn) => `${turn.speaker === "caller" ? "Appelant" : "Assistant"} : ${turn.text}`)
@@ -116,14 +99,12 @@ function cleanField(value: unknown, maxLength: number): string | null {
   return trimmed.slice(0, maxLength);
 }
 
-/** Lit la reponse JSON du modele sans lui faire confiance sur la forme. */
 export function parseSummaryResponse(raw: string | null | undefined): CallSummaryFields {
   let data: Record<string, unknown> = {};
   try {
     const parsed = JSON.parse(raw ?? "{}");
     if (parsed && typeof parsed === "object") data = parsed as Record<string, unknown>;
   } catch {
-    // Reponse illisible : on garde la transcription, sans resume.
   }
   return {
     reason: cleanField(data.reason, 120),

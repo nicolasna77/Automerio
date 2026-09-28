@@ -69,13 +69,10 @@ export async function updateServiceAction(
     const description = input.description.trim();
     if (!name) throw new ActionError("Le nom est requis.");
     if (!description) throw new ActionError("La description est requise.");
-    // Une solution ne se vend qu'en abonnement : le prix mensuel est requis.
     if (input.monthlyPriceEuros === null || input.monthlyPriceEuros <= 0) {
       throw new ActionError("Le prix de l'abonnement mensuel est requis.");
     }
 
-    // Quantite et unite vont ensemble : l'une sans l'autre ne decrit aucun
-    // plafond, et laisserait la jauge du client sans reference.
     const includedUnits = input.includedUsageUnits;
     const hasCap = includedUnits !== null && input.usageUnit !== null;
     if (!hasCap && (includedUnits !== null || input.usageUnit !== null)) {

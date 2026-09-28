@@ -2,7 +2,6 @@ import { formatCentsWithVat } from "@/lib/vat";
 
 export type UsageUnit = "CALL" | "MINUTE";
 
-/** Ce que l'abonnement mensuel comprend, et le prix au-dela. */
 export type UsageCap = {
   includedUnits: number;
   unit: UsageUnit;
@@ -24,13 +23,11 @@ export function readUsageCap(service: ServiceUsageColumns): UsageCap | null {
   };
 }
 
-/** « 12 min », « 3 appels » — l'unite telle qu'on la montre au client. */
 export function formatUsageUnits(units: number, unit: UsageUnit): string {
   if (unit === "MINUTE") return `${units} min`;
   return `${units} appel${units === 1 ? "" : "s"}`;
 }
 
-/** L'etiquette lue partout — site public, catalogue, facture, jauge. */
 export function formatUsageCap(cap: UsageCap): string {
   const included =
     cap.unit === "MINUTE"
@@ -41,11 +38,6 @@ export function formatUsageCap(cap: UsageCap): string {
   return `${included}, puis ${formatCentsWithVat(cap.overageUnitPriceCents)}/${per}`;
 }
 
-/**
- * Le plafond d'une prestation vendue : celui que le client a choisi s'il a pu
- * le faire, sinon celui du catalogue. Lire le catalogue seul montrerait a un
- * client ayant achete 300 minutes le quota par defaut de 150.
- */
 export function readClientUsageCap(
   clientService: { includedUsageUnits: number | null },
   service: ServiceUsageColumns
@@ -69,7 +61,6 @@ export function overageCents(consumedUnits: number, cap: UsageCap): number {
   return overageUnits(consumedUnits, cap) * cap.overageUnitPriceCents;
 }
 
-/** Part du quota consommee, bornee a 1 : la jauge ne deborde pas. */
 export function usageRatio(consumedUnits: number, cap: UsageCap): number {
   if (cap.includedUnits <= 0) return 1;
   return Math.min(1, consumedUnits / cap.includedUnits);

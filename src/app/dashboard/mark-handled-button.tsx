@@ -16,7 +16,6 @@ export function MarkHandledButton({
 }: {
   clientServiceId: string;
   callId: string;
-  /** Ce que l'appel concerne, pour qu'un lecteur d'ecran sache lequel il marque. */
   label: string;
 }) {
   const router = useRouter();

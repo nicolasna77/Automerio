@@ -5,11 +5,6 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { CATALOGUE_PATH, MY_SOLUTIONS_PATH } from "./paths";
 
-/**
- * Deux vues d'une meme entree de menu : ce que le client a deja, et ce qu'il
- * peut ajouter. Des liens plutot que des onglets ARIA : chaque vue a sa propre
- * URL, se partage, et le bouton retour du navigateur fait ce qu'on attend.
- */
 export function SolutionsTabs({ myCount }: { myCount: number }) {
   const pathname = usePathname();
   const tabs = [

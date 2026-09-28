@@ -37,8 +37,6 @@ export default async function PrestationsPage({
       ? params.checkout
       : null;
 
-  // Rien d'active : une liste vide n'apprend rien, le catalogue si. Le retour
-  // de Stripe reste ici, pour afficher son message quoi qu'il arrive.
   if (myServices.length === 0 && !checkoutStatus) redirect(CATALOGUE_PATH);
 
   const checkoutTarget = params.clientServiceId

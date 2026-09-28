@@ -49,7 +49,6 @@ test("le propriétaire transmet la propriété et reste responsable", async ({ p
   await dialog.getByRole("button", { name: "Transmettre" }).click();
 
   await expect(page.getByText("Vous : Responsable")).toBeVisible();
-  // Le bouton disparait : seul le nouveau proprietaire peut transmettre a nouveau.
   await expect(page.getByRole("button", { name: "Transmettre la propriété" })).toHaveCount(0);
 
   const roles = await db.member.findMany({

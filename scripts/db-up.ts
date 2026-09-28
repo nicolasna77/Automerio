@@ -1,5 +1,3 @@
-// Démarre Docker Desktop s'il est arrêté, puis la base Postgres du
-// docker-compose.yml. Usage : npm run db:up
 import { execSync, spawn } from "node:child_process";
 
 function dockerReady() {

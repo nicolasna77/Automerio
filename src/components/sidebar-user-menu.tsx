@@ -22,8 +22,6 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { initialsOf } from "@/lib/initials";
 
-// Le compte en pied de sidebar, comme dans la plupart des consoles : il reste
-// a portee en mode replie (avatar seul) et libere l'en-tete de la page.
 export function SidebarUserMenu({ name, email }: { name: string; email: string }) {
   const router = useRouter();
   const { isMobile } = useSidebar();

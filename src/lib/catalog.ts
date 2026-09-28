@@ -121,7 +121,6 @@ export const STATUS_LABELS: Record<ClientServiceStatus, string> = {
   CANCELED: "Résilié",
 };
 
-/** Le prix d'une solution : un abonnement mensuel, sans frais de mise en place. */
 export function formatPrice(monthlyPriceCents: number | null): string {
   return monthlyPriceCents === null ? "—" : `${formatCents(monthlyPriceCents)}/mois`;
 }

@@ -10,20 +10,6 @@ import { formatCentsWithVat } from "@/lib/vat";
 import type { SubscriptionTier } from "@/lib/subscription-pricing";
 import { activationPath, authPathWithNext } from "@/lib/safe-redirect";
 
-/**
- * Le meme curseur qu'a l'activation, sur la page publique d'une solution.
- *
- * Ici il ne vend rien : il laisse un visiteur chiffrer son besoin avant de
- * creer un compte. C'est l'objection la plus courante — « combien ca me
- * couterait, a moi » — et y repondre sur la page evite de la reporter apres
- * l'inscription.
- *
- * Le volume choisi suit le visiteur jusqu'a l'activation, a travers
- * l'inscription ou la connexion, pour qu'il n'ait pas a le refaire. Il n'y
- * arrive que comme valeur de depart du curseur : l'URL n'engage a rien, la page
- * d'activation le ramene dans les bornes et le serveur revalide le quota avant
- * de facturer, comme pour tout choix fait dans le navigateur.
- */
 export function ServicePriceSimulator({
   tier,
   overageUnitPriceCents,

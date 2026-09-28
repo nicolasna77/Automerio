@@ -21,8 +21,6 @@ export function SubscriptionCard({
 }) {
   const running = isRunning(subscription);
 
-  // Une carte resiliee n'a ni periode ni quota a montrer : on la laisse vide
-  // plutot que d'y reserver une place blanche.
   const body = [
     subscription.paymentFailedAt && (
       <p key="payment-failed" className="flex items-start gap-2 text-sm text-foreground">
@@ -60,7 +58,6 @@ export function SubscriptionCard({
   return (
     <Card className="shadow-sm">
       <CardHeader>
-        {/* min-w-0 : sans cela un nom long deborde de la carte, qui coupe. */}
         <div className="flex min-w-0 items-start gap-3">
           <ServiceGlyph
             slug={subscription.serviceSlug}

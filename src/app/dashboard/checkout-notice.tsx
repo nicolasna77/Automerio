@@ -28,11 +28,6 @@ export function CheckoutNotice({
   const [attempts, setAttempts] = useState(0);
   const attemptsRef = useRef(0);
 
-  // Le webhook Stripe fait passer la solution de PENDING_PAYMENT a CONFIGURING,
-  // et s'arrete la : le passage a ACTIVE est une action manuelle de l'equipe,
-  // des jours plus tard. On attend donc que le paiement soit enregistre, pas
-  // que la solution soit active, sans quoi chaque achat finit par annoncer un
-  // retard qui n'existe pas.
   const awaitingPayment =
     status === "success" &&
     (initialStatus === undefined || initialStatus === "PENDING_PAYMENT");

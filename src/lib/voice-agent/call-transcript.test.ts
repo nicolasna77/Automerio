@@ -14,7 +14,6 @@ describe("TranscriptCollector", () => {
     collector.handle({ type: "conversation.item.added", item: { id: "u1", role: "user" } });
     collector.handle({ type: "conversation.item.added", item: { id: "a2", role: "assistant" } });
     collector.handle({ type: "response.output_audio_transcript.done", item_id: "a2", transcript: "Je note votre adresse." });
-    // La transcription de l'appelant aboutit apres la reponse de l'assistant.
     collector.handle({ type: "conversation.item.input_audio_transcription.completed", item_id: "u1", transcript: " J'ai une fuite. " });
 
     expect(collector.turns()).toEqual([

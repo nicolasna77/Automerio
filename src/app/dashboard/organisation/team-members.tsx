@@ -51,7 +51,6 @@ export function TeamMembers({
 }: {
   organizationId: string;
   canManage: boolean;
-  /** Vrai pour le proprietaire : lui seul peut transmettre la propriete. */
   canTransfer?: boolean;
   members: TeamMemberRow[];
 }) {
@@ -99,8 +98,6 @@ export function TeamMembers({
     <>
       <ul className="divide-y divide-border">
         {members.map((member) => {
-          // Le propriétaire ne se modifie pas ici : son rôle se transmet, ce qui
-          // est un autre geste.
           const isOwner = member.role.split(",").includes("owner");
           const editable = canManage && !isOwner;
 

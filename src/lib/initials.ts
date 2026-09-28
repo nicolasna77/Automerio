@@ -1,4 +1,3 @@
-/** Les initiales d'un nom pour un avatar (deux lettres au plus), ou « ? ». */
 export function initialsOf(name: string): string {
   return (
     name

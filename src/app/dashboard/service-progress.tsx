@@ -17,15 +17,6 @@ const PROGRESS_STEPS = [
   { status: "ACTIVE", label: "Actif" },
 ] as const;
 
-/**
- * Ou en est une solution, de son paiement a sa mise en service.
- *
- * Volontairement sans `StepperTrigger` ni `StepperTitle`. Le premier rendrait
- * des boutons qui ne menent nulle part : rien n'est navigable ici, l'etape
- * courante est decidee par le statut de la solution. Le second rend un `<h3>`,
- * et ce composant se repete a chaque ligne de la liste des solutions — trois
- * titres par ligne encombreraient le plan de la page sans rien nommer.
- */
 export function ServiceProgress({ status }: { status: ClientServiceStatus }) {
   if (status === "CANCELED") return null;
 

@@ -1,10 +1,5 @@
 import { WEEK_DAYS, type Configuration, type WeeklyHours } from "@/lib/catalog";
 
-/**
- * Les horaires d'ouverture d'une solution, lus a l'heure de Paris : le serveur
- * tourne en UTC, les horaires des clients sont ceux de leur boutique.
- */
-
 export function asWeeklyHours(value: Configuration[string] | undefined): WeeklyHours | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   return value as WeeklyHours;
@@ -20,11 +15,6 @@ const INTL_WEEKDAY_TO_WEEK_DAY: Record<string, (typeof WEEK_DAYS)[number]> = {
   Sun: "sun",
 };
 
-/**
- * L'entreprise etait-elle ouverte a cet instant ? Sans horaires renseignes, on
- * la considere ouverte : mieux vaut ne rien compter « hors horaires » que
- * compter a tort.
- */
 export function isOpenAt(hours: WeeklyHours | null, date: Date): boolean {
   if (!hours) return true;
   const parts = new Intl.DateTimeFormat("en-US", {
@@ -47,7 +37,6 @@ export function isOpenAt(hours: WeeklyHours | null, date: Date): boolean {
   return currentMinutes >= openH * 60 + openM && currentMinutes < closeH * 60 + closeM;
 }
 
-/** Les horaires d'une solution, quel que soit le champ qui les porte. */
 export function hoursOf(configuration: Configuration): WeeklyHours | null {
   return asWeeklyHours(configuration.businessHours) ?? asWeeklyHours(configuration.openingHours);
 }

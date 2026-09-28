@@ -23,9 +23,6 @@ test("le client suit le quota de ses abonnements en cours", async ({ page }) => 
   const running = page.getByRole("region", { name: "En cours" });
   await expect(running.getByRole("link", { name: "Standard téléphonique automatisé" })).toBeVisible();
 
-  // Le plafond n'est plus une phrase libre : chaque jauge lit la quantite
-  // incluse de sa solution. Les deux prestations telephoniques comptent en
-  // minutes depuis que le quota en appels s'est revele deficitaire.
   const jauges = running.locator('[role="progressbar"][aria-valuemax="150"]');
   await expect(jauges).toHaveCount(2);
   await expect(jauges.first()).toHaveAttribute("aria-valuetext", /min$/);
@@ -33,12 +30,10 @@ test("le client suit le quota de ses abonnements en cours", async ({ page }) => 
 
   await expect(page.getByRole("button", { name: "Se désabonner" }).first()).toBeVisible();
 
-  // Le meme quota se retrouve sur la page de la solution concernee.
   await running.getByRole("link", { name: "Standard téléphonique automatisé" }).click();
   await page.waitForURL(/\/dashboard\/services\/[^/]+$/);
   await expect(page.getByText("Abonnement", { exact: true })).toBeVisible();
   await expect(page.locator('[role="progressbar"][aria-valuemax="150"]')).toBeVisible();
-  // Le plafond n'est annonce qu'une fois : la jauge remplace la ligne du tableau.
   await expect(page.getByText("Plafond d'usage")).toHaveCount(0);
 });
 
@@ -61,7 +56,6 @@ test("les solutions actives et le catalogue sont deux onglets distincts", async 
   await page.goto("/dashboard/prestations");
   const tabs = page.getByRole("navigation", { name: "Solutions" });
   await expect(tabs.getByRole("link", { name: /^Mes solutions/ })).toHaveAttribute("aria-current", "page");
-  // Le catalogue n'est plus empile sous la liste.
   await expect(page.getByRole("region", { name: "Catalogue" })).toHaveCount(0);
 
   await tabs.getByRole("link", { name: "Catalogue" }).click();

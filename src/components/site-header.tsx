@@ -34,8 +34,6 @@ export async function SiteHeader() {
             <AutomerioLogo />
           </div>
 
-          {/* La navigation complete ne tient qu'a partir de lg : en dessous,
-              elle passe dans le menu, et seule l'action principale reste visible. */}
           <nav
             aria-label="Navigation principale"
             className="ml-8 hidden items-center gap-6 text-sm text-muted-foreground lg:flex"

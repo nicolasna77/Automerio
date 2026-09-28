@@ -60,8 +60,6 @@ export async function recordUsageEvent(
     });
   }
 
-  // Un appel termine peut faire franchir un seuil du forfait. L'alerte ne doit
-  // jamais faire echouer l'enregistrement de l'appel.
   if (status === "completed" && type === "call") {
     await checkQuotaAlerts(clientServiceId, { durationSec: durationSec ?? null }).catch((err) =>
       console.error(`[quota] vérification impossible pour ${clientServiceId} :`, err)

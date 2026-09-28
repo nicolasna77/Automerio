@@ -2,19 +2,6 @@ import { ArrowRight, Check, FileText, Headset, ListChecks, Phone, PhoneForwarded
 import { ServiceGlyph } from "@/components/service-glyph";
 import { cn } from "@/lib/utils";
 
-/**
- * Les illustrations des pages de solution.
- *
- * Plutot qu'un dessin decoratif, chacune montre le resultat concret : l'appel
- * decroche et son resume, le message repondu, le document condense. Elles
- * sont construites avec les jetons du theme — elles suivent le mode sombre —
- * et restent decoratives : tout ce qu'elles montrent est dit dans le texte de
- * la page, d'ou `aria-hidden`.
- *
- * Leurs textes evitent volontairement les prix et les mots des titres de la
- * page, qu'un lecteur d'ecran ou un test retrouverait en double.
- */
-
 type Family = "call" | "booking-call" | "chat" | "email" | "calendar" | "document" | "meeting" | "support";
 
 const FAMILY_BY_SLUG: Record<string, Family> = {
@@ -358,10 +345,6 @@ export function ServiceIllustration({ slug, className }: { slug: string; classNa
   );
 }
 
-/**
- * Le renvoi d'appel, en schema : le client compose le numero habituel, le
- * renvoi l'amene a l'assistant, qui repond ou vous transfere.
- */
 export function ForwardingDiagram({ vertical = false }: { vertical?: boolean }) {
   const steps = [
     { icon: Phone, label: "Votre client", detail: "compose votre numéro" },
@@ -408,7 +391,6 @@ export function ForwardingDiagram({ vertical = false }: { vertical?: boolean }) 
   );
 }
 
-/** Apercu de la fiche d'activation : les premiers champs que le client remplira. */
 export function ConfigPreview({ labels }: { labels: string[] }) {
   return (
     <div aria-hidden="true" className="space-y-3">
@@ -422,7 +404,6 @@ export function ConfigPreview({ labels }: { labels: string[] }) {
   );
 }
 
-/** Apercu de l'installation par l'equipe, pour les solutions sans renvoi d'appel. */
 export function SetupPreview() {
   return (
     <ul aria-hidden="true" className="space-y-2">
@@ -454,7 +435,6 @@ const ACTIVITY_BY_FAMILY: Record<Family, string[]> = {
   support: ["Demande prise en charge", "Réglage appliqué", "Question traitée par l'équipe"],
 };
 
-/** Apercu du fil d'activite une fois la solution en service. */
 export function ActivityPreview({ slug }: { slug: string }) {
   const lines = ACTIVITY_BY_FAMILY[FAMILY_BY_SLUG[slug] ?? "support"];
   return (

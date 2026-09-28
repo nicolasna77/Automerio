@@ -24,8 +24,6 @@ describe("canReadClientService", () => {
   });
 
   it("refuse celui qui a quitté l'organisation", () => {
-    // Le cas que la seule vérification de `userId` laissait passer : la ligne
-    // porte encore son identifiant, mais il n'est plus membre.
     expect(canReadClientService(prestation, parti)).toBe(false);
   });
 
@@ -49,7 +47,6 @@ describe("canManageClientServiceBilling", () => {
   });
 
   it("exige le rôle dans l'organisation porteuse, pas dans une autre", () => {
-    // Être propriétaire ailleurs ne donne aucun droit ici.
     expect(
       canManageClientServiceBilling(prestation, {
         memberships: [
@@ -65,7 +62,6 @@ describe("canManageClientServiceBilling", () => {
   });
 
   it("n'accorde jamais plus que la consultation", () => {
-    // Invariant : tout ce qui engage suppose de pouvoir consulter.
     for (const viewer of [membre, admin, proprietaire, etranger, parti]) {
       if (canManageClientServiceBilling(prestation, viewer)) {
         expect(canReadClientService(prestation, viewer)).toBe(true);

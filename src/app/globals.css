@@ -202,11 +202,6 @@
     letter-spacing: var(--tracking-normal);
   }
 
-  /* Le serif du theme habille les titres, le sans porte le texte courant :
-     c'est ce contraste qui justifie de charger deux familles. Regle posee ici
-     plutot qu'ajoutee page par page, pour qu'un titre ne puisse pas l'oublier.
-     `CardTitle`, `DialogTitle`, `AlertDialogTitle` et `SheetTitle` demandaient
-     deja `font-heading`, une classe qui n'etait definie nulle part. */
   h1,
   h2,
   h3 {

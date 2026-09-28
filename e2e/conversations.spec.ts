@@ -7,7 +7,6 @@ test.use({ storageState: CLIENT_STATE });
 const createdServiceIds: string[] = [];
 
 test.afterEach(async () => {
-  // La suppression de la solution emporte ses conversations et leurs messages.
   await db.clientService.deleteMany({ where: { id: { in: createdServiceIds.splice(0) } } });
 });
 

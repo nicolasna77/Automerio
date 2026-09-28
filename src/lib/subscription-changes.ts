@@ -2,22 +2,6 @@ import type Stripe from "stripe";
 import { stripeClient } from "@/lib/stripe";
 import { getIncludedVatRateId } from "@/lib/stripe-billing";
 
-/**
- * Changer le quota d'un abonnement en cours.
- *
- * La difference est prelevee tout de suite, au prorata des jours restants :
- * le client augmente parce qu'il manque de minutes maintenant, les lui donner
- * au mois prochain ne repondrait pas a sa demande — il depasserait entre-temps
- * au tarif fort, plus cher que l'augmentation.
- */
-
-/**
- * La ligne recurrente de l'abonnement.
- *
- * Cherchee, non prise au premier rang : les abonnements souscrits avant la
- * suppression des frais de mise en place portent encore cette ligne ponctuelle,
- * et rien ne garantit l'ordre que Stripe renvoie.
- */
 function recurringItem(subscription: Stripe.Subscription): Stripe.SubscriptionItem {
   const item = subscription.items.data.find((line) => line.price.recurring);
   if (!item) {
@@ -29,18 +13,9 @@ function recurringItem(subscription: Stripe.Subscription): Stripe.SubscriptionIt
 }
 
 export type QuotaChange = {
-  /** Ce qui sera preleve aujourd'hui, en centimes. Zero quand rien n'est du. */
   immediateChargeCents: number;
 };
 
-/**
- * Porte le nouveau tarif sur l'abonnement Stripe et facture l'ecart.
- *
- * `always_invoice` emet la facture de prorata sur-le-champ plutot que de
- * l'attendre a la prochaine echeance : sans cela le client obtiendrait ses
- * minutes sans rien payer avant des semaines, et une baisse ne lui rendrait
- * rien avant autant.
- */
 export async function applyMonthlyPriceChange(
   stripeSubscriptionId: string,
   newMonthlyPriceCents: number
@@ -57,8 +32,6 @@ export async function applyMonthlyPriceChange(
           currency: "eur",
           unit_amount: newMonthlyPriceCents,
           recurring: { interval: "month" },
-          // Le produit de la ligne en cours, non un nouveau : les factures du
-          // client restent rattachees au meme article, avant et apres.
           product:
             typeof item.price.product === "string"
               ? item.price.product
@@ -74,12 +47,6 @@ export async function applyMonthlyPriceChange(
   return { immediateChargeCents: await lastProrationAmount(updated) };
 }
 
-/**
- * Ce que la facture de prorata vient de prelever, pour le dire au client.
- *
- * Renvoie zero si rien n'est trouve : afficher un montant faux serait pire que
- * de n'en afficher aucun, et Stripe reste la source de verite.
- */
 async function lastProrationAmount(subscription: Stripe.Subscription): Promise<number> {
   try {
     const invoices = await stripeClient.invoices.list({

@@ -20,7 +20,6 @@ test("le volume choisi sur la page publique suit le visiteur jusqu'à l'activati
   await page.getByRole("link", { name: /^Continuer avec / }).click();
   await page.waitForURL(/\/signup\?next=/);
 
-  // Un compte existe deja : la destination survit au passage vers la connexion.
   await page.getByRole("link", { name: "Se connecter" }).click();
   await page.waitForURL(/\/login\?next=/);
   await page.getByLabel("E-mail").fill(CLIENT.email);
@@ -33,8 +32,6 @@ test("le volume choisi sur la page publique suit le visiteur jusqu'à l'activati
   await expect(page.getByRole("slider")).toHaveAttribute("aria-valuenow", chosen!);
 });
 
-// Sans connexion : better-auth limite les tentatives, et `safeNextPath` a ses
-// tests unitaires (autres origines comprises).
 test("une page protégée renvoie à la connexion en gardant la destination", async ({ page }) => {
   await page.goto("/dashboard/paiements");
   await page.waitForURL(/\/login\?next=%2Fdashboard%2Fpaiements$/);
