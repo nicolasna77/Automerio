@@ -1,7 +1,7 @@
-import type { Metadata } from "next";
+import { titleMetadata } from "@/i18n/metadata";
 import { ForgotPasswordForm } from "./forgot-password-form";
 
-export const metadata: Metadata = { title: "Mot de passe oublié" };
+export const generateMetadata = titleMetadata("forgotPassword");
 
 export default function ForgotPasswordPage() {
   return <ForgotPasswordForm />;

@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { AutomerioLogo } from "@/components/brand";
@@ -10,7 +11,7 @@ import { getCatalog } from "@/lib/get-catalog";
 import { SITE_NAV_LINKS } from "@/lib/site";
 
 export async function SiteHeader() {
-  const [session, services] = await Promise.all([getSession(), getCatalog()]);
+  const [session, services, t] = await Promise.all([getSession(), getCatalog(), getTranslations("Site")]);
   const user = session
     ? {
         name: session.user.name,
@@ -25,7 +26,7 @@ export async function SiteHeader() {
         href="#content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-60 focus:rounded-2xl focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground"
       >
-        Aller au contenu
+        {t("skipToContent")}
       </a>
       <header className="sticky top-0 z-50 border-b bg-background/90 backdrop-blur supports-backdrop-filter:bg-background/75">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-4 sm:px-6">
@@ -35,7 +36,7 @@ export async function SiteHeader() {
           </div>
 
           <nav
-            aria-label="Navigation principale"
+            aria-label={t("mainNavLabel")}
             className="ml-8 hidden items-center gap-6 text-sm text-muted-foreground lg:flex"
           >
             <ServicesMenu services={services} />
@@ -45,7 +46,7 @@ export async function SiteHeader() {
                 href={link.href}
                 className="rounded-md transition-colors hover:text-foreground focus-visible:focus-ring"
               >
-                {link.label}
+                {t(`nav.${link.key}`)}
               </Link>
             ))}
             {user && (
@@ -53,7 +54,7 @@ export async function SiteHeader() {
                 href="/dashboard"
                 className="rounded-md transition-colors hover:text-foreground focus-visible:focus-ring"
               >
-                Tableau de bord
+                {t("nav.dashboard")}
               </Link>
             )}
           </nav>
@@ -75,14 +76,14 @@ export async function SiteHeader() {
                     className: "hidden sm:inline-flex",
                   })}
                 >
-                  Connexion
+                  {t("auth.login")}
                 </Link>
                 <Link
                   href="/signup"
                   className={buttonVariants({ className: "h-10 px-4 sm:h-9" })}
                 >
-                  <span className="sm:hidden">S&apos;inscrire</span>
-                  <span className="hidden sm:inline">Créer mon compte</span>
+                  <span className="sm:hidden">{t("auth.signupShort")}</span>
+                  <span className="hidden sm:inline">{t("auth.signup")}</span>
                 </Link>
               </>
             )}

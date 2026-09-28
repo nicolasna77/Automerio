@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { titleMetadata } from "@/i18n/metadata";
 import { notFound } from "next/navigation";
 import { AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -39,7 +39,7 @@ import { getSubscriptionFor } from "@/lib/subscriptions";
 import { formatPriceWithVat } from "@/lib/vat";
 import { PageBreadcrumbs, PageShell } from "@/components/page-shell";
 
-export const metadata: Metadata = { title: "Détail de la solution" };
+export const generateMetadata = titleMetadata("serviceDetail");
 
 export default async function ServiceDetailPage({
   params,

@@ -126,7 +126,7 @@ function NodeBadge({ node }: { node: Node }) {
   );
 }
 
-export function HeroNetworkVisual({ labels }: { labels: string[] }) {
+export function HeroNetworkVisual({ labels, centerLabel }: { labels: string[]; centerLabel: string }) {
   const nodes = SLOTS.slice(0, labels.length).map((slot, i) =>
     toNode(labels[i], slot)
   );
@@ -217,7 +217,7 @@ export function HeroNetworkVisual({ labels }: { labels: string[] }) {
             fontWeight={700}
             fill="var(--card-foreground)"
           >
-            Votre entreprise
+            {centerLabel}
           </text>
         </g>
       </svg>

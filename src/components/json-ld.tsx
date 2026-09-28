@@ -1,11 +1,4 @@
-import {
-  absoluteUrl,
-  FAQS,
-  SITE_DESCRIPTION,
-  SITE_NAME,
-  siteUrl,
-  type Faq,
-} from "@/lib/site";
+import { absoluteUrl, SITE_NAME, siteUrl, type Faq } from "@/lib/site";
 import { LEGAL_ENTITY } from "@/lib/legal";
 import { formatCents, type ServiceDTO } from "@/lib/catalog";
 import { formatUsageCap } from "@/lib/usage-cap";
@@ -21,7 +14,7 @@ export function JsonLd({ data }: { data: object }) {
   );
 }
 
-export function organizationSchema() {
+export function organizationSchema(description: string) {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -29,7 +22,7 @@ export function organizationSchema() {
     url: siteUrl(),
     logo: absoluteUrl("/icon.svg"),
     email: LEGAL_ENTITY.email,
-    description: SITE_DESCRIPTION,
+    description,
     areaServed: { "@type": "Country", name: "France" },
     contactPoint: {
       "@type": "ContactPoint",
@@ -41,7 +34,7 @@ export function organizationSchema() {
   };
 }
 
-export function faqSchema(items: Faq[] = FAQS) {
+export function faqSchema(items: Faq[]) {
   return {
     "@context": "https://schema.org",
     "@type": "FAQPage",

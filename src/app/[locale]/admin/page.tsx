@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { titleMetadata } from "@/i18n/metadata";
 import { Suspense } from "react";
 import { Stats } from "./stats";
 import { ClientsSection } from "./clients-section";
@@ -7,7 +7,7 @@ import { LiveRefreshToggle } from "./live-refresh-toggle";
 import { StatsSkeleton, ClientsSectionSkeleton } from "./admin-skeletons";
 import { PageHeader, PageShell } from "@/components/page-shell";
 
-export const metadata: Metadata = { title: "Administration" };
+export const generateMetadata = titleMetadata("admin");
 
 export default async function AdminPage({
   searchParams,

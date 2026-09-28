@@ -1,10 +1,10 @@
-import type { Metadata } from "next";
+import { titleMetadata } from "@/i18n/metadata";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/session";
 import { ServicesTable } from "./services-table";
 import { PageHeader, PageShell } from "@/components/page-shell";
 
-export const metadata: Metadata = { title: "Solutions" };
+export const generateMetadata = titleMetadata("adminServices");
 
 export default async function AdminServicesPage() {
   await requireAdmin();

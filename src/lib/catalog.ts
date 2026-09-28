@@ -125,12 +125,11 @@ export function formatPrice(monthlyPriceCents: number | null): string {
   return monthlyPriceCents === null ? "—" : `${formatCents(monthlyPriceCents)}/mois`;
 }
 
-export function formatCents(cents: number): string {
+export function formatCents(cents: number, locale = "fr-FR"): string {
   const whole = cents % 100 === 0;
-  return (cents / 100).toLocaleString("fr-FR", {
-    minimumFractionDigits: whole ? 0 : 2,
-    maximumFractionDigits: 2,
-  }) + " €";
+  const digits = { minimumFractionDigits: whole ? 0 : 2, maximumFractionDigits: 2 };
+  if (locale.startsWith("fr")) return (cents / 100).toLocaleString(locale, digits) + " €";
+  return (cents / 100).toLocaleString(locale, { style: "currency", currency: "EUR", ...digits });
 }
 
 export type ServiceDTO = {

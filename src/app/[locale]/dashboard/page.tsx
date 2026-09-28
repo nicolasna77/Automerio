@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { titleMetadata } from "@/i18n/metadata";
 import { Suspense } from "react";
 import { Link } from "@/i18n/navigation";
 import { db } from "@/lib/db";
@@ -14,7 +14,7 @@ import { SpendChart } from "./spend-chart";
 import { OverviewStatsSkeleton, SpendChartSkeleton } from "./overview-skeletons";
 import { PageHeader, PageShell } from "@/components/page-shell";
 
-export const metadata: Metadata = { title: "Tableau de bord" };
+export const generateMetadata = titleMetadata("dashboard");
 
 const GETTING_STARTED = [
   {

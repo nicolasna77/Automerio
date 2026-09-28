@@ -7,27 +7,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { formatCents, type ServiceDTO } from "@/lib/catalog";
-import { excludingVatSuffix } from "@/lib/vat";
+import { getTranslations } from "next-intl/server";
+import type { ServiceDTO } from "@/lib/catalog";
+import { getPriceFormatter } from "@/lib/price-format-server";
 
-const PERKS = [
-  {
-    title: "Réponse prioritaire",
-    description: "Vos demandes passent avant la file standard.",
-  },
-  {
-    title: "Interlocuteur dédié",
-    description: "Un contact Automerio qui connaît déjà vos automatisations.",
-  },
-  {
-    title: "Suivi mensuel",
-    description: "Un point régulier pour ajuster ce qui doit l'être.",
-  },
-];
+const PERKS = ["priority", "dedicated", "monthly"] as const;
 
-export function MaintenanceSection({ services }: { services: ServiceDTO[] }) {
+export async function MaintenanceSection({ services }: { services: ServiceDTO[] }) {
   const support = services.find((s) => s.slug === "support-prioritaire");
   if (!support) return null;
+  const [t, price] = await Promise.all([getTranslations("Home.support"), getPriceFormatter()]);
 
   return (
     <section id="subscription" className="border-t border-border py-20 sm:py-24">
@@ -40,26 +29,25 @@ export function MaintenanceSection({ services }: { services: ServiceDTO[] }) {
               </span>
               {support.monthlyPriceCents !== null && (
                 <div className="text-right">
-                  <Badge>{formatCents(support.monthlyPriceCents)}/mois TTC</Badge>
+                  <Badge>{price.perMonthWithVat(support.monthlyPriceCents)}</Badge>
                   <span className="mt-1 block text-[0.6875rem] text-muted-foreground">
-                    {excludingVatSuffix(support.monthlyPriceCents)}
+                    {price.excludingVatSuffix(support.monthlyPriceCents)}
                   </span>
                 </div>
               )}
             </div>
             <CardTitle>{support.name}</CardTitle>
             <CardDescription>
-              En plus du support déjà inclus dans chacune de vos solutions,
-              le support prioritaire vous donne un accompagnement dédié.
+              {t("description")}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <ul className="grid gap-3 border-t border-border pt-4 sm:grid-cols-3">
-              {PERKS.map((item) => (
-                <li key={item.title}>
-                  <p className="font-medium text-foreground">{item.title}</p>
+              {PERKS.map((key) => (
+                <li key={key}>
+                  <p className="font-medium text-foreground">{t(`perks.${key}.title`)}</p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    {item.description}
+                    {t(`perks.${key}.description`)}
                   </p>
                 </li>
               ))}

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { titleMetadata } from "@/i18n/metadata";
 import { CloudOff, TicketPercent } from "lucide-react";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/session";
@@ -13,7 +13,7 @@ import { PromoCodeCreateDialog } from "./promo-code-create-dialog";
 import { PromoCodesTable, type PromoCodeRow, type PromoCodeState } from "./promo-codes-table";
 import { PageHeader, PageShell } from "@/components/page-shell";
 
-export const metadata: Metadata = { title: "Codes promo" };
+export const generateMetadata = titleMetadata("adminPromoCodes");
 
 async function loadPromoCodes(nameBySlug: Map<string, string>): Promise<PromoCodeRow[] | null> {
   try {

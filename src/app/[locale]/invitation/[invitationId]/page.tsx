@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { titleMetadata } from "@/i18n/metadata";
 import { Link } from "@/i18n/navigation";
 import { Building2 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
@@ -12,7 +12,7 @@ import { AcceptInvitation } from "./accept-invitation";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = { title: "Invitation" };
+export const generateMetadata = titleMetadata("invitation");
 
 export default async function InvitationPage({
   params,

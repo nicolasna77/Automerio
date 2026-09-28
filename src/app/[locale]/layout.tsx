@@ -8,7 +8,9 @@ import { Toaster } from "@/components/ui/sonner";
 import "../globals.css";
 import { cn } from "@/lib/utils";
 import { JsonLd, organizationSchema } from "@/components/json-ld";
-import { SITE_DESCRIPTION, SITE_TITLE, siteOpenGraph, siteUrl } from "@/lib/site";
+import { getTranslations } from "next-intl/server";
+import { siteUrl } from "@/lib/site";
+import { siteOpenGraph } from "@/lib/site-metadata";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
@@ -29,17 +31,20 @@ const spaceMono = Space_Mono({
   weight: ["400", "700"],
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl()),
-  title: { default: SITE_TITLE, template: "%s | Automerio" },
-  description: SITE_DESCRIPTION,
-  openGraph: siteOpenGraph(),
-  twitter: {
-    card: "summary_large_image",
-    title: SITE_TITLE,
-    description: SITE_DESCRIPTION,
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Site");
+  return {
+    metadataBase: new URL(siteUrl()),
+    title: { default: t("title"), template: "%s | Automerio" },
+    description: t("description"),
+    openGraph: await siteOpenGraph(),
+    twitter: {
+      card: "summary_large_image",
+      title: t("title"),
+      description: t("description"),
+    },
+  };
+}
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -51,6 +56,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const locale = await rootLocale();
+  const t = await getTranslations("Site");
   return (
     <html
       lang={locale}
@@ -65,7 +71,7 @@ export default async function RootLayout({
       )}
     >
       <body className="min-h-full flex flex-col">
-        <JsonLd data={organizationSchema()} />
+        <JsonLd data={organizationSchema(t("description"))} />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

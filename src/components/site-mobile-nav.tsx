@@ -17,7 +17,8 @@ import {
 import { AutomerioLogo } from "@/components/brand";
 import { MobileNavLink } from "@/components/mobile-nav-link";
 import { ServiceGlyph } from "@/components/service-glyph";
-import { CATEGORY_LABELS, type ServiceCategory, type ServiceDTO } from "@/lib/catalog";
+import { useTranslations } from "next-intl";
+import type { ServiceCategory, ServiceDTO } from "@/lib/catalog";
 import { SITE_NAV_LINKS } from "@/lib/site";
 
 const MENU_CATEGORIES: ServiceCategory[] = ["COMMUNICATION", "INFORMATION"];
@@ -29,6 +30,8 @@ export function SiteMobileNav({
   services: ServiceDTO[];
   loggedIn: boolean;
 }) {
+  const t = useTranslations("Site");
+  const tCatalog = useTranslations("Catalog");
   const [open, setOpen] = useState(false);
 
   return (
@@ -39,7 +42,7 @@ export function SiteMobileNav({
             variant="ghost"
             size="icon"
             className="-ml-2 lg:hidden"
-            aria-label="Ouvrir le menu"
+            aria-label={t("menu.open")}
           />
         }
       >
@@ -48,11 +51,11 @@ export function SiteMobileNav({
 
       <SheetContent side="left" className="w-[85vw] max-w-sm">
         <SheetHeader>
-          <SheetTitle className="sr-only">Menu</SheetTitle>
+          <SheetTitle className="sr-only">{t("menu.title")}</SheetTitle>
           <AutomerioLogo />
         </SheetHeader>
         <SheetBody>
-          <nav aria-label="Navigation principale" className="flex flex-col gap-6 text-sm">
+          <nav aria-label={t("mainNavLabel")} className="flex flex-col gap-6 text-sm">
             {MENU_CATEGORIES.map((category) => {
               const categoryServices = services.filter((s) => s.category === category);
               if (categoryServices.length === 0) return null;
@@ -60,7 +63,7 @@ export function SiteMobileNav({
               return (
                 <div key={category}>
                   <p className="mb-1 px-3 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                    {CATEGORY_LABELS[category]}
+                    {tCatalog(`categories.${category}`)}
                   </p>
                   <ul className="flex flex-col">
                     {categoryServices.map((service) => (
@@ -85,7 +88,7 @@ export function SiteMobileNav({
             <ul className="flex flex-col border-t border-border pt-4">
               {SITE_NAV_LINKS.map((link) => (
                 <li key={link.href}>
-                  <MobileNavLink href={link.href}>{link.label}</MobileNavLink>
+                  <MobileNavLink href={link.href}>{t(`nav.${link.key}`)}</MobileNavLink>
                 </li>
               ))}
             </ul>
@@ -98,7 +101,7 @@ export function SiteMobileNav({
               nativeButton={false}
               className={buttonVariants({ size: "lg", className: "w-full" })}
             >
-              Tableau de bord
+              {t("nav.dashboard")}
             </SheetClose>
           ) : (
             <div className="grid gap-2">
@@ -107,14 +110,14 @@ export function SiteMobileNav({
                 nativeButton={false}
                 className={buttonVariants({ size: "lg", className: "w-full" })}
               >
-                Créer mon compte
+                {t("auth.signup")}
               </SheetClose>
               <SheetClose
                 render={<Link href="/login" />}
                 nativeButton={false}
                 className={buttonVariants({ size: "lg", variant: "outline", className: "w-full" })}
               >
-                Connexion
+                {t("auth.login")}
               </SheetClose>
             </div>
           )}

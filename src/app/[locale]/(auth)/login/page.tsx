@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
+import { titleMetadata } from "@/i18n/metadata";
 import { isGoogleSignInConfigured } from "@/lib/env";
 import { safeNextPath } from "@/lib/safe-redirect";
 import { LoginForm } from "./login-form";
 
-export const metadata: Metadata = { title: "Connexion" };
+export const generateMetadata = titleMetadata("login");
 
 export default async function LoginPage({
   searchParams,

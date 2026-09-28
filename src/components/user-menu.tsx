@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useRouter } from "@/i18n/navigation";
 import { LogOut, ShieldCheck, UserRound } from "lucide-react";
@@ -27,13 +28,14 @@ export function UserMenu({
   isAdmin?: boolean;
 }) {
   const router = useRouter();
+  const t = useTranslations("UserMenu");
   const initials = initialsOf(name);
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button variant="ghost" size="icon" aria-label="Menu utilisateur" />
+          <Button variant="ghost" size="icon" aria-label={t("label")} />
         }
       >
         <Avatar className="size-10">
@@ -52,12 +54,12 @@ export function UserMenu({
         <DropdownMenuSeparator />
         <DropdownMenuItem render={<Link href="/dashboard/profile" />}>
           <UserRound />
-          Mon profil
+          {t("profile")}
         </DropdownMenuItem>
         {isAdmin && (
           <DropdownMenuItem render={<Link href="/admin" />}>
             <ShieldCheck />
-            Administration
+            {t("admin")}
           </DropdownMenuItem>
         )}
         <DropdownMenuSeparator />
@@ -74,7 +76,7 @@ export function UserMenu({
           }
         >
           <LogOut />
-          Se déconnecter
+          {t("signOut")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
@@ -7,7 +8,8 @@ import { HeroNetworkVisual } from "./hero-network-visual";
 
 const VISUAL_NODE_COUNT = 6;
 
-export function HeroSection({ services }: { services: ServiceDTO[] }) {
+export async function HeroSection({ services }: { services: ServiceDTO[] }) {
+  const t = await getTranslations("Home.hero");
   const communication = services.filter((s) => s.category === "COMMUNICATION");
   const labels = communication.slice(0, VISUAL_NODE_COUNT).map((s) => s.name);
 
@@ -18,9 +20,9 @@ export function HeroSection({ services }: { services: ServiceDTO[] }) {
     monthlyPrices.length > 0 ? Math.min(...monthlyPrices) : null;
 
   const facts = [
-    fromPrice !== null ? `À partir de ${formatCentsWithVat(fromPrice)} par mois` : null,
-    "Sans engagement",
-    "Abonnement remboursé 30 jours",
+    fromPrice !== null ? t("fromPrice", { price: formatCentsWithVat(fromPrice) }) : null,
+    t("noCommitment"),
+    t("refund"),
   ].filter((fact): fact is string => fact !== null);
 
   return (
@@ -42,32 +44,29 @@ export function HeroSection({ services }: { services: ServiceDTO[] }) {
         <div>
           <p className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
             <span className="size-1.5 rounded-full bg-primary" />
-            Automatisation IA pour artisans, coachs et TPE/PME
+            {t("eyebrow")}
           </p>
           <h1 className="mt-6 max-w-2xl tracking-tight text-balance text-foreground">
             <span className="block text-2xl font-medium leading-snug sm:text-3xl">
-              Pendant que vous travaillez,
+              {t("titleLead")}
             </span>
             <span className="mt-2 block text-[2.6rem] font-bold leading-[0.98] tracking-[-0.03em] font-stretch-88% sm:text-5xl lg:text-[3.4rem]">
-              vos clients obtiennent une réponse.
+              {t("titleMain")}
             </span>
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
-            Un assistant IA décroche votre téléphone, répond à vos messages et
-            prend les rendez-vous. Notre équipe l&apos;installe, le connecte à
-            vos outils et le surveille chaque mois — vous n&apos;ouvrez aucun
-            logiciel technique.
+            {t("lead")}
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <Link href="/signup" className={buttonVariants({ size: "lg" })}>
-              Créer mon compte
+              {t("signup")}
               <ArrowRight data-icon="inline-end" />
             </Link>
             <Link
               href="#services"
               className={buttonVariants({ size: "lg", variant: "secondary" })}
             >
-              Voir les solutions
+              {t("seeServices")}
             </Link>
           </div>
           <ul className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
@@ -81,7 +80,7 @@ export function HeroSection({ services }: { services: ServiceDTO[] }) {
             ))}
           </ul>
         </div>
-        <HeroNetworkVisual labels={labels} />
+        <HeroNetworkVisual labels={labels} centerLabel={t("yourBusiness")} />
       </div>
     </section>
   );

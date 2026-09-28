@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { titleMetadata } from "@/i18n/metadata";
 import { notFound } from "next/navigation";
 import { Building2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +15,7 @@ import { LiveRefreshToggle } from "../../live-refresh-toggle";
 import { toMyServiceDTO } from "@/app/[locale]/dashboard/get-my-service";
 import { PageHeader, PageShell } from "@/components/page-shell";
 
-export const metadata: Metadata = { title: "Détail utilisateur" };
+export const generateMetadata = titleMetadata("adminUserDetail");
 
 async function loadSessionsPage(userId: string, page: number) {
   const rows = await db.session.findMany({

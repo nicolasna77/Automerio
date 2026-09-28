@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { titleMetadata } from "@/i18n/metadata";
 import { Link } from "@/i18n/navigation";
 import { CalendarClock, CreditCard, Layers, TriangleAlert, Wallet } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
@@ -18,7 +18,7 @@ import { SubscriptionCard } from "./subscription-card";
 import { formatCentsWithVat } from "@/lib/vat";
 import { PageHeader, PageShell } from "@/components/page-shell";
 
-export const metadata: Metadata = { title: "Abonnements" };
+export const generateMetadata = titleMetadata("subscriptions");
 
 export default async function AbonnementsPage() {
   const { active: organization } = await requireActiveOrganization();

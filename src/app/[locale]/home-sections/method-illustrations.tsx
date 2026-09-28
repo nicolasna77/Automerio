@@ -1,4 +1,5 @@
 import { CalendarCheck, Check, Headset, Mail, PhoneForwarded, SlidersHorizontal } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { cn } from "@/lib/utils";
 
 function Stage({ children }: { children: React.ReactNode }) {
@@ -21,11 +22,12 @@ function Tag({ children, className }: { children: React.ReactNode; className?: s
   );
 }
 
-export function ChooseIllustration() {
+export async function ChooseIllustration() {
+  const t = await getTranslations("Home.method.illustrations.choose");
   const options = [
-    { icon: Headset, name: "Standard téléphonique IA", selected: true },
-    { icon: CalendarCheck, name: "Prise de rendez-vous", selected: false },
-    { icon: Mail, name: "Réponses aux e-mails", selected: false },
+    { icon: Headset, name: t("phone"), selected: true },
+    { icon: CalendarCheck, name: t("booking"), selected: false },
+    { icon: Mail, name: t("email"), selected: false },
   ];
   return (
     <Stage>
@@ -58,25 +60,26 @@ export function ChooseIllustration() {
           </div>
         ))}
         <div className="flex items-center justify-between px-1 pt-2">
-          <Tag>Abonnement mensuel</Tag>
-          <Tag className="text-primary">Sans engagement</Tag>
+          <Tag>{t("subscription")}</Tag>
+          <Tag className="text-primary">{t("noCommitment")}</Tag>
         </div>
       </div>
     </Stage>
   );
 }
 
-export function BriefIllustration() {
+export async function BriefIllustration() {
+  const t = await getTranslations("Home.method.illustrations.brief");
   const fields = [
-    { label: "Votre activité", value: "Plombier chauffagiste" },
-    { label: "Vos horaires", value: "Lun – ven · 8 h – 18 h" },
-    { label: "En cas d'urgence", value: "Me transférer l'appel" },
+    { label: t("activity"), value: t("activityValue") },
+    { label: t("hours"), value: t("hoursValue") },
+    { label: t("emergency"), value: t("emergencyValue") },
   ];
   return (
     <Stage>
       <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
         <div className="flex items-center justify-between">
-          <Tag>Votre fiche</Tag>
+          <Tag>{t("title")}</Tag>
           <span className="font-mono text-[0.6875rem] text-primary">3 / 3</span>
         </div>
         <div className="mt-4 space-y-3.5">
@@ -90,18 +93,19 @@ export function BriefIllustration() {
           ))}
         </div>
         <span className="mt-5 flex h-9 items-center justify-center rounded-lg bg-primary text-sm font-medium text-primary-foreground">
-          Envoyer à l&apos;équipe
+          {t("send")}
         </span>
       </div>
     </Stage>
   );
 }
 
-export function SetupIllustration() {
+export async function SetupIllustration() {
+  const t = await getTranslations("Home.method.illustrations.setup");
   const steps = [
-    { icon: PhoneForwarded, label: "Numéro relié à l'assistant", done: true },
-    { icon: CalendarCheck, label: "Agenda connecté", done: true },
-    { icon: SlidersHorizontal, label: "Scénarios testés sur vos cas", done: true },
+    { icon: PhoneForwarded, label: t("number"), done: true },
+    { icon: CalendarCheck, label: t("calendar"), done: true },
+    { icon: SlidersHorizontal, label: t("tested"), done: true },
   ];
   return (
     <Stage>
@@ -123,11 +127,11 @@ export function SetupIllustration() {
         <div className="mt-4 ml-auto w-[85%] rounded-2xl border border-primary/40 bg-card p-4 shadow-md">
           <div className="flex items-center gap-2">
             <Mail className="size-4 text-primary" />
-            <Tag>Nouvel e-mail</Tag>
+            <Tag>{t("newEmail")}</Tag>
           </div>
-          <p className="mt-2 text-sm font-medium text-foreground">Votre standard téléphonique est actif</p>
+          <p className="mt-2 text-sm font-medium text-foreground">{t("activeTitle")}</p>
           <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-            Il répond dès maintenant à vos appels.
+            {t("activeBody")}
           </p>
         </div>
       </div>
@@ -135,16 +139,17 @@ export function SetupIllustration() {
   );
 }
 
-export function FollowIllustration() {
+export async function FollowIllustration() {
+  const t = await getTranslations("Home.method.illustrations.follow");
   const bars = [38, 52, 45, 61, 57, 70, 66];
   return (
     <Stage>
       <div className="rounded-2xl border border-border bg-card shadow-sm">
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
-          <Tag>Cette semaine</Tag>
+          <Tag>{t("thisWeek")}</Tag>
           <span className="flex items-center gap-1.5 rounded-full bg-primary/10 px-2 py-0.5 font-mono text-[0.6875rem] text-primary">
             <span className="size-1.5 rounded-full bg-primary" />
-            active
+            {t("active")}
           </span>
         </div>
         <div className="flex h-24 items-end gap-2 px-4 pt-4">
@@ -159,11 +164,11 @@ export function FollowIllustration() {
         <ul className="divide-y divide-border border-t border-border">
           <li className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-foreground">
             <Check className="size-3.5 shrink-0 text-primary" />
-            42 appels traités
+            {t("calls", { count: 42 })}
           </li>
           <li className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-foreground">
             <SlidersHorizontal className="size-3.5 shrink-0 text-primary" />
-            Horaires d&apos;été ajustés par l&apos;équipe
+            {t("adjusted")}
           </li>
         </ul>
       </div>

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { titleMetadata } from "@/i18n/metadata";
 import { Building2, UserPlus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ import { TeamMembers } from "./team-members";
 import { PendingInvitations } from "./pending-invitations";
 import { InviteForm } from "./invite-form";
 
-export const metadata: Metadata = { title: "Organisation" };
+export const generateMetadata = titleMetadata("organization");
 
 export default async function OrganisationPage() {
   const [session, { active: organization }] = await Promise.all([

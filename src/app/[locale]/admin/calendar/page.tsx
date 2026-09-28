@@ -1,11 +1,11 @@
-import type { Metadata } from "next";
+import { titleMetadata } from "@/i18n/metadata";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/session";
 import { calendarWindow, toCalendarBookings } from "@/lib/bookings";
 import { BookingsCalendar } from "@/components/bookings-calendar";
 import { PageHeader, PageShell } from "@/components/page-shell";
 
-export const metadata: Metadata = { title: "Calendrier" };
+export const generateMetadata = titleMetadata("adminCalendar");
 
 export default async function AdminCalendrierPage() {
   await requireAdmin();

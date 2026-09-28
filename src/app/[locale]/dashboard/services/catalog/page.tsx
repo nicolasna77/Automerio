@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { titleMetadata } from "@/i18n/metadata";
 import { db } from "@/lib/db";
 import { requireActiveOrganization } from "@/lib/organization";
 import { getCatalog } from "@/lib/get-catalog";
@@ -6,7 +6,7 @@ import { PageHeader, PageShell } from "@/components/page-shell";
 import { ServiceCatalogGrid } from "../service-catalog-grid";
 import { SolutionsTabs } from "../solutions-tabs";
 
-export const metadata: Metadata = { title: "Catalogue" };
+export const generateMetadata = titleMetadata("catalog");
 
 export default async function CataloguePage() {
   const [{ active: organization }, services] = await Promise.all([

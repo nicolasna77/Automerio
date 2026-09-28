@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { titleMetadata } from "@/i18n/metadata";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,7 +17,7 @@ import { requireAdmin } from "@/lib/session";
 import { AUDIT_ACTION_LABELS, SENSITIVE_AUDIT_ACTIONS } from "@/lib/audit";
 import { PageHeader, PageShell } from "@/components/page-shell";
 
-export const metadata: Metadata = { title: "Journal d'administration" };
+export const generateMetadata = titleMetadata("adminAuditLog");
 
 const PAGE_SIZE = 50;
 

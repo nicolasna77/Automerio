@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { titleMetadata } from "@/i18n/metadata";
 import { Suspense } from "react";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -6,7 +6,7 @@ import { UsersFilters } from "./users-filters";
 import { UsersSection } from "./users-section";
 import { PageHeader, PageShell } from "@/components/page-shell";
 
-export const metadata: Metadata = { title: "Utilisateurs" };
+export const generateMetadata = titleMetadata("adminUsers");
 
 function UsersSectionSkeleton() {
   return (

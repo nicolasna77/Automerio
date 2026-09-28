@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { titleMetadata } from "@/i18n/metadata";
 import type { MarketingPostStatus } from "@prisma/client";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/session";
@@ -6,7 +6,7 @@ import { GeneratePanel } from "./generate-panel";
 import { PostCard } from "./post-card";
 import { PageHeader, PageShell } from "@/components/page-shell";
 
-export const metadata: Metadata = { title: "Marketing" };
+export const generateMetadata = titleMetadata("adminMarketing");
 
 const SECTIONS: {
   status: MarketingPostStatus;

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { titleMetadata } from "@/i18n/metadata";
 import { notFound } from "next/navigation";
 import { requireActiveOrganization } from "@/lib/organization";
 import { getServiceBySlug } from "@/lib/get-catalog";
@@ -6,7 +6,7 @@ import { clampToStep } from "@/lib/subscription-pricing";
 import { ActivationFlow } from "./activation-flow";
 import { PageHeader, PageShell } from "@/components/page-shell";
 
-export const metadata: Metadata = { title: "Activer une solution" };
+export const generateMetadata = titleMetadata("activateService");
 
 export default async function ActivateServicePage({
   params,

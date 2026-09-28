@@ -19,7 +19,7 @@ import {
   formatCents,
 } from "@/lib/catalog";
 import { getCatalog, getServiceBySlug } from "@/lib/get-catalog";
-import { siteOpenGraph } from "@/lib/site";
+import { siteOpenGraph } from "@/lib/site-metadata";
 import { excludingVatSuffix } from "@/lib/vat";
 import { formatUsageCap } from "@/lib/usage-cap";
 import { getServiceCopy } from "@/lib/service-copy";
@@ -51,7 +51,7 @@ export async function generateMetadata({
     title: service.name,
     description,
     alternates: { canonical: url },
-    openGraph: siteOpenGraph({ url, title: service.name, description }),
+    openGraph: await siteOpenGraph({ url, title: service.name, description }),
     twitter: { card: "summary_large_image", title: service.name, description },
   };
 }

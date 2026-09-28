@@ -1,56 +1,57 @@
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { AutomerioLogo } from "@/components/brand";
 
 const LEGAL_LINKS = [
-  { href: "/legal-notice", label: "Mentions légales" },
-  { href: "/terms", label: "CGV" },
-  { href: "/privacy", label: "Confidentialité" },
-  { href: "/cookies", label: "Cookies" },
-];
+  { href: "/legal-notice", key: "legalNotice" },
+  { href: "/terms", key: "terms" },
+  { href: "/privacy", key: "privacy" },
+  { href: "/cookies", key: "cookies" },
+] as const;
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const [t, tSite] = await Promise.all([getTranslations("Footer"), getTranslations("Site")]);
   return (
     <footer className="border-t border-border bg-muted">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-12 sm:px-6 md:flex-row md:items-start md:justify-between">
         <div className="max-w-sm">
           <AutomerioLogo />
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-            Agence d&apos;automatisation pour artisans, coachs, indépendants
-            et TPE/PME.
+            {t("tagline")}
           </p>
         </div>
         <div className="flex gap-16 text-sm text-muted-foreground">
           <div>
-            <h3 className="font-medium text-foreground">Offre</h3>
+            <h3 className="font-medium text-foreground">{t("offer")}</h3>
             <ul className="mt-3 space-y-2">
               <li>
                 <Link href="/#services" className="hover:text-foreground">
-                  Solutions
+                  {t("solutions")}
                 </Link>
               </li>
               <li>
                 <Link href="/#method" className="hover:text-foreground">
-                  Méthode
+                  {t("method")}
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h3 className="font-medium text-foreground">Compte</h3>
+            <h3 className="font-medium text-foreground">{t("account")}</h3>
             <ul className="mt-3 space-y-2">
               <li>
                 <Link href="/contact" className="hover:text-foreground">
-                  Contact
+                  {t("contact")}
                 </Link>
               </li>
               <li>
                 <Link href="/login" className="hover:text-foreground">
-                  Connexion
+                  {t("login")}
                 </Link>
               </li>
               <li>
                 <Link href="/signup" className="hover:text-foreground">
-                  Inscription
+                  {t("signup")}
                 </Link>
               </li>
             </ul>
@@ -59,19 +60,17 @@ export function SiteFooter() {
       </div>
       <div className="mx-auto max-w-6xl border-t border-border px-4 pt-6 text-xs text-muted-foreground sm:px-6">
         <p>
-          WhatsApp, Messenger et Instagram sont des marques de Meta Platforms,
-          Inc. Automerio n&apos;est ni affilié à Meta, ni parrainé ou agréé par
-          Meta.
+          {t("metaDisclaimer")}
         </p>
       </div>
       <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <p>© {new Date().getFullYear()} Automerio. Tous droits réservés.</p>
-        <nav aria-label="Informations légales">
+        <p>{t("copyright", { year: new Date().getFullYear() })}</p>
+        <nav aria-label={tSite("legalNavLabel")}>
           <ul className="flex flex-wrap gap-x-5 gap-y-2">
             {LEGAL_LINKS.map((link) => (
               <li key={link.href}>
                 <Link href={link.href} className="hover:text-foreground">
-                  {link.label}
+                  {t(`legal.${link.key}`)}
                 </Link>
               </li>
             ))}

@@ -1,14 +1,18 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { siteOpenGraph } from "@/lib/site";
+import { siteOpenGraph } from "@/lib/site-metadata";
 import { ContactForm } from "./contact-form";
 
-export const metadata: Metadata = {
-  title: "Contact",
-  alternates: { canonical: "/contact" },
-  openGraph: siteOpenGraph({ url: "/contact", title: "Contact" }),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("PageTitles");
+  return {
+    title: t("contact"),
+    alternates: { canonical: "/contact" },
+    openGraph: await siteOpenGraph({ url: "/contact", title: t("contact") }),
+  };
+}
 
 const NEXT_STEPS = [
   {

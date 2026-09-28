@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { titleMetadata } from "@/i18n/metadata";
 import { FileText, TriangleAlert } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/empty-state";
@@ -20,7 +20,7 @@ import { BillingPortalButton } from "./billing-portal-button";
 import { VAT_PERCENTAGE, excludingVatSuffix } from "@/lib/vat";
 import { PageHeader, PageShell } from "@/components/page-shell";
 
-export const metadata: Metadata = { title: "Paiements" };
+export const generateMetadata = titleMetadata("payments");
 
 const STATUS_LABEL: Record<string, string> = {
   paid: "Payée",

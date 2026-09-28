@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { titleMetadata } from "@/i18n/metadata";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import { parsePreferences } from "@/lib/email/preferences";
@@ -9,7 +9,7 @@ import { TwoFactorSection } from "./two-factor-section";
 import { AccountDataSection } from "./account-data-section";
 import { PageHeader, PageShell } from "@/components/page-shell";
 
-export const metadata: Metadata = { title: "Mon profil" };
+export const generateMetadata = titleMetadata("profile");
 
 export default async function ProfilePage() {
   const session = await requireUser();

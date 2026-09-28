@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
+import { titleMetadata } from "@/i18n/metadata";
 import { isGoogleSignInConfigured } from "@/lib/env";
 import { safeNextPath } from "@/lib/safe-redirect";
 import { SignupForm } from "./signup-form";
 
-export const metadata: Metadata = { title: "Inscription" };
+export const generateMetadata = titleMetadata("signup");
 
 export default async function SignupPage({
   searchParams,

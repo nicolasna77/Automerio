@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { titleMetadata } from "@/i18n/metadata";
 import { Link } from "@/i18n/navigation";
 import { redirect } from "next/navigation";
 import { Plus } from "lucide-react";
@@ -13,7 +13,7 @@ import { PageHeader, PageShell } from "@/components/page-shell";
 import { SolutionsTabs } from "./solutions-tabs";
 import { CATALOGUE_PATH } from "./paths";
 
-export const metadata: Metadata = { title: "Mes solutions" };
+export const generateMetadata = titleMetadata("myServices");
 
 export default async function PrestationsPage({
   searchParams,

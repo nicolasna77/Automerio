@@ -1,7 +1,7 @@
-import type { Metadata } from "next";
+import { titleMetadata } from "@/i18n/metadata";
 import { ResetPasswordForm } from "./reset-password-form";
 
-export const metadata: Metadata = { title: "Réinitialiser le mot de passe" };
+export const generateMetadata = titleMetadata("resetPassword");
 
 export default async function ResetPasswordPage({
   searchParams,

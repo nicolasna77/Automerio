@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { titleMetadata } from "@/i18n/metadata";
 import { requireActiveOrganization } from "@/lib/organization";
 import { db } from "@/lib/db";
 import { calendarWindow, toCalendarBookings } from "@/lib/bookings";
@@ -10,7 +10,7 @@ import { EmptyState } from "@/components/empty-state";
 import { TELEPHONY_SERVICE_SLUGS } from "@/lib/catalog";
 import { PageHeader, PageShell } from "@/components/page-shell";
 
-export const metadata: Metadata = { title: "Calendrier" };
+export const generateMetadata = titleMetadata("calendar");
 
 export default async function CalendrierPage() {
   const { active: organization } = await requireActiveOrganization();

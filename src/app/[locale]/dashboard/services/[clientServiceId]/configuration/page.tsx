@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { titleMetadata } from "@/i18n/metadata";
 import { notFound, redirect } from "next/navigation";
 import { requireUser } from "@/lib/session";
 import { getMyService } from "@/app/[locale]/dashboard/get-my-service";
@@ -6,7 +6,7 @@ import { canEditConfiguration, withCleanProductCatalog } from "@/lib/catalog";
 import { ServiceConfigurationForm } from "./service-configuration-form";
 import { PageHeader, PageShell } from "@/components/page-shell";
 
-export const metadata: Metadata = { title: "Configuration de la solution" };
+export const generateMetadata = titleMetadata("serviceConfiguration");
 
 export default async function ServiceConfigurationPage({
   params,

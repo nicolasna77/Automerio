@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { titleMetadata } from "@/i18n/metadata";
 import { db } from "@/lib/db";
 import { requireActiveOrganization } from "@/lib/organization";
 import {
@@ -11,7 +11,7 @@ import { HelpRequestHistory } from "./help-request-history";
 import { HowItWorks } from "./how-it-works";
 import { PageHeader, PageShell } from "@/components/page-shell";
 
-export const metadata: Metadata = { title: "Aide" };
+export const generateMetadata = titleMetadata("help");
 
 export default async function AidePage() {
   const { active: organization } = await requireActiveOrganization();

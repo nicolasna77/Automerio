@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { titleMetadata } from "@/i18n/metadata";
 import { Suspense } from "react";
 import { HelpRequestsSectionSkeleton } from "../admin-skeletons";
 import { LiveRefreshToggle } from "../live-refresh-toggle";
@@ -6,7 +6,7 @@ import { HelpRequestsFilters } from "./help-requests-filters";
 import { HelpRequestsSection } from "./help-requests-section";
 import { PageHeader, PageShell } from "@/components/page-shell";
 
-export const metadata: Metadata = { title: "Centre d'aide" };
+export const generateMetadata = titleMetadata("adminHelp");
 
 export default async function AdminAidePage({
   searchParams,

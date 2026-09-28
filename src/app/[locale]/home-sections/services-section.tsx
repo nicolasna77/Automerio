@@ -1,3 +1,4 @@
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Check, ChevronRight } from "lucide-react";
 import {
@@ -7,16 +8,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  CATEGORY_DESCRIPTIONS,
-  CATEGORY_LABELS,
-  formatCents,
-  type ServiceCategory,
-  type ServiceDTO,
-} from "@/lib/catalog";
-import { excludingVatSuffix } from "@/lib/vat";
+import type { ServiceCategory, ServiceDTO } from "@/lib/catalog";
+import type { PriceFormatter } from "@/lib/price-format";
+import { getPriceFormatter } from "@/lib/price-format-server";
 import { bentoLayout, type BentoSize } from "@/lib/bento-layout";
-import { formatUsageCap } from "@/lib/usage-cap";
 import { getServiceCopy } from "@/lib/service-copy";
 import { ServiceGlyphBadge } from "@/components/service-glyph";
 import { cn } from "@/lib/utils";
@@ -32,17 +27,25 @@ const SPANS: Record<BentoSize, string> = {
   small: "",
 };
 
-function PriceList({ service }: { service: ServiceDTO }) {
+function PriceList({
+  service,
+  price,
+  subscriptionLabel,
+}: {
+  service: ServiceDTO;
+  price: PriceFormatter;
+  subscriptionLabel: string;
+}) {
   return (
     <>
       <dl className="space-y-1.5 border-t border-border pt-4 text-xs">
         {service.monthlyPriceCents !== null && (
           <div className="flex items-center justify-between">
-            <dt className="text-muted-foreground">Abonnement</dt>
+            <dt className="text-muted-foreground">{subscriptionLabel}</dt>
             <dd className="text-right tabular-nums text-foreground">
-              {formatCents(service.monthlyPriceCents)}/mois TTC
+              {price.perMonthWithVat(service.monthlyPriceCents)}
               <span className="block text-[0.6875rem] font-normal text-muted-foreground">
-                {excludingVatSuffix(service.monthlyPriceCents)}
+                {price.excludingVatSuffix(service.monthlyPriceCents)}
               </span>
             </dd>
           </div>
@@ -50,7 +53,7 @@ function PriceList({ service }: { service: ServiceDTO }) {
       </dl>
       {service.usageCap && (
         <p className="pt-2.5 text-xs leading-relaxed text-muted-foreground">
-          {formatUsageCap(service.usageCap)}
+          {price.usageCap(service.usageCap)}
         </p>
       )}
     </>
@@ -60,11 +63,17 @@ function PriceList({ service }: { service: ServiceDTO }) {
 function ServiceCard({
   service,
   size,
+  locale,
+  price,
+  subscriptionLabel,
 }: {
   service: ServiceDTO;
   size: BentoSize;
+  locale: string;
+  price: PriceFormatter;
+  subscriptionLabel: string;
 }) {
-  const copy = size === "featured" ? getServiceCopy(service.slug) : null;
+  const copy = size === "featured" ? getServiceCopy(service.slug, locale) : null;
   const benefits = copy?.benefits ?? [];
   const audiences = copy?.useCases?.map((useCase) => useCase.audience) ?? [];
 
@@ -130,14 +139,20 @@ function ServiceCard({
         )}
 
         <CardContent className="mt-auto">
-          <PriceList service={service} />
+          <PriceList service={service} price={price} subscriptionLabel={subscriptionLabel} />
         </CardContent>
       </Card>
     </Link>
   );
 }
 
-export function ServicesSection({ services }: { services: ServiceDTO[] }) {
+export async function ServicesSection({ services }: { services: ServiceDTO[] }) {
+  const [t, tCatalog, locale, price] = await Promise.all([
+    getTranslations("Home.services"),
+    getTranslations("Catalog"),
+    getLocale(),
+    getPriceFormatter(),
+  ]);
   const categories = SERVICE_SECTION_CATEGORIES.map((category) => ({
     category,
     categoryServices: services.filter((s) => s.category === category),
@@ -148,11 +163,10 @@ export function ServicesSection({ services }: { services: ServiceDTO[] }) {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="mx-auto max-w-2xl text-center">
           <h2 id="services-heading" className="text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl">
-            Choisissez ce que vous voulez arrêter de faire vous-même
+            {t("heading")}
           </h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            Prix affichés, sans engagement, activation en ligne quand vous êtes
-            prêt.
+            {t("lead")}
           </p>
         </div>
 
@@ -164,10 +178,10 @@ export function ServicesSection({ services }: { services: ServiceDTO[] }) {
               <div className="mb-5">
                 <div className="mx-auto max-w-2xl text-center">
                   <h3 className="text-xl font-semibold tracking-tight text-foreground">
-                    {CATEGORY_LABELS[category]}
+                    {tCatalog(`categories.${category}`)}
                   </h3>
                   <p className="mt-2 text-muted-foreground">
-                    {CATEGORY_DESCRIPTIONS[category]}
+                    {tCatalog(`categoryDescriptions.${category}`)}
                   </p>
                 </div>
               </div>
@@ -178,6 +192,9 @@ export function ServicesSection({ services }: { services: ServiceDTO[] }) {
                     key={service.slug}
                     service={service}
                     size={sizes[position]}
+                    locale={locale}
+                    price={price}
+                    subscriptionLabel={t("subscription")}
                   />
                 ))}
               </div>

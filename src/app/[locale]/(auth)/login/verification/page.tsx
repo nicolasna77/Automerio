@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
+import { titleMetadata } from "@/i18n/metadata";
 import { safeNextPath } from "@/lib/safe-redirect";
 import { TwoFactorVerificationForm } from "./two-factor-verification-form";
 
-export const metadata: Metadata = { title: "Vérification en deux étapes" };
+export const generateMetadata = titleMetadata("twoFactor");
 
 export default async function TwoFactorVerificationPage({
   searchParams,
