@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useTransition } from "react";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import type { NotificationDTO } from "@/lib/notifications";
-import { markNotificationsSeen } from "@/app/notification-actions";
+import { markNotificationsSeen } from "@/app/[locale]/notification-actions";
 
 function formatWhen(date: Date): string {
   const minutes = Math.round((Date.now() - date.getTime()) / 60_000);

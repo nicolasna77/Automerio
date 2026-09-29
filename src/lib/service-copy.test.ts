@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { CATALOG } from "./catalog-data";
-import { SERVICE_COPY, getServiceCopy } from "./service-copy";
+import { SERVICE_COPY } from "@/content/fr/service-copy";
+import { getServiceCopy } from "./service-copy";
 
 const CATALOG_SLUGS = new Set(CATALOG.map((service) => service.slug));
 

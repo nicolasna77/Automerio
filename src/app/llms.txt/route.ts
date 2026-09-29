@@ -1,12 +1,22 @@
 import { db } from "@/lib/db";
-import { absoluteUrl, FAQS, SITE_DESCRIPTION, SITE_NAME } from "@/lib/site";
-import { CATEGORY_LABELS, type ServiceCategory } from "@/lib/catalog";
+import { getTranslations } from "next-intl/server";
+import { routing } from "@/i18n/routing";
+import { absoluteUrl, SITE_NAME } from "@/lib/site";
+import { getFaqs } from "@/lib/site-metadata";
+import type { ServiceCategory } from "@/lib/catalog";
 import { formatCentsWithVat } from "@/lib/vat";
 import { usageCapLabelOf } from "@/lib/usage-cap";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  const locale = routing.defaultLocale;
+  const [t, tSite, tCatalog, faqs] = await Promise.all([
+    getTranslations({ locale, namespace: "LlmsTxt" }),
+    getTranslations({ locale, namespace: "Site" }),
+    getTranslations({ locale, namespace: "Catalog" }),
+    getFaqs(locale),
+  ]);
   const services = await db.service.findMany({
     where: { isActive: true },
     orderBy: [{ category: "asc" }, { sortOrder: "asc" }],
@@ -21,27 +31,27 @@ export async function GET() {
 
   function price(monthlyPriceCents: number | null): string {
     return monthlyPriceCents !== null
-      ? `${formatCentsWithVat(monthlyPriceCents)} par mois, sans frais de mise en place`
-      : "tarif sur demande";
+      ? t("price", { price: formatCentsWithVat(monthlyPriceCents) })
+      : t("priceOnRequest");
   }
 
   const lines = [
     `# ${SITE_NAME}`,
     "",
-    `> ${SITE_DESCRIPTION}`,
+    `> ${tSite("description")}`,
     "",
-    "Automerio n'est pas un logiciel à paramétrer : l'équipe installe chaque automatisation, la connecte aux outils que le client utilise déjà, et la surveille. Sans engagement de durée.",
+    t("intro"),
     "",
-    "## Solutions et tarifs",
+    `## ${t("servicesHeading")}`,
     "",
   ];
 
   for (const [category, list] of byCategory) {
-    lines.push(`### ${CATEGORY_LABELS[category]}`, "");
+    lines.push(`### ${tCatalog(`categories.${category}`)}`, "");
     for (const service of list) {
       lines.push(
         `- [${service.name}](${absoluteUrl(`/services/${service.slug}`)}) — ${service.description}`,
-        `  Tarif : ${price(service.monthlyPriceCents)}.${
+        `  ${t("priceLine", { price: price(service.monthlyPriceCents) })}${
           usageCapLabelOf(service) ? ` ${usageCapLabelOf(service)}.` : ""
         }`
       );
@@ -49,16 +59,16 @@ export async function GET() {
     lines.push("");
   }
 
-  lines.push("## Questions fréquentes", "");
-  for (const faq of FAQS) {
+  lines.push(`## ${t("faqHeading")}`, "");
+  for (const faq of faqs) {
     lines.push(`### ${faq.question}`, "", faq.answer, "");
   }
 
   lines.push(
-    "## Contact",
+    `## ${t("contactHeading")}`,
     "",
-    `- Formulaire : ${absoluteUrl("/contact")}`,
-    `- Créer un compte : ${absoluteUrl("/signup")}`,
+    `- ${t("contactForm", { url: absoluteUrl("/contact") })}`,
+    `- ${t("signup", { url: absoluteUrl("/signup") })}`,
     ""
   );
 

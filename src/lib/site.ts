@@ -1,35 +1,11 @@
-import type { Metadata } from "next";
-
 export const SITE_NAME = "Automerio";
 
-export const SITE_TITLE =
-  "Automerio — Automatisation pour artisans, coachs et TPE/PME";
-
 export const SITE_NAV_LINKS = [
-  { href: "/#method", label: "Notre méthode" },
-  { href: "/contact", label: "Contact" },
-];
+  { href: "/#method", key: "method" },
+  { href: "/contact", key: "contact" },
+] as const;
 
-export const SITE_DESCRIPTION =
-  "Automerio installe des automatisations IA clé-en-main pour artisans, coachs, indépendants et TPE/PME : standard téléphonique, assistants de messagerie, documents administratifs. L'équipe installe, connecte et surveille — aucune compétence technique requise.";
-
-export function siteOpenGraph(
-  options: { url?: string; title?: string; description?: string } = {}
-): NonNullable<Metadata["openGraph"]> {
-  const {
-    url,
-    title = SITE_TITLE,
-    description = SITE_DESCRIPTION,
-  } = options;
-  return {
-    type: "website",
-    locale: "fr_FR",
-    siteName: SITE_NAME,
-    title,
-    description,
-    ...(url ? { url } : {}),
-  };
-}
+export const FAQ_KEYS = ["setup", "delay", "cancel", "tools", "data"] as const;
 
 export function siteUrl(): string {
   const raw = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
@@ -41,31 +17,3 @@ export function absoluteUrl(path: string): string {
 }
 
 export type Faq = { question: string; answer: string };
-
-export const FAQS: Faq[] = [
-  {
-    question: "Dois-je savoir configurer un outil ou une API ?",
-    answer:
-      "Non. Notre équipe installe, connecte et vérifie chaque automatisation à votre place. Vous n'ouvrez aucun logiciel technique.",
-  },
-  {
-    question: "Combien de temps avant que ce soit actif ?",
-    answer:
-      "Quelques jours. Vous choisissez et payez, notre équipe installe et teste, puis vous prévient à la mise en service.",
-  },
-  {
-    question: "Je peux arrêter quand je veux ?",
-    answer:
-      "Oui, aucun engagement de durée. Et votre abonnement est remboursé si vous n'êtes pas satisfait dans les 30 premiers jours.",
-  },
-  {
-    question: "Et si j'ai déjà un agenda ou un outil de facturation ?",
-    answer:
-      "Nous connectons vos automatisations à vos outils existants plutôt que de vous en imposer de nouveaux.",
-  },
-  {
-    question: "Mes données sont-elles en sécurité ?",
-    answer:
-      "Nous ne les revendons ni ne les partageons. Elles ne passent que par les prestataires nécessaires au service — téléphonie, IA, paiement, e-mails — listés dans notre politique de confidentialité, et vous pouvez les exporter ou les supprimer depuis votre profil.",
-  },
-];

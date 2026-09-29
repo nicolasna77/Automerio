@@ -1,0 +1,592 @@
+{
+  "PageTitles": {
+    "forgotPassword": "Mot de passe oublié",
+    "login": "Connexion",
+    "twoFactor": "Vérification en deux étapes",
+    "resetPassword": "Réinitialiser le mot de passe",
+    "signup": "Inscription",
+    "adminAuditLog": "Journal d'administration",
+    "adminCalendar": "Calendrier",
+    "adminHelp": "Centre d'aide",
+    "adminMarketing": "Marketing",
+    "admin": "Administration",
+    "adminPromoCodes": "Codes promo",
+    "adminServices": "Solutions",
+    "adminUserDetail": "Détail utilisateur",
+    "adminUsers": "Utilisateurs",
+    "calendar": "Calendrier",
+    "help": "Aide",
+    "organization": "Organisation",
+    "dashboard": "Tableau de bord",
+    "payments": "Paiements",
+    "profile": "Mon profil",
+    "serviceConfiguration": "Configuration de la solution",
+    "serviceDetail": "Détail de la solution",
+    "activateService": "Activer une solution",
+    "catalog": "Catalogue",
+    "myServices": "Mes solutions",
+    "subscriptions": "Abonnements",
+    "invitation": "Invitation",
+    "notFound": "Page introuvable",
+    "contact": "Contact",
+    "legalNotice": "Mentions légales",
+    "terms": "Conditions générales de vente",
+    "privacy": "Politique de confidentialité",
+    "cookies": "Cookies"
+  },
+  "Site": {
+    "title": "Automerio — Automatisation pour artisans, coachs et TPE/PME",
+    "description": "Automerio installe des automatisations IA clé-en-main pour artisans, coachs, indépendants et TPE/PME : standard téléphonique, assistants de messagerie, documents administratifs. L'équipe installe, connecte et surveille — aucune compétence technique requise.",
+    "ogLocale": "fr_FR",
+    "skipToContent": "Aller au contenu",
+    "mainNavLabel": "Navigation principale",
+    "legalNavLabel": "Informations légales",
+    "nav": {
+      "services": "Nos solutions",
+      "method": "Notre méthode",
+      "contact": "Contact",
+      "dashboard": "Tableau de bord"
+    },
+    "auth": {
+      "login": "Connexion",
+      "signup": "Créer mon compte",
+      "signupShort": "S'inscrire"
+    },
+    "menu": {
+      "open": "Ouvrir le menu",
+      "title": "Menu"
+    },
+    "theme": {
+      "toLight": "Activer le thème clair",
+      "toDark": "Activer le thème sombre"
+    }
+  },
+  "Footer": {
+    "tagline": "Agence d'automatisation pour artisans, coachs, indépendants et TPE/PME.",
+    "offer": "Offre",
+    "solutions": "Solutions",
+    "method": "Méthode",
+    "account": "Compte",
+    "contact": "Contact",
+    "login": "Connexion",
+    "signup": "Inscription",
+    "metaDisclaimer": "WhatsApp, Messenger et Instagram sont des marques de Meta Platforms, Inc. Automerio n'est ni affilié à Meta, ni parrainé ou agréé par Meta.",
+    "copyright": "© {year} Automerio. Tous droits réservés.",
+    "legal": {
+      "legalNotice": "Mentions légales",
+      "terms": "CGV",
+      "privacy": "Confidentialité",
+      "cookies": "Cookies"
+    }
+  },
+  "Catalog": {
+    "categories": {
+      "COMMUNICATION": "Communication client automatisée",
+      "ADMINISTRATION": "Administration automatisée",
+      "INFORMATION": "Traitement de l'information",
+      "ABONNEMENT": "Abonnement"
+    },
+    "categoryDescriptions": {
+      "COMMUNICATION": "Vos clients obtiennent une réponse immédiate, sur tous vos canaux, sans mobiliser votre temps.",
+      "ADMINISTRATION": "Devis, factures, contrats, relances : vos documents administratifs se génèrent et se suivent tout seuls.",
+      "INFORMATION": "Vos documents et réunions sont lus, résumés et classés automatiquement.",
+      "ABONNEMENT": "Un suivi continu pour que vos automatisations restent performantes dans la durée."
+    }
+  },
+  "Faq": {
+    "items": {
+      "setup": {
+        "question": "Dois-je savoir configurer un outil ou une API ?",
+        "answer": "Non. Notre équipe installe, connecte et vérifie chaque automatisation à votre place. Vous n'ouvrez aucun logiciel technique."
+      },
+      "delay": {
+        "question": "Combien de temps avant que ce soit actif ?",
+        "answer": "Quelques jours. Vous choisissez et payez, notre équipe installe et teste, puis vous prévient à la mise en service."
+      },
+      "cancel": {
+        "question": "Je peux arrêter quand je veux ?",
+        "answer": "Oui, aucun engagement de durée. Et votre abonnement est remboursé si vous n'êtes pas satisfait dans les 30 premiers jours."
+      },
+      "tools": {
+        "question": "Et si j'ai déjà un agenda ou un outil de facturation ?",
+        "answer": "Nous connectons vos automatisations à vos outils existants plutôt que de vous en imposer de nouveaux."
+      },
+      "data": {
+        "question": "Mes données sont-elles en sécurité ?",
+        "answer": "Nous ne les revendons ni ne les partageons. Elles ne passent que par les prestataires nécessaires au service — téléphonie, IA, paiement, e-mails — listés dans notre politique de confidentialité, et vous pouvez les exporter ou les supprimer depuis votre profil."
+      }
+    }
+  },
+  "UserMenu": {
+    "label": "Menu utilisateur",
+    "profile": "Mon profil",
+    "admin": "Administration",
+    "signOut": "Se déconnecter"
+  },
+  "Home": {
+    "faq": {
+      "heading": "Ce que nos clients demandent avant de se lancer",
+      "notHere": "Votre question n'est pas là ? <link>Écrivez-nous</link>, on répond sous 24h ouvrées."
+    },
+    "hero": {
+      "eyebrow": "Automatisation IA pour artisans, coachs et TPE/PME",
+      "titleLead": "Pendant que vous travaillez,",
+      "titleMain": "vos clients obtiennent une réponse.",
+      "lead": "Un assistant IA décroche votre téléphone, répond à vos messages et prend les rendez-vous. Notre équipe l'installe, le connecte à vos outils et le surveille chaque mois — vous n'ouvrez aucun logiciel technique.",
+      "signup": "Créer mon compte",
+      "seeServices": "Voir les solutions",
+      "fromPrice": "À partir de {price} par mois",
+      "noCommitment": "Sans engagement",
+      "refund": "Abonnement remboursé 30 jours",
+      "yourBusiness": "Votre entreprise"
+    },
+    "cta": {
+      "heading": "Prêt à reprendre ces heures perdues chaque semaine ?",
+      "lead": "Créez votre compte, choisissez vos automatisations et laissez notre équipe s'occuper de l'installation.",
+      "signup": "Créer mon compte",
+      "ask": "Poser une question",
+      "note": "Abonnement remboursé 30 jours, sans engagement."
+    },
+    "services": {
+      "heading": "Choisissez ce que vous voulez arrêter de faire vous-même",
+      "lead": "Prix affichés, sans engagement, activation en ligne quand vous êtes prêt.",
+      "subscription": "Abonnement"
+    },
+    "support": {
+      "description": "En plus du support déjà inclus dans chacune de vos solutions, le support prioritaire vous donne un accompagnement dédié.",
+      "perks": {
+        "priority": {
+          "title": "Réponse prioritaire",
+          "description": "Vos demandes passent avant la file standard."
+        },
+        "dedicated": {
+          "title": "Interlocuteur dédié",
+          "description": "Un contact Automerio qui connaît déjà vos automatisations."
+        },
+        "monthly": {
+          "title": "Suivi mensuel",
+          "description": "Un point régulier pour ajuster ce qui doit l'être."
+        }
+      }
+    },
+    "problem": {
+      "heading": "Chaque tâche répétitive vous coûte du temps que vous ne facturez pas",
+      "lead": "Trois situations que vous reconnaîtrez sans doute.",
+      "items": {
+        "missedCall": {
+          "title": "Un appel manqué, un client perdu",
+          "description": "Vous êtes sur un chantier ou avec un client : le téléphone sonne dans le vide, et l'appelant compose le numéro suivant."
+        },
+        "lateMessage": {
+          "title": "Un message lu le soir, une vente déjà partie",
+          "description": "Un client vous écrit sur WhatsApp à 14 h. Vous répondez à 21 h : entre-temps, il a réservé chez un autre."
+        },
+        "booking": {
+          "title": "Trois minutes par rendez-vous, vingt fois par jour",
+          "description": "Proposer un créneau, noter le nom, vérifier l'agenda : une heure de votre journée part là, et elle ne se facture pas."
+        }
+      },
+      "conclusion": "Ces trois-là, une automatisation s'en charge pendant que vous travaillez.",
+      "seeServices": "Voir les solutions"
+    },
+    "method": {
+      "eyebrow": "Notre méthode",
+      "heading": "Vous décidez, nous faisons le reste",
+      "lead": "Quatre étapes, dont deux seulement vous demandent quelque chose. Aucune ne vous demande de compétence technique.",
+      "steps": {
+        "choose": {
+          "who": "Vous · 2 minutes",
+          "title": "Vous choisissez ce qui vous fait perdre du temps",
+          "description": "Les appels manqués, les rendez-vous à caler, les e-mails qui s'accumulent : chaque solution a son prix affiché. Pas de devis, pas de rendez-vous commercial, un abonnement mensuel sans engagement."
+        },
+        "brief": {
+          "who": "Vous · 5 minutes",
+          "title": "Vous nous dites comment vous travaillez",
+          "description": "Votre activité, vos horaires, ce qu'il faut faire en cas d'urgence. Quelques champs à remplir depuis votre téléphone, rien à installer ni à paramétrer."
+        },
+        "setup": {
+          "who": "Nous · quelques jours",
+          "title": "Nous installons, nous testons, nous activons",
+          "description": "Notre équipe connecte la solution à vos outils existants et la teste sur vos cas réels. Vous recevez un e-mail le jour où elle est active."
+        },
+        "follow": {
+          "who": "Nous · chaque mois",
+          "title": "Nous surveillons et nous ajustons",
+          "description": "Vous suivez son activité dans votre tableau de bord. Quand votre activité change, nous adaptons les réglages. C'est compris dans l'abonnement."
+        }
+      },
+      "illustrations": {
+        "choose": {
+          "phone": "Standard téléphonique IA",
+          "booking": "Prise de rendez-vous",
+          "email": "Réponses aux e-mails",
+          "subscription": "Abonnement mensuel",
+          "noCommitment": "Sans engagement"
+        },
+        "brief": {
+          "title": "Votre fiche",
+          "activity": "Votre activité",
+          "activityValue": "Plombier chauffagiste",
+          "hours": "Vos horaires",
+          "hoursValue": "Lun – ven · 8 h – 18 h",
+          "emergency": "En cas d'urgence",
+          "emergencyValue": "Me transférer l'appel",
+          "send": "Envoyer à l'équipe"
+        },
+        "setup": {
+          "number": "Numéro relié à l'assistant",
+          "calendar": "Agenda connecté",
+          "tested": "Scénarios testés sur vos cas",
+          "newEmail": "Nouvel e-mail",
+          "activeTitle": "Votre standard téléphonique est actif",
+          "activeBody": "Il répond dès maintenant à vos appels."
+        },
+        "follow": {
+          "thisWeek": "Cette semaine",
+          "active": "active",
+          "calls": "{count, plural, one {# appel traité} other {# appels traités}}",
+          "adjusted": "Horaires d'été ajustés par l'équipe"
+        }
+      }
+    }
+  },
+  "LlmsTxt": {
+    "intro": "Automerio n'est pas un logiciel à paramétrer : l'équipe installe chaque automatisation, la connecte aux outils que le client utilise déjà, et la surveille. Sans engagement de durée.",
+    "servicesHeading": "Solutions et tarifs",
+    "price": "{price} par mois, sans frais de mise en place",
+    "priceOnRequest": "tarif sur demande",
+    "priceLine": "Tarif : {price}.",
+    "faqHeading": "Questions fréquentes",
+    "contactHeading": "Contact",
+    "contactForm": "Formulaire : {url}",
+    "signup": "Créer un compte : {url}"
+  },
+  "Price": {
+    "none": "—",
+    "withVat": "{inclusive} TTC ({exclusive} HT)",
+    "excludingVatSuffix": "soit {exclusive} HT",
+    "perMonth": "{amount}/mois",
+    "perMonthWithVat": "{amount}/mois TTC",
+    "units": "{unit, select, MINUTE {{count} min} other {{count, plural, one {# appel} other {# appels}}}}",
+    "included": "{unit, select, MINUTE {{count} min incluses} other {{count, plural, one {# appel inclus} other {# appels inclus}}}}",
+    "overage": "{included}, puis {price}/{unit, select, MINUTE {min} other {appel}}",
+    "amountWithVat": "{amount} TTC"
+  },
+  "ServicePage": {
+    "priceSummary": "{price} TTC par mois, sans frais d'installation.",
+    "priceOnRequest": "Tarif sur demande.",
+    "ogFooter": "{summary} Sans engagement.",
+    "offerName": "Abonnement mensuel",
+    "breadcrumb": "Fil d'Ariane",
+    "solutions": "Solutions",
+    "trust": {
+      "installed": "Installé par notre équipe",
+      "noCommitment": "Sans engagement",
+      "vatIncluded": "Prix TTC affichés"
+    },
+    "included": {
+      "setup": {
+        "title": "L'installation, faite par notre équipe",
+        "description": "Nous la connectons à vos outils et la testons sur vos vrais cas avant l'activation."
+      },
+      "monitoring": {
+        "title": "Le suivi chaque mois",
+        "description": "Nous surveillons son fonctionnement et l'ajustons quand votre activité change."
+      },
+      "dashboard": {
+        "title": "Votre tableau de bord et le support",
+        "description": "Vous suivez son activité en ligne et l'équipe répond à vos questions."
+      }
+    },
+    "steps": {
+      "heading": "En place en quelques jours",
+      "lead": "Aucune connaissance technique requise : notre équipe s'occupe du reste.",
+      "configure": {
+        "title": "Vous réglez l'essentiel",
+        "withFields": "Quelques informations sur votre activité, en quelques minutes et sans jargon.",
+        "withoutFields": "Vous choisissez la solution et l'activez en ligne, en quelques minutes.",
+        "defaultFields": {
+          "companyName": "Nom de votre entreprise",
+          "hours": "Vos horaires"
+        },
+        "moreFields": "+ {count, plural, one {# autre information} other {# autres informations}}"
+      },
+      "keepNumber": {
+        "title": "Vous gardez votre numéro",
+        "description": "Un renvoi d'appel depuis votre ligne, gratuit et réversible : vos clients composent le numéro qu'ils connaissent."
+      },
+      "teamSetup": {
+        "title": "Notre équipe installe",
+        "description": "Nous la connectons à vos outils et la testons sur vos vrais cas avant de l'activer."
+      },
+      "working": {
+        "title": "Elle travaille pour vous",
+        "description": "Vous suivez son activité dans votre tableau de bord ; nous la surveillons chaque mois."
+      }
+    },
+    "demo": {
+      "heading": "Faites-vous appeler par notre assistant",
+      "lead": "Laissez votre numéro : l'assistant vous appelle, se présente et répond à vos questions. Gratuit, sans compte, un essai par numéro.",
+      "alreadyConvinced": "Déjà convaincu ? <activate>Activer cette solution</activate> ou <pricing>voir le tarif</pricing>."
+    },
+    "activate": "Activer cette solution",
+    "seePricing": "Voir le tarif",
+    "pricing": {
+      "heading": "Tarif",
+      "lead": "Un prix affiché, sans devis à attendre. Sans engagement de durée.",
+      "perMonthVat": "TTC par mois",
+      "included": "Compris",
+      "cancelAnytime": "Sans engagement, résiliable à tout moment."
+    },
+    "benefitsHeading": "Ce que ça change pour vous",
+    "useCases": {
+      "heading": "Des situations où elle travaille pour vous",
+      "lead": "Des exemples typiques : l'équipe adapte la solution à vos cas réels pendant l'installation."
+    },
+    "faq": {
+      "heading": "Questions fréquentes",
+      "notHere": "Votre question n'est pas là ? <link>Écrivez-nous</link>, on répond sous 24h ouvrées."
+    },
+    "related": {
+      "heading": "Autres solutions en {category}",
+      "discover": "Découvrir"
+    },
+    "cta": {
+      "headingSignedIn": "Activez « {name} » depuis votre tableau de bord",
+      "headingSignedOut": "Prêt à activer « {name} » ?",
+      "lead": "Notre équipe l'installe, la connecte à vos outils et la surveille chaque mois.",
+      "tryAssistant": "Tester l'assistant",
+      "ask": "Poser une question"
+    }
+  },
+  "OgImage": {
+    "fallbackSubtitle": "Des automatisations installées, connectées et surveillées par notre équipe.",
+    "homeLine1": "Votre entreprise tourne.",
+    "homeLine2": "Vos automatisations s'occupent du reste.",
+    "homeSubtitle": "Standard téléphonique, messagerie, documents administratifs — installés, connectés et surveillés par notre équipe.",
+    "homeFooter": "Pour les artisans, coachs, indépendants et TPE/PME en France"
+  },
+  "Illustrations": {
+    "call": {
+      "incoming": "Appel entrant",
+      "answeredAt": "12:47 · décroché",
+      "bookingThem1": "Bonjour, je voudrais un rendez-vous jeudi matin.",
+      "bookingUs": "Jeudi, j'ai 9 h 30 ou 10 h 30. Lequel vous convient ?",
+      "bookingThem2": "10 h 30, parfait.",
+      "leakThem": "Bonjour, j'ai une fuite sous l'évier, vous intervenez aujourd'hui ?",
+      "leakUs": "Je note votre adresse et je préviens le technicien tout de suite.",
+      "booked": "Rendez-vous ajouté à l'agenda",
+      "summarySent": "Résumé envoyé",
+      "when": "Quand",
+      "whenValue": "Jeudi · 10 h 30",
+      "calendar": "Agenda",
+      "calendarValue": "Créneau inscrit automatiquement",
+      "reason": "Motif",
+      "reasonValue": "Fuite · urgent",
+      "next": "Suite",
+      "nextValue": "Appel transféré au technicien"
+    },
+    "chat": {
+      "online": "en ligne",
+      "them1": "Bonsoir, vous faites les devis pour une salle de bain ?",
+      "us1": "Bonsoir Camille, oui, le devis est gratuit. Nous avons un créneau de visite mardi ou jeudi : lequel vous arrange ?",
+      "them2": "Jeudi, en fin de journée.",
+      "us2": "C'est noté pour jeudi. L'équipe vous confirme l'heure demain matin.",
+      "answered": "Répondu en 4 s, à 22 h 14"
+    },
+    "email": {
+      "inbox": "Boîte de réception",
+      "mail1Subject": "Demande de devis cuisine",
+      "mail1State": "Prioritaire",
+      "mail2Subject": "Horaires samedi ?",
+      "mail2State": "Brouillon prêt",
+      "mail3From": "Fournisseur Bois",
+      "mail3Subject": "Facture n° 2291",
+      "mail3State": "Classé",
+      "draftLabel": "Brouillon prêt · à relire",
+      "draft": "Bonjour M. Durand, merci pour votre demande. Pour préparer le devis, pourriez-vous nous indiquer les dimensions de la pièce ?"
+    },
+    "calendar": {
+      "week": "Semaine 39",
+      "synced": "synchronisé",
+      "days": {
+        "mon": "Lun",
+        "tue": "Mar",
+        "wed": "Mer",
+        "thu": "Jeu",
+        "fri": "Ven"
+      },
+      "newBooking": "Nouveau rendez-vous",
+      "newBookingDetail": "Jeudi 10 h 30 · réservé en ligne par votre client, inscrit dans votre agenda"
+    },
+    "document": {
+      "meetingFile": "réunion.m4a",
+      "contractFile": "contrat.pdf",
+      "meetingLength": "47 min",
+      "contractLength": "18 pages",
+      "summary": "Synthèse",
+      "meeting1": "Lancement validé pour le 14",
+      "meeting2": "Budget : +10 % accordé",
+      "meeting3": "Julie envoie le planning",
+      "contract1": "Durée : 24 mois",
+      "contract2": "Résiliation : préavis 3 mois",
+      "contract3": "Pénalité de retard : 1 %/mois"
+    },
+    "support": {
+      "request": "Demande n° 184",
+      "priority": "prioritaire",
+      "them": "Pouvez-vous ajouter nos nouveaux horaires d'été ?",
+      "us": "C'est fait, ils s'appliquent dès ce soir.",
+      "handled": "Pris en charge en priorité"
+    },
+    "forwarding": {
+      "caller": "Votre client",
+      "callerDetail": "compose votre numéro",
+      "forward": "Renvoi d'appel",
+      "forwardDetail": "depuis votre ligne",
+      "assistant": "Assistant",
+      "assistantDetail": "répond ou transfère"
+    },
+    "setup": {
+      "tools": "Connexion à vos outils",
+      "tests": "Tests sur vos cas réels",
+      "live": "Mise en service"
+    },
+    "activity": {
+      "today": "Aujourd'hui",
+      "active": "active",
+      "lines": {
+        "call": {
+          "a": "Appel traité · horaires",
+          "b": "Appel transféré · urgence",
+          "c": "Appel traité · adresse"
+        },
+        "booking-call": {
+          "a": "Rendez-vous inscrit · jeudi",
+          "b": "Commande enregistrée",
+          "c": "Créneau proposé · lundi"
+        },
+        "chat": {
+          "a": "Message répondu · devis",
+          "b": "Message répondu · horaires",
+          "c": "Conversation reprise par vous"
+        },
+        "email": {
+          "a": "E-mail classé · prioritaire",
+          "b": "Brouillon prêt à relire",
+          "c": "E-mail classé · facture"
+        },
+        "calendar": {
+          "a": "Réservation · mardi 9 h",
+          "b": "Réservation · jeudi 14 h",
+          "c": "Réservation · vendredi 11 h"
+        },
+        "document": {
+          "a": "Contrat résumé · 18 pages",
+          "b": "Devis résumé · 4 pages",
+          "c": "Rapport résumé · 32 pages"
+        },
+        "meeting": {
+          "a": "Compte-rendu · réunion d'équipe",
+          "b": "Compte-rendu · point client",
+          "c": "Actions à suivre · 3"
+        },
+        "support": {
+          "a": "Demande prise en charge",
+          "b": "Réglage appliqué",
+          "c": "Question traitée par l'équipe"
+        }
+      }
+    }
+  },
+  "DemoCall": {
+    "ringing": "Votre téléphone va sonner.",
+    "callingNumber": "Nous appelons le {number} dans quelques secondes.",
+    "pickUp": "Décrochez : l'assistant d'Automerio se présente et répond à vos questions pendant trois minutes.",
+    "honeypot": "Site web",
+    "phoneLabel": "Votre numéro de téléphone",
+    "phonePlaceholder": "06 12 34 56 78",
+    "submit": "Recevoir l'appel",
+    "notice": "En demandant cet appel, vous confirmez avoir pris connaissance de <link>nos modalités de contact et de notre politique de confidentialité</link>. Votre numéro ne sert qu'à cet appel, jamais à de la prospection.",
+    "errors": {
+      "unavailable": "L'appel d'essai n'est pas disponible pour le moment. Réessayez plus tard ou écrivez-nous.",
+      "invalidNumber": "Saisissez un numéro de mobile ou de fixe français, par exemple 06 12 34 56 78.",
+      "tooManyFromIp": "Trop d'essais demandés depuis cette connexion. Réessayez demain.",
+      "alreadyCalledLong": "Ce numéro a déjà reçu son appel d'essai. Pour aller plus loin, créez votre compte ou écrivez-nous.",
+      "alreadyCalled": "Ce numéro a déjà reçu son appel d'essai.",
+      "callFailed": "L'appel n'a pas pu être lancé. Vérifiez le numéro, puis réessayez."
+    }
+  },
+  "MinutesSlider": {
+    "perMonth": "par mois",
+    "remove": "Retirer {units}",
+    "add": "Ajouter {units}",
+    "valueText": "{units}, {price} par mois",
+    "perMonthFor": "par mois, pour {units}"
+  },
+  "PriceSimulator": {
+    "question": "Combien de minutes vous faut-il ?",
+    "hint": "Déplacez le curseur pour voir ce que votre abonnement coûterait.",
+    "continueWith": "Continuer avec {units}",
+    "signedInNote": "Vous retrouvez ce volume à l'activation, avant tout paiement.",
+    "signedOutNote": "Créez votre compte ou connectez-vous : ce volume vous attendra à l'activation, avant tout paiement.",
+    "overage": "Au-delà de ce quota, chaque minute est facturée {overage}. L'inclure à l'avance revient à {extra} la minute, et vous pourrez ajuster ce volume à l'activation.",
+    "bounds": "Minimum {min}, maximum {max}."
+  },
+  "Contact": {
+    "heading": "Parlons de votre activité",
+    "lead": "Décrivez-nous ce qui vous prend le plus de temps aujourd'hui — nous vous recommandons les automatisations les plus utiles pour votre métier.",
+    "next": "Ensuite",
+    "steps": {
+      "reply": {
+        "label": "Réponse sous 24h ouvrées",
+        "detail": "Un premier retour rapide sur votre message."
+      },
+      "call": {
+        "label": "Échange de 15 minutes",
+        "detail": "Sans engagement, pour comprendre vos besoins."
+      },
+      "quote": {
+        "label": "Devis personnalisé",
+        "detail": "Adapté à votre activité, sous 48h."
+      }
+    },
+    "form": {
+      "genericError": "Une erreur est survenue.",
+      "sent": "Message envoyé.",
+      "sentDetail": "Nous revenons vers vous sous 24h ouvrées.",
+      "honeypot": "Site web",
+      "name": "Nom",
+      "email": "E-mail",
+      "activity": "Votre activité",
+      "optional": "(facultatif)",
+      "activityPlaceholder": "Ex. artisan plombier, coach sportif…",
+      "message": "Message",
+      "messagePlaceholder": "Quelle tâche répétitive vous prend le plus de temps, à vous ou votre équipe ?",
+      "sending": "Envoi…",
+      "submit": "Envoyer le message"
+    },
+    "errors": {
+      "rateLimited": "Trop de messages envoyés récemment — merci de réessayer dans quelques minutes.",
+      "missingFields": "Merci de renseigner votre nom, votre e-mail et votre message.",
+      "invalidEmail": "L'adresse e-mail saisie n'est pas valide."
+    }
+  },
+  "Errors": {
+    "notFound": {
+      "eyebrow": "Erreur 404",
+      "heading": "Cette page n'existe pas",
+      "lead": "Le lien est peut-être obsolète, ou l'adresse mal orthographiée.",
+      "home": "Retour à l'accueil"
+    },
+    "generic": {
+      "heading": "Une erreur est survenue",
+      "lead": "Quelque chose s'est mal passé de notre côté. Vous pouvez réessayer, ou revenir à l'accueil.",
+      "retry": "Réessayer",
+      "home": "Retour à l'accueil"
+    }
+  },
+  "Legal": {
+    "lastUpdated": "Dernière mise à jour : {date, date, long}"
+  }
+}

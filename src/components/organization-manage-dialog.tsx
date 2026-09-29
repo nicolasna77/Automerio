@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,7 +27,7 @@ import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
-import { deleteOrganizationAction } from "@/app/dashboard/organization-actions";
+import { deleteOrganizationAction } from "@/app/[locale]/dashboard/organization-actions";
 import type { OrganizationSummary } from "@/lib/organization";
 
 export function OrganizationManageDialog({
