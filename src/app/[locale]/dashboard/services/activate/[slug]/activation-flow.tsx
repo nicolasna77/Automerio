@@ -4,9 +4,19 @@ import { useTranslations } from "next-intl";
 import { useId, useRef, useState, useTransition } from "react";
 import { Link } from "@/i18n/navigation";
 import { toast } from "sonner";
-import { Check, PhoneForwarded } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  ClipboardCheck,
+  CreditCard,
+  Package,
+  PhoneForwarded,
+  Pencil,
+} from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Stepper, type StepperStep } from "@/components/stepper";
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -16,7 +26,6 @@ import {
   formatConfigField,
   formatPrice,
   isFieldEmpty,
-  isFieldVisible,
   PRODUCT_CATALOG_FIELD_KEY,
   TELEPHONY_SERVICE_SLUGS,
   type Configuration,
@@ -25,11 +34,14 @@ import {
 import { unwrap } from "@/lib/action-result";
 import { formatUsageCap } from "@/lib/usage-cap";
 import { SubscriptionMinutesSlider } from "@/components/subscription/subscription-minutes-slider";
+import { MonthlyPrice } from "@/components/monthly-price";
+import { usePriceFormatter } from "@/hooks/use-price-formatter";
 import { calculateMonthlyPriceCents } from "@/lib/subscription-pricing";
-import { excludingVatSuffix, formatCentsWithVat } from "@/lib/vat";
-import { cn, getErrorMessage } from "@/lib/utils";
+import { formatCentsWithVat } from "@/lib/vat";
+import { getErrorMessage } from "@/lib/utils";
 import { activateService, previewPromoCode, type PromoPreview } from "@/app/[locale]/dashboard/actions";
 import { ConfigFieldsForm } from "@/app/[locale]/dashboard/config-fields";
+import { buildFieldCategories, type FieldCategory } from "./activation-steps";
 
 type AppliedPreview = Extract<PromoPreview, { ok: true }>;
 
@@ -39,7 +51,25 @@ type PromoState =
   | { status: "applied"; preview: AppliedPreview }
   | { status: "error"; reason: string };
 
-const STEPS = ["Réglages", "Récapitulatif et paiement"] as const;
+// Le parcours : la formule, une étape par catégorie de réglages présente pour
+// cette solution, le récapitulatif, puis le paiement sur Stripe.
+type FlowStep =
+  | { kind: "plan" }
+  | { kind: "fields"; category: FieldCategory }
+  | { kind: "summary" };
+
+const PLAN_STEP = {
+  title: "Formule",
+  description: "Le volume et le nom qui distingue cette activation.",
+  icon: Package,
+};
+const SUMMARY_STEP = {
+  title: "Récapitulatif",
+  description: "Vérifiez vos réponses avant de payer.",
+  icon: ClipboardCheck,
+};
+// Montrée pour que le client sache ce qui l'attend ; elle se passe sur Stripe.
+const PAYMENT_STEP: StepperStep = { title: "Paiement", description: "Sécurisé par Stripe", icon: CreditCard };
 
 export function ActivationFlow({
   service,
@@ -51,11 +81,12 @@ export function ActivationFlow({
   initialUnits?: number | null;
 }) {
   const tSimulator = useTranslations("PriceSimulator");
+  const price = usePriceFormatter();
   const nameFieldId = useId();
   const promoFieldId = useId();
   const promoMessageId = useId();
   const stepHeadingRef = useRef<HTMLHeadingElement>(null);
-  const [step, setStep] = useState<0 | 1>(0);
+  const [stepIndex, setStepIndex] = useState(0);
   const [isPending, startTransition] = useTransition();
   const [name, setName] = useState(service.name);
   const [values, setValues] = useState<Configuration>({});
@@ -64,45 +95,59 @@ export function ActivationFlow({
     initialUnits ?? service.tier?.minUnits ?? 0
   );
   const [promoInput, setPromoInput] = useState("");
+  const [promo, setPromo] = useState<PromoState>({ status: "idle" });
 
   const monthlyPriceCents = service.tier
     ? calculateMonthlyPriceCents(service.tier, chosenUnits)
     : service.monthlyPriceCents;
-  const [promo, setPromo] = useState<PromoState>({ status: "idle" });
+
+  const categories = buildFieldCategories(service.configFields, values, [PRODUCT_CATALOG_FIELD_KEY]);
+  const steps: FlowStep[] = [
+    { kind: "plan" },
+    ...categories.map((category) => ({ kind: "fields" as const, category })),
+    { kind: "summary" },
+  ];
+  const step = steps[Math.min(stepIndex, steps.length - 1)];
+  const isLastBeforeSummary = stepIndex === steps.length - 2;
+  const stepperSteps: StepperStep[] = [
+    ...steps.map((s) =>
+      s.kind === "plan" ? PLAN_STEP : s.kind === "summary" ? SUMMARY_STEP : s.category
+    ),
+    PAYMENT_STEP,
+  ];
+  const current = step.kind === "plan" ? PLAN_STEP : step.kind === "summary" ? SUMMARY_STEP : step.category;
 
   const takesOrders =
     service.configFields.some((field) => field.key === PRODUCT_CATALOG_FIELD_KEY) &&
     asStringArray(values.objectives).includes("order");
-  const summary = service.configFields.filter(
-    (field) =>
-      field.key !== PRODUCT_CATALOG_FIELD_KEY &&
-      field.type !== "consent" &&
-      isFieldVisible(field, values) &&
-      !isFieldEmpty(field, values)
-  );
 
-  function goToStep(next: 0 | 1) {
-    setStep(next);
+  function goToStep(next: number) {
+    setStepIndex(next);
+    setSubmitAttempted(false);
     requestAnimationFrame(() => {
       stepHeadingRef.current?.focus({ preventScroll: true });
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
   }
 
+  // Ne vérifie que l'étape affichée : les suivantes n'ont pas encore été vues.
   function handleContinue() {
-    const missing = findMissingRequiredField(service.configFields, values);
-    if (!name.trim() || missing) {
+    if (step.kind === "plan" && !name.trim()) {
       setSubmitAttempted(true);
-      if (!name.trim()) {
-        toast.error("Donnez un nom à cette activation.");
-        document.getElementById(nameFieldId)?.focus();
-      } else if (missing) {
-        toast.error(`Le champ « ${missing.label} » est requis.`);
-        document.getElementById(missing.key)?.focus();
-      }
+      toast.error("Donnez un nom à cette activation.");
+      document.getElementById(nameFieldId)?.focus();
       return;
     }
-    goToStep(1);
+    if (step.kind === "fields") {
+      const missing = findMissingRequiredField(step.category.fields, values);
+      if (missing) {
+        setSubmitAttempted(true);
+        toast.error(`Le champ « ${missing.label} » est requis.`);
+        document.getElementById(missing.key)?.focus();
+        return;
+      }
+    }
+    goToStep(stepIndex + 1);
   }
 
   async function checkPromo(): Promise<PromoPreview | null> {
@@ -151,154 +196,145 @@ export function ActivationFlow({
 
   return (
     <div className="mt-8 space-y-6">
-      <ol className="flex flex-wrap gap-x-6 gap-y-2 text-sm" aria-label="Étapes de l'activation">
-        {STEPS.map((label, index) => (
-          <li
-            key={label}
-            aria-current={index === step ? "step" : undefined}
-            className={cn(
-              "flex items-center gap-2",
-              index === step ? "font-medium text-foreground" : "text-muted-foreground"
-            )}
-          >
-            <span
-              aria-hidden="true"
-              className={cn(
-                "flex size-6 items-center justify-center rounded-full text-xs tabular-nums",
-                index < step
-                  ? "bg-primary text-primary-foreground"
-                  : index === step
-                    ? "border-2 border-primary text-foreground"
-                    : "border border-border"
-              )}
-            >
-              {index < step ? <Check className="size-3.5" /> : index + 1}
-            </span>
-            <span>
-              <span className="sr-only">Étape {index + 1} sur {STEPS.length} : </span>
-              {label}
-            </span>
-          </li>
-        ))}
-      </ol>
+      <div className="rounded-lg border border-border bg-card px-2 py-6 sm:px-6">
+        <Stepper
+          label="Étapes de l'activation"
+          steps={stepperSteps}
+          current={stepIndex}
+          onStepClick={goToStep}
+        />
+      </div>
 
-      <h2 ref={stepHeadingRef} tabIndex={-1} className="sr-only">
-        {STEPS[step]}
-      </h2>
+      <div key={stepIndex} className="space-y-6 animate-in fade-in duration-150 motion-reduce:animate-none">
+        {step.kind === "plan" && TELEPHONY_SERVICE_SLUGS.has(service.slug) && (
+          <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/40 p-4 text-sm">
+            <PhoneForwarded className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+            <p className="text-muted-foreground">
+              <span className="font-medium text-foreground">Vous gardez votre numéro actuel.</span>{" "}
+              Un numéro dédié à l&apos;IA vous est attribué, et un simple renvoi d&apos;appel, gratuit
+              et réversible, y dirige vos clients une fois la solution active.
+            </p>
+          </div>
+        )}
 
-      {step === 0 ? (
-        <>
-          {TELEPHONY_SERVICE_SLUGS.has(service.slug) && (
-            <div className="flex items-start gap-3 rounded-3xl border border-border bg-muted/40 p-4 text-sm">
-              <PhoneForwarded className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-              <p className="text-muted-foreground">
-                <span className="font-medium text-foreground">Vous gardez votre numéro actuel.</span>{" "}
-                Un numéro dédié à l&apos;IA vous est attribué, et un simple renvoi d&apos;appel, gratuit
-                et réversible, y dirige vos clients une fois la solution active.
-              </p>
+        <Card>
+          <CardHeader>
+            <div className="flex items-start gap-3">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <current.icon className="size-5" aria-hidden="true" />
+              </span>
+              <div className="min-w-0">
+                <h2
+                  ref={stepHeadingRef}
+                  tabIndex={-1}
+                  className="text-base font-semibold text-foreground outline-none"
+                >
+                  {current.title}
+                </h2>
+                {current.description && <CardDescription>{current.description}</CardDescription>}
+              </div>
             </div>
-          )}
+          </CardHeader>
 
-          <Card>
-            <CardHeader>
-              <CardTitle as="h2" className="text-base">Réglages</CardTitle>
-              <CardDescription>Modifiables à tout moment une fois la solution activée.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {service.tier && (
-                <div className="space-y-3 rounded-2xl border border-border p-4">
-                  <SubscriptionMinutesSlider
-                    tier={service.tier}
-                    value={chosenUnits}
-                    onChange={setChosenUnits}
-                    label={tSimulator("question", { unit: service.tier.unit })}
-                    disabled={isPending}
+          <CardContent className="space-y-6">
+            {step.kind === "plan" && (
+              <>
+                {service.tier && (
+                  <div className="space-y-3 rounded-lg border border-border p-4">
+                    <SubscriptionMinutesSlider
+                      tier={service.tier}
+                      value={chosenUnits}
+                      onChange={setChosenUnits}
+                      label={tSimulator("question", { unit: service.tier.unit })}
+                      disabled={isPending}
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Au-delà de ce quota, la consommation est facturée au tarif de
+                      dépassement. L&apos;acheter à l&apos;avance revient moins cher.
+                    </p>
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <Label htmlFor={nameFieldId}>Nom de cette activation</Label>
+                  <Input
+                    id={nameFieldId}
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    aria-invalid={submitAttempted && !name.trim()}
+                    aria-describedby={`${nameFieldId}-help`}
                   />
-                  <p className="text-sm text-muted-foreground">
-                    Au-delà de ce quota, la consommation est facturée au tarif de
-                    dépassement. L&apos;acheter à l&apos;avance revient moins cher.
+                  <p id={`${nameFieldId}-help`} className="text-xs text-muted-foreground">
+                    Utile si vous activez la même solution plusieurs fois, pour plusieurs boutiques par exemple.
                   </p>
                 </div>
-              )}
 
-              <div className="space-y-2">
-                <Label htmlFor={nameFieldId}>Nom de cette activation</Label>
-                <Input
-                  id={nameFieldId}
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  aria-invalid={submitAttempted && !name.trim()}
-                  aria-describedby={`${nameFieldId}-help`}
+                <p className="text-xs text-muted-foreground">
+                  Tous ces réglages restent modifiables une fois la solution activée.
+                </p>
+              </>
+            )}
+
+            {step.kind === "fields" && (
+              <>
+                <ConfigFieldsForm
+                  fields={step.category.fields}
+                  values={values}
+                  onChange={(key, value) => setValues((prev) => ({ ...prev, [key]: value }))}
+                  submitAttempted={submitAttempted}
                 />
-                <p id={`${nameFieldId}-help`} className="text-xs text-muted-foreground">
-                  Utile si vous activez la même solution plusieurs fois, pour plusieurs boutiques par exemple.
-                </p>
+                {takesOrders && step.category.id === "need" && (
+                  <p className="rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
+                    Vous ajouterez votre carte après le paiement, depuis la page de la solution : une photo
+                    ou un PDF suffit.
+                  </p>
+                )}
+              </>
+            )}
+
+            {step.kind === "summary" && (
+              <div className="divide-y divide-border">
+                <SummarySection title="Formule" onEdit={() => goToStep(0)}>
+                  <SummaryRow label="Solution">{service.name}</SummaryRow>
+                  <SummaryRow label="Nom de l'activation">{name.trim()}</SummaryRow>
+                  {service.tier && (
+                    <SummaryRow label="Volume">
+                      <span className="font-mono tabular-nums">
+                        {price.usageUnits(chosenUnits, service.tier.unit)}
+                      </span>{" "}
+                      par mois
+                    </SummaryRow>
+                  )}
+                </SummarySection>
+
+                {/* Une catégorie laissée vide n'est pas rappelée : le stepper
+                    permet toujours d'y revenir. */}
+                {categories.map((category, index) => {
+                  const filled = category.fields.filter((field) => !isFieldEmpty(field, values));
+                  if (filled.length === 0) return null;
+                  return (
+                    <SummarySection
+                      key={category.id}
+                      title={category.title}
+                      onEdit={() => goToStep(index + 1)}
+                    >
+                      {filled.map((field) => (
+                        <SummaryRow key={field.key} label={field.label}>
+                          {formatConfigField(field, field.key, values[field.key])}
+                        </SummaryRow>
+                      ))}
+                    </SummarySection>
+                  );
+                })}
               </div>
+            )}
+          </CardContent>
+        </Card>
 
-              <ConfigFieldsForm
-                fields={service.configFields}
-                values={values}
-                onChange={(key, value) => setValues((prev) => ({ ...prev, [key]: value }))}
-                submitAttempted={submitAttempted}
-                omitKeys={[PRODUCT_CATALOG_FIELD_KEY]}
-              />
-
-              {takesOrders && (
-                <p className="rounded-2xl bg-muted/50 p-3 text-sm text-muted-foreground">
-                  Vous ajouterez votre carte après le paiement, depuis la page de la solution : une photo
-                  ou un PDF suffit.
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
-          <div className="flex flex-wrap justify-end gap-2">
-            <Link
-              href="/dashboard/services/catalog"
-              className={buttonVariants({ variant: "outline" })}
-            >
-              Annuler
-            </Link>
-            <Button type="button" onClick={handleContinue}>
-              Continuer vers le récapitulatif
-            </Button>
-          </div>
-        </>
-      ) : (
-        <>
+        {step.kind === "summary" && (
           <Card>
             <CardHeader>
-              <CardTitle as="h2" className="text-base">Récapitulatif</CardTitle>
-              <CardDescription>Vérifiez les informations avant de payer.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <dl className="divide-y divide-border text-sm">
-                <div className="grid gap-1 py-3 first:pt-0 sm:grid-cols-[minmax(0,12rem)_1fr] sm:gap-4">
-                  <dt className="text-muted-foreground">Solution</dt>
-                  <dd className="text-foreground">{service.name}</dd>
-                </div>
-                <div className="grid gap-1 py-3 sm:grid-cols-[minmax(0,12rem)_1fr] sm:gap-4">
-                  <dt className="text-muted-foreground">Nom de l&apos;activation</dt>
-                  <dd className="text-foreground">{name.trim()}</dd>
-                </div>
-                {summary.map((field) => (
-                  <div key={field.key} className="grid gap-1 py-3 sm:grid-cols-[minmax(0,12rem)_1fr] sm:gap-4">
-                    <dt className="text-muted-foreground">{field.label}</dt>
-                    <dd className="break-words text-foreground">
-                      {formatConfigField(field, field.key, values[field.key])}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-              <Button type="button" variant="ghost" size="sm" className="mt-2" onClick={() => goToStep(0)}>
-                Modifier les réglages
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle as="h2" className="text-base">Paiement</CardTitle>
+              <h2 className="text-base font-semibold text-foreground">Paiement</h2>
               <CardDescription>
                 Paiement sécurisé par Stripe. Prélèvement au montant TTC, sans engagement.
               </CardDescription>
@@ -308,11 +344,8 @@ export function ActivationFlow({
                 {monthlyPriceCents !== null && (
                   <div className="flex justify-between gap-4">
                     <dt className="text-muted-foreground">Abonnement</dt>
-                    <dd className="text-right font-medium text-foreground tabular-nums">
-                      {formatCents(monthlyPriceCents)} TTC par mois
-                      <span className="block text-xs font-normal text-muted-foreground">
-                        {excludingVatSuffix(monthlyPriceCents)}
-                      </span>
+                    <dd>
+                      <MonthlyPrice cents={monthlyPriceCents} className="text-right" />
                     </dd>
                   </div>
                 )}
@@ -387,19 +420,71 @@ export function ActivationFlow({
               </p>
             </CardContent>
           </Card>
+        )}
 
-          <div className="flex flex-wrap justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => goToStep(0)} disabled={isPending}>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          {stepIndex === 0 ? (
+            <Link href="/dashboard/services/catalog" className={buttonVariants({ variant: "outline" })}>
+              Annuler
+            </Link>
+          ) : (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => goToStep(stepIndex - 1)}
+              disabled={isPending}
+            >
+              <ArrowLeft aria-hidden="true" data-icon="inline-start" />
               Retour
             </Button>
+          )}
+
+          {step.kind === "summary" ? (
             <Button type="button" onClick={handlePay} disabled={isPending} aria-busy={isPending}>
               {isPending
                 ? "Redirection vers le paiement…"
                 : `Payer ${formatPrice(monthlyPriceCents)} TTC`}
             </Button>
-          </div>
-        </>
-      )}
+          ) : (
+            <Button type="button" onClick={handleContinue}>
+              {isLastBeforeSummary ? "Voir le récapitulatif" : "Continuer"}
+              <ArrowRight aria-hidden="true" data-icon="inline-end" />
+            </Button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SummarySection({
+  title,
+  onEdit,
+  children,
+}: {
+  title: string;
+  onEdit: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="py-4 first:pt-0 last:pb-0">
+      <div className="mb-1 flex items-center justify-between gap-3">
+        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+        <Button type="button" variant="ghost" size="sm" onClick={onEdit}>
+          <Pencil aria-hidden="true" data-icon="inline-start" />
+          Modifier<span className="sr-only"> : {title}</span>
+        </Button>
+      </div>
+      <dl className="text-sm">{children}</dl>
+    </section>
+  );
+}
+
+function SummaryRow({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="grid gap-1 py-2 sm:grid-cols-[minmax(0,12rem)_1fr] sm:gap-4">
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className="break-words text-foreground">{children}</dd>
     </div>
   );
 }

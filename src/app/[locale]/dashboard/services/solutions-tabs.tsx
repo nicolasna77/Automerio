@@ -5,6 +5,8 @@ import { usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { CATALOGUE_PATH, MY_SOLUTIONS_PATH } from "./paths";
 
+// Onglets soulignés sur un filet : la pilule arrondie est réservée à ce qui
+// est rond par nature (DESIGN.md, « Formes »).
 export function SolutionsTabs({ myCount }: { myCount: number }) {
   const pathname = usePathname();
   const tabs = [
@@ -13,8 +15,8 @@ export function SolutionsTabs({ myCount }: { myCount: number }) {
   ];
 
   return (
-    <nav aria-label="Solutions" className="mb-8">
-      <ul className="inline-flex gap-1 rounded-full bg-muted p-1">
+    <nav aria-label="Solutions" className="mb-6 border-b border-border">
+      <ul className="-mb-px flex gap-6">
         {tabs.map((tab) => {
           const isActive = pathname === tab.href;
           return (
@@ -23,13 +25,13 @@ export function SolutionsTabs({ myCount }: { myCount: number }) {
                 href={tab.href}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "inline-flex h-10 items-center gap-2 rounded-lg px-4 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
-                  isActive && "bg-background text-foreground shadow-sm"
+                  "inline-flex h-11 items-center gap-2 border-b-2 border-transparent text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+                  isActive && "border-primary text-foreground"
                 )}
               >
                 {tab.label}
                 {tab.count !== null && (
-                  <span className="rounded-lg bg-foreground/10 px-1.5 text-xs tabular-nums">
+                  <span className="rounded-sm bg-muted px-1.5 font-mono text-xs tabular-nums text-muted-foreground">
                     {tab.count}
                   </span>
                 )}

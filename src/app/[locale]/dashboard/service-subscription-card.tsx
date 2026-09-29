@@ -1,6 +1,6 @@
 import { Link } from "@/i18n/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatCents } from "@/lib/catalog";
+import { MonthlyPrice } from "@/components/monthly-price";
 import { formatUsageCap } from "@/lib/usage-cap";
 import {
   describeNextCharge,
@@ -11,7 +11,6 @@ import {
 import { UsageGauge } from "./subscriptions/usage-gauge";
 import { ChangeQuotaDialog } from "./change-quota-dialog";
 import { BillingPortalButton } from "./payments/billing-portal-button";
-import { excludingVatSuffix } from "@/lib/vat";
 
 export function ServiceSubscriptionCard({
   subscription,
@@ -26,13 +25,7 @@ export function ServiceSubscriptionCard({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
         <CardTitle as="h2" className="text-base">Abonnement</CardTitle>
-        <p className="shrink-0 text-right text-sm tabular-nums text-foreground">
-          {formatCents(subscription.monthlyPriceCents)} TTC
-          <span className="text-muted-foreground">/mois</span>
-          <span className="block text-xs font-normal text-muted-foreground">
-            {excludingVatSuffix(subscription.monthlyPriceCents)}
-          </span>
-        </p>
+        <MonthlyPrice cents={subscription.monthlyPriceCents} className="shrink-0 text-right" />
       </CardHeader>
       <CardContent className="space-y-4">
         {running && (

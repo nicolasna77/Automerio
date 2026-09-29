@@ -3,7 +3,7 @@ import { TriangleAlert } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { StatusBadge } from "@/components/status-badge";
 import { ServiceGlyph } from "@/components/service-glyph";
-import { formatCents } from "@/lib/catalog";
+import { MonthlyPrice } from "@/components/monthly-price";
 import {
   describeNextCharge,
   describePeriod,
@@ -12,7 +12,6 @@ import {
 } from "@/lib/subscriptions";
 import { UsageGauge } from "./usage-gauge";
 import { SubscriptionActions } from "./subscription-actions";
-import { excludingVatSuffix } from "@/lib/vat";
 
 export function SubscriptionCard({
   subscription,
@@ -79,13 +78,7 @@ export function SubscriptionCard({
               <p className="text-sm text-muted-foreground">{subscription.serviceName}</p>
             )}
           </div>
-          <p className="shrink-0 text-right text-sm tabular-nums text-foreground">
-            {formatCents(subscription.monthlyPriceCents)} TTC
-            <span className="text-muted-foreground">/mois</span>
-            <span className="block text-xs font-normal text-muted-foreground">
-              {excludingVatSuffix(subscription.monthlyPriceCents)}
-            </span>
-          </p>
+          <MonthlyPrice cents={subscription.monthlyPriceCents} className="shrink-0 text-right" />
         </div>
       </CardHeader>
 

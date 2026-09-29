@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
+import { Ellipsis, Settings2, XCircle } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,22 +15,38 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
-import type { MyServiceDTO } from "@/lib/catalog";
+import { canEditConfiguration, type MyServiceDTO } from "@/lib/catalog";
 import { cancelService } from "./actions";
 import { ResumeCheckoutButton } from "./resume-checkout-button";
 
-export function ServiceDetailActions({ item }: { item: MyServiceDTO }) {
+// Actions secondaires d'une solution, rangées dans un menu « Plus
+// d'actions » : la résiliation ne doit pas peser autant que l'action
+// principale de la page.
+export function ServiceActionsMenu({
+  item,
+  showConfigure = true,
+  className,
+}: {
+  item: MyServiceDTO;
+  showConfigure?: boolean;
+  className?: string;
+}) {
   const router = useRouter();
   const [isCanceling, startCancelTransition] = useTransition();
   const [confirmCancel, setConfirmCancel] = useState(false);
-  const { status } = item;
 
-  const canResume = status === "PENDING_PAYMENT" || status === "CANCELED";
-  const canUnsubscribe = status === "ACTIVE" || status === "CONFIGURING";
-
-  if (!canResume && !canUnsubscribe) return null;
+  const canConfigure = showConfigure && canEditConfiguration(item);
+  const canUnsubscribe = item.status === "ACTIVE" || item.status === "CONFIGURING";
+  if (!canConfigure && !canUnsubscribe) return null;
 
   function handleUnsubscribe() {
     startCancelTransition(async () => {
@@ -46,19 +63,37 @@ export function ServiceDetailActions({ item }: { item: MyServiceDTO }) {
 
   return (
     <>
-      <div className="flex flex-wrap gap-2">
-        {canResume && (
-          <ResumeCheckoutButton
-            clientServiceId={item.clientServiceId}
-            status={status}
-          />
-        )}
-        {canUnsubscribe && (
-          <Button variant="ghost" onClick={() => setConfirmCancel(true)}>
-            Se désabonner
-          </Button>
-        )}
-      </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="icon"
+              className={className}
+              aria-label={`Plus d'actions pour « ${item.name} »`}
+            />
+          }
+        >
+          <Ellipsis aria-hidden="true" />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-auto min-w-56">
+          {canConfigure && (
+            <DropdownMenuItem
+              render={<Link href={`/dashboard/services/${item.clientServiceId}/configuration`} />}
+            >
+              <Settings2 aria-hidden="true" />
+              Modifier la configuration
+            </DropdownMenuItem>
+          )}
+          {canConfigure && canUnsubscribe && <DropdownMenuSeparator />}
+          {canUnsubscribe && (
+            <DropdownMenuItem variant="destructive" onClick={() => setConfirmCancel(true)}>
+              <XCircle aria-hidden="true" />
+              Se désabonner
+            </DropdownMenuItem>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       <AlertDialog open={confirmCancel} onOpenChange={setConfirmCancel}>
         <AlertDialogContent>
@@ -84,5 +119,21 @@ export function ServiceDetailActions({ item }: { item: MyServiceDTO }) {
         </AlertDialogContent>
       </AlertDialog>
     </>
+  );
+}
+
+export function ServiceDetailActions({ item }: { item: MyServiceDTO }) {
+  const canResume = item.status === "PENDING_PAYMENT" || item.status === "CANCELED";
+
+  return (
+    <div className="flex items-center gap-2">
+      {canResume && (
+        <ResumeCheckoutButton
+          clientServiceId={item.clientServiceId}
+          status={item.status as "PENDING_PAYMENT" | "CANCELED"}
+        />
+      )}
+      <ServiceActionsMenu item={item} showConfigure={false} />
+    </div>
   );
 }

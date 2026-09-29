@@ -3,10 +3,13 @@ import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const SIZES = {
-  form: "mx-auto max-w-3xl px-4 py-10 sm:px-6",
-  content: "mx-auto max-w-4xl px-4 py-10 sm:px-6",
-  wide: "mx-auto max-w-6xl px-4 py-10 sm:px-6",
-  full: "flex h-[calc(100svh-3.5rem)] flex-col px-4 py-6 sm:px-6",
+  // Pages centrées, avec les mêmes marges partout ; seule la largeur varie.
+  form: "mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8",
+  content: "mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8",
+  // Tableaux de bord : grilles et listes profitent des grands écrans. Les
+  // textes longs gardent leur propre limite (max-w-2xl) pour rester lisibles.
+  wide: "mx-auto max-w-[96rem] px-4 py-10 sm:px-6 lg:px-8",
+  full: "flex h-[calc(100svh-3.5rem)] flex-col px-4 py-10 sm:px-6 lg:px-8",
 } as const;
 
 export type PageShellSize = keyof typeof SIZES;
@@ -15,12 +18,13 @@ export function PageShell({
   size = "wide",
   className,
   children,
-}: {
-  size?: PageShellSize;
-  className?: string;
-  children: React.ReactNode;
-}) {
-  return <div className={cn(SIZES[size], className)}>{children}</div>;
+  ...props
+}: React.ComponentProps<"div"> & { size?: PageShellSize }) {
+  return (
+    <div className={cn(SIZES[size], className)} {...props}>
+      {children}
+    </div>
+  );
 }
 
 export type Breadcrumb = { label: string; href?: string };

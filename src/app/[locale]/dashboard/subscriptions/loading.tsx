@@ -1,9 +1,9 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageShell } from "@/components/page-shell";
 
 export default function Loading() {
   return (
-    <div
-      className="mx-auto max-w-4xl px-4 py-10 sm:px-6"
+    <PageShell size="content"
       role="status"
       aria-label="Chargement des abonnements…"
     >
@@ -17,6 +17,6 @@ export default function Loading() {
           <Skeleton key={i} className="h-56 w-full rounded-4xl" />
         ))}
       </div>
-    </div>
+    </PageShell>
   );
 }

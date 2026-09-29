@@ -1,12 +1,13 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageShell } from "@/components/page-shell";
 
 export default function Loading() {
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6" role="status" aria-label="Chargement des paiements…">
+    <PageShell size="wide" role="status" aria-label="Chargement des paiements…">
       <Skeleton className="h-8 w-40" />
       <Skeleton className="mt-2 h-5 w-56" />
 
-      <div className="mt-8 rounded-3xl border border-border bg-card p-4">
+      <div className="mt-8 rounded-lg border border-border bg-card p-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
@@ -21,6 +22,6 @@ export default function Loading() {
           </div>
         ))}
       </div>
-    </div>
+    </PageShell>
   );
 }

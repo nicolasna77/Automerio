@@ -1,9 +1,10 @@
 import { formatConfigField, type MyServiceDTO } from "@/lib/catalog";
 import { formatUsageCap } from "@/lib/usage-cap";
+import { formatFrenchPhone } from "@/lib/phone-format";
 
 export function Fact({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="grid gap-0.5 border-b border-border py-3 text-sm last:border-b-0 sm:grid-cols-[minmax(0,11rem)_1fr] sm:gap-4">
+    <div className="grid gap-0.5 border-b border-border py-3 text-sm last:border-b-0 @lg:grid-cols-[minmax(0,11rem)_1fr] @lg:gap-4">
       <dt className="text-muted-foreground">{label}</dt>
       <dd className="text-foreground">{children}</dd>
     </div>
@@ -36,13 +37,13 @@ export function ServiceFacts({
   showUsageCap?: boolean;
 }) {
   return (
-    <dl>
+    <dl className="@container">
       {item.service.usageCap && showUsageCap && (
         <Fact label="Plafond d'usage">{formatUsageCap(item.service.usageCap)}</Fact>
       )}
       {item.externalPhoneNumber && showPhoneNumber && (
         <Fact label="Numéro de téléphone">
-          <span className="tabular-nums">{item.externalPhoneNumber}</span>
+          <span className="font-mono tabular-nums">{formatFrenchPhone(item.externalPhoneNumber)}</span>
         </Fact>
       )}
       {serviceConfigEntries(item).map(([key, value]) => {

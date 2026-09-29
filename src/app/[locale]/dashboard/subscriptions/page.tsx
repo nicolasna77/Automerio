@@ -2,10 +2,10 @@ import { titleMetadata } from "@/i18n/metadata";
 import { Link } from "@/i18n/navigation";
 import { CalendarClock, CreditCard, Layers, TriangleAlert, Wallet } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { StatStrip, type Stat } from "@/components/stat-strip";
 import { EmptyState } from "@/components/empty-state";
 import { requireActiveOrganization } from "@/lib/organization";
-import { formatDate } from "@/lib/catalog";
+import { formatDate, formatEuroAmount } from "@/lib/catalog";
 import { organizationCustomerId } from "@/lib/organization-billing";
 import {
   getMySubscriptions,
@@ -15,7 +15,7 @@ import {
 } from "@/lib/subscriptions";
 import { BillingPortalButton } from "../payments/billing-portal-button";
 import { SubscriptionCard } from "./subscription-card";
-import { formatCentsWithVat } from "@/lib/vat";
+import { excludingVatSuffix } from "@/lib/vat";
 import { PageHeader, PageShell } from "@/components/page-shell";
 
 export const generateMetadata = titleMetadata("subscriptions");
@@ -31,8 +31,9 @@ export default async function AbonnementsPage() {
   const stopped = subscriptions.filter((subscription) => !isRunning(subscription));
   const failing = running.filter((subscription) => subscription.paymentFailedAt !== null);
   const renewal = nextRenewal(subscriptions);
+  const total = monthlyTotalCents(subscriptions);
 
-  const stats = [
+  const stats: Stat[] = [
     {
       icon: Layers,
       label: "Abonnements en cours",
@@ -41,12 +42,15 @@ export default async function AbonnementsPage() {
     {
       icon: Wallet,
       label: "Total mensuel",
-      value: formatCentsWithVat(monthlyTotalCents(subscriptions)),
+      value: formatEuroAmount(total),
+      unit: "€ TTC/mois",
+      note: excludingVatSuffix(total),
     },
     {
       icon: CalendarClock,
       label: "Prochain prélèvement",
-      value: renewal ? formatDate(renewal) : "—",
+      value: renewal ? formatDate(renewal) : "Aucun",
+      mono: false,
     },
   ];
 
@@ -97,26 +101,7 @@ export default async function AbonnementsPage() {
         />
       ) : (
         <div className="space-y-8">
-          <Card>
-            <CardContent>
-              <div className="grid grid-cols-1 divide-y divide-border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-                {stats.map((stat) => (
-                  <div
-                    key={stat.label}
-                    className="py-3 first:pt-0 sm:px-5 sm:py-0 sm:first:pt-0 sm:first:pl-0 sm:last:pr-0"
-                  >
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <stat.icon className="size-3.5 shrink-0" aria-hidden="true" />
-                      {stat.label}
-                    </div>
-                    <p className="mt-1.5 text-2xl font-semibold tabular-nums text-foreground">
-                      {stat.value}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <StatStrip stats={stats} />
 
           {running.length > 0 && (
             <section aria-labelledby="active-subscriptions" className="space-y-3">

@@ -125,6 +125,12 @@ export function formatPrice(monthlyPriceCents: number | null): string {
   return monthlyPriceCents === null ? "—" : `${formatCents(monthlyPriceCents)}/mois`;
 }
 
+// Le montant sans le symbole « € » : pour afficher le chiffre en Plex Mono et
+// l'unité en texte courant, sans l'espace insécable élargi par la chasse fixe.
+export function formatEuroAmount(cents: number): string {
+  return formatCents(cents).replace(/\s€$/, "");
+}
+
 export function formatCents(cents: number, locale = "fr-FR"): string {
   const whole = cents % 100 === 0;
   const digits = { minimumFractionDigits: whole ? 0 : 2, maximumFractionDigits: 2 };

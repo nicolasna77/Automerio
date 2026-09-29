@@ -26,9 +26,7 @@ import { MessengerConnection } from "./messenger-connection";
 import { PhoneNumberPurchase } from "./phone-number-purchase";
 import { WhatsAppConnection } from "./whatsapp-connection";
 
-export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
-  if (item.status === "CANCELED") return null;
-
+function setupState(item: MyServiceDTO) {
   const isTelephony = TELEPHONY_SERVICE_SLUGS.has(item.service.slug);
   const isWhatsApp = item.service.slug === WHATSAPP_SERVICE_SLUG;
   const isFacebook = item.service.slug === FACEBOOK_SERVICE_SLUG;
@@ -49,17 +47,47 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
   const catalogDone =
     !takesOrders ||
     countCatalogItems(readProductCatalog(item.configuration[PRODUCT_CATALOG_FIELD_KEY])) > 0;
-  if (
-    paid &&
-    phoneDone &&
-    calendarDone &&
-    whatsappDone &&
-    facebookDone &&
-    instagramDone &&
-    catalogDone &&
-    verified
-  )
-    return null;
+  const clientDone =
+    paid && phoneDone && calendarDone && whatsappDone && facebookDone && instagramDone && catalogDone;
+
+  return {
+    isTelephony,
+    isWhatsApp,
+    isFacebook,
+    isInstagram,
+    takesAppointments,
+    takesOrders,
+    paid,
+    hasNumber,
+    verified,
+    catalogDone,
+    clientDone,
+  };
+}
+
+// Vrai quand la carte « Mise en service » n'a plus rien à montrer.
+export function isSetupComplete(item: MyServiceDTO): boolean {
+  if (item.status === "CANCELED") return true;
+  const { clientDone, verified } = setupState(item);
+  return clientDone && verified;
+}
+
+export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
+  if (isSetupComplete(item)) return null;
+
+  const {
+    isTelephony,
+    isWhatsApp,
+    isFacebook,
+    isInstagram,
+    takesAppointments,
+    takesOrders,
+    paid,
+    hasNumber,
+    verified,
+    catalogDone,
+    clientDone,
+  } = setupState(item);
 
   const steps = [
     { label: "Paiement", done: paid },
@@ -100,15 +128,7 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
     !nextIsInstagram &&
     !nextIsCatalog &&
     needsCalendarConnection(item);
-  const waitingOnAutomerio =
-    paid &&
-    phoneDone &&
-    calendarDone &&
-    whatsappDone &&
-    facebookDone &&
-    instagramDone &&
-    catalogDone &&
-    !verified;
+  const waitingOnAutomerio = clientDone && !verified;
 
   return (
     <Card id={SETUP_ANCHOR} className="scroll-mt-24">
@@ -149,7 +169,7 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
         )}
 
         {nextIsPhone && (
-          <div className="rounded-2xl border border-border bg-muted/40 p-4">
+          <div className="rounded-lg border border-border bg-muted/40 p-4">
             <p className="text-sm font-medium text-foreground">
               Choisissez le numéro qui recevra vos appels
             </p>
@@ -163,7 +183,7 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
         )}
 
         {nextIsWhatsApp && (
-          <div className="rounded-2xl border border-border bg-muted/40 p-4">
+          <div className="rounded-lg border border-border bg-muted/40 p-4">
             <p className="text-sm font-medium text-foreground">
               Connectez votre compte WhatsApp Business
             </p>
@@ -180,7 +200,7 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
         )}
 
         {nextIsFacebook && (
-          <div className="rounded-2xl border border-border bg-muted/40 p-4">
+          <div className="rounded-lg border border-border bg-muted/40 p-4">
             <p className="text-sm font-medium text-foreground">
               Connectez votre Page Facebook
             </p>
@@ -197,7 +217,7 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
         )}
 
         {nextIsInstagram && (
-          <div className="rounded-2xl border border-border bg-muted/40 p-4">
+          <div className="rounded-lg border border-border bg-muted/40 p-4">
             <p className="text-sm font-medium text-foreground">
               Connectez votre compte Instagram
             </p>
@@ -214,7 +234,7 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
         )}
 
         {nextIsCatalog && (
-          <div className="rounded-2xl border border-border bg-muted/40 p-4">
+          <div className="rounded-lg border border-border bg-muted/40 p-4">
             <p className="text-sm font-medium text-foreground">
               Ajoutez votre carte
             </p>
@@ -232,7 +252,7 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
         )}
 
         {nextIsCalendar && (
-          <div className="rounded-2xl border border-border bg-muted/40 p-4">
+          <div className="rounded-lg border border-border bg-muted/40 p-4">
             <p className="text-sm font-medium text-foreground">
               Connectez votre agenda
             </p>

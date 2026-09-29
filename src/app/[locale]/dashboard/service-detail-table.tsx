@@ -20,127 +20,126 @@ import { MessengerConnection } from "./messenger-connection";
 import { UsageCounter } from "./usage-counter";
 import { WhatsAppConnection } from "./whatsapp-connection";
 
-export function ServiceDetailTable({
+// Les cartes de la page de détail d'une solution. La page les répartit entre
+// sa colonne principale (activité) et sa colonne latérale (réglages).
+
+export function isLiveTelephony(item: MyServiceDTO): boolean {
+  return (
+    TELEPHONY_SERVICE_SLUGS.has(item.service.slug) &&
+    (item.status === "ACTIVE" || item.status === "CONFIGURING")
+  );
+}
+
+export function ServiceLiveCard({ item }: { item: MyServiceDTO }) {
+  if (!isLiveTelephony(item) || !item.externalPhoneNumber) return null;
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle as="h2" className="text-base">Appels reçus</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <UsageCounter clientServiceId={item.clientServiceId} />
+        <CallActivity clientServiceId={item.clientServiceId} />
+      </CardContent>
+    </Card>
+  );
+}
+
+export function CallForwardingCard({ item }: { item: MyServiceDTO }) {
+  if (!isLiveTelephony(item) || !item.externalPhoneNumber) return null;
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle as="h2" className="text-base">Recevoir vos appels</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <CallForwardingGuide targetNumber={item.externalPhoneNumber} />
+      </CardContent>
+    </Card>
+  );
+}
+
+export function ServiceConfigurationCard({
   item,
   showUsageCap = true,
 }: {
   item: MyServiceDTO;
   showUsageCap?: boolean;
 }) {
-  const isTelephony = TELEPHONY_SERVICE_SLUGS.has(item.service.slug);
-  const isLive =
-    isTelephony && (item.status === "ACTIVE" || item.status === "CONFIGURING");
-  const takesAppointments = asStringArray(
-    item.configuration.objectives
-  ).includes("appointment");
+  const isLive = isLiveTelephony(item);
+  const takesAppointments = asStringArray(item.configuration.objectives).includes("appointment");
   const canEditConfig = canEditConfiguration(item);
   const showCalendarRow = isLive && takesAppointments && item.calendarConnected;
   const isDeployedStatus = item.status === "ACTIVE" || item.status === "CONFIGURING";
-  const isWhatsApp = item.service.slug === WHATSAPP_SERVICE_SLUG;
-  const showWhatsAppRow = isWhatsApp && isDeployedStatus && item.whatsappConnected;
-  const isFacebook = item.service.slug === FACEBOOK_SERVICE_SLUG;
-  const showFacebookRow = isFacebook && isDeployedStatus && item.facebookConnected;
-  const isInstagram = item.service.slug === INSTAGRAM_SERVICE_SLUG;
-  const showInstagramRow = isInstagram && isDeployedStatus && item.instagramConnected;
+  const showWhatsAppRow =
+    item.service.slug === WHATSAPP_SERVICE_SLUG && isDeployedStatus && item.whatsappConnected;
+  const showFacebookRow =
+    item.service.slug === FACEBOOK_SERVICE_SLUG && isDeployedStatus && item.facebookConnected;
+  const showInstagramRow =
+    item.service.slug === INSTAGRAM_SERVICE_SLUG && isDeployedStatus && item.instagramConnected;
   const hasFacts = hasServiceFacts(item, !isLive, showUsageCap);
 
+  if (
+    !hasFacts &&
+    !showCalendarRow &&
+    !showWhatsAppRow &&
+    !showFacebookRow &&
+    !showInstagramRow &&
+    !canEditConfig
+  )
+    return null;
+
   return (
-    <div className="space-y-6">
-      {item.adminNote && (
-        <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4">
-          <p className="text-xs font-medium text-primary">
-            Note de l&apos;équipe Automerio
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
+        <CardTitle as="h2" className="text-base">Configuration</CardTitle>
+        {canEditConfig && (
+          <Link
+            href={`/dashboard/services/${item.clientServiceId}/configuration`}
+            className={buttonVariants({ variant: "outline", size: "sm" })}
+          >
+            <Settings2 aria-hidden="true" data-icon="inline-start" />
+            Modifier
+          </Link>
+        )}
+      </CardHeader>
+      <CardContent className="space-y-5">
+        {hasFacts ? (
+          <ServiceFacts item={item} showPhoneNumber={!isLive} showUsageCap={showUsageCap} />
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            Aucun réglage renseigné pour l&apos;instant.
           </p>
-          <p className="mt-1 text-sm text-foreground">{item.adminNote}</p>
-        </div>
-      )}
+        )}
 
-      {isLive && item.externalPhoneNumber && (
-        <Card>
-          <CardHeader>
-            <CardTitle as="h2" className="text-base">En direct</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <UsageCounter clientServiceId={item.clientServiceId} />
-            <CallActivity clientServiceId={item.clientServiceId} />
-          </CardContent>
-        </Card>
-      )}
-
-      {isLive && item.externalPhoneNumber && (
-        <Card>
-          <CardHeader>
-            <CardTitle as="h2" className="text-base">Recevoir vos appels</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <CallForwardingGuide targetNumber={item.externalPhoneNumber} />
-          </CardContent>
-        </Card>
-      )}
-
-      {(hasFacts ||
-        showCalendarRow ||
-        showWhatsAppRow ||
-        showFacebookRow ||
-        showInstagramRow ||
-        canEditConfig) && (
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
-            <CardTitle as="h2" className="text-base">Configuration</CardTitle>
-            {canEditConfig && (
-              <Link
-                href={`/dashboard/services/${item.clientServiceId}/configuration`}
-                className={buttonVariants({ variant: "outline", size: "sm" })}
-              >
-                <Settings2 aria-hidden="true" data-icon="inline-start" />
-                Modifier
-              </Link>
-            )}
-          </CardHeader>
-          <CardContent className="space-y-5">
-            {!hasFacts && (
-              <p className="text-sm text-muted-foreground">
-                Aucun réglage renseigné pour l&apos;instant.
-              </p>
-            )}
-            {hasFacts && (
-              <ServiceFacts
-                item={item}
-                showPhoneNumber={!isLive}
-                showUsageCap={showUsageCap}
-              />
-            )}
-
-            {showCalendarRow && (
-              <CalendarConnection
-                clientServiceId={item.clientServiceId}
-                connected={item.calendarConnected}
-              />
-            )}
-            {showWhatsAppRow && (
-              <WhatsAppConnection
-                clientServiceId={item.clientServiceId}
-                connected={item.whatsappConnected}
-                displayNumber={item.whatsappDisplayNumber}
-              />
-            )}
-            {showFacebookRow && (
-              <MessengerConnection
-                clientServiceId={item.clientServiceId}
-                connected={item.facebookConnected}
-                pageName={item.facebookPageName}
-              />
-            )}
-            {showInstagramRow && (
-              <InstagramConnection
-                clientServiceId={item.clientServiceId}
-                connected={item.instagramConnected}
-                username={item.instagramUsername}
-              />
-            )}
-          </CardContent>
-        </Card>
-      )}
-    </div>
+        {showCalendarRow && (
+          <CalendarConnection
+            clientServiceId={item.clientServiceId}
+            connected={item.calendarConnected}
+          />
+        )}
+        {showWhatsAppRow && (
+          <WhatsAppConnection
+            clientServiceId={item.clientServiceId}
+            connected={item.whatsappConnected}
+            displayNumber={item.whatsappDisplayNumber}
+          />
+        )}
+        {showFacebookRow && (
+          <MessengerConnection
+            clientServiceId={item.clientServiceId}
+            connected={item.facebookConnected}
+            pageName={item.facebookPageName}
+          />
+        )}
+        {showInstagramRow && (
+          <InstagramConnection
+            clientServiceId={item.clientServiceId}
+            connected={item.instagramConnected}
+            username={item.instagramUsername}
+          />
+        )}
+      </CardContent>
+    </Card>
   );
 }
