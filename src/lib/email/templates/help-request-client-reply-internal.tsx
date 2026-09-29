@@ -25,7 +25,7 @@ export function HelpRequestClientReplyInternalEmail({
         Nouvelle réponse d&apos;un client
       </Heading>
       <Text style={emailTextStyle}>
-        {clientName} ({clientEmail}) — {organizationName}
+        {clientName} ({clientEmail}) · {organizationName}
       </Text>
       <Text style={{ ...emailTextStyle, fontWeight: 600 }}>{subject}</Text>
       <Section

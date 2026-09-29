@@ -286,7 +286,7 @@ export function describeServiceStatus(item: {
     case "PENDING_PAYMENT":
       return `En attente de paiement depuis le ${formatDate(item.createdAt)}`;
     case "CONFIGURING":
-      return "Paiement confirmé — en cours de déploiement par l'équipe Automerio";
+      return "Paiement confirmé. Déploiement en cours par l'équipe Automerio";
     case "CANCELED":
       return item.canceledAt ? `Résilié le ${formatDate(item.canceledAt)}` : "Résilié";
   }

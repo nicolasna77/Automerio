@@ -17,19 +17,17 @@ export const PALETTE_TOKENS = {
 
 export const BRAND_PALETTE = {
   light: {
-    background: "#e0edf8",
+    background: "#f1ede7",
     card: "#ffffff",
-    foreground: "#09131a",
-    mutedForeground: "#4c575f",
-    border: "#d3e0ea",
-    primary: "#00a33d",
-    primaryForeground: "#f3faff",
+    foreground: "#1c1917",
+    mutedForeground: "#57534e",
+    border: "#e3ddd4",
+    primary: "#15803d",
+    primaryForeground: "#ffffff",
   },
   dark: {
-    background: "#02080e",
-    foreground: "#e9f0f5",
-    mutedForeground: "#85919a",
+    background: "#161311",
+    foreground: "#f4f1ec",
+    mutedForeground: "#a8a29e",
   },
 } as const;
-
-export const BRAND_GRADIENT_END = "#006322";

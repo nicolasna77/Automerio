@@ -8,7 +8,6 @@ function Stage({ children }: { children: React.ReactNode }) {
       aria-hidden="true"
       className="relative isolate flex min-h-72 items-center justify-center overflow-hidden rounded-3xl border border-border bg-muted/40 p-6 select-none sm:p-10"
     >
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(var(--border)_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)]" />
       <div className="w-full max-w-sm">{children}</div>
     </div>
   );
@@ -16,7 +15,7 @@ function Stage({ children }: { children: React.ReactNode }) {
 
 function Tag({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <span className={cn("font-mono text-[0.6875rem] tracking-wide text-muted-foreground uppercase", className)}>
+    <span className={cn("text-xs font-medium text-muted-foreground", className)}>
       {children}
     </span>
   );
@@ -80,7 +79,7 @@ export async function BriefIllustration() {
       <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
         <div className="flex items-center justify-between">
           <Tag>{t("title")}</Tag>
-          <span className="font-mono text-[0.6875rem] text-primary">3 / 3</span>
+          <span className="text-xs font-medium text-primary">3 / 3</span>
         </div>
         <div className="mt-4 space-y-3.5">
           {fields.map((field) => (
@@ -147,7 +146,7 @@ export async function FollowIllustration() {
       <div className="rounded-2xl border border-border bg-card shadow-sm">
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
           <Tag>{t("thisWeek")}</Tag>
-          <span className="flex items-center gap-1.5 rounded-full bg-primary/10 px-2 py-0.5 font-mono text-[0.6875rem] text-primary">
+          <span className="flex items-center gap-1.5 rounded-lg bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
             <span className="size-1.5 rounded-full bg-primary" />
             {t("active")}
           </span>
@@ -164,7 +163,7 @@ export async function FollowIllustration() {
         <ul className="divide-y divide-border border-t border-border">
           <li className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-foreground">
             <Check className="size-3.5 shrink-0 text-primary" />
-            {t("calls", { count: 42 })}
+            {t("calls")}
           </li>
           <li className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-foreground">
             <SlidersHorizontal className="size-3.5 shrink-0 text-primary" />

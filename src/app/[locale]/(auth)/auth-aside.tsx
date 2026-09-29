@@ -19,7 +19,7 @@ export function AuthAside() {
         <span className="block text-xl font-medium leading-snug">
           Votre entreprise tourne.
         </span>
-        <span className="mt-1.5 block text-[2.1rem] font-bold leading-[1] tracking-[-0.03em] font-stretch-88%">
+        <span className="mt-1.5 block text-3xl font-bold leading-tight tracking-tight">
           Vos automatisations s&apos;occupent du reste.
         </span>
       </p>

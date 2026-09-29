@@ -83,16 +83,6 @@ function connectorPath(node: Node): string {
   return `M${node.cx},${fromY} L${node.cx},${elbowY} L${CENTER.cx},${elbowY} L${CENTER.cx},${toY}`;
 }
 
-const DURATIONS: Record<SlotId, number> = {
-  "top-left": 2.4,
-  "top-right": 3,
-  "bottom-left": 2.8,
-  "bottom-right": 3.4,
-  "mid-left": 1.6,
-  "mid-right": 1.8,
-};
-
-type SlotId = (typeof SLOTS)[number]["id"];
 type Node = ReturnType<typeof toNode>;
 
 function NodeBadge({ node }: { node: Node }) {
@@ -132,28 +122,12 @@ export function HeroNetworkVisual({ labels, centerLabel }: { labels: string[]; c
   );
 
   return (
-    <div aria-hidden="true" className="relative w-full">
+    <div aria-hidden="true" className="relative hidden w-full lg:block">
       <svg viewBox="0 0 620 560" className="relative h-auto w-full" role="img">
         <style>{`
           .hero-net-line { stroke-opacity: 0.35; }
           .dark .hero-net-line { stroke-opacity: 0.7; }
-          @media (prefers-reduced-motion: reduce) {
-            .hero-net-flow { display: none; }
-          }
         `}</style>
-
-        <defs>
-          <filter
-            id="hero-net-blur"
-            filterUnits="userSpaceOnUse"
-            x="0"
-            y="0"
-            width="620"
-            height="560"
-          >
-            <feGaussianBlur stdDeviation="2.2" />
-          </filter>
-        </defs>
 
         {nodes.map((node) => (
           <g key={node.id}>
@@ -164,26 +138,6 @@ export function HeroNetworkVisual({ labels, centerLabel }: { labels: string[]; c
               strokeWidth={1.5}
               className="hero-net-line"
             />
-            <path
-              d={connectorPath(node)}
-              pathLength={100}
-              fill="none"
-              stroke="var(--primary)"
-              strokeWidth={2.5}
-              strokeLinecap="round"
-              strokeDasharray="15 85"
-              filter="url(#hero-net-blur)"
-              className="hero-net-flow"
-            >
-              <animate
-                attributeName="stroke-dashoffset"
-                from="0"
-                to="-100"
-                dur={`${DURATIONS[node.id]}s`}
-                begin={`${DURATIONS[node.id] / 3}s`}
-                repeatCount="indefinite"
-              />
-            </path>
           </g>
         ))}
 
@@ -197,7 +151,7 @@ export function HeroNetworkVisual({ labels, centerLabel }: { labels: string[]; c
             y={CENTER.cy - CENTER.h / 2}
             width={CENTER.w}
             height={CENTER.h}
-            rx={10}
+            rx={8}
             fill="var(--card)"
             stroke="var(--primary)"
             strokeOpacity={0.6}

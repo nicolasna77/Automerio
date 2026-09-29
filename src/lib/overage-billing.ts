@@ -32,7 +32,7 @@ export function quotaThresholdCrossed(before: number, after: number, included: n
 }
 
 export function overageLineDescription(units: number, cap: UsageCap, serviceName: string): string {
-  return `${serviceName} — ${formatUsageUnits(units, cap.unit)} au-delà du forfait (${formatCentsWithVat(cap.overageUnitPriceCents)} l'unité)`;
+  return `${serviceName} : ${formatUsageUnits(units, cap.unit)} au-delà du forfait (${formatCentsWithVat(cap.overageUnitPriceCents)} l'unité)`;
 }
 
 function periodFromInvoice(invoice: Stripe.Invoice): BillingPeriod {
@@ -75,7 +75,7 @@ export async function billFinalOverage(subscription: Stripe.Subscription): Promi
       auto_advance: true,
       pending_invoice_items_behavior: "exclude",
       default_payment_method: idOf(subscription.default_payment_method) ?? undefined,
-      description: `Dépassement de la dernière période — ${overage.serviceName}`,
+      description: `Dépassement de la dernière période : ${overage.serviceName}`,
       metadata: { clientServiceId: overage.clientServiceId, reason: "final_overage" },
     },
     { idempotencyKey: `final-overage-invoice-${subscription.id}` }

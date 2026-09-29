@@ -20,7 +20,7 @@ export async function MethodSection() {
     <section id="method" aria-labelledby="method-heading" className="scroll-mt-20 py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="font-mono text-xs tracking-wide text-muted-foreground uppercase">{t("eyebrow")}</span>
+          <span className="text-sm font-medium text-muted-foreground">{t("eyebrow")}</span>
           <h2
             id="method-heading"
             className="mt-3 text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"
@@ -40,13 +40,13 @@ export async function MethodSection() {
                   <span
                     aria-hidden="true"
                     className={cn(
-                      "flex size-10 items-center justify-center rounded-full font-mono text-sm",
+                      "flex size-10 items-center justify-center rounded-full text-sm font-semibold",
                       index >= 2 ? "bg-primary text-primary-foreground" : "border border-border bg-card text-foreground"
                     )}
                   >
                     {step.step}
                   </span>
-                  <span className="font-mono text-xs tracking-wide text-muted-foreground uppercase">{t(`steps.${step.key}.who`)}</span>
+                  <span className="text-sm font-medium text-muted-foreground">{t(`steps.${step.key}.who`)}</span>
                 </div>
                 <h3 className="mt-5 text-2xl font-semibold tracking-tight text-balance text-foreground">
                   {t(`steps.${step.key}.title`)}

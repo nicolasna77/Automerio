@@ -54,7 +54,7 @@ export function UsageGauge({
       <p className="mt-2 text-xs text-muted-foreground">
         {over > 0 ? (
           <>
-            {formatUsageUnits(over, cap.unit)} au-delà du forfait —{" "}
+            {formatUsageUnits(over, cap.unit)} au-delà du forfait :{" "}
             <span className="font-medium text-foreground tabular-nums">
               {formatCentsWithVat(overageCents)}
             </span>{" "}

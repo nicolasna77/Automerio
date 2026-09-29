@@ -53,7 +53,7 @@ export default async function AdminMarketingPage() {
     <PageShell size="content">
       <PageHeader
         title="Marketing"
-        description="Les comptes sociaux d'Automerio, pas ceux de vos clients. L'agent rédige à partir du catalogue réel — il n'a le droit d'affirmer que ce qui s'y trouve."
+        description="Les comptes sociaux d'Automerio, pas ceux de vos clients. L'agent rédige à partir du catalogue réel. Il n'a le droit d'affirmer que ce qui s'y trouve."
       />
 
       <div>

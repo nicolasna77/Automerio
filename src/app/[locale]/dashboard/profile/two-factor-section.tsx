@@ -110,7 +110,7 @@ export function TwoFactorSection({
       await navigator.clipboard.writeText(codes.join("\n"));
       toast.success("Codes copiés.");
     } catch {
-      toast.error("Copie impossible — recopiez-les à la main.");
+      toast.error("Copie impossible. Recopiez-les à la main.");
     }
   }
 

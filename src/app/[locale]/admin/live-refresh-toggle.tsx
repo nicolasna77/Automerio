@@ -28,7 +28,7 @@ export function LiveRefreshToggle() {
       <RadioIcon
         aria-hidden="true"
         data-icon="inline-start"
-        className={enabled ? "motion-safe:animate-pulse text-destructive" : undefined}
+        className={enabled ? "text-destructive" : undefined}
       />
       {enabled ? "Direct" : "En pause"}
     </Button>

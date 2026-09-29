@@ -45,7 +45,7 @@ export function toCalendarBookings<
     } else {
       unscheduled.push({
         id: booking.id,
-        title: `${KIND_LABELS[booking.kind] ?? booking.kind} — ${booking.customerName}`,
+        title: `${KIND_LABELS[booking.kind] ?? booking.kind} · ${booking.customerName}`,
         subtitle: options.subtitle(booking),
         notes: booking.notes,
       });

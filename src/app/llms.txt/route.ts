@@ -50,7 +50,7 @@ export async function GET() {
     lines.push(`### ${tCatalog(`categories.${category}`)}`, "");
     for (const service of list) {
       lines.push(
-        `- [${service.name}](${absoluteUrl(`/services/${service.slug}`)}) — ${service.description}`,
+        `- [${service.name}](${absoluteUrl(`/services/${service.slug}`)}) : ${service.description}`,
         `  ${t("priceLine", { price: price(service.monthlyPriceCents) })}${
           usageCapLabelOf(service) ? ` ${usageCapLabelOf(service)}.` : ""
         }`

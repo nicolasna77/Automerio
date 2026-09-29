@@ -83,8 +83,8 @@ export function RoleSelector({
             <AlertDialogTitle>Promouvoir en ADMIN ?</AlertDialogTitle>
             <AlertDialogDescription>
               Cette personne aura un accès total à tous les clients, tous les
-              paiements et le catalogue des prestations — au même titre que
-              vous. Cette portée d&apos;accès ne peut pas être restreinte
+              paiements et le catalogue des prestations, au même titre
+              que vous. Cette portée d&apos;accès ne peut pas être restreinte
               (il n&apos;existe pas de rôle intermédiaire).
             </AlertDialogDescription>
           </AlertDialogHeader>

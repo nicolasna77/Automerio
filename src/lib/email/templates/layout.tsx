@@ -64,8 +64,8 @@ export function EmailLayout({
               margin: 0,
             }}
           >
-            Automerio — automatisations pour artisans, coachs, indépendants et
-            TPE/PME.
+            Automerio : assistants IA pour artisans, coachs, indépendants et
+            TPE.
           </Text>
         </Container>
       </Body>

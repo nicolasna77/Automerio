@@ -32,7 +32,7 @@ export function PasswordResetEmail({
       </Link>
       <Text style={emailMutedTextStyle}>
         Ce lien expire dans une heure. Si vous n&apos;êtes pas à l&apos;origine
-        de cette demande, vous pouvez ignorer cet e-mail — votre mot de passe
+        de cette demande, vous pouvez ignorer cet e-mail. Votre mot de passe
         actuel reste inchangé.
       </Text>
     </EmailLayout>

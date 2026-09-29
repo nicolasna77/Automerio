@@ -7,11 +7,7 @@ export async function CtaSection() {
   const t = await getTranslations("Home.cta");
   return (
     <section aria-labelledby="cta-heading" className="px-4 pb-20 sm:px-6 sm:pb-24">
-      <div className="relative isolate mx-auto max-w-6xl overflow-hidden rounded-[2rem] border border-border bg-card px-6 py-16 text-center sm:py-20">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_80%_70%_at_50%_120%,color-mix(in_oklab,var(--primary)_28%,transparent),transparent)]"
-        />
+      <div className="relative isolate mx-auto max-w-6xl overflow-hidden rounded-lg border border-border bg-card px-6 py-16 text-center sm:py-20">
         <h2
           id="cta-heading"
           className="mx-auto max-w-2xl text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"

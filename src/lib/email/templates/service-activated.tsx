@@ -27,8 +27,8 @@ export function ServiceActivatedEmail({
       </Heading>
       <Text style={emailTextStyle}>Bonjour {recipientName},</Text>
       <Text style={emailTextStyle}>
-        « {serviceName} » est déployée et vérifiée par l&apos;équipe Automerio —
-        elle est maintenant active.
+        « {serviceName} » est déployée et vérifiée par l&apos;équipe Automerio.
+        Elle est maintenant active.
       </Text>
       <Text style={emailMutedTextStyle}>
         Vous pouvez suivre son fonctionnement depuis votre tableau de bord.

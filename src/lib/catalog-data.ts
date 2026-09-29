@@ -38,7 +38,7 @@ export const CATALOG: CatalogService[] = [
     slug: "standard-telephonique-ia",
     name: "Standard téléphonique automatisé",
     description:
-      "Réception et orientation automatique de vos appels entrants, 24h/24, avec transfert intelligent vers la bonne personne.",
+      "Réception et orientation automatique de vos appels entrants, 24h/24, avec transfert vers la bonne personne selon le motif de l'appel.",
     category: "COMMUNICATION",
     monthlyPriceCents: 7900,
     includedUsageUnits: 150,
@@ -65,7 +65,7 @@ export const CATALOG: CatalogService[] = [
         label: "Message d'accueil",
         type: "textarea",
         placeholder: "Bonjour, vous êtes bien chez ... Comment puis-je vous aider ?",
-        helpText: "Optionnel — un texte par défaut est utilisé si vous ne renseignez rien.",
+        helpText: "Optionnel. Un texte par défaut est utilisé si vous ne renseignez rien.",
       },
       {
         key: "callRouting",
@@ -127,7 +127,7 @@ export const CATALOG: CatalogService[] = [
         type: "textarea",
         required: true,
         placeholder: "Pizza Margherita — 9,50 €\nPizza Reine — 11,50 €",
-        helpText: "Obligatoire pour la prise de commande — un produit par ligne, avec le prix.",
+        helpText: "Obligatoire pour la prise de commande. Un produit par ligne, avec le prix.",
         showIf: { key: "objectives", includes: "order" },
       },
       {
@@ -239,7 +239,7 @@ export const CATALOG: CatalogService[] = [
         label: "Boîte mail",
         type: "connection",
         placeholder: "vous@gmail.com",
-        helpText: "Gmail ou Outlook — connexion finalisée par l'équipe Automerio.",
+        helpText: "Gmail ou Outlook. Connexion finalisée par l'équipe Automerio.",
       },
       {
         key: "sortingRules",
@@ -296,7 +296,7 @@ export const CATALOG: CatalogService[] = [
         key: "sourceConnection",
         label: "Dossier source",
         type: "connection",
-        helpText: "Drive / Dropbox / boîte mail — dossier où déposer vos PDF.",
+        helpText: "Drive, Dropbox ou boîte mail : le dossier où déposer vos PDF.",
       },
       {
         key: "summaryFormat",
@@ -314,7 +314,7 @@ export const CATALOG: CatalogService[] = [
     slug: "resume-reunions",
     name: "Résumé automatique de réunions",
     description:
-      "Un compte-rendu structuré de chaque réunion, à partir d'un enregistrement ou d'une transcription — plus besoin de prendre des notes.",
+      "Un compte-rendu structuré de chaque réunion, à partir d'un enregistrement ou d'une transcription. Plus besoin de prendre des notes.",
     category: "INFORMATION",
     monthlyPriceCents: 2400,
     includedUsageUnits: null,
@@ -348,7 +348,7 @@ export const CATALOG: CatalogService[] = [
   },
   {
     slug: "ocr-lecture-automatique",
-    name: "OCR — lecture automatique de documents scannés",
+    name: "OCR : lecture automatique de documents scannés",
     description:
       "Les données de vos PDF et factures scannées arrivent directement dans vos outils de gestion, sans ressaisie manuelle.",
     category: "INFORMATION",

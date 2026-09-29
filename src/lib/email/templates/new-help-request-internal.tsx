@@ -27,7 +27,7 @@ export function NewHelpRequestInternalEmail({
         Nouvelle demande d&apos;aide
       </Heading>
       <Text style={emailTextStyle}>
-        {clientName} ({clientEmail}) — {organizationName}
+        {clientName} ({clientEmail}) · {organizationName}
       </Text>
       <Text style={emailTextStyle}>
         Solution concernée : {serviceName ?? "Question générale"}

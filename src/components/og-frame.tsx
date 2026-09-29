@@ -1,12 +1,11 @@
-import { BRAND_GRADIENT_END, BRAND_PALETTE } from "@/lib/brand-palette";
+import { BRAND_PALETTE } from "@/lib/brand-palette";
 
 export const OG_SIZE = { width: 1200, height: 630 };
 
 const INK = BRAND_PALETTE.dark.background;
 const PAPER = BRAND_PALETTE.dark.foreground;
 const MUTED = BRAND_PALETTE.dark.mutedForeground;
-const BRAND_FROM = BRAND_PALETTE.light.primary;
-const BRAND_TO = BRAND_GRADIENT_END;
+const BRAND = BRAND_PALETTE.light.primary;
 
 export function OgFrame({
   eyebrow,
@@ -38,8 +37,8 @@ export function OgFrame({
           style={{
             width: 44,
             height: 44,
-            borderRadius: 12,
-            background: `linear-gradient(135deg, ${BRAND_FROM}, ${BRAND_TO})`,
+            borderRadius: 8,
+            background: BRAND,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",

@@ -477,7 +477,7 @@ export async function completeMessengerConnection(clientServiceId: string, code:
     const page = await fetchManagedPage(userAccessToken);
     if (!page) {
       throw new ActionError(
-        "Aucune Page Facebook trouvée — vérifiez que vous en gérez au moins une."
+        "Aucune Page Facebook trouvée. Vérifiez que vous en gérez au moins une."
       );
     }
     await subscribePageToApp(page.id, page.access_token);

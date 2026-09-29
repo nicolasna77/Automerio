@@ -23,13 +23,13 @@ export function SolutionsTabs({ myCount }: { myCount: number }) {
                 href={tab.href}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "inline-flex h-10 items-center gap-2 rounded-full px-4 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+                  "inline-flex h-10 items-center gap-2 rounded-lg px-4 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
                   isActive && "bg-background text-foreground shadow-sm"
                 )}
               >
                 {tab.label}
                 {tab.count !== null && (
-                  <span className="rounded-full bg-foreground/10 px-1.5 text-xs tabular-nums">
+                  <span className="rounded-lg bg-foreground/10 px-1.5 text-xs tabular-nums">
                     {tab.count}
                   </span>
                 )}

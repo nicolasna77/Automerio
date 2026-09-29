@@ -110,14 +110,14 @@ export async function getAdminNotifications(
       ...requests.map((request) => ({
         id: `request-${request.id}`,
         title: "Nouvelle demande d'aide",
-        description: `${request.user.name} — ${request.subject}`,
+        description: `${request.user.name} · ${request.subject}`,
         href: "/admin/help",
         createdAt: request.createdAt,
       })),
       ...replies.map((reply) => ({
         id: `client-reply-${reply.id}`,
         title: "Réponse d'un client",
-        description: `${reply.author.name} — ${reply.helpRequest.subject}`,
+        description: `${reply.author.name} · ${reply.helpRequest.subject}`,
         href: "/admin/help",
         createdAt: reply.createdAt,
       })),

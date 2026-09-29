@@ -48,7 +48,7 @@ describe("toCalendarBookings", () => {
       [booking({ kind: "order", startAt: null, endAt: null })],
       options
     );
-    expect(unscheduled[0].title).toBe("Commande — Mme Renard");
+    expect(unscheduled[0].title).toBe("Commande · Mme Renard");
   });
 
   it("retombe sur le type brut si un nouveau type apparaît", () => {
@@ -56,7 +56,7 @@ describe("toCalendarBookings", () => {
       [booking({ kind: "rappel", startAt: null, endAt: null })],
       options
     );
-    expect(unscheduled[0].title).toBe("rappel — Mme Renard");
+    expect(unscheduled[0].title).toBe("rappel · Mme Renard");
   });
 
   it("répartit un lot mêlant les deux natures", () => {

@@ -334,7 +334,7 @@ export function CallActivity({ clientServiceId }: { clientServiceId: string }) {
           <h3 className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
             <span
               aria-hidden="true"
-              className="size-2 rounded-full bg-primary motion-safe:animate-pulse"
+              className="size-2 rounded-full bg-primary"
             />
             Appel{data.inProgress.length > 1 ? "s" : ""} en cours
           </h3>

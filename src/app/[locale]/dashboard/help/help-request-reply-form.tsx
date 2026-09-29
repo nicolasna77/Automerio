@@ -25,7 +25,7 @@ export function HelpRequestReplyForm({
         unwrap(await replyToHelpRequest(helpRequestId, body));
         toast.success(
           resolved
-            ? "Message envoyé — votre demande est rouverte."
+            ? "Message envoyé. Votre demande est rouverte."
             : "Message envoyé à l'équipe Automerio."
         );
         setBody("");

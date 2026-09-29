@@ -81,22 +81,22 @@ export function PrivacyContent() {
       <LegalSection title="Pourquoi nous les utilisons">
         <ul>
           <li>
-            Fournir les solutions commandées, les facturer et vous assister —
+            Fournir les solutions commandées, les facturer et vous assister :
             exécution du contrat.
           </li>
           <li>
-            Conserver les factures et pièces comptables — obligation légale.
+            Conserver les factures et pièces comptables : obligation légale.
           </li>
           <li>
-            Sécuriser les comptes et prévenir la fraude — intérêt légitime.
+            Sécuriser les comptes et prévenir la fraude : intérêt légitime.
           </li>
           <li>
             Répondre à une demande envoyée depuis le formulaire de contact, ou
-            passer l&apos;appel d&apos;essai que vous avez demandé — mesures
+            passer l&apos;appel d&apos;essai que vous avez demandé : mesures
             précontractuelles.
           </li>
           <li>
-            Mesurer la fréquentation et la vitesse du site — intérêt légitime.
+            Mesurer la fréquentation et la vitesse du site : intérêt légitime.
           </li>
         </ul>
         <p>Aucune donnée n&apos;est utilisée à des fins publicitaires.</p>
@@ -110,7 +110,7 @@ export function PrivacyContent() {
         <ul>
           {PROCESSORS.map(([name, role]) => (
             <li key={name}>
-              <strong>{name}</strong> — {role}
+              <strong>{name}</strong> : {role}
             </li>
           ))}
         </ul>

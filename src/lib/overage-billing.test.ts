@@ -70,7 +70,7 @@ describe("overageLineDescription", () => {
   it("dit ce qui est facture et a quel prix", () => {
     expect(
       overageLineDescription(37, { includedUnits: 150, unit: "MINUTE", overageUnitPriceCents: 30 }, "Standard")
-    ).toBe("Standard — 37 min au-delà du forfait (0,30 € TTC (0,25 € HT) l'unité)");
+    ).toBe("Standard : 37 min au-delà du forfait (0,30 € TTC (0,25 € HT) l'unité)");
   });
 });
 

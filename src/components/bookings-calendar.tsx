@@ -362,7 +362,7 @@ export function BookingsCalendar({
                           key={item.id}
                           type="button"
                           onClick={() => setDetail(item)}
-                          title={`${format(item.date, "HH:mm")} — ${item.title}${item.subtitle ? ` · ${item.subtitle}` : ""}`}
+                          title={`${format(item.date, "HH:mm")} · ${item.title}${item.subtitle ? ` · ${item.subtitle}` : ""}`}
                           className={cn(
                             "absolute overflow-hidden rounded-lg border border-primary/30 bg-primary/10 px-1.5 text-left text-xs leading-tight text-primary transition-colors hover:bg-primary/20",
                             height < EVENT_COMPACT_BELOW_PX ? "py-0.5" : "py-1"
@@ -428,7 +428,7 @@ export function BookingsCalendar({
           <DialogHeader>
             <DialogTitle>Sans horaire</DialogTitle>
             <DialogDescription>
-              Commandes prises par téléphone — elles n&apos;occupent pas de
+              Commandes prises par téléphone. Elles n&apos;occupent pas de
               créneau et n&apos;apparaissent donc pas dans la grille.
             </DialogDescription>
           </DialogHeader>

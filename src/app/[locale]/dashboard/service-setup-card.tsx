@@ -143,7 +143,7 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
 
         {!paid && (
           <p className="text-sm text-muted-foreground">
-            Finalisez le paiement pour lancer la mise en service — le bouton se
+            Finalisez le paiement pour lancer la mise en service. Le bouton se
             trouve en haut de cette page.
           </p>
         )}
@@ -169,7 +169,7 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
             </p>
             <p className="mt-1 mb-3 text-sm text-muted-foreground">
               L&apos;IA ne peut pas encore répondre à vos clients tant qu&apos;aucun
-              compte n&apos;est connecté — vous gardez votre numéro actuel.
+              compte n&apos;est connecté. Vous gardez votre numéro actuel.
             </p>
             <WhatsAppConnection
               clientServiceId={item.clientServiceId}

@@ -52,10 +52,10 @@ export function UsageCounter({ clientServiceId }: { clientServiceId: string }) {
     >
       <span
         aria-hidden="true"
-        className="size-1.5 shrink-0 rounded-full bg-primary motion-safe:animate-pulse"
+        className="size-1.5 shrink-0 rounded-full bg-primary"
       />
       <span>
-        <span className="font-mono font-medium tabular-nums text-foreground">
+        <span className="font-semibold tabular-nums text-foreground">
           {count}
         </span>{" "}
         appel{count === 1 ? "" : "s"} reçu{count === 1 ? "" : "s"} ce mois-ci

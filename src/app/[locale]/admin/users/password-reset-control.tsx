@@ -53,7 +53,7 @@ export function PasswordResetControl({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error("Impossible de copier — copiez-le manuellement.");
+      toast.error("Impossible de copier. Copiez-le manuellement.");
     }
   }
 
@@ -123,7 +123,7 @@ export function PasswordResetControl({
                 </Button>
               </div>
               <p className="text-sm text-muted-foreground">
-                Communiquez-le à l&apos;utilisateur — il ne sera plus affiché
+                Communiquez-le à l&apos;utilisateur. Il ne sera plus affiché
                 ensuite.
               </p>
               <DialogFooter>

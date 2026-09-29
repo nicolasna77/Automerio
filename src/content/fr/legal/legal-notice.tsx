@@ -28,7 +28,7 @@ export function LegalNoticeContent() {
       <LegalSection title="Hébergement">
         <p>
           Le site et l&apos;application sont hébergés par{" "}
-          <strong>{HOSTING_PROVIDER.name}</strong>, {HOSTING_PROVIDER.address} —{" "}
+          <strong>{HOSTING_PROVIDER.name}</strong>, {HOSTING_PROVIDER.address}.{" "}
           <a href={HOSTING_PROVIDER.website}>{HOSTING_PROVIDER.website.replace("https://", "")}</a>.
         </p>
         <p>Base de données : {LEGAL_ENTITY.databaseHost}.</p>
