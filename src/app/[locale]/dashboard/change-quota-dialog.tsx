@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
@@ -34,6 +35,7 @@ export function ChangeQuotaDialog({
   currentUnits: number;
 }) {
   const router = useRouter();
+  const tSimulator = useTranslations("PriceSimulator");
   const [open, setOpen] = useState(false);
   const [units, setUnits] = useState(currentUnits);
   const [pending, startTransition] = useTransition();
@@ -91,7 +93,7 @@ export function ChangeQuotaDialog({
             tier={tier}
             value={units}
             onChange={setUnits}
-            label="Combien de minutes vous faut-il ?"
+            label={tSimulator("question", { unit: tier.unit })}
             disabled={pending}
           />
 

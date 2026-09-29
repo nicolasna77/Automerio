@@ -33,7 +33,7 @@ export function ServicePriceSimulator({
         tier={tier}
         value={units}
         onChange={setUnits}
-        label={t("question")}
+        label={t("question", { unit: tier.unit })}
       />
       <p className="text-sm text-muted-foreground">
         {t("hint")}
@@ -51,8 +51,8 @@ export function ServicePriceSimulator({
 
       <p className="text-xs leading-relaxed text-muted-foreground">
         {t("overage", {
-          overage: price.withVat(overageUnitPriceCents),
-          extra: price.withVat(tier.extraUnitPriceCents),
+          overage: price.perUnit(overageUnitPriceCents, tier.unit),
+          extra: price.perUnit(tier.extraUnitPriceCents, tier.unit),
         })}
       </p>
       <p className="sr-only">

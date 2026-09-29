@@ -46,6 +46,7 @@ const USAGE_UNIT_LABELS: Record<UsageUnit | "none", string> = {
   none: "Aucun plafond",
   CALL: "Appels",
   MINUTE: "Minutes",
+  MESSAGE: "Réponses (prix par 100)",
 };
 
 function centsToEurosInput(cents: number | null): string {
@@ -78,7 +79,7 @@ export function ServiceEditDialog({
     const usageUnitRaw = String(formData.get("usageUnit") ?? "none");
     const includedUnitsRaw = String(formData.get("includedUsageUnits") ?? "").trim();
     const overageRaw = String(formData.get("overageUnitEuros") ?? "").trim();
-    const hasCap = usageUnitRaw === "CALL" || usageUnitRaw === "MINUTE";
+    const hasCap = usageUnitRaw === "CALL" || usageUnitRaw === "MINUTE" || usageUnitRaw === "MESSAGE";
 
     setIsSubmitting(true);
     try {
@@ -208,7 +209,7 @@ export function ServiceEditDialog({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {(["none", "MINUTE", "CALL"] as const).map((unit) => (
+                        {(["none", "MINUTE", "CALL", "MESSAGE"] as const).map((unit) => (
                           <SelectItem key={unit} value={unit}>
                             {USAGE_UNIT_LABELS[unit]}
                           </SelectItem>

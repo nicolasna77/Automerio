@@ -11,9 +11,11 @@ import {
   type BillingPeriod,
 } from "@/lib/subscriptions";
 import {
+  formatPerUnit,
   formatUsageUnits,
   overageCents,
   overageUnits,
+  PRICE_BLOCK_UNITS,
   readClientUsageCap,
   type UsageCap,
 } from "@/lib/usage-cap";
@@ -32,7 +34,9 @@ export function quotaThresholdCrossed(before: number, after: number, included: n
 }
 
 export function overageLineDescription(units: number, cap: UsageCap, serviceName: string): string {
-  return `${serviceName} : ${formatUsageUnits(units, cap.unit)} au-delà du forfait (${formatCentsWithVat(cap.overageUnitPriceCents)} l'unité)`;
+  const block = PRICE_BLOCK_UNITS[cap.unit];
+  const per = block === 1 ? "l'unité" : `les ${block} ${cap.unit === "MESSAGE" ? "réponses" : "unités"}`;
+  return `${serviceName} : ${formatUsageUnits(units, cap.unit)} au-delà du forfait (${formatCentsWithVat(cap.overageUnitPriceCents)} ${per})`;
 }
 
 function periodFromInvoice(invoice: Stripe.Invoice): BillingPeriod {
@@ -135,9 +139,13 @@ async function currentPeriod(stripeSubscriptionId: string | null): Promise<Billi
   }
 }
 
+export function unitsOfCall(unit: UsageCap["unit"], durationSec: number | null): number {
+  return unit === "MINUTE" ? Math.ceil((durationSec ?? 0) / 60) : 1;
+}
+
 export async function checkQuotaAlerts(
   clientServiceId: string,
-  lastCall: { durationSec: number | null }
+  justConsumedOf: (cap: UsageCap) => number
 ): Promise<void> {
   const clientService = await db.clientService.findUnique({
     where: { id: clientServiceId },
@@ -150,7 +158,7 @@ export async function checkQuotaAlerts(
 
   const period = await currentPeriod(clientService.stripeSubscriptionId);
   const after = await consumedUnits(clientServiceId, cap, period);
-  const justConsumed = cap.unit === "CALL" ? 1 : Math.ceil((lastCall.durationSec ?? 0) / 60);
+  const justConsumed = justConsumedOf(cap);
   if (justConsumed <= 0) return;
   const alert = quotaThresholdCrossed(Math.max(0, after - justConsumed), after, cap.includedUnits);
   if (!alert) return;
@@ -175,7 +183,8 @@ export async function checkQuotaAlerts(
         clientServiceId,
         consumed: formatUsageUnits(after, cap.unit),
         included: formatUsageUnits(cap.includedUnits, cap.unit),
-        overagePrice: cap.overageUnitPriceCents > 0 ? formatCentsWithVat(cap.overageUnitPriceCents) : null,
+        overagePrice:
+          cap.overageUnitPriceCents > 0 ? formatPerUnit(cap.overageUnitPriceCents, cap.unit) : null,
       })
     )
   );

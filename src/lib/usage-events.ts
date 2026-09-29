@@ -1,6 +1,6 @@
 import type { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
-import { checkQuotaAlerts } from "@/lib/overage-billing";
+import { checkQuotaAlerts, unitsOfCall } from "@/lib/overage-billing";
 
 export type RecordUsageEventInput = {
   clientServiceId: string;
@@ -61,7 +61,7 @@ export async function recordUsageEvent(
   }
 
   if (status === "completed" && type === "call") {
-    await checkQuotaAlerts(clientServiceId, { durationSec: durationSec ?? null }).catch((err) =>
+    await checkQuotaAlerts(clientServiceId, (cap) => unitsOfCall(cap.unit, durationSec ?? null)).catch((err) =>
       console.error(`[quota] vérification impossible pour ${clientServiceId} :`, err)
     );
   }

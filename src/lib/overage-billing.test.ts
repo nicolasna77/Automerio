@@ -43,6 +43,7 @@ import {
   billFinalOverage,
   billOverageOnInvoice,
   checkQuotaAlerts,
+  unitsOfCall,
   overageLineDescription,
   quotaThresholdCrossed,
 } from "./overage-billing";
@@ -157,7 +158,7 @@ describe("checkQuotaAlerts", () => {
   it("previent l'equipe quand un appel fait passer 80 %", async () => {
     mocks.consumedUnits.mockResolvedValue(121);
     mocks.eventCount.mockResolvedValue(0);
-    await checkQuotaAlerts("cs_1", { durationSec: 130 });
+    await checkQuotaAlerts("cs_1", (cap) => unitsOfCall(cap.unit, 130));
 
     expect(mocks.logServiceEvent).toHaveBeenCalledWith("cs_1", "QUOTA_WARNING", "121 min sur 150 min");
     expect(mocks.sendQuotaAlertEmail).toHaveBeenCalledWith(
@@ -169,7 +170,7 @@ describe("checkQuotaAlerts", () => {
   it("ne previent pas deux fois dans la meme periode", async () => {
     mocks.consumedUnits.mockResolvedValue(121);
     mocks.eventCount.mockResolvedValue(1);
-    await checkQuotaAlerts("cs_1", { durationSec: 130 });
+    await checkQuotaAlerts("cs_1", (cap) => unitsOfCall(cap.unit, 130));
 
     expect(mocks.eventCount).toHaveBeenCalledWith({
       where: { clientServiceId: "cs_1", type: "QUOTA_WARNING", createdAt: { gte: period.start } },
@@ -179,9 +180,9 @@ describe("checkQuotaAlerts", () => {
 
   it("se tait tant qu'aucun seuil n'est franchi, ou pour une solution inactive", async () => {
     mocks.consumedUnits.mockResolvedValue(60);
-    await checkQuotaAlerts("cs_1", { durationSec: 90 });
+    await checkQuotaAlerts("cs_1", (cap) => unitsOfCall(cap.unit, 90));
     mocks.findUnique.mockResolvedValue({ ...clientService, status: "CANCELED" });
-    await checkQuotaAlerts("cs_1", { durationSec: 9000 });
+    await checkQuotaAlerts("cs_1", (cap) => unitsOfCall(cap.unit, 9000));
 
     expect(mocks.eventCount).not.toHaveBeenCalled();
     expect(mocks.sendQuotaAlertEmail).not.toHaveBeenCalled();

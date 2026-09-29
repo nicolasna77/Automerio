@@ -73,6 +73,11 @@ export async function consumedUnits(
   period: BillingPeriod
 ): Promise<number> {
   const occurredAt = { gte: period.start, ...(period.end && { lt: period.end }) };
+  if (cap.unit === "MESSAGE") {
+    return db.conversationMessage.count({
+      where: { direction: "OUTBOUND", createdAt: occurredAt, conversation: { clientServiceId } },
+    });
+  }
   const where = {
     clientServiceId,
     type: "call",

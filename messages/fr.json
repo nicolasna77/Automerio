@@ -294,10 +294,12 @@
     "excludingVatSuffix": "soit {exclusive} HT",
     "perMonth": "{amount}/mois",
     "perMonthWithVat": "{amount}/mois TTC",
-    "units": "{unit, select, MINUTE {{count, number} min} other {{count, plural, one {# appel} other {# appels}}}}",
-    "included": "{unit, select, MINUTE {{count, number} min incluses} other {{count, plural, one {# appel inclus} other {# appels inclus}}}}",
+    "units": "{unit, select, MINUTE {{count, number} min} MESSAGE {{count, plural, one {# réponse} other {# réponses}}} other {{count, plural, one {# appel} other {# appels}}}}",
+    "included": "{unit, select, MINUTE {{count, number} min incluses} MESSAGE {{count, plural, one {# réponse incluse} other {# réponses incluses}}} other {{count, plural, one {# appel inclus} other {# appels inclus}}}}",
     "overage": "{included}, puis {price}/{unit, select, MINUTE {min} other {appel}}",
-    "amountWithVat": "{amount} TTC"
+    "amountWithVat": "{amount} TTC",
+    "overageBlock": "{included}, puis {price} les {block} réponses",
+    "perUnit": "{unit, select, MINUTE {{price} la minute} MESSAGE {{price} les {block} réponses} other {{price} l'appel}}"
   },
   "ServicePage": {
     "priceSummary": "{price} TTC par mois, sans frais d'installation.",
@@ -570,12 +572,12 @@
     "perMonthFor": "par mois, pour {units}"
   },
   "PriceSimulator": {
-    "question": "Combien de minutes vous faut-il ?",
+    "question": "{unit, select, MINUTE {Combien de minutes vous faut-il ?} MESSAGE {Combien de réponses vous faut-il ?} other {Combien d'appels vous faut-il ?}}",
     "hint": "Déplacez le curseur pour voir ce que votre abonnement coûterait.",
     "continueWith": "Continuer avec {units}",
     "signedInNote": "Vous retrouvez ce volume à l'activation, avant tout paiement.",
     "signedOutNote": "Créez votre compte ou connectez-vous : ce volume vous attendra à l'activation, avant tout paiement.",
-    "overage": "Au-delà de ce quota, chaque minute est facturée {overage}. L'inclure à l'avance revient à {extra} la minute, et vous pourrez ajuster ce volume à l'activation.",
+    "overage": "Au-delà de ce quota, la consommation est facturée {overage}. L'inclure à l'avance revient à {extra}, et vous pourrez ajuster ce volume à l'activation.",
     "bounds": "Minimum {min}, maximum {max}."
   },
   "Contact": {

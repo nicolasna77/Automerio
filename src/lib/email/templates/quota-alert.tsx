@@ -39,8 +39,8 @@ export function QuotaAlertEmail({
       {overagePrice && (
         <Text style={emailTextStyle}>
           {exceeded
-            ? `Au-delà du forfait, chaque unité est facturée ${overagePrice} sur votre prochaine facture.`
-            : `Au-delà du forfait, chaque unité sera facturée ${overagePrice} sur votre prochaine facture.`}
+            ? `Au-delà du forfait, la consommation est facturée ${overagePrice}, sur votre prochaine facture.`
+            : `Au-delà du forfait, la consommation sera facturée ${overagePrice}, sur votre prochaine facture.`}
         </Text>
       )}
       <Text style={emailMutedTextStyle}>

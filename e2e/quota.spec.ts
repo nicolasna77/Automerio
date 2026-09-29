@@ -37,5 +37,5 @@ test("la jauge prévient avant que le forfait soit dépassé", async ({ page }) 
   await page.goto("/dashboard/subscriptions");
   const running = page.getByRole("region", { name: "En cours" });
   await expect(running.getByText(/^Plus que \d+ min$/)).toBeVisible();
-  await expect(running.getByText(/Au-delà, chaque minute est facturée/)).toBeVisible();
+  await expect(running.getByText(/Au-delà, la consommation est facturée.*la minute/)).toBeVisible();
 });

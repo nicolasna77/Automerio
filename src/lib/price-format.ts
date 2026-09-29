@@ -1,6 +1,6 @@
 import type { Messages } from "next-intl";
 import { formatCents } from "@/lib/catalog";
-import type { UsageCap, UsageUnit } from "@/lib/usage-cap";
+import { PRICE_BLOCK_UNITS, type UsageCap, type UsageUnit } from "@/lib/usage-cap";
 import { centsExcludingVat } from "@/lib/vat";
 
 type PriceKey = keyof Messages["Price"];
@@ -23,9 +23,18 @@ export function createPriceFormatter(t: PriceTranslator, locale: string) {
     perMonthWithVat: (inclusive: number) => t("perMonthWithVat", { amount: cents(inclusive) }),
     amountWithVat: (inclusive: number) => t("amountWithVat", { amount: cents(inclusive) }),
     usageUnits: (count: number, unit: UsageUnit) => t("units", { count, unit }),
+    perUnit: (cents: number, unit: UsageUnit) =>
+      t("perUnit", { price: withVat(cents), unit, block: PRICE_BLOCK_UNITS[unit] }),
     usageCap: (cap: UsageCap) => {
       const included = t("included", { count: cap.includedUnits, unit: cap.unit });
       if (cap.overageUnitPriceCents <= 0) return included;
+      if (PRICE_BLOCK_UNITS[cap.unit] > 1) {
+        return t("overageBlock", {
+          included,
+          price: withVat(cap.overageUnitPriceCents),
+          block: PRICE_BLOCK_UNITS[cap.unit],
+        });
+      }
       return t("overage", { included, price: withVat(cap.overageUnitPriceCents), unit: cap.unit });
     },
   };

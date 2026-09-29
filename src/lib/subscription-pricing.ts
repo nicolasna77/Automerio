@@ -1,4 +1,4 @@
-import type { UsageUnit } from "@/lib/usage-cap";
+import { priceBlocks, type UsageUnit } from "@/lib/usage-cap";
 
 export type SubscriptionTier = {
   minUnits: number;
@@ -55,7 +55,7 @@ export function calculateMonthlyPriceCents(
   units: number
 ): number {
   const chosen = clampToStep(tier, units);
-  return tier.baseMonthlyPriceCents + (chosen - tier.minUnits) * tier.extraUnitPriceCents;
+  return tier.baseMonthlyPriceCents + priceBlocks(chosen - tier.minUnits, tier.unit) * tier.extraUnitPriceCents;
 }
 
 export function clampToStep(tier: SubscriptionTier, units: number): number {
