@@ -11,6 +11,7 @@ import {
 import type { ServiceCategory, ServiceDTO } from "@/lib/catalog";
 import type { PriceFormatter } from "@/lib/price-format";
 import { getPriceFormatter } from "@/lib/price-format-server";
+import { isWaitlistMode } from "@/lib/launch-mode";
 import { ServiceGlyphBadge } from "@/components/service-glyph";
 
 const SERVICE_SECTION_CATEGORIES: ServiceCategory[] = [
@@ -55,22 +56,19 @@ function ServiceCard({
   service,
   price,
   subscriptionLabel,
+  linked,
 }: {
   service: ServiceDTO;
   price: PriceFormatter;
   subscriptionLabel: string;
+  linked: boolean;
 }) {
-  return (
-    <Link
-      href={`/services/${service.slug}`}
-      id={service.slug}
-      className="group/service block scroll-mt-20 rounded-lg text-inherit no-underline outline-none focus-visible:focus-ring"
-    >
+  const card = (
       <Card className="flex h-full flex-col transition-colors hover:bg-muted/40 group-focus-visible/service:bg-muted/40">
         <CardHeader>
           <div className="flex items-start justify-between gap-2">
             <ServiceGlyphBadge slug={service.slug} size="md" className="mb-2" />
-            <ChevronRight className="mt-1 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+            {linked && <ChevronRight className="mt-1 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />}
           </div>
           <CardTitle>{service.name}</CardTitle>
           <CardDescription>{service.description}</CardDescription>
@@ -79,11 +77,21 @@ function ServiceCard({
           <PriceList service={service} price={price} subscriptionLabel={subscriptionLabel} />
         </CardContent>
       </Card>
+  );
+  if (!linked) return <div id={service.slug}>{card}</div>;
+  return (
+    <Link
+      href={`/services/${service.slug}`}
+      id={service.slug}
+      className="group/service block scroll-mt-20 rounded-lg text-inherit no-underline outline-none focus-visible:focus-ring"
+    >
+      {card}
     </Link>
   );
 }
 
 export async function ServicesSection({ services }: { services: ServiceDTO[] }) {
+  const waitlist = isWaitlistMode();
   const [t, tCatalog, price] = await Promise.all([
     getTranslations("Home.services"),
     getTranslations("Catalog"),
@@ -127,6 +135,7 @@ export async function ServicesSection({ services }: { services: ServiceDTO[] }) 
                     service={service}
                     price={price}
                     subscriptionLabel={t("subscription")}
+                    linked={!waitlist}
                   />
                 ))}
               </div>

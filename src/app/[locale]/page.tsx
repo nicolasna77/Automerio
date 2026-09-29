@@ -12,6 +12,8 @@ import { MethodSection } from "./home-sections/method-section";
 import { MaintenanceSection } from "./home-sections/maintenance-section";
 import { FaqSection } from "./home-sections/faq-section";
 import { CtaSection } from "./home-sections/cta-section";
+import { WaitlistSection } from "./home-sections/waitlist-section";
+import { isWaitlistMode } from "@/lib/launch-mode";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -38,7 +40,7 @@ export default async function HomePage() {
         )}
         <JsonLd data={faqSchema(faqs)} />
         <FaqSection faqs={faqs} />
-        <CtaSection />
+        {isWaitlistMode() ? <WaitlistSection /> : <CtaSection />}
       </main>
       <SiteFooter />
     </div>

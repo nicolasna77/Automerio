@@ -67,6 +67,11 @@ export function PrivacyContent() {
             essai, avec la date et la durée de l&apos;appel.
           </li>
           <li>
+            <strong>Liste d&apos;attente</strong> : e-mail, et si vous les
+            donnez, nom, entreprise et téléphone, avec vos choix : être
+            recontacté, être informé du lancement.
+          </li>
+          <li>
             <strong>Statistiques de visite</strong> : pages consultées, site
             d&apos;origine, pays, type d&apos;appareil et de navigateur, sans
             cookie et sans permettre de vous identifier.
@@ -94,6 +99,12 @@ export function PrivacyContent() {
             Répondre à une demande envoyée depuis le formulaire de contact, ou
             passer l&apos;appel d&apos;essai que vous avez demandé : mesures
             précontractuelles.
+          </li>
+          <li>
+            Vous recontacter si vous l&apos;avez demandé depuis la liste
+            d&apos;attente : mesures précontractuelles. Vous informer du
+            lancement : votre consentement, que vous pouvez retirer à tout
+            moment en nous écrivant.
           </li>
           <li>
             Mesurer la fréquentation et la vitesse du site : intérêt légitime.
@@ -133,6 +144,10 @@ export function PrivacyContent() {
           <li>Factures : 10 ans, comme l&apos;exige le Code de commerce.</li>
           <li>Sessions de connexion : jusqu&apos;à leur expiration.</li>
           <li>Messages de contact sans suite : 3 ans.</li>
+          <li>
+            Liste d&apos;attente : 3 ans après votre inscription, ou jusqu&apos;à
+            ce que vous demandiez à en sortir.
+          </li>
         </ul>
         <p>
           À la suppression du compte, les données sont effacées, à l&apos;exception

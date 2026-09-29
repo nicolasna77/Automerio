@@ -5,6 +5,7 @@ import {
   CalendarDays,
   LayoutDashboard,
   LifeBuoy,
+  ListChecks,
   Megaphone,
   Package,
   ScrollText,
@@ -57,6 +58,7 @@ export function AdminSidebar({
               items: [
                 { href: ROOT, label: "Vue d'ensemble", icon: LayoutDashboard },
                 { href: "/admin/users", label: "Utilisateurs", icon: Users },
+                { href: "/admin/waitlist", label: "Liste d'attente", icon: ListChecks },
                 {
                   href: "/admin/help",
                   label: "Centre d'aide",

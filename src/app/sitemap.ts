@@ -1,10 +1,18 @@
 import type { MetadataRoute } from "next";
 import { db } from "@/lib/db";
 import { absoluteUrl } from "@/lib/site";
+import { isWaitlistMode } from "@/lib/launch-mode";
 
 export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  if (isWaitlistMode()) {
+    return ["/", "/terms", "/legal-notice", "/privacy", "/cookies"].map((path) => ({
+      url: absoluteUrl(path),
+      changeFrequency: path === "/" ? "weekly" : "yearly",
+      priority: path === "/" ? 1 : 0.2,
+    }));
+  }
   const services = await db.service.findMany({
     where: { isActive: true },
     select: { slug: true, updatedAt: true },

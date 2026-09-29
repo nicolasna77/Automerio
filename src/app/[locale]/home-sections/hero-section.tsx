@@ -5,6 +5,7 @@ import { buttonVariants } from "@/components/ui/button";
 import type { ServiceDTO } from "@/lib/catalog";
 import { getPriceFormatter } from "@/lib/price-format-server";
 import { ProductScreenshot } from "@/components/product-screenshot";
+import { isWaitlistMode } from "@/lib/launch-mode";
 
 async function LiveCallCard() {
   const [t, tCall] = await Promise.all([
@@ -40,9 +41,11 @@ async function LiveCallCard() {
 }
 
 export async function HeroSection({ services }: { services: ServiceDTO[] }) {
-  const [t, tShots, price] = await Promise.all([
+  const waitlist = isWaitlistMode();
+  const [t, tShots, tWaitlist, price] = await Promise.all([
     getTranslations("Home.hero"),
     getTranslations("Screenshots"),
+    getTranslations("Waitlist"),
     getPriceFormatter(),
   ]);
   const monthlyPrices = services
@@ -67,8 +70,8 @@ export async function HeroSection({ services }: { services: ServiceDTO[] }) {
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">{t("lead")}</p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <Link href="/signup" className={buttonVariants({ size: "lg" })}>
-              {t("signup")}
+            <Link href={waitlist ? "#waitlist" : "/signup"} className={buttonVariants({ size: "lg" })}>
+              {waitlist ? tWaitlist("cta") : t("signup")}
               <ArrowRight data-icon="inline-end" />
             </Link>
             <Link href="#services" className={buttonVariants({ size: "lg", variant: "outline" })}>

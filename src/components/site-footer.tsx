@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { AutomerioLogo } from "@/components/brand";
+import { isWaitlistMode } from "@/lib/launch-mode";
 
 const LEGAL_LINKS = [
   { href: "/legal-notice", key: "legalNotice" },
@@ -36,6 +37,7 @@ export async function SiteFooter() {
               </li>
             </ul>
           </div>
+          {!isWaitlistMode() && (
           <div>
             <h3 className="font-medium text-foreground">{t("account")}</h3>
             <ul className="mt-3 space-y-2">
@@ -56,6 +58,7 @@ export async function SiteFooter() {
               </li>
             </ul>
           </div>
+          )}
         </div>
       </div>
       <div className="mx-auto max-w-6xl border-t border-border px-4 pt-6 text-xs text-muted-foreground sm:px-6">
