@@ -1,10 +1,5 @@
 import { cn } from "@/lib/utils";
-import {
-  formatUsageUnits,
-  overageUnits,
-  usageRatio,
-  type UsageCap,
-} from "@/lib/usage-cap";
+import { formatUsageUnits, overageUnits, usageRatio, type UsageCap, formatPerUnit } from "@/lib/usage-cap";
 import { formatCentsWithVat } from "@/lib/vat";
 import { QUOTA_WARNING_RATIO } from "@/lib/quota";
 
@@ -65,8 +60,8 @@ export function UsageGauge({
             <span className="font-medium text-foreground">
               Plus que {formatUsageUnits(cap.includedUnits - consumedUnits, cap.unit)}
             </span>{" "}
-            sur cette période. Au-delà, chaque {cap.unit === "MINUTE" ? "minute" : "appel"} est
-            facturé{cap.unit === "MINUTE" ? "e" : ""} {formatCentsWithVat(cap.overageUnitPriceCents)}.
+            sur cette période. Au-delà, la consommation est facturée{" "}
+            {formatPerUnit(cap.overageUnitPriceCents, cap.unit)}.
           </>
         ) : (
           <>

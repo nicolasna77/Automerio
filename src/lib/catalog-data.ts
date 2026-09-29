@@ -163,10 +163,13 @@ export const CATALOG: CatalogService[] = [
     description:
       "Réponses instantanées à vos clients sur WhatsApp : questions fréquentes, devis, disponibilités.",
     category: "COMMUNICATION",
-    monthlyPriceCents: 5900,
-    includedUsageUnits: null,
-    usageUnit: null,
-    overageUnitPriceCents: null,
+    monthlyPriceCents: 800,
+    includedUsageUnits: 3000,
+    usageUnit: "MESSAGE",
+    overageUnitPriceCents: 25,
+    maxUsageUnits: 30000,
+    usageStepUnits: 1000,
+    extraUnitPriceCents: 24,
     configFields: [
       {
         key: "whatsappNumber",
@@ -185,10 +188,13 @@ export const CATALOG: CatalogService[] = [
     description:
       "Réponses instantanées à vos clients sur Messenger : questions fréquentes, devis, disponibilités.",
     category: "COMMUNICATION",
-    monthlyPriceCents: 5900,
-    includedUsageUnits: null,
-    usageUnit: null,
-    overageUnitPriceCents: null,
+    monthlyPriceCents: 800,
+    includedUsageUnits: 3000,
+    usageUnit: "MESSAGE",
+    overageUnitPriceCents: 25,
+    maxUsageUnits: 30000,
+    usageStepUnits: 1000,
+    extraUnitPriceCents: 24,
     configFields: [
       {
         key: "facebookPageName",
@@ -207,10 +213,13 @@ export const CATALOG: CatalogService[] = [
     description:
       "Réponses instantanées à vos clients en messages privés Instagram : questions fréquentes, devis, disponibilités.",
     category: "COMMUNICATION",
-    monthlyPriceCents: 5900,
-    includedUsageUnits: null,
-    usageUnit: null,
-    overageUnitPriceCents: null,
+    monthlyPriceCents: 800,
+    includedUsageUnits: 3000,
+    usageUnit: "MESSAGE",
+    overageUnitPriceCents: 25,
+    maxUsageUnits: 30000,
+    usageStepUnits: 1000,
+    extraUnitPriceCents: 24,
     configFields: [
       {
         key: "instagramUsername",

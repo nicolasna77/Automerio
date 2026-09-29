@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useId, useRef, useState, useTransition } from "react";
 import { Link } from "@/i18n/navigation";
 import { toast } from "sonner";
@@ -49,6 +50,7 @@ export function ActivationFlow({
   organizationId: string;
   initialUnits?: number | null;
 }) {
+  const tSimulator = useTranslations("PriceSimulator");
   const nameFieldId = useId();
   const promoFieldId = useId();
   const promoMessageId = useId();
@@ -209,11 +211,11 @@ export function ActivationFlow({
                     tier={service.tier}
                     value={chosenUnits}
                     onChange={setChosenUnits}
-                    label="Combien de minutes vous faut-il ?"
+                    label={tSimulator("question", { unit: service.tier.unit })}
                     disabled={isPending}
                   />
                   <p className="text-sm text-muted-foreground">
-                    Au-delà de ce quota, chaque minute est facturée au tarif de
+                    Au-delà de ce quota, la consommation est facturée au tarif de
                     dépassement. L&apos;acheter à l&apos;avance revient moins cher.
                   </p>
                 </div>

@@ -1,0 +1,1 @@
+ALTER TYPE "UsageUnit" ADD VALUE 'MESSAGE';

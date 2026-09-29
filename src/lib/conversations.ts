@@ -1,5 +1,6 @@
 import { Prisma, type MessagingChannel } from "@prisma/client";
 import { db } from "@/lib/db";
+import { checkQuotaAlerts } from "@/lib/overage-billing";
 
 export async function claimInboundMessage(input: {
   clientServiceId: string;
@@ -54,12 +55,19 @@ export async function claimInboundMessage(input: {
 
 export async function recordReply(conversationId: string, text: string): Promise<void> {
   const now = new Date();
-  await db.$transaction([
+  const [, conversation] = await db.$transaction([
     db.conversationMessage.create({
       data: { conversationId, direction: "OUTBOUND", text, createdAt: now },
     }),
-    db.conversation.update({ where: { id: conversationId }, data: { lastMessageAt: now } }),
+    db.conversation.update({
+      where: { id: conversationId },
+      data: { lastMessageAt: now },
+      select: { clientServiceId: true },
+    }),
   ]);
+  await checkQuotaAlerts(conversation.clientServiceId, () => 1).catch((err) =>
+    console.error("[quota] alerte de messagerie non vérifiée :", err)
+  );
 }
 
 export function contactLabel(channel: MessagingChannel, contactId: string): string {
