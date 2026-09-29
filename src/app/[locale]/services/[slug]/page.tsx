@@ -286,7 +286,7 @@ export default async function PrestationDetailPage({
                 >
                   <div className="p-6">
                     <span
-                      className="inline-flex size-8 items-center justify-center rounded-full bg-muted text-xs font-semibold text-foreground tabular-nums"
+                      className="inline-flex size-8 items-center justify-center rounded-full bg-muted font-mono text-xs font-medium text-foreground tabular-nums"
                       aria-hidden="true"
                     >
                       {String(index + 1).padStart(2, "0")}
@@ -350,7 +350,7 @@ export default async function PrestationDetailPage({
                 <dl className="mt-4 divide-y divide-border">
                   {service.monthlyPriceCents !== null && !service.tier && (
                     <div className="py-4 first:pt-0">
-                      <dd className="text-3xl font-semibold tabular-nums text-foreground">
+                      <dd className="font-mono text-3xl font-medium tabular-nums text-foreground">
                         {price.cents(service.monthlyPriceCents)}
                       </dd>
                       <dt className="mt-0.5 text-sm text-muted-foreground">

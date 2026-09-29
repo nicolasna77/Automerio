@@ -134,7 +134,7 @@ export function CallForwardingGuide({ targetNumber }: { targetNumber: string }) 
           </div>
 
           <div className="flex items-center gap-2 rounded-xl bg-muted px-3 py-2">
-            <span className="flex-1 text-sm font-medium tabular-nums text-foreground">
+            <span className="flex-1 font-mono text-sm tabular-nums text-foreground">
               {targetNumber}
             </span>
             <Button type="button" size="xs" variant="ghost" onClick={handleCopy}>

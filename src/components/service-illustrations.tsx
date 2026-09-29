@@ -93,14 +93,14 @@ function CallIllustration({ booking }: { booking: boolean }) {
             </span>
             <div className="leading-tight">
               <p className="text-sm font-medium text-foreground">{t("incoming")}</p>
-              <p className="text-xs tabular-nums text-muted-foreground">06 •• •• 42 18</p>
+              <p className="font-mono text-xs tabular-nums text-muted-foreground">06 •• •• 42 18</p>
             </div>
           </div>
           <Label>{t("answeredAt")}</Label>
         </div>
         <div className="mt-4 flex items-center justify-between gap-3 rounded-xl bg-muted/60 px-3 py-2">
           <Waveform />
-          <span className="text-xs tabular-nums text-muted-foreground">01:12</span>
+          <span className="font-mono text-xs tabular-nums text-muted-foreground">01:12</span>
         </div>
         <div className="mt-4 space-y-2">
           {booking ? (

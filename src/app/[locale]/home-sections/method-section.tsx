@@ -40,7 +40,7 @@ export async function MethodSection() {
                   <span
                     aria-hidden="true"
                     className={cn(
-                      "flex size-10 items-center justify-center rounded-full text-sm font-semibold",
+                      "flex size-10 items-center justify-center rounded-full font-mono text-sm font-medium",
                       index >= 2 ? "bg-primary text-primary-foreground" : "border border-border bg-card text-foreground"
                     )}
                   >

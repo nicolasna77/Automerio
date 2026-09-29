@@ -17,17 +17,17 @@ export const PALETTE_TOKENS = {
 
 export const BRAND_PALETTE = {
   light: {
-    background: "#f1ede7",
+    background: "#eef0f3",
     card: "#ffffff",
-    foreground: "#1c1917",
-    mutedForeground: "#57534e",
-    border: "#e3ddd4",
+    foreground: "#111418",
+    mutedForeground: "#4a5160",
+    border: "#dfe3e8",
     primary: "#15803d",
     primaryForeground: "#ffffff",
   },
   dark: {
-    background: "#161311",
-    foreground: "#f4f1ec",
-    mutedForeground: "#a8a29e",
+    background: "#0e1013",
+    foreground: "#eef0f3",
+    mutedForeground: "#9aa1ab",
   },
 } as const;

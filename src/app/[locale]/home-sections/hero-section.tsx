@@ -29,7 +29,7 @@ export async function HeroSection({ services }: { services: ServiceDTO[] }) {
     <section className="relative isolate overflow-hidden border-b border-border">
       <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[minmax(0,1fr)_32rem]">
         <div>
-          <h1 className="max-w-2xl text-4xl font-bold leading-tight tracking-tight text-balance text-foreground sm:text-5xl">
+          <h1 className="max-w-2xl text-4xl font-semibold leading-tight tracking-tight text-balance text-foreground sm:text-5xl">
             {t("title")}
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">

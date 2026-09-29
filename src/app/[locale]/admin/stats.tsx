@@ -156,7 +156,7 @@ export async function Stats() {
               {STATUS_ORDER.map((status) => (
                 <div key={status} className="flex items-center justify-between gap-2 text-sm">
                   <dt className="text-muted-foreground">{STATUS_LABELS[status]}</dt>
-                  <dd className="tabular-nums text-foreground">
+                  <dd className="font-mono tabular-nums text-foreground">
                     {countByStatus.get(status) ?? 0}
                   </dd>
                 </div>

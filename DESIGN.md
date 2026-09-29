@@ -5,8 +5,8 @@ respecte. Un choix absent d'ici y est ajouté avant d'être appliqué.
 
 ## Direction
 
-Un outil sérieux et chaleureux pour des artisans, des coachs et des TPE : on
-montre le produit et ce qu'il fait, étape par étape, sans décor.
+Technique et précis : un outil fiable pour des artisans, des coachs et des TPE.
+On montre le produit, ses écrans et ses données, étape par étape, sans décor.
 
 Références retenues :
 - [Volubile](https://www.volubile.ai/fr/creez-votre-agent-vocal-ia) : le parcours
@@ -22,14 +22,14 @@ et les images de partage (un test vérifie qu'elles concordent).
 | Rôle | Jeton | Clair | Sombre |
 |---|---|---|---|
 | Principale (vert Automerio) | `--primary` | `#15803d` | `#2fbc5b` |
-| Texte sur principale | `--primary-foreground` | `#ffffff` | `#0f0d0c` |
+| Texte sur principale | `--primary-foreground` | `#ffffff` | `#0e1013` |
 | Accent (à traiter, attention) | `--attention` | `#b45309` | `#f59e0b` |
-| Fond | `--background` | `#faf8f5` | `#161311` |
-| Surface (cartes) | `--card` | `#ffffff` | `#1e1a17` |
-| Neutre doux (zones, survol) | `--muted`, `--accent` | `#f1ede7` | `#29241f` |
-| Texte | `--foreground` | `#1c1917` | `#f4f1ec` |
-| Texte secondaire | `--muted-foreground` | `#57534e` | `#a8a29e` |
-| Filets | `--border` | `#e3ddd4` | `#38312b` |
+| Fond | `--background` | `#f8f9fb` | `#0e1013` |
+| Surface (cartes) | `--card` | `#ffffff` | `#15181c` |
+| Neutre doux (zones, survol) | `--muted`, `--accent` | `#eef0f3` | `#1d2126` |
+| Texte | `--foreground` | `#111418` | `#eef0f3` |
+| Texte secondaire | `--muted-foreground` | `#4a5160` | `#9aa1ab` |
+| Filets | `--border` | `#dfe3e8` | `#2a2f36` |
 | Erreur | `--destructive` | `#b91c1c` | `#f87171` |
 
 Le vert d'origine `#00a33d` passe à `#15803d`, assez foncé pour un texte blanc
@@ -40,20 +40,21 @@ Aucun dégradé, aucun halo, aucune trame décorative.
 
 ## Typographie
 
-Deux polices, chargées par `next/font` :
-- **PT Serif** (700) pour les titres `h1` à `h3` ;
-- **Source Sans 3** (400, 600) pour tout le reste.
+Deux polices de la même famille, chargées par `next/font` :
+- **IBM Plex Sans** (400, 500, 600) pour les titres et le texte ;
+- **IBM Plex Mono** (400, 500), classe `font-mono`, seulement pour les données :
+  prix, durées, horaires, numéros de téléphone, codes, numéros d'étape.
 
-Pas de police à chasse fixe chargée : les codes techniques (code promo, secret
-de double authentification) utilisent la police système (`font-mono`).
-Pas de petites étiquettes en capitales espacées.
+Les chiffres de données sont tabulaires (`tabular-nums`). Pas de petites
+étiquettes en capitales espacées.
 
 | Usage | Taille | Graisse |
 |---|---|---|
-| Titre de page (`h1`) | 36 px, 48 px dès `sm` | 700 |
-| Titre de section (`h2`) | 30 px, 36 px dès `sm` | 700 |
+| Titre de page (`h1`) | 36 px, 48 px dès `sm` | 600 |
+| Titre de section (`h2`) | 30 px, 36 px dès `sm` | 600 |
 | Sous-titre (`h3`) | 18 à 20 px | 600 |
 | Texte courant | 16 px, 18 px pour les chapeaux | 400 |
+| Donnée (Plex Mono) | taille du texte voisin | 400 ou 500 |
 | Légende, aide | 14 px | 400 |
 | Mention légale, note | 13 px | 400 |
 
