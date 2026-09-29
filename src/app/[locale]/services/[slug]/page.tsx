@@ -100,6 +100,38 @@ export default async function PrestationDetailPage({
     configFields.length - previewFields.length,
   );
 
+  const phoneIncluded =
+    isTelephony && service.usageCap
+      ? [
+          {
+            title: t("phoneIncluded.minutesTitle", {
+              minutes: price.usageUnits(service.usageCap.includedUnits, service.usageCap.unit),
+            }),
+            description: service.tier
+              ? t("phoneIncluded.minutesWithTier", {
+                  max: price.usageUnits(service.tier.maxUnits, service.tier.unit),
+                  overage: price.amountWithVat(service.usageCap.overageUnitPriceCents),
+                })
+              : t("phoneIncluded.minutesOverage", {
+                  overage: price.amountWithVat(service.usageCap.overageUnitPriceCents),
+                }),
+          },
+          { title: t("phoneIncluded.numberTitle"), description: t("phoneIncluded.numberDescription") },
+          service.slug === "standard-telephonique-ia"
+            ? { title: t("phoneIncluded.transferTitle"), description: t("phoneIncluded.transferDescription") }
+            : { title: t("phoneIncluded.bookingTitle"), description: t("phoneIncluded.bookingDescription") },
+          { title: t("phoneIncluded.summaryTitle"), description: t("phoneIncluded.summaryDescription") },
+          { title: t("phoneIncluded.callbacksTitle"), description: t("phoneIncluded.callbacksDescription") },
+          { title: t("phoneIncluded.teamTitle"), description: t("phoneIncluded.teamDescription") },
+        ]
+      : null;
+  const includedItems =
+    phoneIncluded ??
+    INCLUDED.map((item) => ({
+      title: t(`included.${item}.title`),
+      description: t(`included.${item}.description`),
+    }));
+
   const steps = [
     {
       title: t("steps.configure.title"),
@@ -325,23 +357,26 @@ export default async function PrestationDetailPage({
               </p>
             </div>
             <div className="mt-12 grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-16">
-              <ul className="divide-y divide-border border-y border-border">
-                {INCLUDED.map((item) => (
-                  <li key={item} className="flex gap-4 py-5">
+              <div>
+              <h3 className="text-base font-semibold text-foreground">{t("pricing.includedHeading")}</h3>
+              <ul className="mt-4 divide-y divide-border border-y border-border">
+                {includedItems.map((item) => (
+                  <li key={item.title} className="flex gap-4 py-5">
                     <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                       <Check className="size-3.5" aria-hidden="true" />
                     </span>
                     <div>
                       <p className="font-medium text-foreground">
-                        {t(`included.${item}.title`)}
+                        {item.title}
                       </p>
                       <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">
-                        {t(`included.${item}.description`)}
+                        {item.description}
                       </p>
                     </div>
                   </li>
                 ))}
               </ul>
+              </div>
 
               <Card className="gap-0 px-(--card-spacing) lg:sticky lg:top-24 lg:order-first">
                 <p className="text-sm font-medium text-muted-foreground">
