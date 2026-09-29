@@ -133,9 +133,19 @@
       "lead": "Pour les artisans, les coachs, les indépendants et les TPE. Il décroche votre téléphone, répond sur WhatsApp, Messenger et Instagram, et prend vos rendez-vous. Notre équipe l'installe et le surveille chaque mois.",
       "signup": "Créer mon compte",
       "seeServices": "Voir les solutions et les prix",
-      "fromPrice": "À partir de {price} par mois",
-      "noCommitment": "Sans engagement",
-      "refund": "Abonnement remboursé 30 jours"
+      "specs": {
+        "price": "Prix",
+        "priceValue": "dès {price}",
+        "commitment": "Engagement",
+        "commitmentValue": "aucun",
+        "guarantee": "Garantie",
+        "guaranteeValue": "30 jours satisfait ou remboursé"
+      },
+      "live": {
+        "title": "Appel en cours",
+        "caller": "Appelant",
+        "assistant": "Assistant"
+      }
     },
     "cta": {
       "heading": "Créez votre compte et choisissez votre première solution",

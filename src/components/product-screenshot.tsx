@@ -9,6 +9,8 @@ export function ProductScreenshot({
   caption,
   priority = false,
   sizes,
+  windowUrl,
+  captionClassName,
   className,
 }: {
   name: string;
@@ -18,11 +20,25 @@ export function ProductScreenshot({
   caption: string;
   priority?: boolean;
   sizes: string;
+  windowUrl?: string;
+  captionClassName?: string;
   className?: string;
 }) {
   return (
     <figure className={className}>
       <div className="overflow-hidden rounded-lg border border-border bg-card shadow-md">
+        {windowUrl && (
+          <div aria-hidden="true" className="flex items-center gap-3 border-b border-border bg-muted px-3 py-2">
+            <span className="flex gap-1.5">
+              <span className="size-2 rounded-full bg-border" />
+              <span className="size-2 rounded-full bg-border" />
+              <span className="size-2 rounded-full bg-border" />
+            </span>
+            <span className="flex-1 truncate rounded-sm bg-background px-2 py-0.5 text-center font-mono text-xs text-muted-foreground">
+              {windowUrl}
+            </span>
+          </div>
+        )}
         <Image
           src={`/screenshots/${name}-light.webp`}
           width={width}
@@ -41,7 +57,7 @@ export function ProductScreenshot({
           className={cn("hidden h-auto w-full dark:block")}
         />
       </div>
-      <figcaption className="mt-2 text-xs text-muted-foreground">{caption}</figcaption>
+      <figcaption className={cn("mt-2 text-xs text-muted-foreground", captionClassName)}>{caption}</figcaption>
     </figure>
   );
 }

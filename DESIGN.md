@@ -91,6 +91,13 @@ tiers (WhatsApp, Messenger, Instagram, Google) restent leurs logos officiels.
   démonstration ». Les numéros affichés viennent des plages réservées à la
   fiction par l'ARCEP (01 99 00, 06 39 98) : personne ne peut être joint.
 - Chaque image a un texte alternatif qui décrit ce qu'elle montre.
+- Une capture peut s'afficher dans un cadre de fenêtre d'application (barre
+  grise, adresse en Plex Mono, pastilles neutres, jamais colorées), et porter
+  une carte superposée qui montre ce qu'une image fixe ne montre pas (un appel
+  en cours). La carte est masquée sur mobile ; la légende reste visible.
+- Les faits commerciaux (prix, engagement, garantie) se présentent en fiche
+  technique : libellé à gauche, valeur en Plex Mono à droite, filets entre les
+  lignes.
 - Les maquettes dessinées (illustrations des pages solutions) restent pour ce
   qu'une capture ne peut pas montrer (un appel en cours, un message reçu).
 
