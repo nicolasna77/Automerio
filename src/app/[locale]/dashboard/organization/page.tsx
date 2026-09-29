@@ -68,7 +68,7 @@ export default async function OrganisationPage() {
         }
         actions={
           canManage && (
-            <Button nativeButton={false} render={<a href="#invite" />}>
+            <Button variant="outline" nativeButton={false} render={<a href="#invite" />}>
               <UserPlus aria-hidden="true" data-icon="inline-start" />
               Inviter un membre
             </Button>

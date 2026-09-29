@@ -69,7 +69,7 @@ export async function OverviewServices({
                       <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-2">
                         <p className="flex items-start gap-1.5 text-sm text-foreground">
                           <TriangleAlert
-                            className="mt-0.5 size-3.5 shrink-0 text-primary"
+                            className="mt-0.5 size-3.5 shrink-0 text-attention"
                             aria-hidden="true"
                           />
                           {action.hint}

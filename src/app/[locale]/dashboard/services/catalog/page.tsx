@@ -31,8 +31,8 @@ export default async function CataloguePage() {
         title="Solutions"
         description={
           isFirst
-            ? "Choisissez votre première automatisation : l'équipe l'installe et la vérifie pour vous."
-            : "Ajoutez une automatisation. Une même solution peut s'activer plusieurs fois, pour plusieurs boutiques par exemple."
+            ? "Choisissez votre première automatisation : l'équipe l'installe pour vous."
+            : "Une même solution peut s'activer plusieurs fois, pour plusieurs boutiques."
         }
         className="mb-6"
       />

@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table";
 import { db } from "@/lib/db";
 import { requireActiveOrganization } from "@/lib/organization";
-import { formatCents, formatDate } from "@/lib/catalog";
+import { formatDate, formatEuroAmount } from "@/lib/catalog";
 import { getMyInvoices, type InvoiceDTO } from "../get-invoices";
 import { organizationCustomerId } from "@/lib/organization-billing";
 import { BillingPortalButton } from "./billing-portal-button";
@@ -91,29 +91,32 @@ export default async function PaiementsPage() {
           }
         />
       ) : (
-        <div className="rounded-3xl border border-border bg-card">
+        <div className="overflow-hidden rounded-lg border border-border bg-card">
           <Table>
             <TableCaption className="sr-only">Historique des factures</TableCaption>
             <TableHeader>
-              <TableRow>
-                <TableHead>Solution</TableHead>
+              <TableRow className="bg-muted/40 hover:bg-muted/40">
+                <TableHead className="pl-5">Solution</TableHead>
                 <TableHead>Date</TableHead>
-                <TableHead>Montant</TableHead>
+                <TableHead className="text-right">Montant</TableHead>
                 <TableHead>Statut</TableHead>
-                <TableHead className="text-right">Facture</TableHead>
+                <TableHead className="pr-5 text-right">Facture</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {invoices.map((invoice) => (
                 <TableRow key={invoice.id}>
-                  <TableCell className="font-medium text-foreground">
+                  <TableCell className="pl-5 font-medium text-foreground">
                     {invoice.serviceName ?? "—"}
                   </TableCell>
-                  <TableCell className="text-muted-foreground">
+                  <TableCell className="font-mono text-sm tabular-nums text-muted-foreground">
                     {formatDate(invoice.createdAt)}
                   </TableCell>
-                  <TableCell className="tabular-nums text-foreground">
-                    {formatCents(invoice.amountPaidCents)} TTC
+                  <TableCell className="text-right">
+                    <span className="font-mono tabular-nums text-foreground">
+                      {formatEuroAmount(invoice.amountPaidCents)}
+                    </span>
+                    <span className="text-muted-foreground"> € TTC</span>
                     <span className="block text-xs text-muted-foreground">
                       {excludingVatSuffix(invoice.amountPaidCents)}
                     </span>
@@ -121,7 +124,7 @@ export default async function PaiementsPage() {
                   <TableCell>
                     <InvoiceStatusBadge status={invoice.status} />
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="pr-5 text-right">
                     {invoice.hostedInvoiceUrl || invoice.invoicePdfUrl ? (
                       <a
                         href={invoice.hostedInvoiceUrl ?? invoice.invoicePdfUrl!}

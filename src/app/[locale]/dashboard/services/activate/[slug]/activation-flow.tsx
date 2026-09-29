@@ -4,8 +4,9 @@ import { useTranslations } from "next-intl";
 import { useId, useRef, useState, useTransition } from "react";
 import { Link } from "@/i18n/navigation";
 import { toast } from "sonner";
-import { Check, PhoneForwarded } from "lucide-react";
+import { Check, ClipboardCheck, CreditCard, PhoneForwarded, SlidersHorizontal } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { Stepper, type StepperStep } from "@/components/stepper";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,7 +28,7 @@ import { formatUsageCap } from "@/lib/usage-cap";
 import { SubscriptionMinutesSlider } from "@/components/subscription/subscription-minutes-slider";
 import { calculateMonthlyPriceCents } from "@/lib/subscription-pricing";
 import { excludingVatSuffix, formatCentsWithVat } from "@/lib/vat";
-import { cn, getErrorMessage } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import { activateService, previewPromoCode, type PromoPreview } from "@/app/[locale]/dashboard/actions";
 import { ConfigFieldsForm } from "@/app/[locale]/dashboard/config-fields";
 
@@ -40,6 +41,14 @@ type PromoState =
   | { status: "error"; reason: string };
 
 const STEPS = ["Réglages", "Récapitulatif et paiement"] as const;
+
+// La troisième étape se passe sur la page de paiement Stripe : elle est
+// montrée pour que le client sache ce qui l'attend, jamais active ici.
+const STEPPER_STEPS: StepperStep[] = [
+  { title: "Réglages", description: "Volume et informations", icon: SlidersHorizontal },
+  { title: "Récapitulatif", description: "Prix et code promo", icon: ClipboardCheck },
+  { title: "Paiement", description: "Sécurisé par Stripe", icon: CreditCard },
+];
 
 export function ActivationFlow({
   service,
@@ -151,45 +160,24 @@ export function ActivationFlow({
 
   return (
     <div className="mt-8 space-y-6">
-      <ol className="flex flex-wrap gap-x-6 gap-y-2 text-sm" aria-label="Étapes de l'activation">
-        {STEPS.map((label, index) => (
-          <li
-            key={label}
-            aria-current={index === step ? "step" : undefined}
-            className={cn(
-              "flex items-center gap-2",
-              index === step ? "font-medium text-foreground" : "text-muted-foreground"
-            )}
-          >
-            <span
-              aria-hidden="true"
-              className={cn(
-                "flex size-6 items-center justify-center rounded-full text-xs tabular-nums",
-                index < step
-                  ? "bg-primary text-primary-foreground"
-                  : index === step
-                    ? "border-2 border-primary text-foreground"
-                    : "border border-border"
-              )}
-            >
-              {index < step ? <Check className="size-3.5" /> : index + 1}
-            </span>
-            <span>
-              <span className="sr-only">Étape {index + 1} sur {STEPS.length} : </span>
-              {label}
-            </span>
-          </li>
-        ))}
-      </ol>
+      <div className="rounded-lg border border-border bg-card px-2 py-6 sm:px-6">
+        <Stepper
+          label="Étapes de l'activation"
+          steps={STEPPER_STEPS}
+          current={step}
+          onStepClick={() => goToStep(0)}
+        />
+      </div>
 
       <h2 ref={stepHeadingRef} tabIndex={-1} className="sr-only">
         {STEPS[step]}
       </h2>
 
+      <div key={step} className="space-y-6 animate-in fade-in duration-150 motion-reduce:animate-none">
       {step === 0 ? (
         <>
           {TELEPHONY_SERVICE_SLUGS.has(service.slug) && (
-            <div className="flex items-start gap-3 rounded-3xl border border-border bg-muted/40 p-4 text-sm">
+            <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/40 p-4 text-sm">
               <PhoneForwarded className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
               <p className="text-muted-foreground">
                 <span className="font-medium text-foreground">Vous gardez votre numéro actuel.</span>{" "}
@@ -206,7 +194,7 @@ export function ActivationFlow({
             </CardHeader>
             <CardContent className="space-y-6">
               {service.tier && (
-                <div className="space-y-3 rounded-2xl border border-border p-4">
+                <div className="space-y-3 rounded-lg border border-border p-4">
                   <SubscriptionMinutesSlider
                     tier={service.tier}
                     value={chosenUnits}
@@ -244,7 +232,7 @@ export function ActivationFlow({
               />
 
               {takesOrders && (
-                <p className="rounded-2xl bg-muted/50 p-3 text-sm text-muted-foreground">
+                <p className="rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
                   Vous ajouterez votre carte après le paiement, depuis la page de la solution : une photo
                   ou un PDF suffit.
                 </p>
@@ -400,6 +388,7 @@ export function ActivationFlow({
           </div>
         </>
       )}
+      </div>
     </div>
   );
 }

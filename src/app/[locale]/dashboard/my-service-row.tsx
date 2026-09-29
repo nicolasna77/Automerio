@@ -2,13 +2,12 @@ import { Link } from "@/i18n/navigation";
 import { MessageSquareText, TriangleAlert } from "lucide-react";
 import {
   describeServiceStatus,
-  formatCents,
   setupHint,
   TELEPHONY_SERVICE_SLUGS,
   type MyServiceDTO,
 } from "@/lib/catalog";
 import { formatFrenchPhone } from "@/lib/phone-format";
-import { excludingVatSuffix } from "@/lib/vat";
+import { MonthlyPrice } from "@/components/monthly-price";
 import { StatusBadge } from "@/components/status-badge";
 import { ServiceGlyph } from "@/components/service-glyph";
 import { ResumeCheckoutButton } from "./resume-checkout-button";
@@ -74,15 +73,7 @@ export function MyServiceRow({ item }: { item: MyServiceDTO }) {
             {price === null ? (
               <span className="text-sm text-muted-foreground">Sans abonnement</span>
             ) : (
-              <>
-                <p className="font-mono text-sm tabular-nums text-foreground">
-                  {formatCents(price).replace(/\s€$/, "")}
-                  <span className="font-sans text-muted-foreground"> € TTC/mois</span>
-                </p>
-                <p className="hidden text-xs text-muted-foreground md:block">
-                  {excludingVatSuffix(price)}
-                </p>
-              </>
+              <MonthlyPrice cents={price} />
             )}
           </div>
         </div>

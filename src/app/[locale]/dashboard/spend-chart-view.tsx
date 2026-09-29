@@ -14,7 +14,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { formatCents } from "@/lib/catalog";
+import { formatEuroAmount } from "@/lib/catalog";
 import { excludingVatSuffix, formatCentsWithVat } from "@/lib/vat";
 
 const chartConfig = {
@@ -42,8 +42,11 @@ export function SpendChartView({
             <CardDescription>Basé sur vos factures payées.</CardDescription>
           </div>
           {totalCents > 0 && (
-            <p className="text-right text-2xl font-semibold tabular-nums text-foreground">
-              {formatCents(totalCents)} TTC
+            <p className="text-right">
+              <span className="font-mono text-2xl font-medium tabular-nums text-foreground">
+                {formatEuroAmount(totalCents)}
+              </span>
+              <span className="ml-1.5 text-sm text-muted-foreground">€ TTC</span>
               <span className="block text-xs font-normal text-muted-foreground">
                 {excludingVatSuffix(totalCents)}
               </span>

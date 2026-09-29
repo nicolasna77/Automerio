@@ -1,6 +1,7 @@
 "use client";
 
 import { Minus, Plus } from "lucide-react";
+import { Figure } from "@/components/figure";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { useTranslations } from "next-intl";
@@ -40,9 +41,11 @@ export function SubscriptionMinutesSlider({
       <p className="text-sm font-medium text-foreground">{label}</p>
 
       <div className="text-center">
-        <p className="font-mono text-3xl font-medium tabular-nums text-foreground">
-          {quantity}
-        </p>
+        <Figure
+          text={quantity}
+          className="block text-3xl font-medium text-foreground"
+          unitClassName="text-lg text-muted-foreground"
+        />
         <p className="mt-1 text-sm text-muted-foreground">{t("perMonth")}</p>
       </div>
 
@@ -97,11 +100,13 @@ export function SubscriptionMinutesSlider({
       <p
         role="status"
         aria-atomic="true"
-        className="rounded-2xl bg-muted px-4 py-3 text-center"
+        className="rounded-lg bg-muted px-4 py-3 text-center"
       >
-        <span className="block font-mono text-2xl font-medium tabular-nums text-foreground">
-          {price.amountWithVat(priceCents)}
-        </span>
+        <Figure
+          text={price.amountWithVat(priceCents)}
+          className="block text-2xl font-medium text-foreground"
+          unitClassName="text-base text-muted-foreground"
+        />
         <span className="block text-xs text-muted-foreground">
           {price.excludingVatSuffix(priceCents)}
         </span>

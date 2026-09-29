@@ -3,8 +3,9 @@ import { PackageSearch } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/status-badge";
-import { formatPrice, type ClientServiceStatus, type ServiceDTO } from "@/lib/catalog";
-import { formatPriceExcludingVat } from "@/lib/vat";
+import type { ClientServiceStatus, ServiceDTO } from "@/lib/catalog";
+import { EmptyState } from "@/components/empty-state";
+import { MonthlyPrice } from "@/components/monthly-price";
 import { formatUsageCap } from "@/lib/usage-cap";
 import { ServiceGlyphBadge } from "@/components/service-glyph";
 
@@ -17,17 +18,12 @@ export function ServiceCatalogGrid({
 }) {
   if (services.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-3 rounded-3xl border border-dashed border-border px-6 py-10 text-center">
-        <span className="flex size-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
-          <PackageSearch className="size-4" aria-hidden="true" />
-        </span>
-        <div>
-          <p className="font-medium text-foreground">Aucune solution disponible pour l&apos;instant</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Repassez bientôt, ou écrivez-nous si vous cherchez une automatisation en particulier.
-          </p>
-        </div>
-      </div>
+      <EmptyState
+        icon={PackageSearch}
+        tone="neutral"
+        title="Aucune solution disponible pour l'instant"
+        description="Repassez bientôt, ou écrivez-nous si vous cherchez une automatisation en particulier."
+      />
     );
   }
 
@@ -47,12 +43,13 @@ export function ServiceCatalogGrid({
                 <CardDescription>{service.description}</CardDescription>
               </CardHeader>
               <CardContent className="mt-auto">
-                <p className="border-t border-border pt-4 font-medium text-foreground tabular-nums">
-                  {formatPrice(service.monthlyPriceCents)} TTC
-                  <span className="block text-xs font-normal text-muted-foreground">
-                    soit {formatPriceExcludingVat(service.monthlyPriceCents)} HT
-                  </span>
-                </p>
+                <div className="border-t border-border pt-4">
+                  {service.monthlyPriceCents === null ? (
+                    <p className="text-sm text-muted-foreground">Sans abonnement</p>
+                  ) : (
+                    <MonthlyPrice cents={service.monthlyPriceCents} className="text-base" />
+                  )}
+                </div>
                 {service.usageCap && (
                   <p className="mt-0.5 text-xs text-muted-foreground">
                     {formatUsageCap(service.usageCap)}
