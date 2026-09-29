@@ -1,77 +1,49 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { LayoutGrid, LayoutList, Search, Sparkles } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Search, Sparkles } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import {
   STATUS_LABELS,
   type ClientServiceStatus,
   type MyServiceDTO,
 } from "@/lib/catalog";
-import { MyServiceRow } from "./my-service-row";
+import { MyServiceRow, SOLUTION_COLUMNS } from "./my-service-row";
 import { CATALOGUE_PATH } from "./services/paths";
 
-const STATUS_PRIORITY: Record<ClientServiceStatus, number> = {
-  PENDING_PAYMENT: 0,
-  CONFIGURING: 1,
-  ACTIVE: 2,
-  CANCELED: 3,
-};
-
-const STATUS_FILTER_OPTIONS: ClientServiceStatus[] = [
-  "ACTIVE",
-  "CONFIGURING",
+const STATUS_ORDER: ClientServiceStatus[] = [
   "PENDING_PAYMENT",
+  "CONFIGURING",
+  "ACTIVE",
   "CANCELED",
 ];
 
-type ViewMode = "list" | "grid";
-const VIEW_MODE_STORAGE_KEY = "automerio:my-services-view";
-const LEGACY_VIEW_MODE_STORAGE_KEY = "noveris:my-services-view";
+// Au-delà de ce nombre de solutions, une recherche par nom devient utile.
+const SEARCH_THRESHOLD = 6;
+
+type StatusFilter = ClientServiceStatus | "all";
 
 export function MyServices({ items }: { items: MyServiceDTO[] }) {
-  const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<ClientServiceStatus | "all">(
-    "all"
-  );
-
-  useEffect(() => {
-    const legacy = window.localStorage.getItem(LEGACY_VIEW_MODE_STORAGE_KEY);
-    if (legacy !== null) {
-      window.localStorage.setItem(VIEW_MODE_STORAGE_KEY, legacy);
-      window.localStorage.removeItem(LEGACY_VIEW_MODE_STORAGE_KEY);
-    }
-    const stored = window.localStorage.getItem(VIEW_MODE_STORAGE_KEY);
-    if (stored === "grid" || stored === "list") {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setViewMode(stored);
-    }
-  }, []);
-
-  function handleViewModeChange(mode: ViewMode) {
-    setViewMode(mode);
-    window.localStorage.setItem(VIEW_MODE_STORAGE_KEY, mode);
-  }
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
 
   const ordered = useMemo(
     () =>
-      [...items].sort(
-        (a, b) => STATUS_PRIORITY[a.status] - STATUS_PRIORITY[b.status]
+      items.toSorted(
+        (a, b) => STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status)
       ),
     [items]
   );
+
+  const counts = useMemo(() => {
+    const byStatus = new Map<ClientServiceStatus, number>();
+    for (const item of items) byStatus.set(item.status, (byStatus.get(item.status) ?? 0) + 1);
+    return byStatus;
+  }, [items]);
 
   const normalizedSearch = search.trim().toLowerCase();
   const filtered = ordered.filter((item) => {
@@ -83,7 +55,17 @@ export function MyServices({ items }: { items: MyServiceDTO[] }) {
     return matchesStatus && matchesSearch;
   });
 
-  const hasActiveFilters = normalizedSearch !== "" || statusFilter !== "all";
+  const filters: { value: StatusFilter; label: string; count: number }[] = [
+    { value: "all", label: "Toutes", count: items.length },
+    ...STATUS_ORDER.filter((status) => counts.has(status)).map((status) => ({
+      value: status,
+      label: STATUS_LABELS[status],
+      count: counts.get(status) ?? 0,
+    })),
+  ];
+  // Un seul statut présent : le filtre « Toutes » suffirait, on masque la barre.
+  const showStatusFilters = filters.length > 2;
+  const showSearch = items.length >= SEARCH_THRESHOLD;
 
   function resetFilters() {
     setSearch("");
@@ -96,67 +78,56 @@ export function MyServices({ items }: { items: MyServiceDTO[] }) {
         Mes solutions
       </h2>
 
-      {items.length > 0 && (
-        <div className="mb-5 flex flex-wrap items-center gap-2">
-          <div className="relative min-w-48 flex-1">
-            <Search
-              className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-              aria-hidden="true"
-            />
-            <Input
-              type="search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Rechercher une solution…"
-              aria-label="Rechercher parmi mes solutions"
-              className="pl-9"
-            />
-          </div>
+      {(showStatusFilters || showSearch) && (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          {showStatusFilters && (
+            <div role="group" aria-label="Filtrer par statut" className="flex flex-wrap gap-1.5">
+              {filters.map((filter) => {
+                const active = statusFilter === filter.value;
+                return (
+                  <button
+                    key={filter.value}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => setStatusFilter(filter.value)}
+                    className={cn(
+                      "inline-flex h-9 items-center gap-2 rounded-lg border px-3 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+                      active
+                        ? "border-foreground/80 bg-foreground text-background"
+                        : "border-border bg-card text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    {filter.label}
+                    <span
+                      className={cn(
+                        "font-mono text-xs tabular-nums",
+                        active ? "text-background/70" : "text-muted-foreground"
+                      )}
+                    >
+                      {filter.count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
-          <Select
-            value={statusFilter}
-            onValueChange={(value) =>
-              setStatusFilter(value as ClientServiceStatus | "all")
-            }
-            items={{ all: "Tous les statuts", ...STATUS_LABELS }}
-          >
-            <SelectTrigger className="w-44" aria-label="Filtrer par statut">
-              <SelectValue placeholder="Tous les statuts" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tous les statuts</SelectItem>
-              {STATUS_FILTER_OPTIONS.map((status) => (
-                <SelectItem key={status} value={status}>
-                  {STATUS_LABELS[status]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <div className="flex shrink-0 items-center gap-0.5 rounded-4xl border border-border p-0.5">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              className={cn(viewMode === "list" && "bg-muted text-foreground")}
-              aria-pressed={viewMode === "list"}
-              aria-label="Afficher en liste"
-              onClick={() => handleViewModeChange("list")}
-            >
-              <LayoutList aria-hidden="true" />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              className={cn(viewMode === "grid" && "bg-muted text-foreground")}
-              aria-pressed={viewMode === "grid"}
-              aria-label="Afficher en grille"
-              onClick={() => handleViewModeChange("grid")}
-            >
-              <LayoutGrid aria-hidden="true" />
-            </Button>
-          </div>
+          {showSearch && (
+            <div className="relative w-full sm:w-72">
+              <Search
+                className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+                aria-hidden="true"
+              />
+              <Input
+                type="search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Rechercher une solution…"
+                aria-label="Rechercher parmi mes solutions"
+                className="pl-9"
+              />
+            </div>
+          )}
         </div>
       )}
 
@@ -178,27 +149,32 @@ export function MyServices({ items }: { items: MyServiceDTO[] }) {
           title="Aucune solution ne correspond à ces filtres"
           description="Essayez un autre nom ou un autre statut."
           action={
-            hasActiveFilters && (
-              <Button variant="outline" size="sm" onClick={resetFilters}>
-                Réinitialiser
-              </Button>
-            )
+            <Button variant="outline" size="sm" onClick={resetFilters}>
+              Réinitialiser
+            </Button>
           }
         />
       ) : (
-        <div
-          className={
-            viewMode === "grid"
-              ? "grid gap-3 sm:grid-cols-2 xl:grid-cols-3"
-              : "flex flex-col gap-3"
-          }
-        >
-          {filtered.map((item) => (
-            <MyServiceRow key={item.clientServiceId} item={item} />
-          ))}
+        <div className="overflow-hidden rounded-lg border border-border bg-card">
+          <div
+            aria-hidden="true"
+            className="hidden border-b border-border bg-muted/40 px-5 py-2.5 text-xs font-medium text-muted-foreground md:grid md:grid-cols-(--solution-cols) md:gap-6"
+            style={{ "--solution-cols": SOLUTION_COLUMNS } as React.CSSProperties}
+          >
+            <span className="pl-9">Solution</span>
+            <span>Statut</span>
+            <span>Numéro</span>
+            <span className="text-right">Tarif</span>
+            <span />
+          </div>
+          <ul className="divide-y divide-border">
+            {filtered.map((item) => (
+              <MyServiceRow key={item.clientServiceId} item={item} />
+            ))}
+          </ul>
         </div>
       )}
-
     </section>
   );
 }
+

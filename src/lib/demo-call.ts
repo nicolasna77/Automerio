@@ -47,9 +47,7 @@ export function normalizeFrenchPhone(input: string): string | null {
   return `+33${digits.slice(1)}`;
 }
 
-export function formatFrenchPhone(e164: string): string {
-  return `0${e164.slice(3)}`.replace(/(\d{2})(?=\d)/g, "$1 ");
-}
+export { formatFrenchPhone } from "@/lib/phone-format";
 
 function hmac(value: string): string {
   const secret = process.env.BETTER_AUTH_SECRET;

@@ -5,7 +5,9 @@ import { cn } from "@/lib/utils";
 const SIZES = {
   form: "mx-auto max-w-3xl px-4 py-10 sm:px-6",
   content: "mx-auto max-w-4xl px-4 py-10 sm:px-6",
-  wide: "mx-auto max-w-6xl px-4 py-10 sm:px-6",
+  // Tableaux de bord : grilles et listes profitent des grands écrans. Les
+  // textes longs gardent leur propre limite (max-w-2xl) pour rester lisibles.
+  wide: "mx-auto max-w-[96rem] px-4 py-10 sm:px-6 lg:px-8",
   full: "flex h-[calc(100svh-3.5rem)] flex-col px-4 py-6 sm:px-6",
 } as const;
 

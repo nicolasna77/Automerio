@@ -2,11 +2,21 @@
 
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import { pollWhileVisible } from "@/lib/poll-while-visible";
 
 const POLL_INTERVAL_MS = 15_000;
 
-export function UsageCounter({ clientServiceId }: { clientServiceId: string }) {
+// « block » : encadré sur fond gris ; « inline » : une ligne sans encadré,
+// pour le pied d'une carte de la liste.
+export function UsageCounter({
+  clientServiceId,
+  variant = "block",
+}: {
+  clientServiceId: string;
+  variant?: "block" | "inline";
+}) {
+  const box = variant === "block" ? "rounded-lg bg-muted p-3" : "";
   const [count, setCount] = useState<number | null>(null);
 
   useEffect(() => {
@@ -37,7 +47,7 @@ export function UsageCounter({ clientServiceId }: { clientServiceId: string }) {
       <div
         role="status"
         aria-label="Chargement de l'usage…"
-        className="mt-3 flex items-center gap-2 rounded-2xl bg-muted p-3"
+        className={cn("flex items-center gap-2", box)}
       >
         <Skeleton className="size-1.5 shrink-0 rounded-full" />
         <Skeleton className="h-4 w-48" />
@@ -48,7 +58,7 @@ export function UsageCounter({ clientServiceId }: { clientServiceId: string }) {
   return (
     <div
       aria-live="polite"
-      className="mt-3 flex items-center gap-2 rounded-2xl bg-muted p-3 text-sm"
+      className={cn("flex items-center gap-2 text-sm", box)}
     >
       <span
         aria-hidden="true"

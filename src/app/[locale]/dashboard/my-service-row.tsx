@@ -1,224 +1,136 @@
-"use client";
-
-import { useState, useTransition } from "react";
 import { Link } from "@/i18n/navigation";
-import { toast } from "sonner";
-import { ChevronRight, Phone, Settings2, TriangleAlert } from "lucide-react";
+import { MessageSquareText, TriangleAlert } from "lucide-react";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader } from "@/components/ui/card";
-import {
-  canEditConfiguration,
   describeServiceStatus,
+  formatCents,
   setupHint,
   TELEPHONY_SERVICE_SLUGS,
   type MyServiceDTO,
 } from "@/lib/catalog";
-import { unwrap } from "@/lib/action-result";
-import { getErrorMessage } from "@/lib/utils";
+import { formatFrenchPhone } from "@/lib/phone-format";
+import { excludingVatSuffix } from "@/lib/vat";
 import { StatusBadge } from "@/components/status-badge";
 import { ServiceGlyph } from "@/components/service-glyph";
-import { cancelService } from "./actions";
 import { ResumeCheckoutButton } from "./resume-checkout-button";
-import { ServiceProgress } from "./service-progress";
+import { ServiceActionsMenu } from "./service-detail-actions";
 import { UsageCounter } from "./usage-counter";
-import { formatPriceWithVat } from "@/lib/vat";
 
-export function MyServiceRow({
-  item,
-}: {
-  item: MyServiceDTO;
-}) {
-  const [isCanceling, startCancelTransition] = useTransition();
-  const [confirmCancel, setConfirmCancel] = useState(false);
+// Colonnes partagées avec l'en-tête du tableau (MyServices) :
+// solution, statut, numéro, tarif, menu d'actions.
+export const SOLUTION_COLUMNS = "minmax(0,1fr) 9.5rem 10rem 8.5rem 2.25rem";
+
+// Une solution dans la liste : toute la ligne ouvre le détail ; les actions
+// secondaires (configuration, résiliation) restent dans le menu « ⋯ ».
+export function MyServiceRow({ item }: { item: MyServiceDTO }) {
   const { service, status } = item;
-  const canManageConfig = canEditConfiguration(item);
-  const canUnsubscribe = status === "ACTIVE" || status === "CONFIGURING";
   const hint = setupHint(item);
-
-  function handleUnsubscribe() {
-    startCancelTransition(async () => {
-      try {
-        unwrap(await cancelService(item.clientServiceId));
-        toast.success(`« ${item.name} » a été résiliée.`);
-        setConfirmCancel(false);
-      } catch (err) {
-        toast.error(getErrorMessage(err));
-      }
-    });
-  }
+  const canResume = status === "PENDING_PAYMENT" || status === "CANCELED";
+  const showUsage = status === "ACTIVE" && TELEPHONY_SERVICE_SLUGS.has(service.slug);
+  const price = service.monthlyPriceCents;
 
   return (
-    <>
-      <Card className="relative shadow-sm transition-shadow has-[a:hover]:shadow-md has-[a:focus-visible]:shadow-md has-[a:focus-visible]:focus-ring">
-        <CardHeader>
-          <div className="flex min-w-0 items-start gap-3">
-            <ServiceGlyph
-              slug={service.slug}
-              className="mt-0.5 size-5 shrink-0 text-muted-foreground"
-            />
-
-            <div className="min-w-0 flex-1">
-              <div className="flex items-start justify-between gap-2">
-                <h3 className="line-clamp-2 min-w-0 text-base font-semibold text-foreground">
-                  <Link
-                    href={`/dashboard/services/${item.clientServiceId}`}
-                    className="outline-none after:absolute after:inset-0 hover:underline focus-visible:underline"
-                  >
-                    {item.name}
-                    <span className="sr-only">, voir le détail</span>
-                  </Link>
-                </h3>
-                <div className="flex shrink-0 items-center gap-1.5">
-                  <StatusBadge status={status} />
-                  <ChevronRight
-                    className="size-4 text-muted-foreground"
-                    aria-hidden="true"
-                  />
-                </div>
+    <li className="group/row relative transition-colors hover:bg-muted/40 has-[a[data-row-link]:focus-visible]:bg-muted/40">
+      <div
+        className="grid gap-x-6 gap-y-3 px-4 py-4 sm:px-5 md:grid-cols-(--solution-cols) md:items-center"
+        style={{ "--solution-cols": SOLUTION_COLUMNS } as React.CSSProperties}
+      >
+        <div className="flex min-w-0 items-start gap-3 pr-10 md:pr-0">
+          <span className="flex size-6 shrink-0 items-center justify-center text-muted-foreground">
+            <ServiceGlyph slug={service.slug} className="size-5" />
+          </span>
+          <div className="min-w-0">
+            <h3 className="line-clamp-2 text-sm font-semibold text-foreground md:line-clamp-1">
+              <Link
+                data-row-link
+                href={`/dashboard/services/${item.clientServiceId}`}
+                className="outline-none after:absolute after:inset-0 group-hover/row:underline focus-visible:underline underline-offset-4"
+              >
+                {item.name}
+                <span className="sr-only">, voir le détail</span>
+              </Link>
+            </h3>
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              {item.name !== service.name ? `${service.name}. ` : ""}
+              {describeServiceStatus(item)}
+            </p>
+            {showUsage && (
+              <div className="mt-1.5 text-muted-foreground">
+                <UsageCounter clientServiceId={item.clientServiceId} variant="inline" />
               </div>
+            )}
+          </div>
+        </div>
 
-              {item.name !== service.name && (
-                <p className="truncate text-xs text-muted-foreground">
-                  {service.name}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pl-9 md:contents">
+          <div>
+            <StatusBadge status={status} />
+          </div>
+
+          <div className="font-mono text-sm tabular-nums text-foreground">
+            {item.externalPhoneNumber && formatFrenchPhone(item.externalPhoneNumber)}
+          </div>
+
+          <div className="md:text-right">
+            {price === null ? (
+              <span className="text-sm text-muted-foreground">Sans abonnement</span>
+            ) : (
+              <>
+                <p className="font-mono text-sm tabular-nums text-foreground">
+                  {formatCents(price).replace(/\s€$/, "")}
+                  <span className="font-sans text-muted-foreground"> € TTC/mois</span>
                 </p>
-              )}
-
-              <CardDescription className="mt-1">
-                {describeServiceStatus(item)}
-              </CardDescription>
-
-              {status !== "ACTIVE" && <ServiceProgress status={status} />}
-
-              {item.paymentFailedAt && (
-                <div className="relative z-10 mt-3 flex items-start gap-2 rounded-2xl border border-destructive/30 bg-destructive/5 p-3">
-                  <TriangleAlert
-                    className="mt-0.5 size-4 shrink-0 text-destructive"
-                    aria-hidden="true"
-                  />
-                  <p className="text-sm text-foreground">
-                    Le dernier paiement a été refusé.{" "}
-                    <Link href="/dashboard/payments" className="font-medium underline underline-offset-4">
-                      Mettez à jour votre moyen de paiement
-                    </Link>{" "}
-                    pour éviter une interruption.
-                  </p>
-                </div>
-              )}
-
-              {hint && (
-                <div className="mt-3 flex items-start gap-2 rounded-2xl border border-primary/20 bg-primary/5 p-3">
-                  <TriangleAlert
-                    className="mt-0.5 size-4 shrink-0 text-primary"
-                    aria-hidden="true"
-                  />
-                  <p className="text-sm text-foreground">{hint}</p>
-                </div>
-              )}
-
-              {item.adminNote && (
-                <div className="mt-3 rounded-2xl bg-muted p-3">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Note de l&apos;équipe Automerio
-                  </p>
-                  <p className="mt-0.5 text-sm text-foreground">{item.adminNote}</p>
-                </div>
-              )}
-
-              {status === "ACTIVE" && TELEPHONY_SERVICE_SLUGS.has(service.slug) && (
-                <UsageCounter clientServiceId={item.clientServiceId} />
-              )}
-            </div>
+                <p className="hidden text-xs text-muted-foreground md:block">
+                  {excludingVatSuffix(price)}
+                </p>
+              </>
+            )}
           </div>
-        </CardHeader>
+        </div>
 
-        <CardContent>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border pt-3 text-sm">
-            {item.externalPhoneNumber && (
-              <span className="inline-flex items-center gap-1.5 text-foreground">
-                <Phone
-                  className="size-3.5 shrink-0 text-muted-foreground"
-                  aria-hidden="true"
-                />
-                <span className="tabular-nums">{item.externalPhoneNumber}</span>
+        <div className="absolute top-3 right-2 z-10 md:static md:justify-self-end">
+          <ServiceActionsMenu item={item} />
+        </div>
+      </div>
+
+      {(item.paymentFailedAt || hint || item.adminNote || canResume) && (
+        <div className="relative space-y-2 px-4 pb-4 pl-13 sm:px-5 sm:pl-14">
+          {item.paymentFailedAt && (
+            <p className="relative z-10 flex items-start gap-2 text-sm text-foreground">
+              <TriangleAlert className="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden="true" />
+              <span>
+                Le dernier paiement a été refusé.{" "}
+                <Link href="/dashboard/payments" className="font-medium underline underline-offset-4">
+                  Mettez à jour votre moyen de paiement
+                </Link>{" "}
+                pour éviter une interruption.
               </span>
-            )}
-            <span className="tabular-nums text-muted-foreground">
-              {formatPriceWithVat(service.monthlyPriceCents)}
-            </span>
-          </div>
-        </CardContent>
-
-        {(status === "PENDING_PAYMENT" || status === "CANCELED") && (
-          <CardFooter className="relative z-10 mt-auto">
-            <ResumeCheckoutButton
-              clientServiceId={item.clientServiceId}
-              status={status}
-              fullWidth
-            />
-          </CardFooter>
-        )}
-
-        {(canManageConfig || canUnsubscribe) && (
-          <CardFooter className="relative z-10 mt-auto flex-col gap-2">
-            {canManageConfig && (
-              <Button
-                className="w-full"
-                variant="outline"
-                nativeButton={false}
-                render={<Link href={`/dashboard/services/${item.clientServiceId}/configuration`} />}
-              >
-                <Settings2 aria-hidden="true" data-icon="inline-start" />
-                Gérer la configuration
-              </Button>
-            )}
-            {canUnsubscribe && (
-              <Button
-                className="w-full"
-                variant="ghost"
-                onClick={() => setConfirmCancel(true)}
-              >
-                Se désabonner
-              </Button>
-            )}
-          </CardFooter>
-        )}
-      </Card>
-
-      <AlertDialog open={confirmCancel} onOpenChange={setConfirmCancel}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              Résilier « {item.name} » ?
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              L&apos;abonnement mensuel sera annulé immédiatement. Dans les 30
-              jours suivant votre premier paiement, il vous est remboursé sur
-              simple demande depuis la rubrique Aide.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isCanceling}>Annuler</AlertDialogCancel>
-            <AlertDialogAction
-              variant="destructive"
-              onClick={handleUnsubscribe}
-              disabled={isCanceling}
-              aria-busy={isCanceling}
-            >
-              {isCanceling ? "Résiliation…" : "Se désabonner"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+            </p>
+          )}
+          {hint && (
+            <p className="flex items-start gap-2 text-sm text-foreground">
+              <TriangleAlert className="mt-0.5 size-4 shrink-0 text-attention" aria-hidden="true" />
+              <span>
+                <span className="sr-only">À faire : </span>
+                {hint}
+              </span>
+            </p>
+          )}
+          {item.adminNote && (
+            <p className="flex items-start gap-2 text-sm text-muted-foreground">
+              <MessageSquareText className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+              <span>
+                <span className="font-medium text-foreground">Note de l&apos;équipe : </span>
+                {item.adminNote}
+              </span>
+            </p>
+          )}
+          {canResume && (
+            <div className="relative z-10 pt-1">
+              <ResumeCheckoutButton clientServiceId={item.clientServiceId} status={status} />
+            </div>
+          )}
+        </div>
+      )}
+    </li>
   );
 }
