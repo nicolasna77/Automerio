@@ -20,8 +20,9 @@ export type FieldCategory = {
 
 type CategoryDef = Omit<FieldCategory, "fields">;
 
-// Catégories du formulaire d'activation, dans l'ordre des étapes. « Votre
-// besoin » passe en premier : ses choix font apparaître d'autres champs.
+// Catégories des réglages d'une solution, dans l'ordre : étapes de l'activation
+// et cartes de la page de configuration. « Votre besoin » passe en premier :
+// ses choix font apparaître d'autres champs.
 const CATEGORIES = {
   need: {
     id: "need",

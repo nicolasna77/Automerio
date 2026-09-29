@@ -12,14 +12,15 @@ import { StatusBadge } from "@/components/status-badge";
 import { ServiceGlyph } from "@/components/service-glyph";
 import { ResumeCheckoutButton } from "./resume-checkout-button";
 import { ServiceActionsMenu } from "./service-detail-actions";
+import { ServiceSettingsButton } from "./service-settings-button";
 import { UsageCounter } from "./usage-counter";
 
 // Colonnes partagées avec l'en-tête du tableau (MyServices) :
-// solution, statut, numéro, tarif, menu d'actions.
-export const SOLUTION_COLUMNS = "minmax(0,1fr) 9.5rem 10rem 8.5rem 2.25rem";
+// solution, statut, numéro, tarif, réglages et menu d'actions.
+export const SOLUTION_COLUMNS = "minmax(0,1fr) 9.5rem 10rem 8.5rem 4.75rem";
 
 // Une solution dans la liste : toute la ligne ouvre le détail ; les actions
-// secondaires (configuration, résiliation) restent dans le menu « ⋯ ».
+// secondaires : les réglages ont leur bouton, la résiliation reste dans « ⋯ ».
 export function MyServiceRow({ item }: { item: MyServiceDTO }) {
   const { service, status } = item;
   const hint = setupHint(item);
@@ -33,7 +34,7 @@ export function MyServiceRow({ item }: { item: MyServiceDTO }) {
         className="grid gap-x-6 gap-y-3 px-4 py-4 sm:px-5 md:grid-cols-(--solution-cols) md:items-center"
         style={{ "--solution-cols": SOLUTION_COLUMNS } as React.CSSProperties}
       >
-        <div className="flex min-w-0 items-start gap-3 pr-10 md:pr-0">
+        <div className="flex min-w-0 items-start gap-3 pr-20 md:pr-0">
           <span className="flex size-6 shrink-0 items-center justify-center text-muted-foreground">
             <ServiceGlyph slug={service.slug} className="size-5" />
           </span>
@@ -78,7 +79,8 @@ export function MyServiceRow({ item }: { item: MyServiceDTO }) {
           </div>
         </div>
 
-        <div className="absolute top-3 right-2 z-10 md:static md:justify-self-end">
+        <div className="absolute top-3 right-2 z-10 flex items-center gap-0.5 md:static md:justify-self-end">
+          <ServiceSettingsButton item={item} />
           <ServiceActionsMenu item={item} />
         </div>
       </div>

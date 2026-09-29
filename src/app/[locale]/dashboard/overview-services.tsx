@@ -7,6 +7,7 @@ import { db } from "@/lib/db";
 import { SETUP_ANCHOR, setupAction } from "@/lib/catalog";
 import { ServiceGlyph } from "@/components/service-glyph";
 import { toMyServiceDTO } from "./get-my-service";
+import { ServiceSettingsButton } from "./service-settings-button";
 
 export async function OverviewServices({
   organizationId,
@@ -59,6 +60,7 @@ export async function OverviewServices({
                       </p>
                       <div className="flex shrink-0 items-center gap-1.5">
                         <StatusBadge status={item.status} />
+                        <ServiceSettingsButton item={item} className="relative z-10 -my-1.5" />
                         <ChevronRight
                           className="size-4 text-muted-foreground"
                           aria-hidden="true"
