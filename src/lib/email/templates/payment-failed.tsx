@@ -33,7 +33,7 @@ export function PaymentFailedEmail({
         Pour éviter une interruption, vérifiez ou remplacez votre moyen de
         paiement.
       </Text>
-      <Link href={appUrl("/dashboard/paiements")} style={emailButtonStyle}>
+      <Link href={appUrl("/dashboard/payments")} style={emailButtonStyle}>
         Mettre à jour mon moyen de paiement
       </Link>
       <Text style={emailMutedTextStyle}>

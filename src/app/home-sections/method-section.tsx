@@ -43,12 +43,12 @@ const METHOD_STEPS = [
 
 export function MethodSection() {
   return (
-    <section id="methode" aria-labelledby="methode-heading" className="scroll-mt-20 py-20 sm:py-28">
+    <section id="method" aria-labelledby="method-heading" className="scroll-mt-20 py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="mx-auto max-w-2xl text-center">
           <span className="font-mono text-xs tracking-wide text-muted-foreground uppercase">Notre méthode</span>
           <h2
-            id="methode-heading"
+            id="method-heading"
             className="mt-3 text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"
           >
             Vous décidez, nous faisons le reste

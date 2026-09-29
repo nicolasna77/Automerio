@@ -76,7 +76,7 @@ export function serviceSchema(service: ServiceDTO) {
     "@type": "Service",
     name: service.name,
     description: service.description,
-    url: absoluteUrl(`/prestations/${service.slug}`),
+    url: absoluteUrl(`/services/${service.slug}`),
     provider: { "@type": "Organization", name: SITE_NAME, url: siteUrl() },
     areaServed: { "@type": "Country", name: "France" },
     ...(offers.length > 0 && {

@@ -19,7 +19,7 @@ test("le sitemap liste l'accueil et les solutions du catalogue", async ({ page }
 
   const body = await response.text();
   expect(body).toContain("<urlset");
-  expect(body).toContain("/prestations/assistant-whatsapp");
+  expect(body).toContain("/services/assistant-whatsapp");
   expect(body).toContain("/contact");
 });
 
@@ -37,7 +37,7 @@ test("l'accueil déclare une organisation et sa FAQ", async ({ page }) => {
 });
 
 test("une page de solution déclare son offre et son prix", async ({ page }) => {
-  await page.goto("/prestations/assistant-whatsapp");
+  await page.goto("/services/assistant-whatsapp");
 
   const blocks = await page.locator('script[type="application/ld+json"]').allTextContents();
   const service = blocks.map((b) => JSON.parse(b)).find((d) => d["@type"] === "Service");
@@ -48,7 +48,7 @@ test("une page de solution déclare son offre et son prix", async ({ page }) => 
 });
 
 test("une page de solution déclare sa propre FAQ", async ({ page }) => {
-  await page.goto("/prestations/assistant-whatsapp");
+  await page.goto("/services/assistant-whatsapp");
 
   const blocks = await page.locator('script[type="application/ld+json"]').allTextContents();
   const faq = blocks.map((b) => JSON.parse(b)).find((d) => d["@type"] === "FAQPage");
@@ -60,7 +60,7 @@ test("une page de solution déclare sa propre FAQ", async ({ page }) => {
 });
 
 test("l'aperçu de partage porte le prix", async ({ page }) => {
-  await page.goto("/prestations/assistant-whatsapp");
+  await page.goto("/services/assistant-whatsapp");
 
   const description = await page
     .locator('meta[property="og:description"]')

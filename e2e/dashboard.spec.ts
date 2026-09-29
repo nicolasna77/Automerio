@@ -16,7 +16,7 @@ test("le panneau de notifications s'ouvre", async ({ page }) => {
 test("le client suit le quota de ses abonnements en cours", async ({ page }) => {
   await page.goto("/dashboard");
   await page.getByRole("link", { name: "Abonnements", exact: true }).click();
-  await page.waitForURL("**/dashboard/abonnements");
+  await page.waitForURL("**/dashboard/subscriptions");
 
   await expect(page.getByRole("heading", { name: "Abonnements", level: 1 })).toBeVisible();
 
@@ -53,13 +53,13 @@ test.describe("depuis un visiteur", () => {
 });
 
 test("les solutions actives et le catalogue sont deux onglets distincts", async ({ page }) => {
-  await page.goto("/dashboard/prestations");
+  await page.goto("/dashboard/services");
   const tabs = page.getByRole("navigation", { name: "Solutions" });
   await expect(tabs.getByRole("link", { name: /^Mes solutions/ })).toHaveAttribute("aria-current", "page");
   await expect(page.getByRole("region", { name: "Catalogue" })).toHaveCount(0);
 
   await tabs.getByRole("link", { name: "Catalogue" }).click();
-  await page.waitForURL("**/dashboard/prestations/catalogue");
+  await page.waitForURL("**/dashboard/services/catalog");
   await expect(page.getByRole("region", { name: "Catalogue" })).toBeVisible();
   await expect(page.getByRole("region", { name: "Mes solutions" })).toHaveCount(0);
 });

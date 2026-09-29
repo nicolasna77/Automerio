@@ -25,7 +25,7 @@ export default async function ServiceConfigurationPage({
     <PageShell size="form">
       <PageHeader
         breadcrumbs={[
-          { label: "Solutions", href: "/dashboard/prestations" },
+          { label: "Solutions", href: "/dashboard/services" },
           { label: item.name, href: detailHref },
           { label: "Configuration" },
         ]}

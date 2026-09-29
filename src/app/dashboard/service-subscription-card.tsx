@@ -8,9 +8,9 @@ import {
   isRunning,
   type MySubscription,
 } from "@/lib/subscriptions";
-import { UsageGauge } from "./abonnements/usage-gauge";
+import { UsageGauge } from "./subscriptions/usage-gauge";
 import { ChangeQuotaDialog } from "./change-quota-dialog";
-import { BillingPortalButton } from "./paiements/billing-portal-button";
+import { BillingPortalButton } from "./payments/billing-portal-button";
 import { excludingVatSuffix } from "@/lib/vat";
 
 export function ServiceSubscriptionCard({
@@ -78,7 +78,7 @@ export function ServiceSubscriptionCard({
             {describeNextCharge(subscription)}
           </p>
           <Link
-            href="/dashboard/abonnements"
+            href="/dashboard/subscriptions"
             className="shrink-0 text-sm text-primary underline-offset-4 hover:underline"
           >
             Gérer mes abonnements

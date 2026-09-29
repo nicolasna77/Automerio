@@ -2,9 +2,9 @@ import Link from "next/link";
 import { AutomerioLogo } from "@/components/brand";
 
 const LEGAL_LINKS = [
-  { href: "/mentions-legales", label: "Mentions légales" },
-  { href: "/cgv", label: "CGV" },
-  { href: "/confidentialite", label: "Confidentialité" },
+  { href: "/legal-notice", label: "Mentions légales" },
+  { href: "/terms", label: "CGV" },
+  { href: "/privacy", label: "Confidentialité" },
   { href: "/cookies", label: "Cookies" },
 ];
 
@@ -24,12 +24,12 @@ export function SiteFooter() {
             <h3 className="font-medium text-foreground">Offre</h3>
             <ul className="mt-3 space-y-2">
               <li>
-                <Link href="/#prestations" className="hover:text-foreground">
+                <Link href="/#services" className="hover:text-foreground">
                   Solutions
                 </Link>
               </li>
               <li>
-                <Link href="/#methode" className="hover:text-foreground">
+                <Link href="/#method" className="hover:text-foreground">
                   Méthode
                 </Link>
               </li>

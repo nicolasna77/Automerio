@@ -31,7 +31,7 @@ export function HelpRequestResolvedEmail({
       <Text style={emailMutedTextStyle}>
         Retrouvez le détail de l&apos;échange sur votre centre d&apos;aide.
       </Text>
-      <Link href={appUrl("/dashboard/aide")} style={emailButtonStyle}>
+      <Link href={appUrl("/dashboard/help")} style={emailButtonStyle}>
         Voir ma demande
       </Link>
     </EmailLayout>

@@ -79,7 +79,7 @@ export default async function ServiceDetailPage({
     <PageShell size="wide">
       <PageBreadcrumbs
         items={[
-          { label: "Solutions", href: "/dashboard/prestations" },
+          { label: "Solutions", href: "/dashboard/services" },
           { label: item.name },
         ]}
       />

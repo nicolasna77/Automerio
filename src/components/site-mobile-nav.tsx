@@ -66,7 +66,7 @@ export function SiteMobileNav({
                     {categoryServices.map((service) => (
                       <li key={service.slug}>
                         <MobileNavLink
-                          href={`/prestations/${service.slug}`}
+                          href={`/services/${service.slug}`}
                           icon={
                             <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted text-primary">
                               <ServiceGlyph slug={service.slug} className="size-4" />

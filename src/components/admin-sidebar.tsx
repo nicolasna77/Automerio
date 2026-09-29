@@ -58,7 +58,7 @@ export function AdminSidebar({
                 { href: ROOT, label: "Vue d'ensemble", icon: LayoutDashboard },
                 { href: "/admin/users", label: "Utilisateurs", icon: Users },
                 {
-                  href: "/admin/aide",
+                  href: "/admin/help",
                   label: "Centre d'aide",
                   icon: LifeBuoy,
                   badge: openHelpRequestCount,
@@ -69,15 +69,15 @@ export function AdminSidebar({
               label: "Catalogue",
               items: [
                 { href: "/admin/services", label: "Solutions", icon: Package },
-                { href: "/admin/codes-promo", label: "Codes promo", icon: TicketPercent },
+                { href: "/admin/promo-codes", label: "Codes promo", icon: TicketPercent },
                 { href: "/admin/marketing", label: "Marketing", icon: Megaphone },
               ],
             },
             {
               label: "Suivi",
               items: [
-                { href: "/admin/calendrier", label: "Calendrier", icon: CalendarDays },
-                { href: "/admin/journal", label: "Journal", icon: ScrollText },
+                { href: "/admin/calendar", label: "Calendrier", icon: CalendarDays },
+                { href: "/admin/audit-log", label: "Journal", icon: ScrollText },
               ],
             },
           ]}

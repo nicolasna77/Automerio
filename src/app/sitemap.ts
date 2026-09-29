@@ -30,12 +30,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.5,
     },
     ...services.map((service) => ({
-      url: absoluteUrl(`/prestations/${service.slug}`),
+      url: absoluteUrl(`/services/${service.slug}`),
       lastModified: service.updatedAt,
       changeFrequency: "monthly" as const,
       priority: 0.8,
     })),
-    ...["/cgv", "/mentions-legales", "/confidentialite", "/cookies"].map((path) => ({
+    ...["/terms", "/legal-notice", "/privacy", "/cookies"].map((path) => ({
       url: absoluteUrl(path),
       changeFrequency: "yearly" as const,
       priority: 0.2,

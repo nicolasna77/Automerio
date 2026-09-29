@@ -99,7 +99,7 @@ const appUrl = () =>
 
 function revalidateDashboard(clientServiceId?: string) {
   revalidatePath("/dashboard");
-  revalidatePath("/dashboard/prestations");
+  revalidatePath("/dashboard/services");
   if (clientServiceId) revalidatePath(`/dashboard/services/${clientServiceId}`);
 }
 
@@ -154,8 +154,8 @@ async function createCheckoutSession(
     ],
     ...(promotionCodeId && { discounts: [{ promotion_code: promotionCodeId }] }),
     metadata: { clientServiceId, serviceId: service.id },
-    success_url: `${appUrl()}/dashboard/prestations?checkout=success&clientServiceId=${clientServiceId}`,
-    cancel_url: `${appUrl()}/dashboard/prestations?checkout=canceled&clientServiceId=${clientServiceId}`,
+    success_url: `${appUrl()}/dashboard/services?checkout=success&clientServiceId=${clientServiceId}`,
+    cancel_url: `${appUrl()}/dashboard/services?checkout=canceled&clientServiceId=${clientServiceId}`,
   });
 
   await db.clientService.update({
@@ -651,7 +651,7 @@ export async function openBillingPortal(organizationId: string) {
         "Aucun moyen de paiement n'est encore enregistré pour cette entreprise."
       );
     }
-    const url = await createBillingPortalUrl(customerId, `${appUrl()}/dashboard/paiements`);
+    const url = await createBillingPortalUrl(customerId, `${appUrl()}/dashboard/payments`);
     return { url };
   });
 }
@@ -709,7 +709,7 @@ export async function changeSubscriptionQuota(
     );
 
     revalidateDashboard(clientServiceId);
-    revalidatePath("/dashboard/abonnements");
+    revalidatePath("/dashboard/subscriptions");
     return { immediateChargeCents };
   });
 }

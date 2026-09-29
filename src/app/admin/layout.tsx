@@ -39,7 +39,7 @@ export default async function AdminLayout({
             <span>
               Votre compte donne accès à tous les clients et paiements.{" "}
               <Link
-                href="/dashboard/profile#double-authentification"
+                href="/dashboard/profile#two-factor"
                 className="font-medium underline underline-offset-4"
               >
                 Activez la double authentification

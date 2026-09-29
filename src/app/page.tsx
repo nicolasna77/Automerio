@@ -24,7 +24,7 @@ export default async function HomePage() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
-      <main id="contenu" className="flex-1">
+      <main id="content" className="flex-1">
         <HeroSection services={services} />
         <ProblemSection />
         <MethodSection />

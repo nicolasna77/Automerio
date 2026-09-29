@@ -7,9 +7,9 @@ const SIGNUP_PREFIX = "inscription-";
 test.use({ storageState: ANONYMOUS });
 
 const LEGAL_PAGES = [
-  { path: "/mentions-legales", title: "Mentions légales" },
-  { path: "/cgv", title: "Conditions générales de vente" },
-  { path: "/confidentialite", title: "Politique de confidentialité" },
+  { path: "/legal-notice", title: "Mentions légales" },
+  { path: "/terms", title: "Conditions générales de vente" },
+  { path: "/privacy", title: "Politique de confidentialité" },
   { path: "/cookies", title: "Cookies" },
 ];
 
@@ -27,7 +27,7 @@ test("le pied de page mène aux conditions générales de vente", async ({ page 
     .getByRole("navigation", { name: "Informations légales" })
     .getByRole("link", { name: "CGV" })
     .click();
-  await page.waitForURL("**/cgv");
+  await page.waitForURL("**/terms");
   await expect(page.getByText(/Satisfait ou remboursé pendant 30 jours/)).toBeVisible();
 });
 

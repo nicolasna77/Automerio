@@ -27,6 +27,6 @@ export function authPathWithNext(path: "/login" | "/signup", next: string | null
 }
 
 export function activationPath(slug: string, units?: number | null): string {
-  const base = `/dashboard/prestations/activer/${encodeURIComponent(slug)}`;
+  const base = `/dashboard/services/activate/${encodeURIComponent(slug)}`;
   return units ? `${base}?minutes=${units}` : base;
 }

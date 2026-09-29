@@ -15,7 +15,7 @@ export function LegalPage({
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
-      <main id="contenu" className="flex-1">
+      <main id="content" className="flex-1">
         <article className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-20">
           <h1 className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
             {title}

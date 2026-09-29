@@ -28,7 +28,7 @@ export async function OverviewServices({
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
           <CardTitle as="h2" className="text-base">Vos solutions</CardTitle>
           <Link
-            href="/dashboard/prestations"
+            href="/dashboard/services"
             className="relative touch-hitbox rounded-sm text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:focus-ring"
           >
             Tout voir

@@ -64,7 +64,7 @@ export function HeroSection({ services }: { services: ServiceDTO[] }) {
               <ArrowRight data-icon="inline-end" />
             </Link>
             <Link
-              href="#prestations"
+              href="#services"
               className={buttonVariants({ size: "lg", variant: "secondary" })}
             >
               Voir les solutions
