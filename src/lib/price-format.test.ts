@@ -20,6 +20,7 @@ describe("createPriceFormatter", () => {
     expect(price.usageUnits(1, "CALL")).toBe("1 appel");
     expect(price.usageUnits(3, "CALL")).toBe("3 appels");
     expect(price.usageUnits(300, "MINUTE")).toBe("300 min");
+    expect(price.usageUnits(6000, "MINUTE")).toBe("6 000 min");
   });
 
   it("décrit le forfait et le dépassement", () => {
