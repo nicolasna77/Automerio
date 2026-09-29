@@ -40,13 +40,13 @@ export const CATALOG: CatalogService[] = [
     description:
       "Réception et orientation automatique de vos appels entrants, 24h/24, avec transfert vers la bonne personne selon le motif de l'appel.",
     category: "COMMUNICATION",
-    monthlyPriceCents: 7900,
+    monthlyPriceCents: 2500,
     includedUsageUnits: 150,
     usageUnit: "MINUTE",
-    overageUnitPriceCents: 30,
-    maxUsageUnits: 500,
-    usageStepUnits: 10,
-    extraUnitPriceCents: 20,
+    overageUnitPriceCents: 14,
+    maxUsageUnits: 6000,
+    usageStepUnits: 50,
+    extraUnitPriceCents: 13,
     configFields: [
       {
         key: "phoneLine",
@@ -82,13 +82,13 @@ export const CATALOG: CatalogService[] = [
     description:
       "Votre assistant automatisé décroche le téléphone, prend les rendez-vous et enregistre les commandes de vos clients.",
     category: "COMMUNICATION",
-    monthlyPriceCents: 4900,
+    monthlyPriceCents: 2500,
     includedUsageUnits: 150,
     usageUnit: "MINUTE",
-    overageUnitPriceCents: 30,
-    maxUsageUnits: 500,
-    usageStepUnits: 10,
-    extraUnitPriceCents: 20,
+    overageUnitPriceCents: 14,
+    maxUsageUnits: 6000,
+    usageStepUnits: 50,
+    extraUnitPriceCents: 13,
     configFields: [
       {
         key: "objectives",

@@ -294,8 +294,8 @@
     "excludingVatSuffix": "soit {exclusive} HT",
     "perMonth": "{amount}/mois",
     "perMonthWithVat": "{amount}/mois TTC",
-    "units": "{unit, select, MINUTE {{count} min} other {{count, plural, one {# appel} other {# appels}}}}",
-    "included": "{unit, select, MINUTE {{count} min incluses} other {{count, plural, one {# appel inclus} other {# appels inclus}}}}",
+    "units": "{unit, select, MINUTE {{count, number} min} other {{count, plural, one {# appel} other {# appels}}}}",
+    "included": "{unit, select, MINUTE {{count, number} min incluses} other {{count, plural, one {# appel inclus} other {# appels inclus}}}}",
     "overage": "{included}, puis {price}/{unit, select, MINUTE {min} other {appel}}",
     "amountWithVat": "{amount} TTC"
   },
