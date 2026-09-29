@@ -363,7 +363,8 @@
       "lead": "Un prix affiché, sans devis à attendre. Sans engagement de durée.",
       "perMonthVat": "TTC par mois",
       "included": "Compris",
-      "cancelAnytime": "Sans engagement, résiliable à tout moment."
+      "cancelAnytime": "Sans engagement, résiliable à tout moment.",
+      "includedHeading": "Compris dans l'abonnement"
     },
     "benefitsHeading": "Ce que ça change pour vous",
     "useCases": {
@@ -384,6 +385,23 @@
       "lead": "Notre équipe l'installe, la connecte à vos outils et la surveille chaque mois.",
       "tryAssistant": "Tester l'assistant",
       "ask": "Poser une question"
+    },
+    "phoneIncluded": {
+      "minutesTitle": "{minutes} d'appel par mois",
+      "minutesWithTier": "Ajustables jusqu'à {max} avec le curseur. Au-delà de votre volume, {overage} la minute.",
+      "minutesOverage": "Au-delà, {overage} la minute.",
+      "numberTitle": "Un numéro de téléphone français",
+      "numberDescription": "Attribué à votre assistant et compris dans l'abonnement. Vous gardez votre numéro actuel grâce au renvoi d'appel.",
+      "transferTitle": "Le transfert des appels importants",
+      "transferDescription": "Vous choisissez les motifs qui méritent de vous déranger : ces appels vous sont transférés. Pour le reste, l'assistant prend un message.",
+      "bookingTitle": "Les rendez-vous et les commandes",
+      "bookingDescription": "L'assistant propose vos créneaux libres et inscrit le rendez-vous dans votre Google Agenda. Il note les commandes à partir de votre carte.",
+      "summaryTitle": "Un résumé de chaque appel",
+      "summaryDescription": "Par e-mail et dans votre tableau de bord : le motif, ce qui a été dit et ce qu'il reste à faire, avec la transcription.",
+      "callbacksTitle": "La liste des appels à rappeler",
+      "callbacksDescription": "Les appels qui attendent un geste de votre part, avec un bouton pour rappeler et un autre pour les marquer comme traités.",
+      "teamTitle": "L'installation et le suivi par notre équipe",
+      "teamDescription": "Nous configurons l'assistant, le testons sur vos cas réels, puis l'ajustons chaque mois."
     }
   },
   "OgImage": {
