@@ -6,7 +6,7 @@ type ClaimRule = {
 const RULES: ClaimRule[] = [
   {
     pattern: /\d+(?:[.,]\d+)?\s*%/,
-    message: "contient un pourcentage — aucun chiffre de résultat n'est mesuré à ce jour",
+    message: "contient un pourcentage : aucun chiffre de résultat n'est mesuré à ce jour",
   },
   {
     pattern:
@@ -20,11 +20,11 @@ const RULES: ClaimRule[] = [
   },
   {
     pattern: /[»"”]\s*[—–-]\s*[A-ZÀ-Ý]/,
-    message: "cite une personne nommée — aucun témoignage n'a été recueilli",
+    message: "cite une personne nommée : aucun témoignage n'a été recueilli",
   },
   {
     pattern: /[«"“][^»"”]{120,}[»"”]/,
-    message: "contient une longue citation — vérifiez qu'elle n'est attribuée à personne",
+    message: "contient une longue citation : vérifiez qu'elle n'est attribuée à personne",
   },
   {
     pattern: /\b(?:n°\s*1|numéro\s+un|leader\s+(?:du|de|français)|le\s+meilleur\b)/i,
@@ -32,7 +32,7 @@ const RULES: ClaimRule[] = [
   },
   {
     pattern: /\b(?:certifié|agréé|primé|récompensé)\b/i,
-    message: "évoque une certification ou une récompense — aucune n'existe",
+    message: "évoque une certification ou une récompense : aucune n'existe",
   },
 ];
 

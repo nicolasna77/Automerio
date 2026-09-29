@@ -35,8 +35,8 @@
     "cookies": "Cookies"
   },
   "Site": {
-    "title": "Automerio — Automatisation pour artisans, coachs et TPE/PME",
-    "description": "Automerio installe des automatisations IA clé-en-main pour artisans, coachs, indépendants et TPE/PME : standard téléphonique, assistants de messagerie, documents administratifs. L'équipe installe, connecte et surveille — aucune compétence technique requise.",
+    "title": "Automerio : assistants IA pour artisans, coachs et TPE",
+    "description": "Automerio installe des assistants IA pour les artisans, les coachs, les indépendants et les TPE. Ils répondent au téléphone et aux messages, et prennent les rendez-vous. Notre équipe les installe, les connecte à vos outils et les surveille.",
     "ogLocale": "fr_FR",
     "skipToContent": "Aller au contenu",
     "mainNavLabel": "Navigation principale",
@@ -113,7 +113,7 @@
       },
       "data": {
         "question": "Mes données sont-elles en sécurité ?",
-        "answer": "Nous ne les revendons ni ne les partageons. Elles ne passent que par les prestataires nécessaires au service — téléphonie, IA, paiement, e-mails — listés dans notre politique de confidentialité, et vous pouvez les exporter ou les supprimer depuis votre profil."
+        "answer": "Nous ne les revendons pas et ne les partageons pas. Elles passent seulement par les prestataires nécessaires au service : téléphonie, IA, paiement et e-mails. Ils sont listés dans notre politique de confidentialité. Vous pouvez exporter ou supprimer vos données depuis votre profil."
       }
     }
   },
@@ -126,23 +126,30 @@
   "Home": {
     "faq": {
       "heading": "Ce que nos clients demandent avant de se lancer",
-      "notHere": "Votre question n'est pas là ? <link>Écrivez-nous</link>, on répond sous 24h ouvrées."
+      "notHere": "Votre question n'est pas là ? <link>Écrivez-nous</link>, nous vous répondons par e-mail."
     },
     "hero": {
-      "eyebrow": "Automatisation IA pour artisans, coachs et TPE/PME",
-      "titleLead": "Pendant que vous travaillez,",
-      "titleMain": "vos clients obtiennent une réponse.",
-      "lead": "Un assistant IA décroche votre téléphone, répond à vos messages et prend les rendez-vous. Notre équipe l'installe, le connecte à vos outils et le surveille chaque mois — vous n'ouvrez aucun logiciel technique.",
+      "title": "Un assistant IA qui répond à vos appels et à vos messages",
+      "lead": "Pour les artisans, les coachs, les indépendants et les TPE. Il décroche votre téléphone, répond sur WhatsApp, Messenger et Instagram, et prend vos rendez-vous. Notre équipe l'installe et le surveille chaque mois.",
       "signup": "Créer mon compte",
-      "seeServices": "Voir les solutions",
-      "fromPrice": "À partir de {price} par mois",
-      "noCommitment": "Sans engagement",
-      "refund": "Abonnement remboursé 30 jours",
-      "yourBusiness": "Votre entreprise"
+      "seeServices": "Voir les solutions et les prix",
+      "specs": {
+        "price": "Prix",
+        "priceValue": "dès {price}",
+        "commitment": "Engagement",
+        "commitmentValue": "aucun",
+        "guarantee": "Garantie",
+        "guaranteeValue": "30 jours satisfait ou remboursé"
+      },
+      "live": {
+        "title": "Appel en cours",
+        "caller": "Appelant",
+        "assistant": "Assistant"
+      }
     },
     "cta": {
-      "heading": "Prêt à reprendre ces heures perdues chaque semaine ?",
-      "lead": "Créez votre compte, choisissez vos automatisations et laissez notre équipe s'occuper de l'installation.",
+      "heading": "Créez votre compte et choisissez votre première solution",
+      "lead": "Notre équipe s'occupe de l'installation. Vous suivez tout depuis votre tableau de bord.",
       "signup": "Créer mon compte",
       "ask": "Poser une question",
       "note": "Abonnement remboursé 30 jours, sans engagement."
@@ -240,12 +247,32 @@
           "newEmail": "Nouvel e-mail",
           "activeTitle": "Votre standard téléphonique est actif",
           "activeBody": "Il répond dès maintenant à vos appels."
+        }
+      }
+    },
+    "integrations": {
+      "heading": "Branché sur les outils que vous utilisez déjà",
+      "lead": "Pas de nouveau logiciel à apprendre. Vous reliez vos comptes depuis votre tableau de bord, et notre équipe vérifie que tout fonctionne.",
+      "items": {
+        "phone": {
+          "title": "Votre ligne actuelle",
+          "description": "Un renvoi d'appel vers l'assistant. Vous gardez votre numéro, et vous coupez le renvoi quand vous voulez."
         },
-        "follow": {
-          "thisWeek": "Cette semaine",
-          "active": "active",
-          "calls": "{count, plural, one {# appel traité} other {# appels traités}}",
-          "adjusted": "Horaires d'été ajustés par l'équipe"
+        "calendar": {
+          "title": "Google Agenda",
+          "description": "Les rendez-vous pris au téléphone s'inscrivent directement dans votre agenda."
+        },
+        "whatsapp": {
+          "title": "WhatsApp Business",
+          "description": "L'assistant répond aux messages reçus sur votre compte WhatsApp Business."
+        },
+        "messenger": {
+          "title": "Messenger",
+          "description": "L'assistant répond aux messages envoyés à votre Page Facebook."
+        },
+        "instagram": {
+          "title": "Instagram",
+          "description": "L'assistant répond aux messages privés de votre compte professionnel."
         }
       }
     }
@@ -345,7 +372,7 @@
     },
     "faq": {
       "heading": "Questions fréquentes",
-      "notHere": "Votre question n'est pas là ? <link>Écrivez-nous</link>, on répond sous 24h ouvrées."
+      "notHere": "Votre question n'est pas là ? <link>Écrivez-nous</link>, nous vous répondons par e-mail."
     },
     "related": {
       "heading": "Autres solutions en {category}",
@@ -353,7 +380,7 @@
     },
     "cta": {
       "headingSignedIn": "Activez « {name} » depuis votre tableau de bord",
-      "headingSignedOut": "Prêt à activer « {name} » ?",
+      "headingSignedOut": "Activez « {name} » depuis votre compte",
       "lead": "Notre équipe l'installe, la connecte à vos outils et la surveille chaque mois.",
       "tryAssistant": "Tester l'assistant",
       "ask": "Poser une question"
@@ -363,7 +390,7 @@
     "fallbackSubtitle": "Des automatisations installées, connectées et surveillées par notre équipe.",
     "homeLine1": "Votre entreprise tourne.",
     "homeLine2": "Vos automatisations s'occupent du reste.",
-    "homeSubtitle": "Standard téléphonique, messagerie, documents administratifs — installés, connectés et surveillés par notre équipe.",
+    "homeSubtitle": "Standard téléphonique, messagerie, documents administratifs. Installés, connectés et surveillés par notre équipe.",
     "homeFooter": "Pour les artisans, coachs, indépendants et TPE/PME en France"
   },
   "Illustrations": {
@@ -392,7 +419,7 @@
       "us1": "Bonsoir Camille, oui, le devis est gratuit. Nous avons un créneau de visite mardi ou jeudi : lequel vous arrange ?",
       "them2": "Jeudi, en fin de journée.",
       "us2": "C'est noté pour jeudi. L'équipe vous confirme l'heure demain matin.",
-      "answered": "Répondu en 4 s, à 22 h 14"
+      "answered": "Répondu à 22 h 14"
     },
     "email": {
       "inbox": "Boîte de réception",
@@ -433,7 +460,7 @@
       "contract3": "Pénalité de retard : 1 %/mois"
     },
     "support": {
-      "request": "Demande n° 184",
+      "request": "Votre demande",
       "priority": "prioritaire",
       "them": "Pouvez-vous ajouter nos nouveaux horaires d'été ?",
       "us": "C'est fait, ils s'appliquent dès ce soir.",
@@ -535,26 +562,26 @@
   },
   "Contact": {
     "heading": "Parlons de votre activité",
-    "lead": "Décrivez-nous ce qui vous prend le plus de temps aujourd'hui — nous vous recommandons les automatisations les plus utiles pour votre métier.",
+    "lead": "Dites-nous ce qui vous prend le plus de temps aujourd'hui. Nous vous indiquons les automatisations les plus utiles pour votre métier.",
     "next": "Ensuite",
     "steps": {
       "reply": {
-        "label": "Réponse sous 24h ouvrées",
-        "detail": "Un premier retour rapide sur votre message."
+        "label": "Nous lisons votre message",
+        "detail": "Et nous vous répondons par e-mail."
       },
       "call": {
-        "label": "Échange de 15 minutes",
-        "detail": "Sans engagement, pour comprendre vos besoins."
+        "label": "Nous vous orientons",
+        "detail": "Vers les solutions utiles pour votre activité, avec leur prix."
       },
       "quote": {
-        "label": "Devis personnalisé",
-        "detail": "Adapté à votre activité, sous 48h."
+        "label": "Vous activez en ligne",
+        "detail": "Quand vous êtes prêt, depuis votre compte. Sans engagement."
       }
     },
     "form": {
       "genericError": "Une erreur est survenue.",
       "sent": "Message envoyé.",
-      "sentDetail": "Nous revenons vers vous sous 24h ouvrées.",
+      "sentDetail": "Nous vous répondons par e-mail.",
       "honeypot": "Site web",
       "name": "Nom",
       "email": "E-mail",
@@ -567,7 +594,7 @@
       "submit": "Envoyer le message"
     },
     "errors": {
-      "rateLimited": "Trop de messages envoyés récemment — merci de réessayer dans quelques minutes.",
+      "rateLimited": "Trop de messages envoyés récemment. Réessayez dans quelques minutes.",
       "missingFields": "Merci de renseigner votre nom, votre e-mail et votre message.",
       "invalidEmail": "L'adresse e-mail saisie n'est pas valide."
     }
@@ -588,5 +615,10 @@
   },
   "Legal": {
     "lastUpdated": "Dernière mise à jour : {date, date, long}"
+  },
+  "Screenshots": {
+    "demoCaption": "Exemple avec des données de démonstration.",
+    "overviewAlt": "Tableau de bord Automerio : les appels à rappeler, le nombre d'appels du mois et la dépense mensuelle.",
+    "callsAlt": "Récapitulatif des appels d'un standard téléphonique : motif, nom de l'appelant, issue de l'appel et appels à rappeler."
   }
 }

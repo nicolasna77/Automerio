@@ -54,7 +54,7 @@ export async function OverviewServices({
                           className="outline-none after:absolute after:inset-0 hover:underline focus-visible:underline"
                         >
                           {item.name}
-                          <span className="sr-only"> — voir le détail</span>
+                          <span className="sr-only">, voir le détail</span>
                         </Link>
                       </p>
                       <div className="flex shrink-0 items-center gap-1.5">

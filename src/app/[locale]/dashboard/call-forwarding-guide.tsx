@@ -93,7 +93,7 @@ function FixedLineInstructions({ targetNumber }: { targetNumber: string }) {
         Certaines box acceptent aussi un raccourci direct depuis le combiné
         fixe : composez <code className="font-mono">*21*{targetNumber}#</code>{" "}
         puis décrochez. Si ça ne fonctionne pas, passez par l&apos;interface
-        ci-dessus — ou demandez à votre opérateur un « renvoi permanent
+        ci-dessus, ou demandez à votre opérateur un « renvoi permanent
         (inconditionnel) » vers ce numéro.
       </p>
     </div>

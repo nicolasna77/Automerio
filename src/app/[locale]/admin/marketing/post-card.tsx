@@ -92,7 +92,7 @@ export function PostCard({ post }: { post: PostCardData }) {
             />
             <p className="text-xs tabular-nums text-muted-foreground">
               {draft.length} / {rule.maxChars}
-              {tooLong && " — au-delà de la limite du réseau"}
+              {tooLong && " (au-delà de la limite du réseau)"}
             </p>
           </div>
         ) : (
@@ -103,7 +103,7 @@ export function PostCard({ post }: { post: PostCardData }) {
           <div className="flex gap-2 rounded-2xl bg-muted/50 p-3 text-sm text-muted-foreground">
             <ImageIcon className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
             <span>
-              <span className="font-medium text-foreground">Visuel à produire — </span>
+              <span className="font-medium text-foreground">Visuel à produire : </span>
               {post.imageBrief}
             </span>
           </div>

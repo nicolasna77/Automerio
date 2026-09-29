@@ -60,7 +60,7 @@ export function NotificationsMenu({
             {unreadCount > 0 && (
               <span
                 aria-hidden="true"
-                className="absolute -top-0.5 -right-0.5 flex min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-medium text-primary-foreground"
+                className="absolute -top-0.5 -right-0.5 flex min-w-4 items-center justify-center rounded-lg bg-primary px-1 text-[10px] font-medium text-primary-foreground"
               >
                 {unreadCount > 9 ? "9+" : unreadCount}
               </span>

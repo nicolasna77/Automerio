@@ -59,7 +59,7 @@ export const SERVICE_COPY: Record<string, ServiceCopy> = {
 
   "prise-rdv-telephone": {
     intro:
-      "Prendre un rendez-vous au téléphone, c'est trois minutes d'échange, un agenda à ouvrir et une note à ne pas perdre — multiplié par le nombre d'appels de la journée. L'assistant propose vos créneaux réellement libres et inscrit le rendez-vous dans votre agenda. Il peut aussi prendre les commandes, à partir de votre carte et de vos prix.",
+      "Prendre un rendez-vous au téléphone, c'est trois minutes d'échange, un agenda à ouvrir et une note à ne pas perdre. Multipliez par le nombre d'appels de la journée. L'assistant propose vos créneaux réellement libres et inscrit le rendez-vous dans votre agenda. Il peut aussi prendre les commandes, à partir de votre carte et de vos prix.",
     benefits: [
       {
         title: "Votre agenda se remplit pendant que vous travaillez",
@@ -115,7 +115,7 @@ export const SERVICE_COPY: Record<string, ServiceCopy> = {
 
   "assistant-whatsapp": {
     intro:
-      "Sur WhatsApp, un client qui pose une question attend une réponse dans la minute, pas le lendemain soir. L'assistant répond à votre place aux questions que vous avez renseignées — horaires, tarifs, délais, disponibilités — et les conversations restent dans votre compte WhatsApp Business, où vous reprenez la main quand vous le voulez.",
+      "Sur WhatsApp, un client qui pose une question attend une réponse dans la minute, pas le lendemain soir. L'assistant répond à votre place aux questions que vous avez renseignées : horaires, tarifs, délais, disponibilités. Les conversations restent dans votre compte WhatsApp Business, où vous reprenez la main quand vous le voulez.",
     benefits: [
       {
         title: "Une réponse en quelques secondes, à toute heure",
@@ -227,7 +227,7 @@ export const SERVICE_COPY: Record<string, ServiceCopy> = {
 
   "assistant-instagram": {
     intro:
-      "Une publication qui marche, ce sont trente messages privés dans la foulée — et presque toujours les trois mêmes questions. L'assistant y répond à partir de ce que vous avez renseigné, et les conversations restent dans votre compte, où vous reprenez la main dès qu'un échange le mérite.",
+      "Une publication qui marche, ce sont trente messages privés dans la foulée, et presque toujours les trois mêmes questions. L'assistant y répond à partir de ce que vous avez renseigné, et les conversations restent dans votre compte, où vous reprenez la main dès qu'un échange le mérite.",
     benefits: [
       {
         title: "Vos messages privés suivent le rythme de vos publications",
@@ -266,7 +266,7 @@ export const SERVICE_COPY: Record<string, ServiceCopy> = {
       {
         question: "Mon compte Instagram doit-il être professionnel ?",
         answer:
-          "Oui, la messagerie automatisée passe par un compte professionnel — c'est le cas de la plupart des comptes d'entreprise. L'équipe vérifie ce point avec vous à l'activation.",
+          "Oui, la messagerie automatisée passe par un compte professionnel. C'est le cas de la plupart des comptes d'entreprise. L'équipe vérifie ce point avec vous à l'activation.",
       },
       {
         question: "L'assistant répond-il aussi aux commentaires publics ?",
@@ -332,7 +332,7 @@ export const SERVICE_COPY: Record<string, ServiceCopy> = {
       {
         question: "Qui définit les règles de tri ?",
         answer:
-          "Vous, à l'activation — par exemple : un message qui contient « facture » part au comptable. Les règles se modifient ensuite depuis votre tableau de bord.",
+          "Vous, à l'activation. Par exemple, un message qui contient « facture » part au comptable. Les règles se modifient ensuite depuis votre tableau de bord.",
       },
     ],
   },
@@ -344,7 +344,7 @@ export const SERVICE_COPY: Record<string, ServiceCopy> = {
       {
         title: "Des rendez-vous pris pendant que vous dormez",
         description:
-          "La réservation reste ouverte jour et nuit — y compris le dimanche soir, le moment où beaucoup de gens s'occupent enfin de ce genre de choses.",
+          "La réservation reste ouverte jour et nuit, y compris le dimanche soir, le moment où beaucoup de gens s'occupent enfin de ce genre de choses.",
       },
       {
         title: "Plus d'aller-retour pour caler une date",
@@ -434,7 +434,7 @@ export const SERVICE_COPY: Record<string, ServiceCopy> = {
       {
         question: "Comment est-ce que je transmets mes documents ?",
         answer:
-          "Vous les déposez dans le dossier convenu à l'activation — Drive, Dropbox ou une boîte mail dédiée. Le résumé revient sans autre manipulation.",
+          "Vous les déposez dans le dossier convenu à l'activation : Drive, Dropbox ou une boîte mail dédiée. Le résumé revient sans autre manipulation.",
       },
       {
         question: "Quelle longueur fait un résumé ?",
@@ -451,7 +451,7 @@ export const SERVICE_COPY: Record<string, ServiceCopy> = {
 
   "resume-reunions": {
     intro:
-      "Prendre des notes en réunion, c'est écouter à moitié. L'enregistrement ou la transcription part dans l'automatisation, et le compte-rendu revient structuré : ce qui a été décidé, ce qui reste à faire, et par qui. Le consentement des participants est demandé à l'activation — une réunion ne s'enregistre pas à leur insu.",
+      "Prendre des notes en réunion, c'est écouter à moitié. L'enregistrement ou la transcription part dans l'automatisation, et le compte-rendu revient structuré : ce qui a été décidé, ce qui reste à faire, et par qui. Le consentement des participants est demandé à l'activation : une réunion ne s'enregistre pas à leur insu.",
     benefits: [
       {
         title: "Vous suivez la réunion au lieu de la transcrire",
@@ -466,7 +466,7 @@ export const SERVICE_COPY: Record<string, ServiceCopy> = {
       {
         title: "Ce qui a été décidé est écrit noir sur blanc",
         description:
-          "Deux mois plus tard, la version écrite tranche les « on avait dit » — avec un client comme avec une équipe.",
+          "Deux mois plus tard, la version écrite tranche les « on avait dit », avec un client comme avec une équipe.",
       },
     ],
     useCases: [
@@ -500,7 +500,7 @@ export const SERVICE_COPY: Record<string, ServiceCopy> = {
       {
         question: "Que contient le compte-rendu ?",
         answer:
-          "Ce qui a été décidé, ce qui reste à faire et par qui — en points clés ou en compte-rendu détaillé, selon le format que vous avez choisi.",
+          "Ce qui a été décidé, ce qui reste à faire et par qui. En points clés ou en compte-rendu détaillé, selon le format que vous avez choisi.",
       },
     ],
   },
@@ -556,7 +556,7 @@ export const SERVICE_COPY: Record<string, ServiceCopy> = {
       {
         question: "Quels documents sont traités ?",
         answer:
-          "Ceux que vous déclarez prioritaires à l'activation — factures fournisseurs, bons de livraison, notes de frais. La liste se complète ensuite.",
+          "Ceux que vous déclarez prioritaires à l'activation : factures fournisseurs, bons de livraison, notes de frais. La liste se complète ensuite.",
       },
     ],
   },
@@ -595,7 +595,7 @@ export const SERVICE_COPY: Record<string, ServiceCopy> = {
       {
         question: "Qui me répond ?",
         answer:
-          "L'équipe qui a installé vos automatisations, et qui connaît vos outils et vos réglages — pas un support générique à qui tout réexpliquer.",
+          "L'équipe qui a installé vos automatisations, et qui connaît vos outils et vos réglages. Pas un support générique à qui tout réexpliquer.",
       },
     ],
   },

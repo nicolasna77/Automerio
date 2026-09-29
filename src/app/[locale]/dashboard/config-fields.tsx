@@ -230,7 +230,7 @@ export function ConfigFieldsForm({
           )}
         >
           {showHeadings && (
-            <h4 className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+            <h4 className="text-sm font-semibold text-foreground">
               {section}
             </h4>
           )}

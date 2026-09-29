@@ -7,7 +7,7 @@ test("l'accueil présente l'offre et mène au catalogue", async ({ page }) => {
   await page.goto("/");
 
   await expect(
-    page.getByRole("heading", { level: 1, name: /vos clients obtiennent une réponse/i })
+    page.getByRole("heading", { level: 1, name: /répond à vos appels et à vos messages/i })
   ).toBeVisible();
 
   await expect(page.getByRole("link", { name: "Créer mon compte" }).first()).toBeVisible();
@@ -27,7 +27,7 @@ test("une page de solution annonce son tarif et propose d'agir", async ({ page }
   await expect(page.getByText(/€.*par mois/)).toBeVisible();
 
   await expect(
-    page.getByRole("heading", { name: /Prêt à activer/ })
+    page.getByRole("heading", { name: /depuis votre compte/ })
   ).toBeVisible();
 });
 

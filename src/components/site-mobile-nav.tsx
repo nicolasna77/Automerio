@@ -62,7 +62,7 @@ export function SiteMobileNav({
 
               return (
                 <div key={category}>
-                  <p className="mb-1 px-3 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                  <p className="mb-1 px-3 text-xs font-medium text-muted-foreground">
                     {tCatalog(`categories.${category}`)}
                   </p>
                   <ul className="flex flex-col">

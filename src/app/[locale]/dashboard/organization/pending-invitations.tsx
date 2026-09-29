@@ -59,7 +59,7 @@ export function PendingInvitations({
                 {invitation.email}
               </p>
               <p className="text-xs text-muted-foreground">
-                Invitation envoyée, en attente de réponse — expire le{" "}
+                Invitation envoyée, en attente de réponse. Expire le{" "}
                 {invitation.expiresAt}
               </p>
             </div>

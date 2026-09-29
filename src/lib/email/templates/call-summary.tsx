@@ -28,7 +28,7 @@ export function CallSummaryEmail({
 }) {
   const title = reason ?? "Nouvel appel";
   return (
-    <EmailLayout preview={`${title} — ${summary.slice(0, 80)}`}>
+    <EmailLayout preview={`${title} : ${summary.slice(0, 80)}`}>
       <Heading as="h2" style={emailHeadingStyle}>
         {title}
       </Heading>

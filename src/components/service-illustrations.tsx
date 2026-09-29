@@ -25,7 +25,6 @@ function Frame({ children, className }: { children: React.ReactNode; className?:
       aria-hidden="true"
       className={cn(
         "relative isolate mx-auto w-full max-w-md select-none",
-        "before:absolute before:-inset-6 before:-z-10 before:rounded-[2.5rem] before:bg-[radial-gradient(var(--border)_1px,transparent_1px)] before:[background-size:16px_16px] before:[mask-image:radial-gradient(ellipse_at_center,black_45%,transparent_75%)]",
         className
       )}
     >
@@ -44,7 +43,7 @@ function Panel({ children, className }: { children: React.ReactNode; className?:
 
 function Label({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <span className={cn("font-mono text-[0.6875rem] tracking-wide text-muted-foreground uppercase", className)}>
+    <span className={cn("text-xs font-medium text-muted-foreground", className)}>
       {children}
     </span>
   );
@@ -91,18 +90,17 @@ function CallIllustration({ booking }: { booking: boolean }) {
           <div className="flex items-center gap-2.5">
             <span className="relative flex size-9 items-center justify-center rounded-full bg-primary/15 text-primary">
               <Phone className="size-4" />
-              <span className="absolute inset-0 animate-ping rounded-full bg-primary/20 motion-reduce:hidden" />
             </span>
             <div className="leading-tight">
               <p className="text-sm font-medium text-foreground">{t("incoming")}</p>
-              <p className="font-mono text-xs text-muted-foreground">06 •• •• 42 18</p>
+              <p className="font-mono text-xs tabular-nums text-muted-foreground">06 •• •• 42 18</p>
             </div>
           </div>
           <Label>{t("answeredAt")}</Label>
         </div>
         <div className="mt-4 flex items-center justify-between gap-3 rounded-xl bg-muted/60 px-3 py-2">
           <Waveform />
-          <span className="font-mono text-xs text-muted-foreground">01:12</span>
+          <span className="font-mono text-xs tabular-nums text-muted-foreground">01:12</span>
         </div>
         <div className="mt-4 space-y-2">
           {booking ? (
@@ -170,7 +168,7 @@ function ChatIllustration({ slug }: { slug: string }) {
           <Bubble from="us">{t("us2")}</Bubble>
         </div>
       </Panel>
-      <div className="relative -mt-4 ml-auto flex w-fit items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 shadow-sm">
+      <div className="relative -mt-4 ml-auto flex w-fit items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 shadow-sm">
         <span className="size-1.5 rounded-full bg-primary" />
         <Label className="normal-case">{t("answered")}</Label>
       </div>
@@ -196,7 +194,7 @@ function EmailIllustration() {
               <p className="truncate text-sm font-medium text-foreground">{mail.from}</p>
               <p className="truncate text-xs text-muted-foreground">{mail.subject}</p>
             </div>
-            <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 font-mono text-[0.6875rem] text-primary">
+            <span className="shrink-0 rounded-lg bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
               {mail.state}
             </span>
           </div>
@@ -325,7 +323,7 @@ function SupportIllustration() {
       <Panel>
         <div className="flex items-center justify-between">
           <p className="text-sm font-medium text-foreground">{t("request")}</p>
-          <span className="rounded-full bg-primary/10 px-2 py-0.5 font-mono text-[0.6875rem] text-primary">
+          <span className="rounded-lg bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
             {t("priority")}
           </span>
         </div>
@@ -334,7 +332,7 @@ function SupportIllustration() {
           <Bubble from="us">{t("us")}</Bubble>
         </div>
       </Panel>
-      <div className="relative -mt-4 ml-auto flex w-fit items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 shadow-sm">
+      <div className="relative -mt-4 ml-auto flex w-fit items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 shadow-sm">
         <span className="size-1.5 rounded-full bg-primary" />
         <Label className="normal-case">{t("handled")}</Label>
       </div>
@@ -449,7 +447,7 @@ export function ActivityPreview({ slug }: { slug: string }) {
     <div aria-hidden="true" className="rounded-xl border border-border bg-card">
       <div className="flex items-center justify-between border-b border-border px-3 py-2">
         <Label>{t("today")}</Label>
-        <span className="flex items-center gap-1.5 rounded-full bg-primary/10 px-2 py-0.5 font-mono text-[0.6875rem] text-primary">
+        <span className="flex items-center gap-1.5 rounded-lg bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
           <span className="size-1.5 rounded-full bg-primary" />
           {t("active")}
         </span>

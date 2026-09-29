@@ -23,7 +23,7 @@ export function NewContactMessageInternalEmail({
       </Heading>
       <Text style={emailTextStyle}>
         {name} ({email})
-        {activity ? ` — ${activity}` : ""}
+        {activity ? `, ${activity}` : ""}
       </Text>
       <Section
         style={{

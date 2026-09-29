@@ -152,18 +152,10 @@ export default async function PrestationDetailPage({
       <SiteHeader />
       <main id="content" className="flex-1">
         <section className="relative isolate overflow-hidden">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,color-mix(in_oklab,var(--primary)_12%,transparent),transparent)]"
-          />
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(var(--border)_1px,transparent_1px)] bg-size-[22px_22px] mask-[radial-gradient(ellipse_70%_60%_at_50%_0%,black,transparent)]"
-          />
 
           <div className="mx-auto max-w-3xl px-4 pt-12 text-center sm:px-6 sm:pt-16">
             <nav aria-label={t("breadcrumb")} className="flex justify-center">
-              <ol className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground shadow-sm">
+              <ol className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground shadow-sm">
                 <li>
                   <ServiceGlyph
                     slug={service.slug}
@@ -203,7 +195,6 @@ export default async function PrestationDetailPage({
                   className="flex items-center gap-2 font-sans text-base font-semibold text-foreground"
                 >
                   <span className="relative flex size-2" aria-hidden="true">
-                    <span className="absolute inline-flex size-full animate-ping rounded-full bg-primary/60 motion-reduce:hidden" />
                     <span className="relative inline-flex size-2 rounded-full bg-primary" />
                   </span>
                   {t("demo.heading")}
@@ -265,7 +256,7 @@ export default async function PrestationDetailPage({
           </div>
 
           <div className="mx-auto mt-14 max-w-3xl px-4 pb-16 sm:px-6 sm:pb-24">
-            <div className="rounded-[2rem] border border-border bg-muted/40 px-4 py-10 sm:px-12 sm:py-12">
+            <div className="rounded-lg border border-border bg-muted/40 px-4 py-10 sm:px-12 sm:py-12">
               <ServiceIllustration slug={service.slug} />
             </div>
           </div>
@@ -295,7 +286,7 @@ export default async function PrestationDetailPage({
                 >
                   <div className="p-6">
                     <span
-                      className="inline-flex size-8 items-center justify-center rounded-full bg-muted font-mono text-xs text-foreground tabular-nums"
+                      className="inline-flex size-8 items-center justify-center rounded-full bg-muted font-mono text-xs font-medium text-foreground tabular-nums"
                       aria-hidden="true"
                     >
                       {String(index + 1).padStart(2, "0")}
@@ -359,7 +350,7 @@ export default async function PrestationDetailPage({
                 <dl className="mt-4 divide-y divide-border">
                   {service.monthlyPriceCents !== null && !service.tier && (
                     <div className="py-4 first:pt-0">
-                      <dd className="text-3xl font-semibold tabular-nums text-foreground">
+                      <dd className="font-mono text-3xl font-medium tabular-nums text-foreground">
                         {price.cents(service.monthlyPriceCents)}
                       </dd>
                       <dt className="mt-0.5 text-sm text-muted-foreground">
@@ -486,7 +477,7 @@ export default async function PrestationDetailPage({
                     className="flex flex-col rounded-3xl border border-border bg-card p-6"
                   >
                     <dt className="self-end">
-                      <span className="inline-flex rounded-full bg-muted px-2.5 py-1 font-mono text-[0.6875rem] tracking-wide text-muted-foreground uppercase">
+                      <span className="inline-flex rounded-lg bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
                         {useCase.audience}
                       </span>
                     </dt>
@@ -558,7 +549,7 @@ export default async function PrestationDetailPage({
                       <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-foreground">
                         {t("related.discover")}
                         <ArrowRight
-                          className="size-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none"
+                          className="size-4"
                           aria-hidden="true"
                         />
                       </span>
@@ -574,11 +565,7 @@ export default async function PrestationDetailPage({
           aria-labelledby="cta-heading"
           className="px-4 pb-16 sm:px-6 sm:pb-24"
         >
-          <div className="relative isolate mx-auto max-w-6xl overflow-hidden rounded-[2rem] border border-border bg-card px-6 py-16 text-center sm:py-20">
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_80%_70%_at_50%_120%,color-mix(in_oklab,var(--primary)_28%,transparent),transparent)]"
-            />
+          <div className="relative isolate mx-auto max-w-6xl overflow-hidden rounded-lg border border-border bg-card px-6 py-16 text-center sm:py-20">
             <h2
               id="cta-heading"
               className="mx-auto max-w-2xl text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"

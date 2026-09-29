@@ -52,7 +52,7 @@ export function UsageCounter({ clientServiceId }: { clientServiceId: string }) {
     >
       <span
         aria-hidden="true"
-        className="size-1.5 shrink-0 rounded-full bg-primary motion-safe:animate-pulse"
+        className="size-1.5 shrink-0 rounded-full bg-primary"
       />
       <span>
         <span className="font-mono font-medium tabular-nums text-foreground">

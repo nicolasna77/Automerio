@@ -7,6 +7,7 @@ import { getCatalog } from "@/lib/get-catalog";
 import { HeroSection } from "./home-sections/hero-section";
 import { ProblemSection } from "./home-sections/problem-section";
 import { ServicesSection } from "./home-sections/services-section";
+import { IntegrationsSection } from "./home-sections/integrations-section";
 import { MethodSection } from "./home-sections/method-section";
 import { MaintenanceSection } from "./home-sections/maintenance-section";
 import { FaqSection } from "./home-sections/faq-section";
@@ -31,6 +32,7 @@ export default async function HomePage() {
         <ProblemSection />
         <MethodSection />
         <ServicesSection services={services} />
+        <IntegrationsSection />
         {hasSupportPlan && (
           <MaintenanceSection services={services} />
         )}

@@ -24,9 +24,9 @@ export function TermsContent() {
           {LEGAL_ENTITY.registration} (ci-après « Automerio »).
         </p>
         <p>
-          Elles s&apos;adressent aux professionnels — artisans, indépendants,
-          coachs, TPE et PME — qui les commandent pour les besoins de leur
-          activité (ci-après « le client »).
+          Elles s&apos;adressent aux professionnels qui les commandent pour les
+          besoins de leur activité : artisans, indépendants, coachs, TPE et PME
+          (ci-après « le client »).
         </p>
       </LegalSection>
 
@@ -156,7 +156,7 @@ export function TermsContent() {
 
       <LegalSection title="10. Services tiers">
         <p>
-          Les solutions s&apos;appuient sur des services tiers — notamment Twilio
+          Les solutions s&apos;appuient sur des services tiers, notamment Twilio
           pour la téléphonie, OpenAI pour l&apos;intelligence artificielle, Meta
           pour WhatsApp, Messenger et Instagram, Google pour l&apos;agenda et
           Stripe pour le paiement. Une interruption ou un changement de leurs

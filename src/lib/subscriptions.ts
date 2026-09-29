@@ -183,8 +183,8 @@ export function describePeriod(subscription: MySubscription): string {
 export function describeNextCharge(subscription: MySubscription): string {
   if (subscription.status === "CANCELED") {
     return subscription.canceledAt
-      ? `Résilié le ${formatDate(subscription.canceledAt)} — plus aucun prélèvement`
-      : "Résilié — plus aucun prélèvement";
+      ? `Résilié le ${formatDate(subscription.canceledAt)} , plus aucun prélèvement`
+      : "Résilié, plus aucun prélèvement";
   }
   if (subscription.status === "PENDING_PAYMENT") {
     return "Aucun prélèvement tant que le premier paiement n'est pas réglé";

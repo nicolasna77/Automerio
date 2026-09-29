@@ -31,7 +31,7 @@ export default async function AdminUsersPage({
     <PageShell size="wide">
       <PageHeader
         title="Utilisateurs"
-        description="Gestion des comptes de l'application — rôles, bannissement, sessions."
+        description="Gestion des comptes : rôles, bannissement, sessions."
       />
 
       <UsersFilters />

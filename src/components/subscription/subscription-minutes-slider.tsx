@@ -40,7 +40,7 @@ export function SubscriptionMinutesSlider({
       <p className="text-sm font-medium text-foreground">{label}</p>
 
       <div className="text-center">
-        <p className="text-3xl font-semibold tabular-nums text-foreground">
+        <p className="font-mono text-3xl font-medium tabular-nums text-foreground">
           {quantity}
         </p>
         <p className="mt-1 text-sm text-muted-foreground">{t("perMonth")}</p>
@@ -99,7 +99,7 @@ export function SubscriptionMinutesSlider({
         aria-atomic="true"
         className="rounded-2xl bg-muted px-4 py-3 text-center"
       >
-        <span className="block text-2xl font-semibold tabular-nums text-foreground">
+        <span className="block font-mono text-2xl font-medium tabular-nums text-foreground">
           {price.amountWithVat(priceCents)}
         </span>
         <span className="block text-xs text-muted-foreground">

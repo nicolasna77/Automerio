@@ -86,7 +86,7 @@ export function PhoneNumberPurchase({
       <div className="space-y-2">
         {results.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            Aucun numéro disponible pour l&apos;instant — réessayez plus tard.
+            Aucun numéro disponible pour l&apos;instant. Réessayez plus tard.
           </p>
         ) : (
           <ul className="space-y-1.5">
@@ -137,7 +137,7 @@ export function PhoneNumberPurchase({
             </AlertDialogTitle>
             <AlertDialogDescription>
               Ce numéro sera acheté immédiatement et rattaché à votre
-              solution — le coût est couvert par votre abonnement.
+              solution. Le coût est couvert par votre abonnement.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

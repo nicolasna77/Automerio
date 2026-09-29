@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PT_Serif, Space_Grotesk, Space_Mono } from "next/font/google";
+import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { NextIntlClientProvider } from "next-intl";
 import { locale as rootLocale } from "next/root-params";
@@ -14,21 +14,16 @@ import { siteOpenGraph } from "@/lib/site-metadata";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
+const plexSans = IBM_Plex_Sans({
+  variable: "--font-plex-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
 });
 
-const ptSerif = PT_Serif({
-  variable: "--font-pt-serif",
+const plexMono = IBM_Plex_Mono({
+  variable: "--font-plex-mono",
   subsets: ["latin"],
-  weight: ["400", "700"],
-});
-
-const spaceMono = Space_Mono({
-  variable: "--font-space-mono",
-  subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: ["400", "500"],
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -63,9 +58,8 @@ export default async function RootLayout({
       className={cn(
         "h-full",
         "antialiased",
-        spaceGrotesk.variable,
-        ptSerif.variable,
-        spaceMono.variable,
+        plexSans.variable,
+        plexMono.variable,
         "font-sans",
       )}
     >

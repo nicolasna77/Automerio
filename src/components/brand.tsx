@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 
 export function AutomerioMark({ className }: { className?: string }) {
   const uid = useId();
-  const tileId = `${uid}-tile`;
   const clipId = `${uid}-clip`;
   return (
     <svg
@@ -14,25 +13,11 @@ export function AutomerioMark({ className }: { className?: string }) {
       aria-label="Automerio"
     >
       <defs>
-        <linearGradient
-          id={tileId}
-          x1="0"
-          y1="0"
-          x2="32"
-          y2="32"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop offset="0" stopColor="var(--primary)" />
-          <stop
-            offset="1"
-            stopColor="color-mix(in oklab, var(--primary) 70%, black)"
-          />
-        </linearGradient>
         <clipPath id={clipId}>
           <rect width="32" height="32" rx="9" />
         </clipPath>
       </defs>
-      <rect width="32" height="32" rx="9" fill={`url(#${tileId})`} />
+      <rect width="32" height="32" rx="9" fill="var(--primary)" />
       <g clipPath={`url(#${clipId})`}>
         <g transform="rotate(-38 16 16)">
           <rect x="-8" y="6" width="48" height="6" fill="var(--primary-foreground)" opacity="0.22" />
