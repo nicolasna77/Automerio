@@ -239,6 +239,32 @@
           "activeBody": "Il répond dès maintenant à vos appels."
         }
       }
+    },
+    "integrations": {
+      "heading": "Branché sur les outils que vous utilisez déjà",
+      "lead": "Pas de nouveau logiciel à apprendre. Vous reliez vos comptes depuis votre tableau de bord, et notre équipe vérifie que tout fonctionne.",
+      "items": {
+        "phone": {
+          "title": "Votre ligne actuelle",
+          "description": "Un renvoi d'appel vers l'assistant. Vous gardez votre numéro, et vous coupez le renvoi quand vous voulez."
+        },
+        "calendar": {
+          "title": "Google Agenda",
+          "description": "Les rendez-vous pris au téléphone s'inscrivent directement dans votre agenda."
+        },
+        "whatsapp": {
+          "title": "WhatsApp Business",
+          "description": "L'assistant répond aux messages reçus sur votre compte WhatsApp Business."
+        },
+        "messenger": {
+          "title": "Messenger",
+          "description": "L'assistant répond aux messages envoyés à votre Page Facebook."
+        },
+        "instagram": {
+          "title": "Instagram",
+          "description": "L'assistant répond aux messages privés de votre compte professionnel."
+        }
+      }
     }
   },
   "LlmsTxt": {
