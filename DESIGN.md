@@ -80,6 +80,20 @@ Un seul jeu : **lucide-react**, trait par défaut, 16 px dans le texte et les
 boutons, 20 px en tête de bloc. Aucun emoji dans l'interface. Les logos de
 tiers (WhatsApp, Messenger, Instagram, Google) restent leurs logos officiels.
 
+## Images
+
+- On montre de **vraies captures de l'application**, pas des photos de banque
+  d'images ni des visuels générés. Elles viennent de `npm run screenshots`
+  (`scripts/capture-screenshots.ts`), qui remplit le compte de démonstration
+  local puis capture le tableau de bord en clair et en sombre (WebP, dans
+  `public/screenshots/`).
+- Toute capture porte la légende « Exemple avec des données de
+  démonstration ». Les numéros affichés viennent des plages réservées à la
+  fiction par l'ARCEP (01 99 00, 06 39 98) : personne ne peut être joint.
+- Chaque image a un texte alternatif qui décrit ce qu'elle montre.
+- Les maquettes dessinées (illustrations des pages solutions) restent pour ce
+  qu'une capture ne peut pas montrer (un appel en cours, un message reçu).
+
 ## Mouvement
 
 Seules animations autorisées :

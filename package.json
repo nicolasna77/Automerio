@@ -17,7 +17,8 @@
     "db:studio": "prisma studio",
     "make-admin": "tsx scripts/make-admin.ts",
     "voice-agent:test": "tsx scripts/test-voice-agent.ts",
-    "stripe:listen": "stripe listen --forward-to localhost:3000/api/auth/stripe/webhook"
+    "stripe:listen": "stripe listen --forward-to localhost:3000/api/auth/stripe/webhook",
+    "screenshots": "tsx scripts/capture-screenshots.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

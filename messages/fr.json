@@ -135,8 +135,7 @@
       "seeServices": "Voir les solutions et les prix",
       "fromPrice": "À partir de {price} par mois",
       "noCommitment": "Sans engagement",
-      "refund": "Abonnement remboursé 30 jours",
-      "yourBusiness": "Votre entreprise"
+      "refund": "Abonnement remboursé 30 jours"
     },
     "cta": {
       "heading": "Créez votre compte et choisissez votre première solution",
@@ -238,12 +237,6 @@
           "newEmail": "Nouvel e-mail",
           "activeTitle": "Votre standard téléphonique est actif",
           "activeBody": "Il répond dès maintenant à vos appels."
-        },
-        "follow": {
-          "thisWeek": "Cette semaine",
-          "active": "active",
-          "calls": "Appels traités",
-          "adjusted": "Horaires d'été ajustés par l'équipe"
         }
       }
     }
@@ -586,5 +579,10 @@
   },
   "Legal": {
     "lastUpdated": "Dernière mise à jour : {date, date, long}"
+  },
+  "Screenshots": {
+    "demoCaption": "Exemple avec des données de démonstration.",
+    "overviewAlt": "Tableau de bord Automerio : les appels à rappeler, le nombre d'appels du mois et la dépense mensuelle.",
+    "callsAlt": "Récapitulatif des appels d'un standard téléphonique : motif, nom de l'appelant, issue de l'appel et appels à rappeler."
   }
 }

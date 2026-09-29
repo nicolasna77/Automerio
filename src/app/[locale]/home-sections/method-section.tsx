@@ -1,9 +1,9 @@
 import { getTranslations } from "next-intl/server";
+import { ProductScreenshot } from "@/components/product-screenshot";
 import { cn } from "@/lib/utils";
 import {
   BriefIllustration,
   ChooseIllustration,
-  FollowIllustration,
   SetupIllustration,
 } from "./method-illustrations";
 
@@ -11,11 +11,11 @@ const METHOD_STEPS = [
   { step: "01", key: "choose", illustration: <ChooseIllustration /> },
   { step: "02", key: "brief", illustration: <BriefIllustration /> },
   { step: "03", key: "setup", illustration: <SetupIllustration /> },
-  { step: "04", key: "follow", illustration: <FollowIllustration /> },
+  { step: "04", key: "follow", illustration: null },
 ] as const;
 
 export async function MethodSection() {
-  const t = await getTranslations("Home.method");
+  const [t, tShots] = await Promise.all([getTranslations("Home.method"), getTranslations("Screenshots")]);
   return (
     <section id="method" aria-labelledby="method-heading" className="scroll-mt-20 py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -53,7 +53,16 @@ export async function MethodSection() {
                 </h3>
                 <p className="mt-3 text-base leading-relaxed text-muted-foreground sm:text-lg">{t(`steps.${step.key}.description`)}</p>
               </div>
-              <div className={cn(index % 2 === 1 && "lg:order-1")}>{step.illustration}</div>
+              <div className={cn(index % 2 === 1 && "lg:order-1")}>{step.illustration ?? (
+                  <ProductScreenshot
+                    name="dashboard-calls"
+                    width={976}
+                    height={646}
+                    alt={tShots("callsAlt")}
+                    caption={tShots("demoCaption")}
+                    sizes="(min-width: 1024px) 560px, 100vw"
+                  />
+                )}</div>
             </li>
           ))}
         </ol>

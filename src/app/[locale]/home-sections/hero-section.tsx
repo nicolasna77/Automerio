@@ -4,14 +4,11 @@ import { ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import type { ServiceDTO } from "@/lib/catalog";
 import { formatCentsWithVat } from "@/lib/vat";
-import { HeroNetworkVisual } from "./hero-network-visual";
-
-const VISUAL_NODE_COUNT = 6;
+import { ProductScreenshot } from "@/components/product-screenshot";
 
 export async function HeroSection({ services }: { services: ServiceDTO[] }) {
-  const t = await getTranslations("Home.hero");
+  const [t, tShots] = await Promise.all([getTranslations("Home.hero"), getTranslations("Screenshots")]);
   const communication = services.filter((s) => s.category === "COMMUNICATION");
-  const labels = communication.slice(0, VISUAL_NODE_COUNT).map((s) => s.name);
 
   const monthlyPrices = communication
     .filter((s) => s.monthlyPriceCents !== null)
@@ -27,7 +24,7 @@ export async function HeroSection({ services }: { services: ServiceDTO[] }) {
 
   return (
     <section className="relative isolate overflow-hidden border-b border-border">
-      <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[minmax(0,1fr)_32rem]">
+      <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
         <div>
           <h1 className="max-w-2xl text-4xl font-semibold leading-tight tracking-tight text-balance text-foreground sm:text-5xl">
             {t("title")}
@@ -58,7 +55,15 @@ export async function HeroSection({ services }: { services: ServiceDTO[] }) {
             ))}
           </ul>
         </div>
-        <HeroNetworkVisual labels={labels} centerLabel={t("yourBusiness")} />
+        <ProductScreenshot
+          name="dashboard-overview"
+          width={1024}
+          height={640}
+          alt={tShots("overviewAlt")}
+          caption={tShots("demoCaption")}
+          sizes="(min-width: 1024px) 640px, 100vw"
+          priority
+        />
       </div>
     </section>
   );
