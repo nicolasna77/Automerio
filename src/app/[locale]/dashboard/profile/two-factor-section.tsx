@@ -2,13 +2,18 @@
 
 import { useState, useTransition, type FormEvent } from "react";
 import { useRouter } from "@/i18n/navigation";
-import QRCode from "react-qr-code";
+import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { ProfileSection } from "./profile-section";
+
+const QRCode = dynamic(() => import("react-qr-code"), {
+  ssr: false,
+  loading: () => <div className="size-[168px] animate-pulse rounded-md bg-muted" aria-hidden="true" />,
+});
 
 type Step =
   | { kind: "idle" }

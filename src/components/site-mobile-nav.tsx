@@ -18,7 +18,7 @@ import { AutomerioLogo } from "@/components/brand";
 import { MobileNavLink } from "@/components/mobile-nav-link";
 import { ServiceGlyph } from "@/components/service-glyph";
 import { useTranslations } from "next-intl";
-import type { ServiceCategory, ServiceDTO } from "@/lib/catalog";
+import type { ServiceCategory, ServiceMenuItem } from "@/lib/catalog";
 import { SITE_NAV_LINKS } from "@/lib/site";
 
 const MENU_CATEGORIES: ServiceCategory[] = ["COMMUNICATION", "INFORMATION"];
@@ -27,7 +27,7 @@ export function SiteMobileNav({
   services,
   loggedIn,
 }: {
-  services: ServiceDTO[];
+  services: ServiceMenuItem[];
   loggedIn: boolean;
 }) {
   const t = useTranslations("Site");

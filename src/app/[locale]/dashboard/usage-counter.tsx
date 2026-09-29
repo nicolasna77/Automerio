@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { pollWhileVisible } from "@/lib/poll-while-visible";
 
 const POLL_INTERVAL_MS = 15_000;
 
@@ -24,10 +25,10 @@ export function UsageCounter({ clientServiceId }: { clientServiceId: string }) {
     }
 
     poll();
-    const id = setInterval(poll, POLL_INTERVAL_MS);
+    const stopPolling = pollWhileVisible(poll, POLL_INTERVAL_MS);
     return () => {
       cancelled = true;
-      clearInterval(id);
+      stopPolling();
     };
   }, [clientServiceId]);
 

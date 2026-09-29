@@ -55,8 +55,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const locale = await rootLocale();
-  const t = await getTranslations("Site");
+  const [locale, t] = await Promise.all([rootLocale(), getTranslations("Site")]);
   return (
     <html
       lang={locale}

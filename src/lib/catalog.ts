@@ -145,6 +145,8 @@ export type ServiceDTO = {
   sortOrder: number;
 };
 
+export type ServiceMenuItem = Pick<ServiceDTO, "slug" | "name" | "category">;
+
 export type BookingDTO = {
   id: string;
   kind: string;

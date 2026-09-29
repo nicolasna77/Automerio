@@ -13,11 +13,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useTranslations } from "next-intl";
-import type { ServiceCategory, ServiceDTO } from "@/lib/catalog";
+import type { ServiceCategory, ServiceMenuItem } from "@/lib/catalog";
 
 const MENU_CATEGORIES: ServiceCategory[] = ["COMMUNICATION", "INFORMATION"];
 
-export function ServicesMenu({ services }: { services: ServiceDTO[] }) {
+export function ServicesMenu({ services }: { services: ServiceMenuItem[] }) {
   const t = useTranslations();
   return (
     <DropdownMenu>

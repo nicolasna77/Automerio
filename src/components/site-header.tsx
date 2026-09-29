@@ -11,7 +11,8 @@ import { getCatalog } from "@/lib/get-catalog";
 import { SITE_NAV_LINKS } from "@/lib/site";
 
 export async function SiteHeader() {
-  const [session, services, t] = await Promise.all([getSession(), getCatalog(), getTranslations("Site")]);
+  const [session, catalog, t] = await Promise.all([getSession(), getCatalog(), getTranslations("Site")]);
+  const services = catalog.map(({ slug, name, category }) => ({ slug, name, category }));
   const user = session
     ? {
         name: session.user.name,
