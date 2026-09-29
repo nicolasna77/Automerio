@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ConfigField } from "@/lib/catalog";
-import { buildFieldCategories } from "./activation-steps";
+import { buildFieldCategories } from "./field-categories";
 
 const standard: ConfigField[] = [
   { key: "phoneLine", label: "Numéro existant", type: "tel" },

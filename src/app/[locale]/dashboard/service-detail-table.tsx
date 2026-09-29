@@ -1,5 +1,5 @@
 import { Link } from "@/i18n/navigation";
-import { Settings2 } from "lucide-react";
+import { Settings } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -92,13 +92,13 @@ export function ServiceConfigurationCard({
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
-        <CardTitle as="h2" className="text-base">Configuration</CardTitle>
+        <CardTitle as="h2" className="text-base">Réglages</CardTitle>
         {canEditConfig && (
           <Link
             href={`/dashboard/services/${item.clientServiceId}/configuration`}
             className={buttonVariants({ variant: "outline", size: "sm" })}
           >
-            <Settings2 aria-hidden="true" data-icon="inline-start" />
+            <Settings aria-hidden="true" data-icon="inline-start" />
             Modifier
           </Link>
         )}

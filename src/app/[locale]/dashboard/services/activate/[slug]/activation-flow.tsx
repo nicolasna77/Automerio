@@ -41,7 +41,7 @@ import { formatCentsWithVat } from "@/lib/vat";
 import { getErrorMessage } from "@/lib/utils";
 import { activateService, previewPromoCode, type PromoPreview } from "@/app/[locale]/dashboard/actions";
 import { ConfigFieldsForm } from "@/app/[locale]/dashboard/config-fields";
-import { buildFieldCategories, type FieldCategory } from "./activation-steps";
+import { buildFieldCategories, type FieldCategory } from "@/app/[locale]/dashboard/field-categories";
 
 type AppliedPreview = Extract<PromoPreview, { ok: true }>;
 

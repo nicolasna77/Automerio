@@ -26,6 +26,7 @@ import {
 import { getErrorMessage } from "@/lib/utils";
 import { updateServiceConfiguration } from "@/app/[locale]/dashboard/actions";
 import { ConfigFieldsForm } from "@/app/[locale]/dashboard/config-fields";
+import { buildFieldCategories } from "@/app/[locale]/dashboard/field-categories";
 import { ProductCatalogEditor } from "@/app/[locale]/dashboard/product-catalog-editor";
 import { readProductCatalog, type CatalogSection } from "@/lib/product-catalog";
 
@@ -58,7 +59,7 @@ export function ServiceConfigurationForm({
 
   const catalogField = configFields.find((field) => field.key === PRODUCT_CATALOG_FIELD_KEY);
   const showCatalog = catalogField !== undefined && isFieldVisible(catalogField, values);
-  const hasOtherFields = configFields.some((field) => field.key !== PRODUCT_CATALOG_FIELD_KEY);
+  const categories = buildFieldCategories(configFields, values, [PRODUCT_CATALOG_FIELD_KEY]);
 
   useEffect(() => {
     if (!isDirty) return;
@@ -102,25 +103,30 @@ export function ServiceConfigurationForm({
 
   return (
     <div className="mt-8 space-y-6">
-      {hasOtherFields && (
-        <Card>
+      {/* Une carte par catégorie, dans l'ordre des étapes de l'activation. */}
+      {categories.map((category) => (
+        <Card key={category.id}>
           <CardHeader>
-            <CardTitle as="h2" className="text-base">Réglages</CardTitle>
-            <CardDescription>
-              Ce que l&apos;assistant doit savoir de votre activité pour répondre à vos clients.
-            </CardDescription>
+            <div className="flex items-start gap-3">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <category.icon className="size-5" aria-hidden="true" />
+              </span>
+              <div className="min-w-0">
+                <CardTitle as="h2" className="text-base">{category.title}</CardTitle>
+                {category.description && <CardDescription>{category.description}</CardDescription>}
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <ConfigFieldsForm
-              fields={configFields}
+              fields={category.fields}
               values={values}
               onChange={setValue}
               submitAttempted={submitAttempted}
-              omitKeys={[PRODUCT_CATALOG_FIELD_KEY]}
             />
           </CardContent>
         </Card>
-      )}
+      ))}
 
       {showCatalog && (
         <Card>

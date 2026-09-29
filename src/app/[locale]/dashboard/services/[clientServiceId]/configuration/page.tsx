@@ -27,9 +27,9 @@ export default async function ServiceConfigurationPage({
         breadcrumbs={[
           { label: "Solutions", href: "/dashboard/services" },
           { label: item.name, href: detailHref },
-          { label: "Configuration" },
+          { label: "Réglages" },
         ]}
-        title="Configuration"
+        title="Réglages"
         description={item.name === item.service.name ? item.service.name : `${item.name}, ${item.service.name}`}
         className="mb-0"
       />
