@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { getFaqs, siteOpenGraph } from "@/lib/site-metadata";
-import { JsonLd, faqSchema } from "@/components/json-ld";
+import { getTranslations } from "next-intl/server";
+import { JsonLd, faqSchema, serviceListSchema } from "@/components/json-ld";
+import { formatUsageCap } from "@/lib/usage-cap";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { getCatalog } from "@/lib/get-catalog";
@@ -23,7 +25,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const [services, faqs] = await Promise.all([getCatalog(), getFaqs()]);
+  const [services, faqs, tService, tHome] = await Promise.all([
+    getCatalog(),
+    getFaqs(),
+    getTranslations("ServicePage"),
+    getTranslations("Home.services"),
+  ]);
   const hasSupportPlan = services.some((s) => s.slug === "support-prioritaire");
 
   return (
@@ -33,6 +40,12 @@ export default async function HomePage() {
         <HeroSection services={services} />
         <ProblemSection />
         <MethodSection />
+        <JsonLd
+          data={serviceListSchema(tHome("heading"), services, (service) => ({
+            offerName: tService("offerName"),
+            termsOfService: service.usageCap ? formatUsageCap(service.usageCap) : null,
+          }))}
+        />
         <ServicesSection services={services} />
         <IntegrationsSection />
         {hasSupportPlan && (

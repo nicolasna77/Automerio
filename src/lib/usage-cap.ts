@@ -29,10 +29,15 @@ export function readUsageCap(service: ServiceUsageColumns): UsageCap | null {
   };
 }
 
+// Nombre avec séparateur de milliers : « 6 000 », pas « 6000 ».
+function formatCount(units: number): string {
+  return units.toLocaleString("fr-FR");
+}
+
 export function formatUsageUnits(units: number, unit: UsageUnit): string {
-  if (unit === "MINUTE") return `${units} min`;
-  if (unit === "MESSAGE") return `${units} réponse${units === 1 ? "" : "s"}`;
-  return `${units} appel${units === 1 ? "" : "s"}`;
+  if (unit === "MINUTE") return `${formatCount(units)} min`;
+  if (unit === "MESSAGE") return `${formatCount(units)} réponse${units === 1 ? "" : "s"}`;
+  return `${formatCount(units)} appel${units === 1 ? "" : "s"}`;
 }
 
 export function formatPerUnit(cents: number, unit: UsageUnit): string {
@@ -44,10 +49,10 @@ export function formatPerUnit(cents: number, unit: UsageUnit): string {
 export function formatUsageCap(cap: UsageCap): string {
   const included =
     cap.unit === "MINUTE"
-      ? `${cap.includedUnits} min incluses`
+      ? `${formatCount(cap.includedUnits)} min incluses`
       : cap.unit === "MESSAGE"
-        ? `${cap.includedUnits} réponses incluses`
-        : `${cap.includedUnits} appel${cap.includedUnits === 1 ? "" : "s"} inclus`;
+        ? `${formatCount(cap.includedUnits)} réponses incluses`
+        : `${formatCount(cap.includedUnits)} appel${cap.includedUnits === 1 ? "" : "s"} inclus`;
   if (cap.overageUnitPriceCents <= 0) return included;
   if (cap.unit === "MESSAGE") {
     return `${included}, puis ${formatCentsWithVat(cap.overageUnitPriceCents)} les ${PRICE_BLOCK_UNITS.MESSAGE} réponses`;

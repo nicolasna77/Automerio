@@ -287,7 +287,11 @@
     "faqHeading": "Questions fréquentes",
     "contactHeading": "Contact",
     "contactForm": "Formulaire : {url}",
-    "signup": "Créer un compte : {url}"
+    "signup": "Créer un compte : {url}",
+    "waitlistNotice": "Le service ouvre bientôt. En attendant, le site présente les solutions et leurs tarifs, et une liste d'attente permet d'être prévenu du lancement ou recontacté : {url}",
+    "updated": "Dernière mise à jour du catalogue : {date}.",
+    "pricingFile": "Tous les tarifs, quotas et dépassements, en un seul fichier : {url}",
+    "waitlistForm": "Liste d'attente et demande de rappel : {url}"
   },
   "Price": {
     "none": "—",
