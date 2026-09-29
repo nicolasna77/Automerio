@@ -18,6 +18,7 @@ import { roleLabel } from "@/lib/organization-roles";
 import { absoluteUrl } from "@/lib/site";
 import { redisRateLimitStorage } from "@/lib/rate-limit";
 import { trustedOrigins } from "@/lib/trusted-origins";
+import { isWaitlistMode } from "@/lib/launch-mode";
 
 export { stripeClient };
 
@@ -42,6 +43,7 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
+    disableSignUp: isWaitlistMode(),
     requireEmailVerification: true,
     sendResetPassword: async ({ user, url }) => {
       await sendPasswordResetEmail({ email: user.email, name: user.name }, url);
@@ -59,6 +61,7 @@ export const auth = betterAuth({
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      disableSignUp: isWaitlistMode(),
     },
   },
   account: {

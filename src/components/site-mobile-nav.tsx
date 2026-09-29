@@ -26,10 +26,13 @@ const MENU_CATEGORIES: ServiceCategory[] = ["COMMUNICATION", "INFORMATION"];
 export function SiteMobileNav({
   services,
   loggedIn,
+  waitlist = false,
 }: {
   services: ServiceMenuItem[];
   loggedIn: boolean;
+  waitlist?: boolean;
 }) {
+  const tWaitlist = useTranslations("Waitlist");
   const t = useTranslations("Site");
   const tCatalog = useTranslations("Catalog");
   const [open, setOpen] = useState(false);
@@ -86,7 +89,7 @@ export function SiteMobileNav({
             })}
 
             <ul className="flex flex-col border-t border-border pt-4">
-              {SITE_NAV_LINKS.map((link) => (
+              {SITE_NAV_LINKS.filter((link) => !waitlist || link.key !== "contact").map((link) => (
                 <li key={link.href}>
                   <MobileNavLink href={link.href}>{t(`nav.${link.key}`)}</MobileNavLink>
                 </li>
@@ -95,7 +98,15 @@ export function SiteMobileNav({
           </nav>
         </SheetBody>
         <SheetFooter className="border-t border-border">
-          {loggedIn ? (
+          {waitlist && !loggedIn ? (
+            <SheetClose
+              render={<Link href="/#waitlist" />}
+              nativeButton={false}
+              className={buttonVariants({ size: "lg", className: "w-full" })}
+            >
+              {tWaitlist("cta")}
+            </SheetClose>
+          ) : loggedIn ? (
             <SheetClose
               render={<Link href="/dashboard" />}
               nativeButton={false}

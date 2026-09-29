@@ -7,21 +7,21 @@ datasource db {
 }
 
 model User {
-  id                      String          @id
+  id                      String               @id
   name                    String
   email                   String
-  emailVerified           Boolean         @default(false)
+  emailVerified           Boolean              @default(false)
   image                   String?
-  createdAt               DateTime        @default(now())
-  updatedAt               DateTime        @updatedAt
+  createdAt               DateTime             @default(now())
+  updatedAt               DateTime             @updatedAt
   stripeCustomerId        String?
-  role                    String?         @default("CLIENT")
-  banned                  Boolean?        @default(false)
+  role                    String?              @default("CLIENT")
+  banned                  Boolean?             @default(false)
   banReason               String?
   banExpires              DateTime?
-  notificationPreferences Json            @default("{}")
+  notificationPreferences Json                 @default("{}")
   notificationsSeenAt     DateTime?
-  twoFactorEnabled        Boolean?        @default(false)
+  twoFactorEnabled        Boolean?             @default(false)
   pendingOrganizationName String?
   twoFactors              TwoFactor[]
   sessions                Session[]
@@ -32,7 +32,7 @@ model User {
   auditLogs               AuditLog[]
 
   members     Member[]
-  testCalls               TestCall[]
+  testCalls   TestCall[]
   invitations Invitation[]
 
   @@unique([email])
@@ -152,18 +152,18 @@ model Service {
   usageUnit             UsageUnit?
   overageUnitPriceCents Int?
 
-  maxUsageUnits         Int?
-  usageStepUnits        Int?
+  maxUsageUnits  Int?
+  usageStepUnits Int?
 
-  extraUnitPriceCents   Int?
+  extraUnitPriceCents Int?
 
-  configFields      Json            @default("[]")
-  sortOrder         Int             @default(0)
-  isActive          Boolean         @default(true)
+  configFields Json    @default("[]")
+  sortOrder    Int     @default(0)
+  isActive     Boolean @default(true)
 
-  updatedAt         DateTime        @updatedAt
-  clientServices    ClientService[]
-  marketingPosts    MarketingPost[]
+  updatedAt      DateTime        @updatedAt
+  clientServices ClientService[]
+  marketingPosts MarketingPost[]
 
   @@map("service")
 }
@@ -176,42 +176,42 @@ enum ClientServiceStatus {
 }
 
 model ClientService {
-  id                      String              @id @default(cuid())
-  userId                  String
-  user                    User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  organizationId          String
-  organization            Organization        @relation(fields: [organizationId], references: [id], onDelete: Restrict)
-  name                    String
-  serviceId               String
-  service                 Service             @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-  status                  ClientServiceStatus @default(PENDING_PAYMENT)
-  configuration           Json                @default("{}")
+  id             String              @id @default(cuid())
+  userId         String
+  user           User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationId String
+  organization   Organization        @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  name           String
+  serviceId      String
+  service        Service             @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  status         ClientServiceStatus @default(PENDING_PAYMENT)
+  configuration  Json                @default("{}")
 
-  includedUsageUnits      Int?
-  monthlyPriceCents       Int?
-  adminNote               String?
-  stripeCheckoutSessionId String?
-  stripePaymentIntentId   String?
-  stripeSubscriptionId    String?
-  externalPhoneNumber     String?
-  externalPhoneNumberSid  String?
-  whatsappPhoneNumberId    String?
+  includedUsageUnits        Int?
+  monthlyPriceCents         Int?
+  adminNote                 String?
+  stripeCheckoutSessionId   String?
+  stripePaymentIntentId     String?
+  stripeSubscriptionId      String?
+  externalPhoneNumber       String?
+  externalPhoneNumberSid    String?
+  whatsappPhoneNumberId     String?
   whatsappBusinessAccountId String?
   whatsappAccessToken       String?
   whatsappDisplayNumber     String?
-  facebookPageId           String?
-  facebookPageAccessToken  String?
-  facebookPageName         String?
-  instagramAccountId       String?
-  instagramAccessToken     String?
-  instagramTokenExpiresAt  DateTime?
-  instagramUsername        String?
-  promoCode                String?
-  paymentFailedAt          DateTime?
-  activatedAt             DateTime?
-  canceledAt              DateTime?
-  createdAt               DateTime            @default(now())
-  updatedAt               DateTime            @updatedAt
+  facebookPageId            String?
+  facebookPageAccessToken   String?
+  facebookPageName          String?
+  instagramAccountId        String?
+  instagramAccessToken      String?
+  instagramTokenExpiresAt   DateTime?
+  instagramUsername         String?
+  promoCode                 String?
+  paymentFailedAt           DateTime?
+  activatedAt               DateTime?
+  canceledAt                DateTime?
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
 
   usageEvents        UsageEvent[]
   calendarConnection CalendarConnection?
@@ -369,19 +369,19 @@ model HelpRequestMessage {
 }
 
 model Organization {
-  id             String          @id
-  name           String
-  slug           String
-  logo           String?
-  createdAt      DateTime
-  metadata       String?
+  id        String   @id
+  name      String
+  slug      String
+  logo      String?
+  createdAt DateTime
+  metadata  String?
 
-  stripeCustomerId String?        @unique
+  stripeCustomerId   String?         @unique
   lastWeeklyDigestAt DateTime?
-  members        Member[]
-  invitations    Invitation[]
-  clientServices ClientService[]
-  helpRequests   HelpRequest[]
+  members            Member[]
+  invitations        Invitation[]
+  clientServices     ClientService[]
+  helpRequests       HelpRequest[]
 
   @@unique([slug])
   @@map("organization")
@@ -432,16 +432,16 @@ enum AuditAction {
 }
 
 model AuditLog {
-  id      String      @id @default(cuid())
-  actorId String
-  actor   User        @relation(fields: [actorId], references: [id], onDelete: Restrict)
-  action  AuditAction
+  id          String      @id @default(cuid())
+  actorId     String
+  actor       User        @relation(fields: [actorId], references: [id], onDelete: Restrict)
+  action      AuditAction
   actorLabel  String
   targetType  String
   targetId    String
   targetLabel String
   detail      String?
-  createdAt   DateTime @default(now())
+  createdAt   DateTime    @default(now())
 
   @@index([createdAt])
   @@index([targetType, targetId])
@@ -579,4 +579,20 @@ model TestCall {
 
   @@index([clientServiceId, createdAt])
   @@map("test_call")
+}
+
+model WaitlistEntry {
+  id                  String    @id @default(cuid())
+  email               String    @unique
+  name                String?
+  company             String?
+  phone               String?
+  wantsCallback       Boolean   @default(false)
+  wantsNewsletter     Boolean   @default(false)
+  newsletterConsentAt DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([createdAt])
+  @@map("waitlist_entry")
 }

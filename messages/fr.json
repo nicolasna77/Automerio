@@ -32,7 +32,8 @@
     "legalNotice": "Mentions légales",
     "terms": "Conditions générales de vente",
     "privacy": "Politique de confidentialité",
-    "cookies": "Cookies"
+    "cookies": "Cookies",
+    "adminWaitlist": "Liste d'attente"
   },
   "Site": {
     "title": "Automerio : assistants IA pour artisans, coachs et TPE",
@@ -640,5 +641,33 @@
     "demoCaption": "Exemple avec des données de démonstration.",
     "overviewAlt": "Tableau de bord Automerio : les appels à rappeler, le nombre d'appels du mois et la dépense mensuelle.",
     "callsAlt": "Récapitulatif des appels d'un standard téléphonique : motif, nom de l'appelant, issue de l'appel et appels à rappeler."
+  },
+  "Waitlist": {
+    "heading": "L'application ouvre bientôt",
+    "lead": "Laissez vos coordonnées. Nous vous rappelons pour parler de votre activité, ou nous vous prévenons le jour du lancement.",
+    "cta": "Être prévenu du lancement",
+    "ctaShort": "Être prévenu",
+    "form": {
+      "email": "E-mail",
+      "name": "Nom",
+      "company": "Entreprise ou activité",
+      "phone": "Téléphone",
+      "phoneHint": "Pour être rappelé plutôt qu'écrit.",
+      "optional": "(facultatif)",
+      "honeypot": "Site web",
+      "callback": "Je souhaite être recontacté pour en parler",
+      "newsletter": "Je veux être informé du lancement par e-mail",
+      "notice": "Vos coordonnées servent uniquement à vous recontacter ou à vous informer du lancement. Vous pouvez vous désinscrire à tout moment. <link>Politique de confidentialité</link>.",
+      "submit": "M'inscrire",
+      "sending": "Envoi…",
+      "sent": "C'est noté.",
+      "sentDetail": "Nous revenons vers vous dès que possible.",
+      "genericError": "Une erreur est survenue. Réessayez dans un instant."
+    },
+    "errors": {
+      "invalidEmail": "Indiquez une adresse e-mail valide.",
+      "missingChoice": "Cochez au moins une des deux cases.",
+      "rateLimited": "Trop de demandes envoyées récemment. Réessayez dans quelques minutes."
+    }
   }
 }

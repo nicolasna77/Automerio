@@ -9,10 +9,18 @@ import { UserMenu } from "@/components/user-menu";
 import { getSession, isAdmin } from "@/lib/session";
 import { getCatalog } from "@/lib/get-catalog";
 import { SITE_NAV_LINKS } from "@/lib/site";
+import { isWaitlistMode } from "@/lib/launch-mode";
 
 export async function SiteHeader() {
-  const [session, catalog, t] = await Promise.all([getSession(), getCatalog(), getTranslations("Site")]);
-  const services = catalog.map(({ slug, name, category }) => ({ slug, name, category }));
+  const waitlist = isWaitlistMode();
+  const [session, catalog, t, tWaitlist] = await Promise.all([
+    getSession(),
+    getCatalog(),
+    getTranslations("Site"),
+    getTranslations("Waitlist"),
+  ]);
+  const services = waitlist ? [] : catalog.map(({ slug, name, category }) => ({ slug, name, category }));
+  const navLinks = waitlist ? SITE_NAV_LINKS.filter((link) => link.key !== "contact") : SITE_NAV_LINKS;
   const user = session
     ? {
         name: session.user.name,
@@ -32,7 +40,7 @@ export async function SiteHeader() {
       <header className="sticky top-0 z-50 border-b bg-background/90 backdrop-blur supports-backdrop-filter:bg-background/75">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-1">
-            <SiteMobileNav services={services} loggedIn={!!user} />
+            <SiteMobileNav services={services} loggedIn={!!user} waitlist={waitlist} />
             <AutomerioLogo />
           </div>
 
@@ -40,8 +48,8 @@ export async function SiteHeader() {
             aria-label={t("mainNavLabel")}
             className="ml-8 hidden items-center gap-6 text-sm text-muted-foreground lg:flex"
           >
-            <ServicesMenu services={services} />
-            {SITE_NAV_LINKS.map((link) => (
+            {!waitlist && <ServicesMenu services={services} />}
+            {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -50,7 +58,7 @@ export async function SiteHeader() {
                 {t(`nav.${link.key}`)}
               </Link>
             ))}
-            {user && (
+            {user && !waitlist && (
               <Link
                 href="/dashboard"
                 className="rounded-md transition-colors hover:text-foreground focus-visible:focus-ring"
@@ -68,6 +76,11 @@ export async function SiteHeader() {
                 email={user.email}
                 isAdmin={user.isAdmin}
               />
+            ) : waitlist ? (
+              <Link href="/#waitlist" className={buttonVariants({ className: "h-10 px-4 sm:h-9" })}>
+                <span className="sm:hidden">{tWaitlist("ctaShort")}</span>
+                <span className="hidden sm:inline">{tWaitlist("cta")}</span>
+              </Link>
             ) : (
               <>
                 <Link

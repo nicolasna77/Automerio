@@ -3,6 +3,7 @@ import createIntlMiddleware from "next-intl/middleware";
 import { getSessionCookie } from "better-auth/cookies";
 import { routing } from "@/i18n/routing";
 import { authPathWithNext } from "@/lib/safe-redirect";
+import { isOpenDuringWaitlist, isWaitlistMode } from "@/lib/launch-mode";
 
 const handleI18nRouting = createIntlMiddleware(routing);
 
@@ -19,6 +20,9 @@ function splitLocale(pathname: string): { prefix: string; path: string } {
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const { prefix, path } = splitLocale(pathname);
+  if (isWaitlistMode() && !isOpenDuringWaitlist(path)) {
+    return NextResponse.redirect(new URL(`${prefix}/`, request.url));
+  }
   if (PROTECTED.test(path) && !getSessionCookie(request)) {
     return NextResponse.redirect(
       new URL(`${prefix}${authPathWithNext("/login", `${pathname}${search}`)}`, request.url)
