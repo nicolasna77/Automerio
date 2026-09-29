@@ -307,23 +307,22 @@ export function ActivationFlow({
                   )}
                 </SummarySection>
 
+                {/* Une catégorie laissée vide n'est pas rappelée : le stepper
+                    permet toujours d'y revenir. */}
                 {categories.map((category, index) => {
                   const filled = category.fields.filter((field) => !isFieldEmpty(field, values));
+                  if (filled.length === 0) return null;
                   return (
                     <SummarySection
                       key={category.id}
                       title={category.title}
                       onEdit={() => goToStep(index + 1)}
                     >
-                      {filled.length === 0 ? (
-                        <p className="py-2 text-sm text-muted-foreground">Rien de renseigné.</p>
-                      ) : (
-                        filled.map((field) => (
-                          <SummaryRow key={field.key} label={field.label}>
-                            {formatConfigField(field, field.key, values[field.key])}
-                          </SummaryRow>
-                        ))
-                      )}
+                      {filled.map((field) => (
+                        <SummaryRow key={field.key} label={field.label}>
+                          {formatConfigField(field, field.key, values[field.key])}
+                        </SummaryRow>
+                      ))}
                     </SummarySection>
                   );
                 })}
