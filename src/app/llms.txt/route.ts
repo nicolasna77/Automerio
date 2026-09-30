@@ -2,6 +2,9 @@ import { db } from "@/lib/db";
 import { getTranslations } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { absoluteUrl, SITE_NAME } from "@/lib/site";
+import { isWaitlistMode } from "@/lib/launch-mode";
+import { publicContactUrl, publicServiceUrl } from "@/lib/public-links";
+import { formatDate } from "@/lib/catalog";
 import { getFaqs } from "@/lib/site-metadata";
 import type { ServiceCategory } from "@/lib/catalog";
 import { formatCentsWithVat } from "@/lib/vat";
@@ -21,6 +24,14 @@ export async function GET() {
     where: { isActive: true },
     orderBy: [{ category: "asc" }, { sortOrder: "asc" }],
   });
+
+  const waitlist = isWaitlistMode();
+  // Date de la dernière modification du catalogue : un signal de fraîcheur
+  // pour les moteurs qui lisent ce fichier.
+  const updatedAt = services.reduce(
+    (latest, service) => (service.updatedAt > latest ? service.updatedAt : latest),
+    new Date(0)
+  );
 
   const byCategory = new Map<ServiceCategory, typeof services>();
   for (const service of services) {
@@ -42,7 +53,12 @@ export async function GET() {
     "",
     t("intro"),
     "",
+    ...(waitlist ? [t("waitlistNotice", { url: publicContactUrl() }), ""] : []),
+    t("updated", { date: formatDate(updatedAt) }),
+    "",
     `## ${t("servicesHeading")}`,
+    "",
+    t("pricingFile", { url: absoluteUrl("/pricing.md") }),
     "",
   ];
 
@@ -50,7 +66,7 @@ export async function GET() {
     lines.push(`### ${tCatalog(`categories.${category}`)}`, "");
     for (const service of list) {
       lines.push(
-        `- [${service.name}](${absoluteUrl(`/services/${service.slug}`)}) : ${service.description}`,
+        `- [${service.name}](${publicServiceUrl(service.slug)}) : ${service.description}`,
         `  ${t("priceLine", { price: price(service.monthlyPriceCents) })}${
           usageCapLabelOf(service) ? ` ${usageCapLabelOf(service)}.` : ""
         }`
@@ -67,8 +83,12 @@ export async function GET() {
   lines.push(
     `## ${t("contactHeading")}`,
     "",
-    `- ${t("contactForm", { url: absoluteUrl("/contact") })}`,
-    `- ${t("signup", { url: absoluteUrl("/signup") })}`,
+    ...(waitlist
+      ? [`- ${t("waitlistForm", { url: publicContactUrl() })}`]
+      : [
+          `- ${t("contactForm", { url: publicContactUrl() })}`,
+          `- ${t("signup", { url: absoluteUrl("/signup") })}`,
+        ]),
     ""
   );
 

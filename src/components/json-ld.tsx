@@ -1,6 +1,7 @@
 import { absoluteUrl, SITE_NAME, siteUrl, type Faq } from "@/lib/site";
 import { LEGAL_ENTITY } from "@/lib/legal";
 import type { ServiceDTO } from "@/lib/catalog";
+import { publicContactUrl, publicServiceUrl } from "@/lib/public-links";
 
 export function JsonLd({ data }: { data: object }) {
   return (
@@ -27,7 +28,7 @@ export function organizationSchema(description: string) {
       "@type": "ContactPoint",
       contactType: "sales",
       email: LEGAL_ENTITY.email,
-      url: absoluteUrl("/contact"),
+      url: publicContactUrl(),
       availableLanguage: ["fr"],
     },
   };
@@ -45,10 +46,32 @@ export function faqSchema(items: Faq[]) {
   };
 }
 
-export function serviceSchema(
-  service: ServiceDTO,
-  labels: { offerName: string; termsOfService: string | null }
+type ServiceLabels = { offerName: string; termsOfService: string | null };
+
+export function serviceSchema(service: ServiceDTO, labels: ServiceLabels) {
+  return { "@context": "https://schema.org", ...serviceEntity(service, labels) };
+}
+
+// Les solutions et leurs prix, sur la page d'accueil : en mode présentation,
+// c'est la seule page publique qui les décrit.
+export function serviceListSchema(
+  name: string,
+  services: ServiceDTO[],
+  labelsOf: (service: ServiceDTO) => ServiceLabels
 ) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name,
+    itemListElement: services.map((service, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      item: serviceEntity(service, labelsOf(service)),
+    })),
+  };
+}
+
+function serviceEntity(service: ServiceDTO, labels: ServiceLabels) {
   const offers: object[] = [];
   if (service.monthlyPriceCents !== null) {
     offers.push({
@@ -67,11 +90,10 @@ export function serviceSchema(
   }
 
   return {
-    "@context": "https://schema.org",
     "@type": "Service",
     name: service.name,
     description: service.description,
-    url: absoluteUrl(`/services/${service.slug}`),
+    url: publicServiceUrl(service.slug),
     provider: { "@type": "Organization", name: SITE_NAME, url: siteUrl() },
     areaServed: { "@type": "Country", name: "France" },
     ...(offers.length > 0 && {

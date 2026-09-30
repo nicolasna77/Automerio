@@ -65,6 +65,11 @@ describe("formatUsageUnits", () => {
   it("accorde le pluriel des appels, jamais celui des minutes", () => {
     expect(formatUsageUnits(1, "CALL")).toBe("1 appel");
     expect(formatUsageUnits(3, "CALL")).toBe("3 appels");
+  });
+
+  it("sépare les milliers", () => {
+    expect(formatUsageUnits(6000, "MINUTE")).toBe("6 000 min");
+    expect(formatUsageUnits(30000, "MESSAGE")).toBe("30 000 réponses");
     expect(formatUsageUnits(1, "MINUTE")).toBe("1 min");
   });
 });
