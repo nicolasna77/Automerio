@@ -115,7 +115,7 @@ export function ServiceConfigurationCard({
         {showCalendarRow && (
           <CalendarConnection
             clientServiceId={item.clientServiceId}
-            connected={item.calendarConnected}
+            calendar={item.calendar}
           />
         )}
         {showWhatsAppRow && (

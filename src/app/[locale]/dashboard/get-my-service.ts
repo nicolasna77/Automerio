@@ -3,6 +3,7 @@ import type {
   Booking,
   CalendarConnection,
   ClientService,
+  SchedulingConnection,
   Service,
   ServiceEvent,
 } from "@prisma/client";
@@ -25,6 +26,7 @@ function toBookingDTO(booking: Booking): BookingDTO {
     startAt: booking.startAt,
     endAt: booking.endAt,
     googleEventId: booking.googleEventId,
+    externalBookingId: booking.externalBookingId,
     notes: booking.notes,
     createdAt: booking.createdAt,
   };
@@ -43,6 +45,7 @@ export function toMyServiceDTO(
   cs: ClientService & {
     service: Service;
     calendarConnection?: CalendarConnection | null;
+    schedulingConnection?: SchedulingConnection | null;
     bookings?: Booking[];
     events?: ServiceEvent[];
   }
@@ -58,7 +61,16 @@ export function toMyServiceDTO(
     canceledAt: cs.canceledAt,
     paymentFailedAt: cs.paymentFailedAt,
     externalPhoneNumber: cs.externalPhoneNumber,
-    calendarConnected: !!cs.calendarConnection,
+    calendarConnected: !!(cs.calendarConnection || cs.schedulingConnection),
+    calendar: cs.schedulingConnection
+      ? {
+          provider: cs.schedulingConnection.provider as "calcom" | "calendly",
+          account: cs.schedulingConnection.accountLabel,
+          eventTypeName: cs.schedulingConnection.eventTypeName,
+        }
+      : cs.calendarConnection
+        ? { provider: "google", account: cs.calendarConnection.googleAccountEmail, eventTypeName: null }
+        : null,
     whatsappConnected: !!cs.whatsappPhoneNumberId,
     whatsappDisplayNumber: cs.whatsappDisplayNumber,
     facebookConnected: !!cs.facebookPageId,
@@ -91,6 +103,7 @@ export async function getMyService(
     include: {
       service: true,
       calendarConnection: true,
+      schedulingConnection: true,
       bookings: { orderBy: { createdAt: "desc" }, take: 10 },
       events: { orderBy: { createdAt: "desc" } },
     },

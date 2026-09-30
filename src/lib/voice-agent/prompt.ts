@@ -24,7 +24,12 @@ function formatWeeklyHours(hours: WeeklyHours | null): string {
     .join(", ") || "fermé toute la semaine";
 }
 
-function buildPriseRdvPrompt(configuration: Configuration, companyName: string, calendarConnected: boolean): string {
+function buildPriseRdvPrompt(
+  configuration: Configuration,
+  companyName: string,
+  calendarConnected: boolean,
+  collectsEmail: boolean
+): string {
   const objectives = asStringArray(configuration.objectives);
   const canBookAppointments = objectives.includes("appointment") && calendarConnected;
   const takesOrders = objectives.includes("order");
@@ -46,6 +51,9 @@ function buildPriseRdvPrompt(configuration: Configuration, companyName: string, 
       "vérifié un créneau disponible avec check_availability. Demande le nom, le",
       "numéro de téléphone de l'appelant, et le motif du rendez-vous avant de",
       "réserver.",
+      collectsEmail
+        ? "Propose-lui de donner son adresse e-mail pour recevoir la confirmation ; ce n'est pas obligatoire. Fais-la épeler et relis-la."
+        : "",
       appointmentTypes.length > 0
         ? `Types de rendez-vous proposés : ${appointmentTypes.join(", ")}.`
         : "",
@@ -154,7 +162,7 @@ function buildMessagingPrompt(
 export function buildSystemPrompt(
   serviceSlug: string,
   configuration: Configuration,
-  options: { calendarConnected: boolean; companyName: string }
+  options: { calendarConnected: boolean; collectsEmail?: boolean; companyName: string }
 ): string {
   const companyName = options.companyName || "cette entreprise";
 
@@ -169,6 +177,11 @@ export function buildSystemPrompt(
       return buildMessagingPrompt(configuration, companyName, "Instagram");
     case "prise-rdv-telephone":
     default:
-      return buildPriseRdvPrompt(configuration, companyName, options.calendarConnected);
+      return buildPriseRdvPrompt(
+        configuration,
+        companyName,
+        options.calendarConnected,
+        options.collectsEmail ?? false
+      );
   }
 }

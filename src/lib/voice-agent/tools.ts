@@ -1,6 +1,6 @@
 import { getOpenAIClient } from "@/lib/openai";
 import { db } from "@/lib/db";
-import { createCalendarEvent, isSlotFree } from "@/lib/google-calendar";
+import { getScheduler } from "@/lib/scheduling";
 import { asRuleRows, asStringArray, type Configuration } from "@/lib/catalog";
 import { countCatalogItems, readProductCatalog } from "@/lib/product-catalog";
 
@@ -54,25 +54,38 @@ const CHECK_AVAILABILITY: ToolDefinition = {
   },
 };
 
-const BOOK_APPOINTMENT: ToolDefinition = {
-  type: "function",
-  function: {
-    name: "book_appointment",
-    description:
-      "Réserve un rendez-vous dans l'agenda une fois le créneau confirmé libre et les informations de l'appelant recueillies.",
-    parameters: {
-      type: "object",
-      properties: {
-        customerName: { type: "string" },
-        customerPhone: { type: "string" },
-        startAt: { type: "string", description: "Format ISO 8601." },
-        durationMinutes: { type: "number" },
-        notes: { type: "string", description: "Motif du rendez-vous." },
-      },
-      required: ["customerName", "customerPhone", "startAt", "durationMinutes"],
-    },
-  },
+const BOOKING_PROPERTIES = {
+  customerName: { type: "string" },
+  customerPhone: { type: "string" },
+  startAt: { type: "string", description: "Format ISO 8601." },
+  durationMinutes: { type: "number" },
+  notes: { type: "string", description: "Motif du rendez-vous." },
 };
+
+function buildBookAppointmentTool(collectsEmail: boolean): ToolDefinition {
+  return {
+    type: "function",
+    function: {
+      name: "book_appointment",
+      description:
+        "Réserve un rendez-vous dans l'agenda une fois le créneau confirmé libre et les informations de l'appelant recueillies.",
+      parameters: {
+        type: "object",
+        properties: collectsEmail
+          ? {
+              ...BOOKING_PROPERTIES,
+              customerEmail: {
+                type: "string",
+                description:
+                  "Adresse e-mail de l'appelant, seulement s'il souhaite recevoir la confirmation. Facultatif.",
+              },
+            }
+          : BOOKING_PROPERTIES,
+        required: ["customerName", "customerPhone", "startAt", "durationMinutes"],
+      },
+    },
+  };
+}
 
 const TAKE_ORDER: ToolDefinition = {
   type: "function",
@@ -139,10 +152,13 @@ const TAKE_MESSAGE: ToolDefinition = {
   },
 };
 
+// collectsEmail : l'agenda (Cal.com, Calendly) envoie une confirmation par
+// e-mail, l'agent peut donc proposer à l'appelant de donner son adresse.
 export function getToolDefinitions(
   serviceSlug: string,
   configuration: Configuration,
-  calendarConnected: boolean
+  calendarConnected: boolean,
+  collectsEmail = false
 ): ToolDefinition[] {
   if (serviceSlug === "standard-telephonique-ia") {
     const tools: ToolDefinition[] = [];
@@ -155,7 +171,7 @@ export function getToolDefinitions(
   const objectives = objectivesOf(configuration);
   const tools: ToolDefinition[] = [];
   if (objectives.includes("appointment") && calendarConnected) {
-    tools.push(CHECK_AVAILABILITY, BOOK_APPOINTMENT);
+    tools.push(CHECK_AVAILABILITY, buildBookAppointmentTool(collectsEmail));
   }
   if (objectives.includes("order")) {
     const hasCatalog = countCatalogItems(readProductCatalog(configuration.productCatalog)) > 0;
@@ -182,28 +198,41 @@ export async function runTool(
     case "check_availability": {
       const startAt = new Date(args.startAt as string);
       const durationMinutes = Number(args.durationMinutes);
-      const endAt = new Date(startAt.getTime() + durationMinutes * 60_000);
-      const free = await isSlotFree(context.clientServiceId, startAt, endAt);
-      return free
-        ? "Le créneau est libre."
-        : "Le créneau n'est pas disponible (ou l'agenda n'a pas pu être consulté) — propose un autre horaire.";
+      const scheduler = await getScheduler(context.clientServiceId);
+      const free = scheduler ? await scheduler.isSlotFree(startAt, durationMinutes) : false;
+      if (free) {
+        return scheduler?.fixedDurationMinutes
+          ? `Le créneau est libre. Le rendez-vous dure ${scheduler.fixedDurationMinutes} minutes.`
+          : "Le créneau est libre.";
+      }
+      return "Le créneau n'est pas disponible, ou l'agenda n'a pas pu être consulté : propose un autre horaire.";
     }
 
     case "book_appointment": {
       const customerName = String(args.customerName ?? "");
       const customerPhone = String(args.customerPhone ?? "");
+      const customerEmail =
+        typeof args.customerEmail === "string" && args.customerEmail.includes("@")
+          ? args.customerEmail.trim()
+          : null;
       const startAt = new Date(args.startAt as string);
-      const durationMinutes = Number(args.durationMinutes);
-      const endAt = new Date(startAt.getTime() + durationMinutes * 60_000);
       const notes = typeof args.notes === "string" ? args.notes : null;
       if (context.testMode) return "Rendez-vous confirmé et ajouté à l'agenda.";
 
-      const googleEventId = await createCalendarEvent(context.clientServiceId, {
-        summary: `RDV — ${customerName}`,
-        description: notes ?? undefined,
-        startAt,
-        endAt,
-      });
+      const scheduler = await getScheduler(context.clientServiceId);
+      // Une durée imposée par le type de rendez-vous prime sur celle de l'agent.
+      const durationMinutes = scheduler?.fixedDurationMinutes ?? Number(args.durationMinutes);
+      const endAt = new Date(startAt.getTime() + durationMinutes * 60_000);
+      const result = scheduler
+        ? await scheduler.book({
+            startAt,
+            durationMinutes,
+            customerName,
+            customerPhone,
+            customerEmail,
+            notes,
+          })
+        : null;
 
       await db.booking.create({
         data: {
@@ -213,14 +242,15 @@ export async function runTool(
           customerPhone,
           startAt,
           endAt,
-          googleEventId,
+          googleEventId: result?.googleEventId ?? null,
+          externalBookingId: result?.externalBookingId ?? null,
           notes,
         },
       });
 
-      return googleEventId
+      return result
         ? "Rendez-vous confirmé et ajouté à l'agenda."
-        : "Rendez-vous enregistré, mais l'ajout à l'agenda a échoué — l'équipe le synchronisera manuellement.";
+        : "Rendez-vous noté, mais l'ajout à l'agenda a échoué : l'entreprise le confirmera elle-même.";
     }
 
     case "take_order": {

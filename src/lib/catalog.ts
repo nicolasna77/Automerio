@@ -161,6 +161,7 @@ export type BookingDTO = {
   startAt: Date | null;
   endAt: Date | null;
   googleEventId: string | null;
+  externalBookingId: string | null;
   notes: string | null;
   createdAt: Date;
 };
@@ -193,8 +194,8 @@ export const SERVICE_EVENT_LABELS: Record<ServiceEventType, string> = {
   ACTIVATED: "Solution vérifiée et activée",
   NOTE_ADDED: "Note de l'équipe Automerio",
   PHONE_ASSIGNED: "Numéro de téléphone attribué",
-  CALENDAR_CONNECTED: "Agenda Google connecté",
-  CALENDAR_DISCONNECTED: "Agenda Google déconnecté",
+  CALENDAR_CONNECTED: "Agenda connecté",
+  CALENDAR_DISCONNECTED: "Agenda déconnecté",
   WHATSAPP_CONNECTED: "Compte WhatsApp connecté",
   WHATSAPP_DISCONNECTED: "Compte WhatsApp déconnecté",
   FACEBOOK_CONNECTED: "Page Facebook connectée",
@@ -227,6 +228,12 @@ export type MyServiceDTO = {
   paymentFailedAt: Date | null;
   externalPhoneNumber: string | null;
   calendarConnected: boolean;
+  // L'agenda branché, sans aucun secret : outil, compte, type de rendez-vous.
+  calendar: {
+    provider: "google" | "calcom" | "calendly";
+    account: string;
+    eventTypeName: string | null;
+  } | null;
   whatsappConnected: boolean;
   whatsappDisplayNumber: string | null;
   facebookConnected: boolean;

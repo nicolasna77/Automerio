@@ -258,11 +258,11 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
             </p>
             <p className="mt-1 mb-3 text-sm text-muted-foreground">
               Les rendez-vous pris par téléphone s&apos;ajouteront directement
-              dans votre Google Agenda.
+              dans votre agenda : Google Agenda, Cal.com ou Calendly.
             </p>
             <CalendarConnection
               clientServiceId={item.clientServiceId}
-              connected={item.calendarConnected}
+              calendar={item.calendar}
             />
           </div>
         )}

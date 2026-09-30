@@ -82,7 +82,8 @@ export default async function ServiceDetailPage({
   const { scheduled: scheduledBookings, unscheduled: unscheduledBookings } =
     toCalendarBookings(item.bookings, {
       subtitle: (b) => b.customerPhone,
-      isSynced: (b) => !item.calendarConnected || Boolean(b.googleEventId),
+      isSynced: (b) =>
+        !item.calendarConnected || Boolean(b.googleEventId || b.externalBookingId),
     });
 
   const sideCards = (

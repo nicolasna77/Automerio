@@ -98,7 +98,7 @@ export const SERVICE_COPY: Record<string, ServiceCopy> = {
       {
         question: "Avec quel agenda est-ce que ça fonctionne ?",
         answer:
-          "Votre agenda Google se connecte depuis votre tableau de bord, et les rendez-vous s'y écrivent pendant l'appel. Si vous utilisez un autre outil de réservation, vous renseignez son lien à l'activation.",
+          "Google Agenda, Cal.com ou Calendly se connectent depuis votre tableau de bord, et les rendez-vous s'y écrivent pendant l'appel. Pour Calendly, la réservation par un assistant demande une offre payante.",
       },
       {
         question: "Peut-il prendre des commandes en plus des rendez-vous ?",
