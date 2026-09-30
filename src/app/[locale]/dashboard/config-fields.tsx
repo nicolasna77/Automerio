@@ -28,8 +28,11 @@ import {
   MultiselectField,
   RulesListField,
   TagsField,
+  TemplatePicker,
   WeeklyHoursField,
 } from "./config-field-inputs";
+import { TEMPLATE_FIELDS } from "@/content/fr/call-templates";
+import { AddressField } from "./address-field";
 
 const DEFAULT_SECTION = "Détail de la solution";
 
@@ -42,6 +45,13 @@ function groupBySection(fields: ConfigField[]): [string, ConfigField[]][] {
     else groups.set(section, [field]);
   }
   return Array.from(groups.entries());
+}
+
+// Dit quoi faire, pas seulement que ça manque.
+function requiredMessage(field: ConfigField): string {
+  return field.type === "multiselect"
+    ? "Choisissez au moins une option pour continuer."
+    : `Renseignez « ${field.label} » pour continuer.`;
 }
 
 function renderFieldInput({
@@ -155,9 +165,23 @@ function renderFieldInput({
       return (
         <RulesListField
           id={field.key}
+          fieldKey={field.key}
           labelledBy={`${field.key}-label`}
           value={Array.isArray(value) ? (value as RuleRow[]) : []}
           onChange={onChange}
+        />
+      );
+
+    case "address":
+      return (
+        <AddressField
+          id={field.key}
+          value={typeof value === "string" ? value : ""}
+          placeholder={field.placeholder}
+          hasError={hasError}
+          describedBy={describedBy}
+          onChange={onChange}
+          onBlur={markTouched}
         />
       );
 
@@ -199,12 +223,15 @@ export function ConfigFieldsForm({
   onChange,
   submitAttempted = false,
   omitKeys = [],
+  companyName,
 }: {
   fields: ConfigField[];
   values: Configuration;
   onChange: (key: string, value: ConfigValue) => void;
   submitAttempted?: boolean;
   omitKeys?: string[];
+  // Nom repris dans les modèles de textes (« Bonjour, vous êtes bien chez … »).
+  companyName?: string;
 }) {
   const [touched, setTouched] = useState<Set<string>>(new Set());
   const visibleFields = fields.filter(
@@ -269,7 +296,7 @@ export function ConfigFieldsForm({
                   </label>
                   {hasError ? (
                     <p className="pl-6 text-xs text-destructive">
-                      Ce champ est requis.
+                      Cochez cette case pour continuer.
                     </p>
                   ) : (
                     field.helpText && (
@@ -287,18 +314,30 @@ export function ConfigFieldsForm({
 
             return (
               <div key={field.key} className="space-y-2">
-                <Label
-                  id={`${field.key}-label`}
-                  htmlFor={isFieldGroup ? undefined : field.key}
-                >
-                  {field.label}
-                  {field.required && (
-                    <span aria-hidden="true" className="text-destructive">
-                      {" "}
-                      *
-                    </span>
+                <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                  <Label
+                    id={`${field.key}-label`}
+                    htmlFor={isFieldGroup ? undefined : field.key}
+                  >
+                    {field.label}
+                    {field.required ? (
+                      <span aria-hidden="true" className="text-destructive">
+                        {" "}
+                        *
+                      </span>
+                    ) : (
+                      <span className="font-normal text-muted-foreground"> (facultatif)</span>
+                    )}
+                  </Label>
+                  {field.type === "textarea" && TEMPLATE_FIELDS[field.key] && (
+                    <TemplatePicker
+                      part={TEMPLATE_FIELDS[field.key]}
+                      value={typeof value === "string" ? value : ""}
+                      companyName={companyName}
+                      onChange={(next) => onChange(field.key, next)}
+                    />
                   )}
-                </Label>
+                </div>
 
                 {renderFieldInput({
                   field,
@@ -312,12 +351,13 @@ export function ConfigFieldsForm({
                 {showHelp && (
                   <p
                     id={`${field.key}-help`}
+                    aria-live="polite"
                     className={cn(
                       "text-xs",
                       hasError ? "text-destructive" : "text-muted-foreground"
                     )}
                   >
-                    {hasError ? "Ce champ est requis." : field.helpText}
+                    {hasError ? requiredMessage(field) : field.helpText}
                   </p>
                 )}
               </div>

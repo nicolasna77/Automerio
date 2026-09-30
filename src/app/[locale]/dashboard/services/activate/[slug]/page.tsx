@@ -42,6 +42,7 @@ export default async function ActivateServicePage({
       <ActivationFlow
         service={service}
         organizationId={organization.id}
+        organizationName={organization.name}
         initialUnits={initialUnits}
       />
     </PageShell>

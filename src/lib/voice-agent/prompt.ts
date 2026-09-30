@@ -37,6 +37,7 @@ function buildPriseRdvPrompt(
   const lines = [
     `Tu es l'assistant téléphonique de ${companyName}. Tu réponds en français, de façon`,
     `chaleureuse, concise, et tu vouvoies l'appelant.`,
+    `Commence l'appel en présentant ${companyName} en une phrase, puis présente-toi comme son assistant virtuel.`,
     `Horaires d'ouverture : ${formatWeeklyHours(asWeeklyHours(configuration.businessHours))}.`,
   ];
 
@@ -107,8 +108,8 @@ function buildStandardTelephoniquePrompt(configuration: Configuration, companyNa
     `Tu es le standard téléphonique de ${companyName}. Tu réponds en français,`,
     `de façon chaleureuse, concise, et tu vouvoies l'appelant.`,
     greetingMessage
-      ? `Commence l'appel en disant exactement : « ${greetingMessage} »`
-      : `Commence l'appel par une salutation brève, en te présentant comme l'assistant de ${companyName}.`,
+      ? `Commence l'appel en disant exactement : « ${greetingMessage} » Si ce message ne le dit pas, précise ensuite que tu es un assistant virtuel.`
+      : `Commence l'appel par une salutation brève : présente ${companyName} en une phrase, puis présente-toi comme son assistant virtuel.`,
     `Horaires d'ouverture : ${formatWeeklyHours(openingHours)}.`,
     open
       ? "L'entreprise est actuellement ouverte."

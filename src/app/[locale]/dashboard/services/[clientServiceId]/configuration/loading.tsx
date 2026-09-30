@@ -3,7 +3,7 @@ import { PageShell } from "@/components/page-shell";
 
 export default function Loading() {
   return (
-    <PageShell size="form" role="status" aria-label="Chargement de la configuration…">
+    <PageShell size="content" role="status" aria-label="Chargement de la configuration…">
       <Skeleton className="h-5 w-40" />
       <Skeleton className="mt-6 h-7 w-48" />
       <Skeleton className="mt-2 h-5 w-64" />
