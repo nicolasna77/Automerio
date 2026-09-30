@@ -213,13 +213,14 @@ model ClientService {
   createdAt                 DateTime  @default(now())
   updatedAt                 DateTime  @updatedAt
 
-  usageEvents        UsageEvent[]
-  calendarConnection CalendarConnection?
-  bookings           Booking[]
-  conversations      Conversation[]
-  testCalls          TestCall[]
-  events             ServiceEvent[]
-  helpRequests       HelpRequest[]
+  usageEvents          UsageEvent[]
+  calendarConnection   CalendarConnection?
+  schedulingConnection SchedulingConnection?
+  bookings             Booking[]
+  conversations        Conversation[]
+  testCalls            TestCall[]
+  events               ServiceEvent[]
+  helpRequests         HelpRequest[]
 
   @@unique([organizationId, serviceId, name])
   @@index([userId])
@@ -278,19 +279,45 @@ model CalendarConnection {
   @@map("calendar_connection")
 }
 
-model Booking {
+// Outil de prise de rendez-vous tiers (Cal.com, Calendly), branché par clé
+// API. Une solution n'a qu'un agenda : en connecter un retire l'autre.
+model SchedulingConnection {
   id              String        @id @default(cuid())
-  clientServiceId String
+  clientServiceId String        @unique
   clientService   ClientService @relation(fields: [clientServiceId], references: [id], onDelete: Cascade)
-  kind            String
-  customerName    String
-  customerPhone   String
-  startAt         DateTime?
-  endAt           DateTime?
-  googleEventId   String?
-  notes           String?
-  metadata        Json?
+  // "calcom" ou "calendly"
+  provider        String
+  // Clé API ou jeton personnel, chiffré (src/lib/secret-box.ts).
+  encryptedToken  String
+  accountLabel    String
+  // Identifiant Cal.com ou URI Calendly du type de rendez-vous réservé.
+  eventTypeId     String
+  eventTypeName   String
+  durationMinutes Int
+  // Calendly : lieu du type de rendez-vous ({ kind, location? }), renvoyé
+  // tel quel à la réservation, qui doit le reprendre.
+  location        Json?
   createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@map("scheduling_connection")
+}
+
+model Booking {
+  id                String        @id @default(cuid())
+  clientServiceId   String
+  clientService     ClientService @relation(fields: [clientServiceId], references: [id], onDelete: Cascade)
+  kind              String
+  customerName      String
+  customerPhone     String
+  startAt           DateTime?
+  endAt             DateTime?
+  googleEventId     String?
+  // Réservation créée chez Cal.com ou Calendly.
+  externalBookingId String?
+  notes             String?
+  metadata          Json?
+  createdAt         DateTime      @default(now())
 
   @@index([clientServiceId, createdAt])
   @@map("booking")

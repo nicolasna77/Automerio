@@ -31,6 +31,17 @@ function findSipHeader(
   return headers.find((h) => h.name.toLowerCase() === name.toLowerCase())?.value;
 }
 
+// Agenda de la solution : Google, ou un outil branché par clé (Cal.com,
+// Calendly). Ces derniers envoient une confirmation par e-mail, l'agent peut
+// donc proposer à l'appelant de donner son adresse.
+function calendarOf(clientService: {
+  calendarConnection: unknown;
+  schedulingConnection: unknown;
+}): { calendarConnected: boolean; collectsEmail: boolean } {
+  const collectsEmail = !!clientService.schedulingConnection;
+  return { calendarConnected: collectsEmail || !!clientService.calendarConnection, collectsEmail };
+}
+
 export async function POST(request: Request) {
   const payload = await request.text();
 
@@ -65,7 +76,7 @@ export async function POST(request: Request) {
   const clientService = calledNumber
     ? await db.clientService.findFirst({
         where: { externalPhoneNumber: calledNumber },
-        include: { service: true, organization: true, calendarConnection: true },
+        include: { service: true, organization: true, calendarConnection: true, schedulingConnection: true },
       })
     : null;
 
@@ -74,12 +85,18 @@ export async function POST(request: Request) {
   }
 
   const configuration = (clientService.configuration ?? {}) as Configuration;
-  const calendarConnected = !!clientService.calendarConnection;
+  const { calendarConnected, collectsEmail } = calendarOf(clientService);
   const systemPrompt = buildSystemPrompt(clientService.service.slug, configuration, {
     calendarConnected,
+    collectsEmail,
     companyName: clientService.organization.name,
   });
-  const tools = getToolDefinitions(clientService.service.slug, configuration, calendarConnected);
+  const tools = getToolDefinitions(
+    clientService.service.slug,
+    configuration,
+    calendarConnected,
+    collectsEmail
+  );
 
   try {
     await getOpenAIClient().realtime.calls.accept(callId, {
@@ -294,7 +311,7 @@ async function acceptTestCall(callId: string, testCallId: string): Promise<void>
   const testCall = await db.testCall.findUnique({
     where: { id: testCallId },
     include: {
-      clientService: { include: { service: true, organization: true, calendarConnection: true } },
+      clientService: { include: { service: true, organization: true, calendarConnection: true, schedulingConnection: true } },
     },
   });
   if (!testCall || testCall.status !== "CALLING") {
@@ -304,7 +321,7 @@ async function acceptTestCall(callId: string, testCallId: string): Promise<void>
 
   const { clientService } = testCall;
   const configuration = (clientService.configuration ?? {}) as Configuration;
-  const calendarConnected = !!clientService.calendarConnection;
+  const { calendarConnected, collectsEmail } = calendarOf(clientService);
 
   try {
     await getOpenAIClient().realtime.calls.accept(callId, {
@@ -312,9 +329,12 @@ async function acceptTestCall(callId: string, testCallId: string): Promise<void>
       model: REALTIME_MODEL,
       instructions: buildSystemPrompt(clientService.service.slug, configuration, {
         calendarConnected,
+        collectsEmail,
         companyName: clientService.organization.name,
       }),
-      tools: toRealtimeTools(getToolDefinitions(clientService.service.slug, configuration, calendarConnected)),
+      tools: toRealtimeTools(
+        getToolDefinitions(clientService.service.slug, configuration, calendarConnected, collectsEmail)
+      ),
       audio: {
         input: { format: { type: "audio/pcmu" } },
         output: { format: { type: "audio/pcmu" } },

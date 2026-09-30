@@ -415,7 +415,7 @@ export function BookingsCalendar({
               {!detail.synced && (
                 <p className="flex items-center gap-1.5 text-sm text-destructive">
                   <CalendarClock className="size-4 shrink-0" aria-hidden="true" />
-                  Non synchronisé à l&apos;agenda Google
+                  Non synchronisé à l&apos;agenda
                 </p>
               )}
             </>

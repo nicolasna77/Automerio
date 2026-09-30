@@ -27,6 +27,16 @@ import { exchangeMetaEmbeddedSignupCode } from "@/lib/meta";
 import { fetchManagedPage, subscribePageToApp } from "@/lib/messenger";
 import { sendServiceCanceledEmail } from "@/lib/email/notifications";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { sealSecret } from "@/lib/secret-box";
+import { readCalcomAccount } from "@/lib/scheduling/calcom";
+import { readCalendlyAccount } from "@/lib/scheduling/calendly";
+import {
+  isSchedulingProvider,
+  PROVIDER_LABELS,
+  SchedulingError,
+  type ProviderAccount,
+  type SchedulingProvider,
+} from "@/lib/scheduling/types";
 import { validatePromoCodeForService } from "@/lib/stripe-promo-codes";
 import { applyDiscount, describeDiscount, firstPaymentCents } from "@/lib/promo-codes";
 import { ActionError, runAction } from "@/lib/run-action";
@@ -397,7 +407,8 @@ export async function updateServiceConfiguration(
   });
 }
 
-export async function disconnectGoogleCalendar(clientServiceId: string) {
+// Déconnecte l'agenda de la solution, quel que soit l'outil.
+export async function disconnectCalendar(clientServiceId: string) {
   return runAction(async () => {
     const [userId, clientService] = await Promise.all([
       requireUserId(),
@@ -405,8 +416,108 @@ export async function disconnectGoogleCalendar(clientServiceId: string) {
     ]);
     await requireMemberOn(clientService, userId);
 
-    const { count } = await db.calendarConnection.deleteMany({ where: { clientServiceId } });
-    if (count > 0) await logServiceEvent(clientServiceId, "CALENDAR_DISCONNECTED");
+    const [google, scheduling] = await db.$transaction([
+      db.calendarConnection.deleteMany({ where: { clientServiceId } }),
+      db.schedulingConnection.deleteMany({ where: { clientServiceId } }),
+    ]);
+    if (google.count + scheduling.count > 0) {
+      await logServiceEvent(clientServiceId, "CALENDAR_DISCONNECTED");
+    }
+    revalidateDashboard(clientServiceId);
+  });
+}
+
+async function readSchedulingAccount(provider: string, token: string): Promise<ProviderAccount> {
+  if (!isSchedulingProvider(provider)) throw new ActionError("Outil d'agenda inconnu.");
+  const trimmed = token.trim();
+  if (trimmed.length < 10 || trimmed.length > 2000) {
+    throw new ActionError("Collez la clé complète, telle que l'outil l'affiche.");
+  }
+  try {
+    return provider === "calcom"
+      ? await readCalcomAccount(trimmed)
+      : await readCalendlyAccount(trimmed);
+  } catch (err) {
+    if (err instanceof SchedulingError) throw new ActionError(err.message);
+    console.error(`[agenda] ${provider} : lecture du compte échouée`, err);
+    throw new ActionError(
+      `${PROVIDER_LABELS[provider]} ne répond pas pour l'instant. Réessayez dans quelques minutes.`
+    );
+  }
+}
+
+// Première étape de la connexion : vérifie la clé et liste les types de
+// rendez-vous du compte, sans rien enregistrer.
+export async function previewSchedulingAccount(
+  clientServiceId: string,
+  provider: string,
+  token: string
+) {
+  return runAction(async () => {
+    const [userId, clientService] = await Promise.all([
+      requireUserId(),
+      db.clientService.findUniqueOrThrow({ where: { id: clientServiceId } }),
+    ]);
+    await requireMemberOn(clientService, userId);
+    if (!(await checkRateLimit("scheduling-preview", userId, "10 m", 20))) {
+      throw new ActionError("Trop de tentatives. Réessayez dans quelques minutes.");
+    }
+
+    const account = await readSchedulingAccount(provider, token);
+    if (account.eventTypes.length === 0) {
+      throw new ActionError(
+        "Ce compte n'a aucun type de rendez-vous actif. Créez-en un dans l'outil, puis réessayez."
+      );
+    }
+    return account;
+  });
+}
+
+// Deuxième étape : relit le compte côté serveur (la clé et le type de
+// rendez-vous ne sont jamais crus sur parole), chiffre la clé et remplace
+// l'agenda précédent.
+export async function connectSchedulingTool(
+  clientServiceId: string,
+  provider: string,
+  token: string,
+  eventTypeId: string
+) {
+  return runAction(async () => {
+    const [userId, clientService] = await Promise.all([
+      requireUserId(),
+      db.clientService.findUniqueOrThrow({ where: { id: clientServiceId } }),
+    ]);
+    await requireMemberOn(clientService, userId);
+    if (!(await checkRateLimit("scheduling-connect", userId, "10 m", 10))) {
+      throw new ActionError("Trop de tentatives. Réessayez dans quelques minutes.");
+    }
+
+    const account = await readSchedulingAccount(provider, token);
+    const eventType = account.eventTypes.find((option) => option.id === eventTypeId);
+    if (!eventType) throw new ActionError("Choisissez un type de rendez-vous de la liste.");
+
+    const data = {
+      provider,
+      encryptedToken: sealSecret(token.trim()),
+      accountLabel: account.accountLabel,
+      eventTypeId: eventType.id,
+      eventTypeName: eventType.name,
+      durationMinutes: eventType.durationMinutes,
+      location: eventType.location ?? Prisma.DbNull,
+    };
+    await db.$transaction([
+      db.calendarConnection.deleteMany({ where: { clientServiceId } }),
+      db.schedulingConnection.upsert({
+        where: { clientServiceId },
+        create: { clientServiceId, ...data },
+        update: data,
+      }),
+    ]);
+    await logServiceEvent(
+      clientServiceId,
+      "CALENDAR_CONNECTED",
+      `${PROVIDER_LABELS[provider as SchedulingProvider]} : ${eventType.name} (${account.accountLabel})`
+    );
     revalidateDashboard(clientServiceId);
   });
 }

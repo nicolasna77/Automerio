@@ -260,7 +260,7 @@
           "description": "Un renvoi d'appel vers l'assistant. Vous gardez votre numéro, et vous coupez le renvoi quand vous voulez."
         },
         "calendar": {
-          "title": "Google Agenda",
+          "title": "Google Agenda, Cal.com, Calendly",
           "description": "Les rendez-vous pris au téléphone s'inscrivent directement dans votre agenda."
         },
         "whatsapp": {

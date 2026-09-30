@@ -92,12 +92,16 @@ export async function completeGoogleCalendarConnection(
     scope: tokens.scope,
   };
 
-  await db.calendarConnection.upsert({
-    where: { clientServiceId },
-    create: { clientServiceId, ...connectionData },
-    update: connectionData,
-  });
-  await logServiceEvent(clientServiceId, "CALENDAR_CONNECTED", googleAccountEmail);
+  // Une solution n'a qu'un agenda : Google remplace un Cal.com ou Calendly.
+  await db.$transaction([
+    db.schedulingConnection.deleteMany({ where: { clientServiceId } }),
+    db.calendarConnection.upsert({
+      where: { clientServiceId },
+      create: { clientServiceId, ...connectionData },
+      update: connectionData,
+    }),
+  ]);
+  await logServiceEvent(clientServiceId, "CALENDAR_CONNECTED", `Google Agenda : ${googleAccountEmail}`);
 }
 
 async function refreshAccessToken(refreshToken: string): Promise<GoogleTokenResponse> {

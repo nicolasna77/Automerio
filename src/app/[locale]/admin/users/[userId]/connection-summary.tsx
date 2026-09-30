@@ -1,4 +1,5 @@
 import { Check, X } from "lucide-react";
+import { PROVIDER_LABELS } from "@/lib/scheduling/types";
 import {
   FACEBOOK_SERVICE_SLUG,
   INSTAGRAM_SERVICE_SLUG,
@@ -37,9 +38,11 @@ export function ConnectionSummary({ item }: { item: MyServiceDTO }) {
     asStringArray(item.configuration.objectives).includes("appointment")
   ) {
     rows.push({
-      label: "Agenda Google",
+      label: "Agenda",
       connected: item.calendarConnected,
-      detail: null,
+      detail: item.calendar
+        ? `${PROVIDER_LABELS[item.calendar.provider]} : ${item.calendar.account}`
+        : null,
     });
   }
 
