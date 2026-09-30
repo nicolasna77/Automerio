@@ -5,7 +5,7 @@ export const SITE_NAV_LINKS = [
   { href: "/contact", key: "contact" },
 ] as const;
 
-export const FAQ_KEYS = ["setup", "delay", "cancel", "tools", "data"] as const;
+export const FAQ_KEYS = ["setup", "delay", "ai", "cancel", "tools", "data"] as const;
 
 export function siteUrl(): string {
   const raw = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";

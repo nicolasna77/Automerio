@@ -164,7 +164,7 @@ async function main() {
   await page.waitForURL("**/dashboard");
 
   await capture(page, "/dashboard", "dashboard-overview", { clip: { x: 256, y: 64, width: 1024, height: 640 } });
-  await capture(page, `/dashboard/services/${clientServiceId}`, "dashboard-calls", { cardHeading: "En direct" });
+  await capture(page, `/dashboard/services/${clientServiceId}`, "dashboard-calls", { cardHeading: "Appels reçus" });
   await browser.close();
 }
 
