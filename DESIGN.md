@@ -38,6 +38,11 @@ vert, en aplat.
 
 Aucun dégradé, aucun halo, aucune trame décorative.
 
+Seule exception, le hero de l'accueil : une trame de lignes fines (1 px, couleur
+`--border`) avec un point à chaque croisement, et la capture du produit qui
+s'efface vers le bas par un masque de transparence (pas de dégradé de couleur).
+Nulle part ailleurs.
+
 ## Typographie
 
 Deux polices de la même famille, chargées par `next/font` :
@@ -51,6 +56,7 @@ Les chiffres de données sont tabulaires (`tabular-nums`). Pas de petites
 | Usage | Taille | Graisse |
 |---|---|---|
 | Titre de page (`h1`) | 36 px, 48 px dès `sm` | 600 |
+| Titre du hero de l'accueil | 40 px, 60 px dès `sm`, 72 px dès `lg` | 600 |
 | Titre de section (`h2`) | 30 px, 36 px dès `sm` | 600 |
 | Sous-titre (`h3`) | 18 à 20 px | 600 |
 | Texte courant | 16 px, 18 px pour les chapeaux | 400 |

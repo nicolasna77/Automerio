@@ -146,7 +146,9 @@
         "title": "Appel en cours",
         "caller": "Appelant",
         "assistant": "Assistant"
-      }
+      },
+      "badge": "Nouveau : vos rendez-vous dans Google Agenda, Cal.com ou Calendly",
+      "badgeWaitlist": "Lancement bientôt : rejoignez la liste d'attente"
     },
     "cta": {
       "heading": "Créez votre compte et choisissez votre première solution",
