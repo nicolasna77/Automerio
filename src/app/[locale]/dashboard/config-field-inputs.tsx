@@ -3,13 +3,29 @@
 import { useState } from "react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Check, CalendarDays, Clock, Plus, X } from "lucide-react";
+import { Check, CalendarDays, Clock, Copy, FileText, Plus, Trash2, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
+import {
+  CALL_TEMPLATES,
+  COMMON_CALL_REASONS,
+  fillTemplate,
+  type CallTemplate,
+} from "@/content/fr/call-templates";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import {
   WEEK_DAYS,
@@ -133,22 +149,31 @@ export function MultiselectField({
   onChange: (value: string[]) => void;
 }) {
   return (
-    <div id={id} className="space-y-2">
-      {options.map((option) => (
-        <label key={option.value} className="flex items-center gap-2 text-sm">
-          <Checkbox
-            checked={value.includes(option.value)}
-            onCheckedChange={(checked) =>
-              onChange(
-                checked
-                  ? [...value, option.value]
-                  : value.filter((v) => v !== option.value)
-              )
-            }
-          />
-          {option.label}
-        </label>
-      ))}
+    <div id={id} className="grid gap-2 sm:grid-cols-2">
+      {options.map((option) => {
+        const checked = value.includes(option.value);
+        return (
+          <label
+            key={option.value}
+            className={cn(
+              "flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 text-sm transition-colors",
+              checked
+                ? "border-primary bg-primary/5 text-foreground"
+                : "border-border text-foreground hover:bg-muted/50"
+            )}
+          >
+            <Checkbox
+              checked={checked}
+              onCheckedChange={(next) =>
+                onChange(
+                  next ? [...value, option.value] : value.filter((v) => v !== option.value)
+                )
+              }
+            />
+            {option.label}
+          </label>
+        );
+      })}
     </div>
   );
 }
@@ -162,12 +187,12 @@ const TIME_OPTIONS = Array.from({ length: 24 * 4 }, (_, i) => {
 function TimePicker({
   value,
   label,
-  disabled,
+  invalid,
   onChange,
 }: {
   value: string;
   label: string;
-  disabled?: boolean;
+  invalid?: boolean;
   onChange: (value: string) => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -180,9 +205,9 @@ function TimePicker({
             type="button"
             variant="outline"
             size="sm"
-            disabled={disabled}
             aria-label={`${label} : ${value}`}
-            className="w-24 justify-between font-normal"
+            aria-invalid={invalid || undefined}
+            className="w-24 justify-between font-mono font-normal tabular-nums"
           >
             {value}
             <Clock className="text-muted-foreground" data-icon="inline-end" />
@@ -200,7 +225,7 @@ function TimePicker({
                 setOpen(false);
               }}
               className={cn(
-                "flex w-full items-center justify-between rounded-2xl px-2.5 py-1.5 text-left text-sm hover:bg-accent hover:text-accent-foreground",
+                "flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-left font-mono text-sm tabular-nums hover:bg-accent hover:text-accent-foreground",
                 time === value && "bg-accent text-accent-foreground"
               )}
             >
@@ -214,6 +239,18 @@ function TimePicker({
   );
 }
 
+type Day = (typeof WEEK_DAYS)[number];
+
+const WEEKDAYS: Day[] = ["mon", "tue", "wed", "thu", "fri"];
+
+// Raccourcis pour les horaires les plus courants : on part de là, puis on
+// ajuste un jour si besoin.
+const HOUR_PRESETS: { label: string; days: Day[] }[] = [
+  { label: "Lun–ven, 9 h–18 h", days: WEEKDAYS },
+  { label: "Lun–sam, 9 h–18 h", days: [...WEEKDAYS, "sat"] },
+  { label: "Tous les jours, 9 h–18 h", days: [...WEEK_DAYS] },
+];
+
 export function WeeklyHoursField({
   id,
   labelledBy,
@@ -225,66 +262,173 @@ export function WeeklyHoursField({
   value: WeeklyHours;
   onChange: (value: WeeklyHours) => void;
 }) {
-  function updateDay(day: (typeof WEEK_DAYS)[number], patch: Partial<WeeklyHours[typeof day]>) {
+  function updateDay(day: Day, patch: Partial<WeeklyHours[Day]>) {
     onChange({ ...value, [day]: { ...value[day], ...patch } });
   }
 
+  function applyPreset(days: Day[]) {
+    onChange(
+      Object.fromEntries(
+        WEEK_DAYS.map((day) => [
+          day,
+          { closed: !days.includes(day), open: "09:00", close: "18:00" },
+        ])
+      ) as WeeklyHours
+    );
+  }
+
+  // Recopie les heures du premier jour ouvert sur tous les autres jours ouverts.
+  const firstOpen = WEEK_DAYS.find((day) => !value[day].closed);
+  function copyFirstOpenDay() {
+    if (!firstOpen) return;
+    const { open, close } = value[firstOpen];
+    onChange(
+      Object.fromEntries(
+        WEEK_DAYS.map((day) => [day, value[day].closed ? value[day] : { ...value[day], open, close }])
+      ) as WeeklyHours
+    );
+  }
+
   return (
-    <div id={id} role="group" aria-labelledby={labelledBy} className="space-y-2">
-      {WEEK_DAYS.map((day) => {
-        const hours = value[day];
-        return (
-          <div
-            key={day}
-            className="flex flex-col gap-1.5 border-b border-border pb-2 text-sm last:border-b-0 last:pb-0 sm:flex-row sm:items-center sm:gap-3 sm:border-b-0 sm:pb-0"
+    <div className="space-y-3">
+      <div className="flex flex-wrap gap-1.5" role="group" aria-label="Horaires courants">
+        {HOUR_PRESETS.map((preset) => (
+          <Button
+            key={preset.label}
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => applyPreset(preset.days)}
           >
-            <label className="flex items-center gap-2 sm:w-28 sm:shrink-0">
-              <Checkbox
-                checked={!hours.closed}
-                onCheckedChange={(checked) =>
-                  updateDay(day, { closed: checked !== true })
-                }
-              />
-              {WEEK_DAY_LABELS[day]}
-            </label>
-            <div className="flex items-center gap-2 pl-6 sm:gap-3 sm:pl-0">
-              <TimePicker
-                value={hours.open}
-                label={`Ouverture ${WEEK_DAY_LABELS[day]}`}
-                disabled={hours.closed}
-                onChange={(open) => updateDay(day, { open })}
-              />
-              <span aria-hidden="true" className="text-muted-foreground">
-                –
-              </span>
-              <TimePicker
-                value={hours.close}
-                label={`Fermeture ${WEEK_DAY_LABELS[day]}`}
-                disabled={hours.closed}
-                onChange={(close) => updateDay(day, { close })}
-              />
+            {preset.label}
+          </Button>
+        ))}
+      </div>
+
+      <div
+        id={id}
+        role="group"
+        aria-labelledby={labelledBy}
+        className="divide-y divide-border rounded-lg border border-border"
+      >
+        {WEEK_DAYS.map((day) => {
+          const hours = value[day];
+          const invalid = !hours.closed && hours.close <= hours.open;
+          const switchId = `${id}-${day}`;
+          return (
+            <div key={day} className="px-3 py-2.5">
+              <div className="flex min-h-9 flex-wrap items-center gap-x-4 gap-y-2">
+                <div className="flex w-36 shrink-0 items-center gap-2.5">
+                  <Switch
+                    id={switchId}
+                    checked={!hours.closed}
+                    onCheckedChange={(open) => updateDay(day, { closed: !open })}
+                  />
+                  <label htmlFor={switchId} className="text-sm font-medium text-foreground">
+                    {WEEK_DAY_LABELS[day]}
+                  </label>
+                </div>
+                {hours.closed ? (
+                  <span className="text-sm text-muted-foreground">Fermé</span>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <TimePicker
+                      value={hours.open}
+                      label={`Ouverture ${WEEK_DAY_LABELS[day]}`}
+                      invalid={invalid}
+                      onChange={(open) => updateDay(day, { open })}
+                    />
+                    <span aria-hidden="true" className="text-muted-foreground">
+                      à
+                    </span>
+                    <TimePicker
+                      value={hours.close}
+                      label={`Fermeture ${WEEK_DAY_LABELS[day]}`}
+                      invalid={invalid}
+                      onChange={(close) => updateDay(day, { close })}
+                    />
+                  </div>
+                )}
+              </div>
+              {invalid && (
+                <p role="alert" className="mt-1.5 text-xs text-destructive sm:pl-[10.25rem]">
+                  L&apos;heure de fermeture doit venir après l&apos;ouverture.
+                </p>
+              )}
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
+
+      {firstOpen && WEEK_DAYS.filter((day) => !value[day].closed).length > 1 && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={copyFirstOpenDay}
+          className="h-auto min-h-8 whitespace-normal text-left"
+        >
+          <Copy aria-hidden="true" data-icon="inline-start" />
+          Copier le {WEEK_DAY_LABELS[firstOpen].toLowerCase()} sur tous les jours ouverts
+        </Button>
+      )}
     </div>
   );
 }
 
+// Colonnes des listes de règles, selon le champ : on nomme ce que le client
+// saisit plutôt qu'un « Condition / Action » abstrait.
+const RULE_COLUMNS: Record<
+  string,
+  {
+    trigger: string;
+    target: string;
+    triggerPlaceholder: string;
+    targetPlaceholder: string;
+    targetType?: "tel";
+    empty: string;
+  }
+> = {
+  callRouting: {
+    trigger: "Motif de l'appel",
+    target: "Transférer vers",
+    triggerPlaceholder: "Urgence",
+    targetPlaceholder: "06 12 34 56 78",
+    targetType: "tel",
+    empty: "Aucune redirection : l'assistant prend un message pour chaque appel.",
+  },
+  sortingRules: {
+    trigger: "Si l'e-mail parle de",
+    target: "Alors",
+    triggerPlaceholder: "facture",
+    targetPlaceholder: "Transférer à la comptabilité",
+    empty: "Aucune règle : les e-mails restent dans la boîte de réception.",
+  },
+};
+
+const DEFAULT_RULE_COLUMNS = {
+  trigger: "Condition",
+  target: "Action",
+  triggerPlaceholder: "",
+  targetPlaceholder: "",
+  empty: "Aucune règle pour l'instant.",
+};
+
 export function RulesListField({
   id,
+  fieldKey,
   labelledBy,
   value,
   onChange,
 }: {
   id: string;
+  fieldKey: string;
   labelledBy: string;
   value: RuleRow[];
   onChange: (value: RuleRow[]) => void;
 }) {
-  const [keys, setKeys] = useState<string[]>(() =>
-    value.map(() => crypto.randomUUID())
-  );
+  const columns = RULE_COLUMNS[fieldKey] ?? DEFAULT_RULE_COLUMNS;
+  const [keys, setKeys] = useState<string[]>(() => value.map(() => crypto.randomUUID()));
 
   function updateRow(index: number, patch: Partial<RuleRow>) {
     onChange(value.map((row, i) => (i === index ? { ...row, ...patch } : row)));
@@ -295,48 +439,147 @@ export function RulesListField({
     onChange(value.filter((_, i) => i !== index));
   }
 
-  function addRow() {
+  function addRow(trigger = "") {
     setKeys((prev) => [...prev, crypto.randomUUID()]);
-    onChange([...value, { trigger: "", target: "" }]);
+    onChange([...value, { trigger, target: "" }]);
+    const index = value.length;
+    requestAnimationFrame(() =>
+      document.getElementById(`${id}-${trigger ? "target" : "trigger"}-${index}`)?.focus()
+    );
   }
+
+  const usedTriggers = new Set(value.map((row) => row.trigger.trim().toLowerCase()));
+  const suggestions =
+    fieldKey === "callRouting"
+      ? COMMON_CALL_REASONS.filter((reason) => !usedTriggers.has(reason.toLowerCase()))
+      : [];
 
   return (
     <div id={id} role="group" aria-labelledby={labelledBy} className="space-y-2">
-      {value.map((row, index) => (
-        <div
-          key={keys[index] ?? index}
-          className="flex flex-col gap-2 sm:flex-row sm:items-center"
-        >
-          <div className="flex flex-1 flex-col gap-2 sm:flex-row">
-            <Input
-              placeholder="Condition"
-              aria-label={`Condition de la règle ${index + 1}`}
-              value={row.trigger}
-              onChange={(e) => updateRow(index, { trigger: e.target.value })}
-            />
-            <Input
-              placeholder="Action"
-              aria-label={`Action de la règle ${index + 1}`}
-              value={row.target}
-              onChange={(e) => updateRow(index, { target: e.target.value })}
-            />
-          </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            aria-label={`Supprimer la règle ${index + 1}`}
-            className="self-end sm:self-auto"
-            onClick={() => removeRow(index)}
+      {value.length === 0 ? (
+        <p className="rounded-lg border border-dashed border-border px-3 py-3 text-sm text-muted-foreground">
+          {columns.empty}
+        </p>
+      ) : (
+        <div className="rounded-lg border border-border">
+          <div
+            aria-hidden="true"
+            className="hidden grid-cols-[1.5rem_minmax(0,1fr)_minmax(0,1fr)_2rem] gap-2 border-b border-border bg-muted/40 px-3 py-2 text-xs font-medium text-muted-foreground sm:grid"
           >
-            <X aria-hidden="true" />
-          </Button>
+            <span />
+            <span>{columns.trigger}</span>
+            <span>{columns.target}</span>
+            <span />
+          </div>
+          <ol className="divide-y divide-border">
+            {value.map((row, index) => (
+              <li
+                key={keys[index] ?? index}
+                className="grid grid-cols-[1.5rem_minmax(0,1fr)_2rem] items-center gap-2 px-3 py-2.5 sm:grid-cols-[1.5rem_minmax(0,1fr)_minmax(0,1fr)_2rem]"
+              >
+                <span className="font-mono text-xs tabular-nums text-muted-foreground">
+                  {index + 1}
+                </span>
+                <Input
+                  id={`${id}-trigger-${index}`}
+                  placeholder={columns.triggerPlaceholder}
+                  aria-label={`${columns.trigger}, règle ${index + 1}`}
+                  value={row.trigger}
+                  onChange={(e) => updateRow(index, { trigger: e.target.value })}
+                />
+                <Input
+                  id={`${id}-target-${index}`}
+                  type={columns.targetType ?? "text"}
+                  inputMode={columns.targetType === "tel" ? "tel" : undefined}
+                  autoComplete={columns.targetType === "tel" ? "tel" : "off"}
+                  placeholder={columns.targetPlaceholder}
+                  aria-label={`${columns.target}, règle ${index + 1}`}
+                  value={row.target}
+                  onChange={(e) => updateRow(index, { target: e.target.value })}
+                  className="col-start-2 row-start-2 sm:col-start-auto sm:row-start-auto"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={`Supprimer la règle ${index + 1}`}
+                  className="col-start-3 row-start-1 sm:col-start-auto sm:row-start-auto"
+                  onClick={() => removeRow(index)}
+                >
+                  <Trash2 aria-hidden="true" />
+                </Button>
+              </li>
+            ))}
+          </ol>
         </div>
-      ))}
-      <Button type="button" variant="outline" size="sm" onClick={addRow}>
-        <Plus aria-hidden="true" data-icon="inline-start" />
-        Ajouter une règle
-      </Button>
+      )}
+      <div className="flex flex-wrap items-center gap-1.5">
+        <Button type="button" variant="outline" size="sm" onClick={() => addRow()}>
+          <Plus aria-hidden="true" data-icon="inline-start" />
+          Ajouter une règle
+        </Button>
+        {suggestions.length > 0 && (
+          <>
+            <span className="ml-1 text-xs text-muted-foreground">Motifs courants :</span>
+            {suggestions.map((reason) => (
+              <Button
+                key={reason}
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => addRow(reason)}
+                aria-label={`Ajouter une redirection pour le motif « ${reason} »`}
+              >
+                <Plus aria-hidden="true" data-icon="inline-start" />
+                {reason}
+              </Button>
+            ))}
+          </>
+        )}
+      </div>
     </div>
+  );
+}
+
+// « Partir d'un modèle » : remplit un champ de texte avec le modèle d'un
+// secteur. Le texte d'avant reste récupérable par « Annuler ».
+export function TemplatePicker({
+  part,
+  value,
+  companyName,
+  onChange,
+}: {
+  part: "greeting" | "instructions";
+  value: string;
+  companyName: string | undefined;
+  onChange: (value: string) => void;
+}) {
+  function apply(template: CallTemplate) {
+    const previous = value;
+    onChange(fillTemplate(template[part], companyName));
+    toast.success(`Modèle « ${template.sector} » appliqué. Adaptez-le à votre activité.`, {
+      ...(previous.trim() && {
+        action: { label: "Annuler", onClick: () => onChange(previous) },
+      }),
+    });
+  }
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger render={<Button type="button" variant="ghost" size="sm" />}>
+        <FileText aria-hidden="true" data-icon="inline-start" />
+        Partir d&apos;un modèle
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-auto min-w-64">
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>Votre secteur d&apos;activité</DropdownMenuLabel>
+          {CALL_TEMPLATES.map((template) => (
+            <DropdownMenuItem key={template.id} onClick={() => apply(template)}>
+              {template.sector}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

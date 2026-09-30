@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useId, useRef, useState, useTransition } from "react";
+import { useEffect, useId, useRef, useState, useTransition } from "react";
 import { Link } from "@/i18n/navigation";
 import { toast } from "sonner";
 import {
@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   asStringArray,
+  findInvalidWeeklyHours,
   findMissingRequiredField,
   formatCents,
   formatConfigField,
@@ -74,10 +75,12 @@ const PAYMENT_STEP: StepperStep = { title: "Paiement", description: "Sécurisé 
 export function ActivationFlow({
   service,
   organizationId,
+  organizationName,
   initialUnits = null,
 }: {
   service: ServiceDTO;
   organizationId: string;
+  organizationName: string;
   initialUnits?: number | null;
 }) {
   const tSimulator = useTranslations("PriceSimulator");
@@ -96,6 +99,60 @@ export function ActivationFlow({
   );
   const [promoInput, setPromoInput] = useState("");
   const [promo, setPromo] = useState<PromoState>({ status: "idle" });
+
+  // Brouillon gardé dans ce navigateur : une page fermée par erreur ne fait
+  // pas perdre les réponses. Repris au retour, effacé au paiement.
+  const draftKey = `automerio:activation:${organizationId}:${service.slug}`;
+  const draftRestored = useRef(false);
+  useEffect(() => {
+    const draft = readDraft(draftKey);
+    draftRestored.current = true;
+    if (!draft) return;
+    /* eslint-disable react-hooks/set-state-in-effect -- le brouillon n'existe que dans le navigateur */
+    setName(draft.name);
+    setValues(draft.values);
+    if (initialUnits === null && draft.chosenUnits !== null) setChosenUnits(draft.chosenUnits);
+    setStepIndex(draft.stepIndex);
+    /* eslint-enable react-hooks/set-state-in-effect */
+    toast("Vos réponses précédentes ont été reprises.", {
+      action: {
+        label: "Recommencer",
+        onClick: () => {
+          clearDraft(draftKey);
+          setName(service.name);
+          setValues({});
+          setChosenUnits(initialUnits ?? service.tier?.minUnits ?? 0);
+          setStepIndex(0);
+        },
+      },
+    });
+  }, [draftKey, initialUnits, service.name, service.tier?.minUnits]);
+
+  // Rien n'est gardé tant que le formulaire est dans son état initial : sans
+  // cela, une simple visite laisserait un brouillon vide, repris à tort au
+  // retour suivant.
+  const defaultUnits = initialUnits ?? service.tier?.minUnits ?? 0;
+  const pristine =
+    name === service.name &&
+    Object.keys(values).length === 0 &&
+    stepIndex === 0 &&
+    (!service.tier || chosenUnits === defaultUnits);
+  useEffect(() => {
+    if (!draftRestored.current) return;
+    const timer = setTimeout(() => {
+      if (pristine) {
+        clearDraft(draftKey);
+        return;
+      }
+      writeDraft(draftKey, {
+        name,
+        values,
+        chosenUnits: service.tier ? chosenUnits : null,
+        stepIndex,
+      });
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [draftKey, name, values, chosenUnits, stepIndex, service.tier, pristine]);
 
   const monthlyPriceCents = service.tier
     ? calculateMonthlyPriceCents(service.tier, chosenUnits)
@@ -139,6 +196,12 @@ export function ActivationFlow({
       return;
     }
     if (step.kind === "fields") {
+      const badHours = findInvalidWeeklyHours(step.category.fields, values);
+      if (badHours) {
+        toast.error(`« ${badHours.label} » : une heure de fermeture vient avant l'ouverture.`);
+        document.getElementById(badHours.key)?.scrollIntoView({ block: "center" });
+        return;
+      }
       const missing = findMissingRequiredField(step.category.fields, values);
       if (missing) {
         setSubmitAttempted(true);
@@ -187,6 +250,7 @@ export function ActivationFlow({
             service.tier ? chosenUnits : null
           )
         );
+        clearDraft(draftKey);
         window.location.href = checkoutUrl;
       } catch (err) {
         toast.error(getErrorMessage(err));
@@ -282,6 +346,7 @@ export function ActivationFlow({
                   values={values}
                   onChange={(key, value) => setValues((prev) => ({ ...prev, [key]: value }))}
                   submitAttempted={submitAttempted}
+                  companyName={organizationName}
                 />
                 {takesOrders && step.category.id === "need" && (
                   <p className="rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
@@ -455,6 +520,53 @@ export function ActivationFlow({
       </div>
     </div>
   );
+}
+
+type Draft = {
+  name: string;
+  values: Configuration;
+  chosenUnits: number | null;
+  stepIndex: number;
+  savedAt: number;
+};
+
+const DRAFT_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+
+// Le stockage du navigateur peut être indisponible (navigation privée,
+// données bloquées) : le brouillon est alors simplement ignoré.
+function readDraft(key: string): Draft | null {
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (!raw) return null;
+    const draft = JSON.parse(raw) as Draft;
+    if (
+      typeof draft.name !== "string" ||
+      typeof draft.values !== "object" ||
+      Date.now() - draft.savedAt > DRAFT_MAX_AGE_MS
+    ) {
+      window.localStorage.removeItem(key);
+      return null;
+    }
+    return draft;
+  } catch {
+    return null;
+  }
+}
+
+function writeDraft(key: string, draft: Omit<Draft, "savedAt">) {
+  try {
+    window.localStorage.setItem(key, JSON.stringify({ ...draft, savedAt: Date.now() }));
+  } catch {
+    // Stockage plein ou bloqué : pas de brouillon, le parcours continue.
+  }
+}
+
+function clearDraft(key: string) {
+  try {
+    window.localStorage.removeItem(key);
+  } catch {
+    // Rien à effacer.
+  }
 }
 
 function SummarySection({

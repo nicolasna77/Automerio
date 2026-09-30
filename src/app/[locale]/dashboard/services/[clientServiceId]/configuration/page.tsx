@@ -1,6 +1,9 @@
 import { titleMetadata } from "@/i18n/metadata";
 import { notFound, redirect } from "next/navigation";
 import { requireUser } from "@/lib/session";
+import { requireActiveOrganization } from "@/lib/organization";
+import { getSubscriptionFor, isRunning } from "@/lib/subscriptions";
+import { ServiceBillingCard } from "@/app/[locale]/dashboard/service-billing-card";
 import { getMyService } from "@/app/[locale]/dashboard/get-my-service";
 import { canEditConfiguration, withCleanProductCatalog } from "@/lib/catalog";
 import { ServiceConfigurationForm } from "./service-configuration-form";
@@ -13,16 +16,27 @@ export default async function ServiceConfigurationPage({
 }: {
   params: Promise<{ clientServiceId: string }>;
 }) {
-  const { clientServiceId } = await params;
-  const session = await requireUser();
-  const item = await getMyService(clientServiceId, session.user.id);
+  const [{ clientServiceId }, session, { active: organization }] = await Promise.all([
+    params,
+    requireUser(),
+    requireActiveOrganization(),
+  ]);
+  // L'abonnement est lu en parallèle ; rien ne s'affiche avant que
+  // getMyService ait vérifié l'appartenance de la solution.
+  const [item, subscription] = await Promise.all([
+    getMyService(clientServiceId, session.user.id),
+    getSubscriptionFor(clientServiceId),
+  ]);
   if (!item) notFound();
 
   const detailHref = `/dashboard/services/${item.clientServiceId}`;
-  if (!canEditConfiguration(item)) redirect(detailHref);
+  // Sans réglage, la page reste utile pour l'abonnement (volume, moyen de
+  // paiement) tant qu'il est en cours.
+  const billingOpen = subscription !== null && isRunning(subscription);
+  if (!canEditConfiguration(item) && !billingOpen) redirect(detailHref);
 
   return (
-    <PageShell size="form">
+    <PageShell size="content">
       <PageHeader
         breadcrumbs={[
           { label: "Solutions", href: "/dashboard/services" },
@@ -39,6 +53,12 @@ export default async function ServiceConfigurationPage({
         configFields={item.service.configFields}
         initialConfiguration={withCleanProductCatalog(item.configuration)}
         backHref={detailHref}
+        companyName={organization.name}
+        billingSection={
+          subscription ? (
+            <ServiceBillingCard subscription={subscription} organizationId={organization.id} />
+          ) : null
+        }
       />
     </PageShell>
   );

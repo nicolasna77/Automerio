@@ -132,8 +132,9 @@ export const CATALOG: CatalogService[] = [
       },
       {
         key: "businessAddress",
-        label: "Adresse (retrait/livraison)",
-        type: "text",
+        label: "Adresse de retrait des commandes",
+        type: "address",
+        helpText: "L'assistant la donne aux clients qui viennent chercher leur commande.",
         showIf: { key: "objectives", includes: "order" },
       },
       {
@@ -144,7 +145,9 @@ export const CATALOG: CatalogService[] = [
       {
         key: "deliveryZone",
         label: "Zone de livraison",
-        type: "textarea",
+        type: "text",
+        placeholder: "Ex. Amiens et 10 km autour",
+        helpText: "Seulement si vous livrez : les communes ou le rayon desservis. Laissez vide sinon.",
         showIf: { key: "objectives", includes: "order" },
       },
       {

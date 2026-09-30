@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  DEFAULT_WEEKLY_HOURS,
+  findInvalidWeeklyHours,
   findMissingRequiredField,
   formatCents,
   formatConfigValue,
@@ -15,6 +17,7 @@ import {
   setupHint,
   withCleanProductCatalog,
   type ConfigField,
+  type WeeklyHours,
 } from "./catalog";
 import { buildSystemPrompt } from "./voice-agent/prompt";
 
@@ -247,5 +250,25 @@ describe("carte produits", () => {
     const withoutCatalog = buildSystemPrompt("prise-rdv-telephone", { objectives: ["order"] }, options);
     expect(withoutCatalog).toContain("ne prends aucune commande");
     expect(withoutCatalog).not.toContain("take_order");
+  });
+});
+
+describe("findInvalidWeeklyHours", () => {
+  const field = { key: "openingHours", label: "Horaires", type: "weekly-hours" } as const;
+  const week = (patch: Partial<WeeklyHours> = {}): WeeklyHours => ({ ...DEFAULT_WEEKLY_HOURS, ...patch });
+
+  it("accepte des horaires cohérents et les jours fermés", () => {
+    const values = { openingHours: week({ mon: { closed: false, open: "09:00", close: "18:00" } }) };
+    expect(findInvalidWeeklyHours([field], values)).toBeUndefined();
+  });
+
+  it("signale un jour ouvert qui ferme avant d'ouvrir", () => {
+    const values = { openingHours: week({ tue: { closed: false, open: "18:00", close: "09:00" } }) };
+    expect(findInvalidWeeklyHours([field], values)?.key).toBe("openingHours");
+  });
+
+  it("ignore un jour fermé, même mal renseigné", () => {
+    const values = { openingHours: week({ wed: { closed: true, open: "18:00", close: "09:00" } }) };
+    expect(findInvalidWeeklyHours([field], values)).toBeUndefined();
   });
 });

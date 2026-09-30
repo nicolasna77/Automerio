@@ -31,6 +31,7 @@ import { ConversationHistory } from "@/app/[locale]/dashboard/conversation-histo
 import { ServiceDetailActions } from "@/app/[locale]/dashboard/service-detail-actions";
 import { isSetupComplete, ServiceSetupCard } from "@/app/[locale]/dashboard/service-setup-card";
 import { ServiceSubscriptionCard } from "@/app/[locale]/dashboard/service-subscription-card";
+import { BILLING_SECTION_ID } from "@/app/[locale]/dashboard/billing-section";
 import { getSubscriptionFor } from "@/lib/subscriptions";
 import { formatPriceWithVat } from "@/lib/vat";
 import { PageBreadcrumbs, PageShell } from "@/components/page-shell";
@@ -55,7 +56,7 @@ export default async function ServiceDetailPage({
   params: Promise<{ clientServiceId: string }>;
   searchParams: Promise<{ calendar?: string }>;
 }) {
-  const [{ clientServiceId }, { calendar }, session, { active: organization }] = await Promise.all([
+  const [{ clientServiceId }, { calendar }, session] = await Promise.all([
     params,
     searchParams,
     requireUser(),
@@ -89,7 +90,10 @@ export default async function ServiceDetailPage({
   const sideCards = (
     <>
       {subscription && (
-        <ServiceSubscriptionCard subscription={subscription} organizationId={organization.id} />
+        <ServiceSubscriptionCard
+          subscription={subscription}
+          settingsHref={`/dashboard/services/${item.clientServiceId}/configuration#${BILLING_SECTION_ID}`}
+        />
       )}
       {isLive && isDemoCallAvailable() && <TestCallCard clientServiceId={item.clientServiceId} />}
       <ServiceConfigurationCard item={item} showUsageCap={!subscription?.cap} />

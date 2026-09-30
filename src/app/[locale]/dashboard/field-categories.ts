@@ -77,6 +77,7 @@ const CATEGORY_BY_TYPE: Record<ConfigField["type"], CategoryDef> = {
   consent: CATEGORIES.preferences,
   textarea: CATEGORIES.messages,
   "rules-list": CATEGORIES.rules,
+  address: CATEGORIES.business,
 };
 
 const ORDER = Object.keys(CATEGORIES);

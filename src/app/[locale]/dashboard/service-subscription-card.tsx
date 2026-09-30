@@ -9,15 +9,16 @@ import {
   type MySubscription,
 } from "@/lib/subscriptions";
 import { UsageGauge } from "./subscriptions/usage-gauge";
-import { ChangeQuotaDialog } from "./change-quota-dialog";
-import { BillingPortalButton } from "./payments/billing-portal-button";
+import { Settings } from "lucide-react";
 
+// L'abonnement sur la page de la solution, en lecture : on ajuste le volume
+// et le moyen de paiement dans les réglages (lien « Ajuster l'abonnement »).
 export function ServiceSubscriptionCard({
   subscription,
-  organizationId,
+  settingsHref,
 }: {
   subscription: MySubscription;
-  organizationId?: string;
+  settingsHref: string | null;
 }) {
   const running = isRunning(subscription);
 
@@ -30,21 +31,6 @@ export function ServiceSubscriptionCard({
       <CardContent className="space-y-4">
         {running && (
           <p className="text-sm text-muted-foreground">{describePeriod(subscription)}</p>
-        )}
-
-        {running && (
-          <div className="flex flex-wrap gap-2">
-            {subscription.tier && subscription.cap && (
-              <ChangeQuotaDialog
-                clientServiceId={subscription.clientServiceId}
-                tier={subscription.tier}
-                currentUnits={subscription.cap.includedUnits}
-              />
-            )}
-            {organizationId && (
-              <BillingPortalButton organizationId={organizationId} size="sm" />
-            )}
-          </div>
         )}
 
         {subscription.cap && subscription.usage ? (
@@ -70,12 +56,22 @@ export function ServiceSubscriptionCard({
           <p className="text-sm text-muted-foreground">
             {describeNextCharge(subscription)}
           </p>
-          <Link
-            href="/dashboard/subscriptions"
-            className="shrink-0 text-sm text-primary underline-offset-4 hover:underline"
-          >
-            Gérer mes abonnements
-          </Link>
+          {settingsHref && running ? (
+            <Link
+              href={settingsHref}
+              className="inline-flex shrink-0 items-center gap-1.5 text-sm text-primary underline-offset-4 hover:underline"
+            >
+              <Settings className="size-3.5" aria-hidden="true" />
+              Ajuster l&apos;abonnement
+            </Link>
+          ) : (
+            <Link
+              href="/dashboard/subscriptions"
+              className="shrink-0 text-sm text-primary underline-offset-4 hover:underline"
+            >
+              Gérer mes abonnements
+            </Link>
+          )}
         </div>
       </CardContent>
     </Card>

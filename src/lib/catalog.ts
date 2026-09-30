@@ -58,6 +58,19 @@ export const DEFAULT_WEEKLY_HOURS: WeeklyHours = WEEK_DAYS.reduce(
   {} as WeeklyHours
 );
 
+// Premier champ d'horaires où un jour ouvert ferme avant (ou à) son ouverture.
+export function findInvalidWeeklyHours(
+  fields: ConfigField[],
+  values: Configuration
+): ConfigField | undefined {
+  return fields.find((field) => {
+    if (field.type !== "weekly-hours" || !isFieldVisible(field, values)) return false;
+    const hours = values[field.key] as WeeklyHours | undefined;
+    if (!hours || typeof hours !== "object" || Array.isArray(hours)) return false;
+    return WEEK_DAYS.some((day) => hours[day] && !hours[day].closed && hours[day].close <= hours[day].open);
+  });
+}
+
 export type RuleRow = { trigger: string; target: string };
 
 export type ConfigValue = string | string[] | WeeklyHours | RuleRow[] | CatalogSection[];
@@ -78,6 +91,7 @@ export type ConfigField = {
     | "date"
     | "weekly-hours"
     | "rules-list"
+    | "address"
     | "file-link"
     | "consent"
     | "connection";
