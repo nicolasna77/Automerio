@@ -102,19 +102,23 @@
       },
       "delay": {
         "question": "Combien de temps avant que ce soit actif ?",
-        "answer": "Quelques jours. Vous choisissez et payez, notre équipe installe et teste, puis vous prévient à la mise en service."
+        "answer": "Quelques jours. Vous choisissez votre solution et vous la payez en ligne. Notre équipe l'installe, la teste, puis vous prévient par e-mail le jour où elle est active."
       },
       "cancel": {
         "question": "Je peux arrêter quand je veux ?",
-        "answer": "Oui, aucun engagement de durée. Et votre abonnement est remboursé si vous n'êtes pas satisfait dans les 30 premiers jours."
+        "answer": "Oui, sans engagement de durée. Et si vous n'êtes pas satisfait, votre abonnement est remboursé sur simple demande dans les 30 jours qui suivent votre premier paiement."
       },
       "tools": {
-        "question": "Et si j'ai déjà un agenda ou un outil de facturation ?",
-        "answer": "Nous connectons vos automatisations à vos outils existants plutôt que de vous en imposer de nouveaux."
+        "question": "Et si j'ai déjà un agenda ou un numéro de téléphone ?",
+        "answer": "Vous les gardez. L'assistant écrit les rendez-vous dans Google Agenda, Cal.com ou Calendly, et un simple renvoi d'appel lui passe votre ligne actuelle. Pour un autre outil, écrivez-nous : nous vous dirons ce qui est possible."
       },
       "data": {
         "question": "Mes données sont-elles en sécurité ?",
         "answer": "Nous ne les revendons pas et ne les partageons pas. Elles passent seulement par les prestataires nécessaires au service : téléphonie, IA, paiement et e-mails. Ils sont listés dans notre politique de confidentialité. Vous pouvez exporter ou supprimer vos données depuis votre profil."
+      },
+      "ai": {
+        "question": "Mes clients sauront-ils qu'ils parlent à une IA ?",
+        "answer": "Oui. L'assistant présente votre entreprise, puis se présente comme son assistant virtuel. C'est plus honnête, et c'est ce que demande le règlement européen sur l'IA. Il peut ensuite transférer l'appel ou prendre un message pour vous."
       }
     }
   },
@@ -126,12 +130,12 @@
   },
   "Home": {
     "faq": {
-      "heading": "Ce que nos clients demandent avant de se lancer",
+      "heading": "Vos questions avant de vous lancer",
       "notHere": "Votre question n'est pas là ? <link>Écrivez-nous</link>, nous vous répondons par e-mail."
     },
     "hero": {
       "title": "Un assistant IA qui répond à vos appels et à vos messages",
-      "lead": "Pour les artisans, les coachs, les indépendants et les TPE. Il décroche votre téléphone, répond sur WhatsApp, Messenger et Instagram, et prend vos rendez-vous. Notre équipe l'installe et le surveille chaque mois.",
+      "lead": "Pour les artisans, les coachs, les indépendants et les TPE. Il décroche quand vous ne pouvez pas, répond sur WhatsApp, Messenger et Instagram, et prend vos rendez-vous. Notre équipe l'installe et le suit pour vous.",
       "signup": "Créer mon compte",
       "seeServices": "Voir les solutions et les prix",
       "specs": {
@@ -155,11 +159,11 @@
       "lead": "Notre équipe s'occupe de l'installation. Vous suivez tout depuis votre tableau de bord.",
       "signup": "Créer mon compte",
       "ask": "Poser une question",
-      "note": "Abonnement remboursé 30 jours, sans engagement."
+      "note": "Sans engagement. Remboursé sur simple demande pendant 30 jours."
     },
     "services": {
       "heading": "Choisissez ce que vous voulez arrêter de faire vous-même",
-      "lead": "Prix affichés, sans engagement, activation en ligne quand vous êtes prêt.",
+      "lead": "Prix affichés. Sans engagement. Vous activez en ligne quand vous êtes prêt.",
       "subscription": "Abonnement"
     },
     "support": {
@@ -192,11 +196,11 @@
           "description": "Un client vous écrit sur WhatsApp à 14 h. Vous répondez à 21 h : entre-temps, il a réservé chez un autre."
         },
         "booking": {
-          "title": "Trois minutes par rendez-vous, vingt fois par jour",
-          "description": "Proposer un créneau, noter le nom, vérifier l'agenda : une heure de votre journée part là, et elle ne se facture pas."
+          "title": "Un rendez-vous à caler, puis un autre, puis un autre",
+          "description": "Proposer un créneau, noter le nom, vérifier l'agenda : quelques minutes à chaque fois, et aucune ne se facture."
         }
       },
-      "conclusion": "Ces trois-là, une automatisation s'en charge pendant que vous travaillez.",
+      "conclusion": "Ces trois tâches, un assistant s'en charge pendant que vous travaillez.",
       "seeServices": "Voir les solutions"
     },
     "method": {
@@ -207,7 +211,7 @@
         "choose": {
           "who": "Vous · 2 minutes",
           "title": "Vous choisissez ce qui vous fait perdre du temps",
-          "description": "Les appels manqués, les rendez-vous à caler, les e-mails qui s'accumulent : chaque solution a son prix affiché. Pas de devis, pas de rendez-vous commercial, un abonnement mensuel sans engagement."
+          "description": "Les appels manqués, les rendez-vous à caler, les messages laissés sans réponse : chaque solution a son prix affiché. Pas de devis, pas de rendez-vous commercial, un abonnement mensuel sans engagement."
         },
         "brief": {
           "who": "Vous · 5 minutes",
@@ -222,14 +226,14 @@
         "follow": {
           "who": "Nous · chaque mois",
           "title": "Nous surveillons et nous ajustons",
-          "description": "Vous suivez son activité dans votre tableau de bord. Quand votre activité change, nous adaptons les réglages. C'est compris dans l'abonnement."
+          "description": "Vous suivez chaque appel et chaque message dans votre tableau de bord. Quand votre activité change, nous adaptons les réglages. C'est compris dans l'abonnement."
         }
       },
       "illustrations": {
         "choose": {
           "phone": "Standard téléphonique IA",
           "booking": "Prise de rendez-vous",
-          "email": "Réponses aux e-mails",
+          "email": "Réponses sur WhatsApp",
           "subscription": "Abonnement mensuel",
           "noCommitment": "Sans engagement"
         },
@@ -649,7 +653,7 @@
     "callsAlt": "Récapitulatif des appels d'un standard téléphonique : motif, nom de l'appelant, issue de l'appel et appels à rappeler."
   },
   "Waitlist": {
-    "heading": "L'application ouvre bientôt",
+    "heading": "Automerio ouvre bientôt",
     "lead": "Laissez vos coordonnées. Nous vous rappelons pour parler de votre activité, ou nous vous prévenons le jour du lancement.",
     "cta": "Être prévenu du lancement",
     "ctaShort": "Être prévenu",
