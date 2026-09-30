@@ -128,20 +128,31 @@ export function ActivationFlow({
     });
   }, [draftKey, initialUnits, service.name, service.tier?.minUnits]);
 
+  // Rien n'est gardé tant que le formulaire est dans son état initial : sans
+  // cela, une simple visite laisserait un brouillon vide, repris à tort au
+  // retour suivant.
+  const defaultUnits = initialUnits ?? service.tier?.minUnits ?? 0;
+  const pristine =
+    name === service.name &&
+    Object.keys(values).length === 0 &&
+    stepIndex === 0 &&
+    (!service.tier || chosenUnits === defaultUnits);
   useEffect(() => {
     if (!draftRestored.current) return;
-    const timer = setTimeout(
-      () =>
-        writeDraft(draftKey, {
-          name,
-          values,
-          chosenUnits: service.tier ? chosenUnits : null,
-          stepIndex,
-        }),
-      400
-    );
+    const timer = setTimeout(() => {
+      if (pristine) {
+        clearDraft(draftKey);
+        return;
+      }
+      writeDraft(draftKey, {
+        name,
+        values,
+        chosenUnits: service.tier ? chosenUnits : null,
+        stepIndex,
+      });
+    }, 400);
     return () => clearTimeout(timer);
-  }, [draftKey, name, values, chosenUnits, stepIndex, service.tier]);
+  }, [draftKey, name, values, chosenUnits, stepIndex, service.tier, pristine]);
 
   const monthlyPriceCents = service.tier
     ? calculateMonthlyPriceCents(service.tier, chosenUnits)

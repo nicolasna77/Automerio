@@ -8,7 +8,6 @@ import { requireActiveOrganization } from "@/lib/organization";
 import { getMyService } from "@/app/[locale]/dashboard/get-my-service";
 import {
   asStringArray,
-  canEditConfiguration,
   describeServiceStatus,
   FACEBOOK_SERVICE_SLUG,
   INSTAGRAM_SERVICE_SLUG,
@@ -93,11 +92,7 @@ export default async function ServiceDetailPage({
       {subscription && (
         <ServiceSubscriptionCard
           subscription={subscription}
-          settingsHref={
-            canEditConfiguration(item)
-              ? `/dashboard/services/${item.clientServiceId}/configuration#${BILLING_SECTION_ID}`
-              : null
-          }
+          settingsHref={`/dashboard/services/${item.clientServiceId}/configuration#${BILLING_SECTION_ID}`}
         />
       )}
       {isLive && isDemoCallAvailable() && <TestCallCard clientServiceId={item.clientServiceId} />}

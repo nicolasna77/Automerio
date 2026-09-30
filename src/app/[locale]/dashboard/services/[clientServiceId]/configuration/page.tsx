@@ -2,7 +2,7 @@ import { titleMetadata } from "@/i18n/metadata";
 import { notFound, redirect } from "next/navigation";
 import { requireUser } from "@/lib/session";
 import { requireActiveOrganization } from "@/lib/organization";
-import { getSubscriptionFor } from "@/lib/subscriptions";
+import { getSubscriptionFor, isRunning } from "@/lib/subscriptions";
 import { ServiceBillingCard } from "@/app/[locale]/dashboard/service-billing-card";
 import { getMyService } from "@/app/[locale]/dashboard/get-my-service";
 import { canEditConfiguration, withCleanProductCatalog } from "@/lib/catalog";
@@ -30,7 +30,10 @@ export default async function ServiceConfigurationPage({
   if (!item) notFound();
 
   const detailHref = `/dashboard/services/${item.clientServiceId}`;
-  if (!canEditConfiguration(item)) redirect(detailHref);
+  // Sans réglage, la page reste utile pour l'abonnement (volume, moyen de
+  // paiement) tant qu'il est en cours.
+  const billingOpen = subscription !== null && isRunning(subscription);
+  if (!canEditConfiguration(item) && !billingOpen) redirect(detailHref);
 
   return (
     <PageShell size="content">
