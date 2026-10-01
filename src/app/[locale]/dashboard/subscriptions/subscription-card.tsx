@@ -86,7 +86,7 @@ export function SubscriptionCard({
 
       <CardFooter className="flex flex-wrap items-center justify-between gap-3 border-t pt-4">
         <p className="text-sm text-muted-foreground">{describeNextCharge(subscription)}</p>
-        <SubscriptionActions subscription={subscription} />
+        <SubscriptionActions subscription={subscription} running={running} />
       </CardFooter>
     </Card>
   );
