@@ -66,9 +66,9 @@ export function ServiceConfigurationCard({
 }: {
   item: MyServiceDTO;
   showUsageCap?: boolean;
-  // « top » : en haut de la page, en grille, sans bouton Modifier (le bouton
-  // Réglages est déjà en haut à droite de la page).
-  variant?: "side" | "top";
+  // « embedded » : sous le titre de la page, dans la même carte, en grille et
+  // sans bouton Modifier (le bouton Réglages est déjà en haut à droite).
+  variant?: "side" | "embedded";
 }) {
   const isLive = isLiveTelephony(item);
   const takesAppointments = asStringArray(item.configuration.objectives).includes("appointment");
@@ -93,29 +93,14 @@ export function ServiceConfigurationCard({
   )
     return null;
 
-  return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
-        <CardTitle as="h2" className="text-base">
-          {variant === "top" ? "Informations du service" : "Réglages"}
-        </CardTitle>
-        {canEditConfig && variant === "side" && (
-          <Link
-            href={`/dashboard/services/${item.clientServiceId}/configuration`}
-            className={buttonVariants({ variant: "outline", size: "sm" })}
-          >
-            <Settings aria-hidden="true" data-icon="inline-start" />
-            Modifier
-          </Link>
-        )}
-      </CardHeader>
-      <CardContent className="space-y-5">
+  const body = (
+    <>
         {hasFacts ? (
           <ServiceFacts
             item={item}
             showPhoneNumber={!isLive}
             showUsageCap={showUsageCap}
-            layout={variant === "top" ? "grid" : "list"}
+            layout={variant === "embedded" ? "grid" : "list"}
           />
         ) : (
           <p className="text-sm text-muted-foreground">
@@ -150,6 +135,39 @@ export function ServiceConfigurationCard({
             username={item.instagramUsername}
           />
         )}
+    </>
+  );
+
+  if (variant === "embedded") {
+    // Sous le titre de la page, dans la même carte : un simple intertitre.
+    return (
+      <section aria-labelledby={`${item.clientServiceId}-informations`}>
+        <h2 id={`${item.clientServiceId}-informations`} className="text-sm font-medium text-foreground">
+          Informations du service
+        </h2>
+        <div className="mt-4 space-y-5">{body}</div>
+      </section>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
+        <CardTitle as="h2" className="text-base">
+          Réglages
+        </CardTitle>
+        {canEditConfig && (
+          <Link
+            href={`/dashboard/services/${item.clientServiceId}/configuration`}
+            className={buttonVariants({ variant: "outline", size: "sm" })}
+          >
+            <Settings aria-hidden="true" data-icon="inline-start" />
+            Modifier
+          </Link>
+        )}
+      </CardHeader>
+      <CardContent className="space-y-5">
+        {body}
       </CardContent>
     </Card>
   );
