@@ -1,4 +1,5 @@
 import {
+  AudioLines,
   Clock,
   ListChecks,
   MessageSquareText,
@@ -60,6 +61,12 @@ const CATEGORIES = {
     description: "Qui reçoit quoi, selon la demande du client.",
     icon: Split,
   },
+  voice: {
+    id: "voice",
+    title: "Voix",
+    description: "Comment l'assistant parle au téléphone.",
+    icon: AudioLines,
+  },
 } satisfies Record<string, CategoryDef>;
 
 const CATEGORY_BY_TYPE: Record<ConfigField["type"], CategoryDef> = {
@@ -80,6 +87,13 @@ const CATEGORY_BY_TYPE: Record<ConfigField["type"], CategoryDef> = {
   address: CATEGORIES.business,
 };
 
+// Champs rangés par leur rôle plutôt que par leur type.
+const CATEGORY_BY_KEY: Record<string, CategoryDef> = {
+  voice: CATEGORIES.voice,
+  speakingRate: CATEGORIES.voice,
+  tone: CATEGORIES.voice,
+};
+
 const ORDER = Object.keys(CATEGORIES);
 
 function categoryOf(field: ConfigField): CategoryDef {
@@ -92,7 +106,7 @@ function categoryOf(field: ConfigField): CategoryDef {
       icon: ListChecks,
     };
   }
-  return CATEGORY_BY_TYPE[field.type];
+  return CATEGORY_BY_KEY[field.key] ?? CATEGORY_BY_TYPE[field.type];
 }
 
 // Regroupe les champs visibles en étapes, sans étape vide. Les sections du

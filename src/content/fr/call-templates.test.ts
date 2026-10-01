@@ -18,7 +18,13 @@ describe("modèles de consignes", () => {
       }
       expect(template.greeting).toContain("{entreprise}");
       expect(template.greeting).toContain("assistant virtuel");
-      expect(template.instructions).toMatch(/^Au début de l'appel, présenter \{entreprise\}/);
+      // L'assistant se présente déjà de lui-même : les consignes ne le répètent pas.
+      expect(template.instructions).not.toContain("assistant virtuel");
+      for (const heading of ["Questions à poser :", "À noter :", "À éviter :"]) {
+        expect(template.instructions).toContain(heading);
+      }
+      // Le standard ne prend pas de rendez-vous : l'accueil ne doit pas le promettre.
+      expect(template.greeting).not.toMatch(/rendez-vous|réservation/i);
     }
   });
 });

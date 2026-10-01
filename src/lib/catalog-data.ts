@@ -1,4 +1,5 @@
 import type { ConfigField, ServiceCategory } from "@/lib/catalog";
+import { SPEAKING_RATE_OPTIONS, TONE_OPTIONS, VOICE_OPTIONS } from "@/lib/voice-agent/voice";
 import type { UsageUnit } from "@/lib/usage-cap";
 
 export type CatalogService = {
@@ -31,6 +32,33 @@ const SLOT_DURATION_OPTIONS = [
   { value: "30", label: "30 min" },
   { value: "45", label: "45 min" },
   { value: "60", label: "60 min" },
+];
+
+// Voix de l'assistant téléphonique : communes au standard et à la prise de
+// rendez-vous, rangées dans l'onglet « Voix » des réglages.
+const VOICE_FIELDS: CatalogService["configFields"] = [
+  {
+    key: "voice",
+    label: "Voix de l'assistant",
+    type: "select",
+    options: [...VOICE_OPTIONS],
+    placeholder: "Marin : voix féminine, naturelle (par défaut)",
+    helpText: "Écoutez le résultat avec « Tester votre assistant », sur la page de la solution.",
+  },
+  {
+    key: "speakingRate",
+    label: "Débit",
+    type: "select",
+    options: [...SPEAKING_RATE_OPTIONS],
+    placeholder: "Normal (par défaut)",
+  },
+  {
+    key: "tone",
+    label: "Ton",
+    type: "select",
+    options: [...TONE_OPTIONS],
+    placeholder: "Chaleureux (par défaut)",
+  },
 ];
 
 export const CATALOG: CatalogService[] = [
@@ -73,6 +101,14 @@ export const CATALOG: CatalogService[] = [
         type: "rules-list",
         helpText: "Ex. « Urgence » → 06 12 34 56 78",
       },
+      {
+        key: "callInstructions",
+        label: "Consignes pour l'assistant",
+        type: "textarea",
+        placeholder: "Ex. demander d'abord s'il s'agit d'une urgence, puis noter l'adresse complète.",
+        helpText: "Ce qu'il doit demander, noter ou éviter. Partez d'un modèle de votre secteur.",
+      },
+      ...VOICE_FIELDS,
     ],
     sortOrder: 1,
   },
@@ -152,11 +188,12 @@ export const CATALOG: CatalogService[] = [
       },
       {
         key: "callInstructions",
-        label: "Consignes pour les appels",
+        label: "Consignes pour l'assistant",
         type: "textarea",
-        placeholder: "Ex. toujours demander emporter ou livraison",
-        showIf: { key: "objectives", includes: "order" },
+        placeholder: "Ex. toujours demander s'il s'agit d'un retrait ou d'une livraison.",
+        helpText: "Ce qu'il doit demander, noter ou éviter. Partez d'un modèle de votre secteur.",
       },
+      ...VOICE_FIELDS,
     ],
     sortOrder: 2,
   },
