@@ -52,7 +52,9 @@ export function SetupStepper({ steps }: { steps: SetupStep[] }) {
                     : index === currentIndex
                       ? "border-primary data-[state=active]:bg-background data-[state=active]:text-primary"
                       : step.optional
-                      ? "border-dashed border-border bg-transparent text-muted-foreground"
+                      ? // Placée avant l'étape en cours, elle prend l'état « completed »
+                        // du Stepper : on garde l'aspect d'une étape non faite.
+                        "border-dashed border-border bg-transparent text-muted-foreground data-[state=completed]:bg-transparent data-[state=completed]:text-muted-foreground"
                       : "border-border bg-transparent text-muted-foreground"
                 )}
               >
