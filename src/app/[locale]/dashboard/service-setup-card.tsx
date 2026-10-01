@@ -3,6 +3,7 @@ import { Check } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { SetupStepper } from "./setup-stepper";
 import {
   asStringArray,
   FACEBOOK_SERVICE_SLUG,
@@ -137,35 +138,39 @@ export function ServiceSetupCard({
     needsCalendarConnection(item);
   const waitingOnAutomerio = clientDone && !verified;
 
-  // Version intégrée, plus sobre : étapes sur une ligne, encadrés sans bordure.
+  // Version intégrée, plus sobre : étapes en frise, encadrés sans bordure.
   const box = embedded ? "rounded-lg bg-muted/50 p-4" : "rounded-lg border border-border bg-muted/40 p-4";
 
   const content = (
     <>
-        <ol className={embedded ? "flex flex-wrap gap-x-5 gap-y-2" : "space-y-2"}>
-          {steps.map((step) => (
-            <li key={step.label} className="flex items-center gap-2.5 text-sm">
-              <span
-                aria-hidden="true"
-                className={cn(
-                  "flex size-5 shrink-0 items-center justify-center rounded-full",
-                  step.done
-                    ? "bg-primary text-primary-foreground"
-                    : "border border-dashed border-border"
-                )}
-              >
-                {step.done && <Check className="size-3" />}
-              </span>
-              <span
-                className={cn(
-                  step.done ? "text-muted-foreground" : "font-medium text-foreground"
-                )}
-              >
-                {step.label}
-              </span>
-            </li>
-          ))}
-        </ol>
+        {embedded ? (
+          <SetupStepper steps={steps} />
+        ) : (
+          <ol className="space-y-2">
+            {steps.map((step) => (
+              <li key={step.label} className="flex items-center gap-2.5 text-sm">
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    "flex size-5 shrink-0 items-center justify-center rounded-full",
+                    step.done
+                      ? "bg-primary text-primary-foreground"
+                      : "border border-dashed border-border"
+                  )}
+                >
+                  {step.done && <Check className="size-3" />}
+                </span>
+                <span
+                  className={cn(
+                    step.done ? "text-muted-foreground" : "font-medium text-foreground"
+                  )}
+                >
+                  {step.label}
+                </span>
+              </li>
+            ))}
+          </ol>
+        )}
 
         {!paid && (
           <p className="text-sm text-muted-foreground">

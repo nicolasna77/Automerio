@@ -129,8 +129,8 @@ export default async function ServiceDetailPage({
           <header className="flex items-start gap-4">
             <ServiceGlyphBadge slug={item.service.slug} size="lg" />
             <div className="min-w-0 flex-1">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="flex min-w-0 flex-1 basis-56 flex-wrap items-center gap-x-3 gap-y-1">
                   <h1 className="text-2xl font-semibold tracking-tight text-foreground">
                     {item.name}
                   </h1>
@@ -175,8 +175,8 @@ export default async function ServiceDetailPage({
         <header className="flex items-start gap-4">
           <ServiceGlyphBadge slug={item.service.slug} size="lg" />
           <div className="min-w-0 flex-1">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="flex min-w-0 flex-1 basis-56 flex-wrap items-center gap-x-3 gap-y-1">
                 <h1 className="text-2xl font-semibold tracking-tight text-foreground">
                   {item.name}
                 </h1>
