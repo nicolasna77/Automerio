@@ -33,8 +33,8 @@ const CATEGORIES = {
   },
   business: {
     id: "business",
-    title: "Vos informations",
-    description: "Les coordonnées et comptes que l'assistant utilise.",
+    title: "Coordonnées",
+    description: "Les numéros, adresses et comptes que l'assistant utilise.",
     icon: Store,
   },
   hours: {
@@ -51,8 +51,8 @@ const CATEGORIES = {
   },
   messages: {
     id: "messages",
-    title: "Messages",
-    description: "Ce que l'assistant dit et répond à vos clients.",
+    title: "Instructions",
+    description: "Ce que l'assistant dit à vos clients et les consignes qu'il suit.",
     icon: MessageSquareText,
   },
   rules: {

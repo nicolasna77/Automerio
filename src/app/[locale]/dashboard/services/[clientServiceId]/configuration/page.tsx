@@ -54,6 +54,7 @@ export default async function ServiceConfigurationPage({
 
       <ServiceConfigurationForm
         clientServiceId={item.clientServiceId}
+        initialName={item.name}
         configFields={item.service.configFields}
         initialConfiguration={withCleanProductCatalog(item.configuration)}
         backHref={detailHref}

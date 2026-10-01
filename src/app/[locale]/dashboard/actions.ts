@@ -378,7 +378,8 @@ export async function previewPromoCode(serviceId: string, code: string): Promise
 
 export async function updateServiceConfiguration(
   clientServiceId: string,
-  configuration: Configuration
+  configuration: Configuration,
+  name?: string
 ) {
   return runAction(async () => {
     const [userId, clientService] = await Promise.all([
@@ -397,10 +398,29 @@ export async function updateServiceConfiguration(
       throw new ActionError(`Le champ « ${missing.label} » est requis.`);
     }
 
-    await db.clientService.update({
-      where: { id: clientServiceId },
-      data: { configuration: withCleanProductCatalog(configuration) },
-    });
+    const trimmedName = name?.trim();
+    if (name !== undefined && !trimmedName) {
+      throw new ActionError("Merci de donner un nom à cette solution.");
+    }
+    if (trimmedName && trimmedName.length > 80) {
+      throw new ActionError("Le nom de la solution ne doit pas dépasser 80 caractères.");
+    }
+    try {
+      await db.clientService.update({
+        where: { id: clientServiceId },
+        data: {
+          configuration: withCleanProductCatalog(configuration),
+          ...(trimmedName && { name: trimmedName }),
+        },
+      });
+    } catch (err) {
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+        throw new ActionError(
+          `Vous avez déjà une solution nommée « ${trimmedName} » pour ce service dans cette organisation.`
+        );
+      }
+      throw err;
+    }
     await logServiceEvent(clientServiceId, "CONFIGURATION_UPDATED");
 
     revalidateDashboard(clientServiceId);
