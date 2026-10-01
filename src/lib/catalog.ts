@@ -429,13 +429,8 @@ const SETUP_ACTIONS: { needs: (item: SetupSubject) => boolean; action: SetupActi
       cta: "Ajouter ma carte",
     },
   },
-  {
-    needs: needsCalendarConnection,
-    action: {
-      hint: "Connectez votre agenda pour recevoir les rendez-vous",
-      cta: "Connecter mon agenda",
-    },
-  },
+  // L'agenda est facultatif : il n'apparaît pas parmi les actions qui
+  // bloquent la mise en service (la page de la solution le propose).
 ];
 
 export function setupAction(item: SetupSubject): SetupAction | null {

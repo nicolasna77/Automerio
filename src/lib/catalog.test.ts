@@ -210,12 +210,13 @@ describe("carte produits", () => {
     expect(setupAction({ ...ordering, externalPhoneNumber: null })?.cta).toBe(
       "Choisir un numéro"
     );
+    // L'agenda est facultatif : il ne bloque pas la mise en service.
     expect(
       setupAction({
         ...ordering,
         configuration: { objectives: ["appointment"] },
-      })?.cta
-    ).toBe("Connecter mon agenda");
+      })
+    ).toBeNull();
   });
 
   it("ne réclame rien quand tout est en place", () => {

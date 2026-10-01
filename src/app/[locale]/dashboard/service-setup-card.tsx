@@ -42,15 +42,15 @@ function setupState(item: MyServiceDTO) {
   const verified = item.status === "ACTIVE";
 
   const phoneDone = !isTelephony || hasNumber;
-  const calendarDone = !takesAppointments || item.calendarConnected;
   const whatsappDone = !isWhatsApp || item.whatsappConnected;
   const facebookDone = !isFacebook || item.facebookConnected;
   const instagramDone = !isInstagram || item.instagramConnected;
   const catalogDone =
     !takesOrders ||
     countCatalogItems(readProductCatalog(item.configuration[PRODUCT_CATALOG_FIELD_KEY])) > 0;
-  const clientDone =
-    paid && phoneDone && calendarDone && whatsappDone && facebookDone && instagramDone && catalogDone;
+  // L'agenda est facultatif : sans lui, l'assistant prend un message au lieu
+  // de réserver. La mise en service ne l'attend donc pas.
+  const clientDone = paid && phoneDone && whatsappDone && facebookDone && instagramDone && catalogDone;
 
   return {
     isTelephony,
@@ -114,7 +114,7 @@ export function ServiceSetupCard({
       : []),
     ...(takesOrders ? [{ label: "Carte ajoutée", done: catalogDone }] : []),
     ...(takesAppointments
-      ? [{ label: "Agenda connecté", done: item.calendarConnected }]
+      ? [{ label: "Agenda connecté", done: item.calendarConnected, optional: true }]
       : []),
     { label: "Vérification par l'équipe Automerio", done: verified },
   ];
@@ -266,7 +266,7 @@ export function ServiceSetupCard({
         {nextIsCalendar && (
           <div className={box}>
             <p className="text-sm font-medium text-foreground">
-              Connectez votre agenda
+              Connectez votre agenda <span className="font-normal text-muted-foreground">(facultatif)</span>
             </p>
             <p className="mt-1 mb-3 text-sm text-muted-foreground">
               Les rendez-vous pris par téléphone s&apos;ajouteront directement
