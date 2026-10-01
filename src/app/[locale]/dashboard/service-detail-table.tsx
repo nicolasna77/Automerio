@@ -62,9 +62,13 @@ export function CallForwardingCard({ item }: { item: MyServiceDTO }) {
 export function ServiceConfigurationCard({
   item,
   showUsageCap = true,
+  variant = "side",
 }: {
   item: MyServiceDTO;
   showUsageCap?: boolean;
+  // « top » : en haut de la page, en grille, sans bouton Modifier (le bouton
+  // Réglages est déjà en haut à droite de la page).
+  variant?: "side" | "top";
 }) {
   const isLive = isLiveTelephony(item);
   const takesAppointments = asStringArray(item.configuration.objectives).includes("appointment");
@@ -92,8 +96,10 @@ export function ServiceConfigurationCard({
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
-        <CardTitle as="h2" className="text-base">Réglages</CardTitle>
-        {canEditConfig && (
+        <CardTitle as="h2" className="text-base">
+          {variant === "top" ? "Informations du service" : "Réglages"}
+        </CardTitle>
+        {canEditConfig && variant === "side" && (
           <Link
             href={`/dashboard/services/${item.clientServiceId}/configuration`}
             className={buttonVariants({ variant: "outline", size: "sm" })}
@@ -105,7 +111,12 @@ export function ServiceConfigurationCard({
       </CardHeader>
       <CardContent className="space-y-5">
         {hasFacts ? (
-          <ServiceFacts item={item} showPhoneNumber={!isLive} showUsageCap={showUsageCap} />
+          <ServiceFacts
+            item={item}
+            showPhoneNumber={!isLive}
+            showUsageCap={showUsageCap}
+            layout={variant === "top" ? "grid" : "list"}
+          />
         ) : (
           <p className="text-sm text-muted-foreground">
             Aucun réglage renseigné pour l&apos;instant.

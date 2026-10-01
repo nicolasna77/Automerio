@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Check, ChevronDown, ListChecks, Phone, PhoneCall, PhoneOff, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { unwrap } from "@/lib/action-result";
@@ -38,7 +39,46 @@ type RecentCall = {
   handled: boolean;
 };
 
-type CallsResponse = { inProgress: InProgressCall[]; recent: RecentCall[] };
+type CallsResponse = {
+  inProgress: InProgressCall[];
+  recent: RecentCall[];
+  pendingCount: number;
+  days: { day: string; count: number }[];
+};
+
+type StatusFilter = "all" | "todo" | "done";
+
+const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
+  { value: "all", label: "Tous" },
+  { value: "todo", label: "À traiter" },
+  { value: "done", label: "Traités" },
+];
+
+const ALL_DAYS = "all";
+
+const parisKey = (date: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Paris" }).format(date);
+
+// « aujourd'hui », « hier », sinon « lun. 28 sept. » ; la clé est un jour
+// parisien (AAAA-MM-JJ).
+function dayLabel(key: string): string {
+  if (key === parisKey(new Date())) return "Aujourd'hui";
+  if (key === parisKey(new Date(Date.now() - 86_400_000))) return "Hier";
+  const [year, month, day] = key.split("-").map(Number);
+  return new Date(Date.UTC(year, month - 1, day, 12)).toLocaleDateString("fr-FR", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    timeZone: "UTC",
+  });
+}
+
+// Complément de phrase pour un jour : « aujourd'hui », « hier », « le lun. 28 sept. ».
+function dayPhrase(key: string): string {
+  const label = dayLabel(key);
+  return label === "Aujourd'hui" || label === "Hier" ? label.toLowerCase() : `le ${label}`;
+}
+
+const plural = (count: number, word: string) => `${count} ${word}${count > 1 ? "s" : ""}`;
 
 type TranscriptTurn = { speaker: "caller" | "assistant"; text: string };
 
@@ -282,16 +322,27 @@ function RecentCallItem({
 export function CallActivity({ clientServiceId }: { clientServiceId: string }) {
   const [data, setData] = useState<CallsResponse | null>(null);
   const [expandedIds, setExpandedIds] = useState<ReadonlySet<string>>(new Set());
+  const [status, setStatus] = useState<StatusFilter>("all");
+  const [day, setDay] = useState<string>(ALL_DAYS);
+  // Vrai entre un changement de filtre et l'arrivée de la liste filtrée.
+  const [filtering, setFiltering] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
+    const query = new URLSearchParams();
+    if (status !== "all") query.set("status", status);
+    if (day !== ALL_DAYS) query.set("day", day);
+    const url = `/api/client-services/${clientServiceId}/calls${query.size > 0 ? `?${query}` : ""}`;
 
     async function poll() {
       try {
-        const res = await fetch(`/api/client-services/${clientServiceId}/calls`);
+        const res = await fetch(url);
         if (!res.ok) return;
         const json: CallsResponse = await res.json();
-        if (!cancelled) setData(json);
+        if (!cancelled) {
+          setData(json);
+          setFiltering(false);
+        }
       } catch {
       }
     }
@@ -302,7 +353,25 @@ export function CallActivity({ clientServiceId }: { clientServiceId: string }) {
       cancelled = true;
       stopPolling();
     };
-  }, [clientServiceId]);
+  }, [clientServiceId, status, day]);
+
+  function changeStatus(next: StatusFilter) {
+    if (next === status) return;
+    setFiltering(true);
+    setStatus(next);
+  }
+
+  function changeDay(next: string) {
+    if (next === day) return;
+    setFiltering(true);
+    setDay(next);
+  }
+
+  function resetFilters() {
+    setFiltering(true);
+    setStatus("all");
+    setDay(ALL_DAYS);
+  }
 
   function toggle(callId: string) {
     setExpandedIds((current) => {
@@ -361,15 +430,68 @@ export function CallActivity({ clientServiceId }: { clientServiceId: string }) {
       )}
 
       <div>
-        <h3 className="mb-2 text-sm font-medium text-foreground">
-          Récapitulatif des appels
-        </h3>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <div role="group" aria-label="Filtrer par état" className="flex flex-wrap gap-1.5">
+            {STATUS_FILTERS.map((filter) => (
+              <Button
+                key={filter.value}
+                type="button"
+                size="sm"
+                variant={status === filter.value ? "secondary" : "ghost"}
+                aria-pressed={status === filter.value}
+                onClick={() => changeStatus(filter.value)}
+              >
+                {filter.label}
+                {filter.value === "todo" && data.pendingCount > 0 && (
+                  <Badge className="ml-0.5 tabular-nums">{data.pendingCount}</Badge>
+                )}
+              </Button>
+            ))}
+          </div>
+          <Select
+            value={day}
+            items={[
+              { value: ALL_DAYS, label: "Tous les jours" },
+              ...data.days.map((entry) => ({ value: entry.day, label: dayLabel(entry.day) })),
+            ]}
+            onValueChange={(next) => changeDay(next ?? ALL_DAYS)}
+          >
+            <SelectTrigger aria-label="Filtrer par jour" size="sm" className="min-w-44">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL_DAYS}>Tous les jours</SelectItem>
+              {data.days.map((entry) => (
+                <SelectItem key={entry.day} value={entry.day}>
+                  {dayLabel(entry.day)}
+                  <span className="sr-only">, </span>
+                  <span className="ml-auto pl-3 text-xs tabular-nums text-muted-foreground">
+                    {plural(entry.count, "appel")}
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <p role="status" className="sr-only">
+          {filtering ? "Mise à jour de la liste…" : `${plural(data.recent.length, "appel")} dans la liste`}
+        </p>
+
         {data.recent.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Aucun appel terminé pour l&apos;instant.
-          </p>
+          <div className="rounded-2xl border border-dashed border-border px-4 py-6 text-center text-sm">
+            <p className="text-muted-foreground">
+              {status === "todo" ? "Aucun appel à traiter" : status === "done" ? "Aucun appel traité" : "Aucun appel terminé"}
+              {day !== ALL_DAYS ? ` ${dayPhrase(day)}.` : " pour l'instant."}
+            </p>
+            {(status !== "all" || day !== ALL_DAYS) && (
+              <Button type="button" variant="outline" size="sm" className="mt-3" onClick={resetFilters}>
+                Voir tous les appels
+              </Button>
+            )}
+          </div>
         ) : (
-          <ul className="space-y-1.5">
+          <ul className={cn("space-y-1.5 transition-opacity", filtering && "opacity-60")} aria-busy={filtering}>
             {data.recent.map((call) => (
               <RecentCallItem
                 key={call.id}

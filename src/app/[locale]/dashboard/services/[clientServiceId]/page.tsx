@@ -11,6 +11,7 @@ import {
   describeServiceStatus,
   FACEBOOK_SERVICE_SLUG,
   INSTAGRAM_SERVICE_SLUG,
+  TELEPHONY_SERVICE_SLUGS,
   WHATSAPP_SERVICE_SLUG,
 } from "@/lib/catalog";
 import { StatusBadge } from "@/components/status-badge";
@@ -75,6 +76,9 @@ export default async function ServiceDetailPage({
   const showBookings =
     isLive && (objectives.includes("appointment") || objectives.includes("order"));
   const isMessaging = MESSAGING_SERVICE_SLUGS.has(item.service.slug);
+  // Téléphonie : les informations du service passent en haut de la page et
+  // l'historique n'est pas affiché ; l'activité (appels, rendez-vous) prime.
+  const isTelephony = TELEPHONY_SERVICE_SLUGS.has(item.service.slug);
   const showSetup = !isSetupComplete(item);
   const hasMainColumn =
     showSetup || (isLive && Boolean(item.externalPhoneNumber)) || showBookings || isMessaging;
@@ -96,8 +100,12 @@ export default async function ServiceDetailPage({
         />
       )}
       {isLive && isDemoCallAvailable() && <TestCallCard clientServiceId={item.clientServiceId} />}
-      <ServiceConfigurationCard item={item} showUsageCap={!subscription?.cap} />
-      <ServiceTimeline events={item.events} />
+      {!isTelephony && (
+        <>
+          <ServiceConfigurationCard item={item} showUsageCap={!subscription?.cap} />
+          <ServiceTimeline events={item.events} />
+        </>
+      )}
     </>
   );
 
@@ -165,6 +173,12 @@ export default async function ServiceDetailPage({
               <AlertDescription className="text-foreground">{item.adminNote}</AlertDescription>
             </Alert>
           )}
+        </div>
+      )}
+
+      {isTelephony && (
+        <div className="mt-8">
+          <ServiceConfigurationCard item={item} showUsageCap={!subscription?.cap} variant="top" />
         </div>
       )}
 
