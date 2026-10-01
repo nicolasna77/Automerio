@@ -7,10 +7,13 @@ test("l'accueil présente l'offre et mène au catalogue", async ({ page }) => {
   await page.goto("/");
 
   await expect(
-    page.getByRole("heading", { level: 1, name: /répond à vos appels et à vos messages/i })
+    page.getByRole("heading", { level: 1, name: /continue de travailler/i })
   ).toBeVisible();
 
   await expect(page.getByRole("link", { name: "Créer mon compte" }).first()).toBeVisible();
+
+  await page.getByRole("link", { name: "Voir comment ça fonctionne" }).click();
+  await expect(page.locator("#method")).toBeInViewport();
 
   await page.getByRole("link", { name: "Voir les solutions" }).first().click();
   await expect(page.locator("#services")).toBeVisible();

@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { ChevronRight } from "lucide-react";
+import { Check, ChevronRight } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -13,6 +13,8 @@ import type { PriceFormatter } from "@/lib/price-format";
 import { getPriceFormatter } from "@/lib/price-format-server";
 import { isWaitlistMode } from "@/lib/launch-mode";
 import { ServiceGlyphBadge } from "@/components/service-glyph";
+
+const INCLUDED = ["install", "config", "tests", "adjust", "commitment"] as const;
 
 const SERVICE_SECTION_CATEGORIES: ServiceCategory[] = [
   "COMMUNICATION",
@@ -112,6 +114,20 @@ export async function ServicesSection({ services }: { services: ServiceDTO[] }) 
           <p className="mt-4 text-lg text-muted-foreground">
             {t("lead")}
           </p>
+        </div>
+        <div className="mx-auto mt-8 max-w-3xl text-center">
+          <p className="text-sm font-medium text-foreground">{t("included.label")}</p>
+          <ul className="mt-3 flex flex-wrap justify-center gap-2">
+            {INCLUDED.map((key) => (
+              <li
+                key={key}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm text-muted-foreground"
+              >
+                <Check className="size-3.5 text-primary" aria-hidden="true" />
+                {t(`included.items.${key}`)}
+              </li>
+            ))}
+          </ul>
         </div>
 
         {categories.map(({ category, categoryServices }, index) => {

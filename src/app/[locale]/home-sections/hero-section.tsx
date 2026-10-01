@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { ArrowRight, ChevronRight, Phone } from "lucide-react";
+import { ArrowRight, Check, ChevronRight, Phone } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import type { ServiceDTO } from "@/lib/catalog";
 import { getPriceFormatter } from "@/lib/price-format-server";
@@ -74,12 +74,10 @@ export async function HeroSection({ services }: { services: ServiceDTO[] }) {
   const fromPrice = monthlyPrices.length > 0 ? Math.min(...monthlyPrices) : null;
 
   const specs = [
-    fromPrice !== null
-      ? { label: t("specs.price"), value: t("specs.priceValue", { price: price.perMonthWithVat(fromPrice) }), data: true }
-      : null,
-    { label: t("specs.commitment"), value: t("specs.commitmentValue"), data: false },
-    { label: t("specs.guarantee"), value: t("specs.guaranteeValue"), data: false },
-  ].filter((spec): spec is { label: string; value: string; data: boolean } => spec !== null);
+    t("specs.install"),
+    t("specs.commitment"),
+    fromPrice !== null ? t("specs.from", { price: price.perMonthWithVat(fromPrice) }) : null,
+  ].filter((spec): spec is string => spec !== null);
 
   return (
     <section className="relative isolate overflow-hidden border-b border-border">
@@ -107,24 +105,22 @@ export async function HeroSection({ services }: { services: ServiceDTO[] }) {
             <ArrowRight data-icon="inline-end" />
           </Link>
           <Link
-            href="#services"
+            href="#method"
             className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline focus-visible:focus-ring focus-visible:outline-none"
           >
-            {t("seeServices")}
+            {t("howItWorks")}
             <ArrowRight className="size-4" aria-hidden="true" />
           </Link>
         </div>
 
-        <dl className="mx-auto mt-8 flex max-w-2xl flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm">
+        <ul className="mx-auto mt-8 flex max-w-2xl flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
           {specs.map((spec) => (
-            <div key={spec.label} className="flex items-baseline gap-1.5">
-              <dt className="text-muted-foreground">{spec.label} :</dt>
-              <dd className={spec.data ? "font-mono tabular-nums text-foreground" : "text-foreground"}>
-                {spec.value}
-              </dd>
-            </div>
+            <li key={spec} className="flex items-center gap-1.5">
+              <Check className="size-4 text-primary" aria-hidden="true" />
+              {spec}
+            </li>
           ))}
-        </dl>
+        </ul>
       </div>
 
       <div className="relative mx-auto max-w-6xl px-4 pb-16 sm:px-6 sm:pb-24">
