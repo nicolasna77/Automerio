@@ -10,6 +10,8 @@ import { getSession, isAdmin } from "@/lib/session";
 import { getCatalog } from "@/lib/get-catalog";
 import { SITE_NAV_LINKS } from "@/lib/site";
 import { isWaitlistMode } from "@/lib/launch-mode";
+import { IndustriesMenu } from "@/components/industries-menu";
+import { getTrades, tradePath } from "@/lib/trades";
 
 export async function SiteHeader() {
   const waitlist = isWaitlistMode();
@@ -22,6 +24,11 @@ export async function SiteHeader() {
   const services = waitlist
     ? []
     : catalog.map(({ slug, name, category }) => ({ slug, name, category }));
+  const industries = getTrades().map((trade) => ({
+    slug: trade.slug,
+    name: trade.name,
+    href: tradePath(trade.slug),
+  }));
   const user = session
     ? {
         name: session.user.name,
@@ -43,6 +50,7 @@ export async function SiteHeader() {
           <div className="flex min-w-0 items-center gap-1">
             <SiteMobileNav
               services={services}
+              industries={industries}
               loggedIn={!!user}
               waitlist={waitlist}
             />
@@ -53,7 +61,10 @@ export async function SiteHeader() {
             className="ml-8 hidden items-center gap-6 text-sm text-muted-foreground lg:flex"
           >
             {!waitlist && <ServicesMenu services={services} />}
-            {SITE_NAV_LINKS.map((link) => (
+            {SITE_NAV_LINKS.map((link) =>
+              link.key === "audience" ? (
+                <IndustriesMenu key={link.href} industries={industries} />
+              ) : (
               <Link
                 key={link.href}
                 href={link.href}
@@ -61,7 +72,8 @@ export async function SiteHeader() {
               >
                 {t(`nav.${link.key}`)}
               </Link>
-            ))}
+              ),
+            )}
           </nav>
           <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
             {user && !waitlist && (
@@ -87,7 +99,7 @@ export async function SiteHeader() {
                 href="/#waitlist"
                 className={buttonVariants({ className: "h-10 px-4 sm:h-9" })}
               >
-                <span className="sm:hidden">{tWaitlist("ctaShort")}</span>
+                arear <span className="sm:hidden">{tWaitlist("ctaShort")}</span>
                 <span className="hidden sm:inline">{tWaitlist("cta")}</span>
               </Link>
             ) : (

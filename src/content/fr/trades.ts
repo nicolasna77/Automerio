@@ -5,8 +5,9 @@ import type { Trade } from "@/lib/trades";
 // avis inventé (DESIGN.md, Ton des textes).
 export const TRADES: Trade[] = [
   {
-    slug: "artisans",
+    slug: "tradespeople",
     name: "Artisans",
+    audience: "artisans",
     metaTitle: "Standard téléphonique pour artisan : ne ratez plus un appel",
     metaDescription:
       "Plombiers, électriciens, chauffagistes : un assistant répond à vos appels pendant que vous êtes sur un chantier, vous transfère les urgences et prend vos rendez-vous.",
@@ -63,8 +64,9 @@ export const TRADES: Trade[] = [
     ],
   },
   {
-    slug: "coiffure-beaute",
+    slug: "hair-beauty",
     name: "Coiffure et beauté",
+    audience: "salons de coiffure et instituts de beauté",
     metaTitle: "Prise de rendez-vous pour coiffeur et institut de beauté",
     metaDescription:
       "Un assistant prend les réservations par téléphone pendant vos prestations et répond aux messages Instagram et Messenger. Les rendez-vous arrivent dans votre agenda.",
@@ -121,8 +123,9 @@ export const TRADES: Trade[] = [
     ],
   },
   {
-    slug: "coachs",
+    slug: "coaches",
     name: "Coachs",
+    audience: "coachs",
     metaTitle: "Assistant téléphonique pour coach et thérapeute",
     metaDescription:
       "Pendant vos séances, un assistant répond aux appels, note ce que la personne recherche et répond aux messages Instagram et WhatsApp. Vous rappelez entre deux rendez-vous.",
@@ -177,6 +180,7 @@ export const TRADES: Trade[] = [
   {
     slug: "restaurants",
     name: "Restaurants",
+    audience: "restaurants",
     metaTitle: "Prise de commande par téléphone pour restaurant et pizzeria",
     metaDescription:
       "Pendant le service, un assistant prend les commandes à emporter et les réservations par téléphone, avec votre menu et vos prix. Les commandes arrivent dans votre tableau de bord.",
@@ -233,8 +237,9 @@ export const TRADES: Trade[] = [
     ],
   },
   {
-    slug: "cabinets",
+    slug: "professional-services",
     name: "Cabinets et TPE",
+    audience: "cabinets et TPE",
     metaTitle: "Secrétariat téléphonique automatisé pour cabinet et TPE",
     metaDescription:
       "Avocats, experts-comptables, agences : un assistant répond à vos appels, oriente les clients vers la bonne personne et répond aux messages. Sans secrétariat à plein temps.",

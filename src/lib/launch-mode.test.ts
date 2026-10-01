@@ -15,8 +15,8 @@ describe("isOpenDuringWaitlist", () => {
   });
 
   it("laisse voir les pages par métier, pour le référencement", () => {
-    expect(isOpenDuringWaitlist("/pour/artisans")).toBe(true);
-    expect(isOpenDuringWaitlist("/pour")).toBe(false);
+    expect(isOpenDuringWaitlist("/industries/tradespeople")).toBe(true);
+    expect(isOpenDuringWaitlist("/industries")).toBe(false);
   });
 
   it("ignore la barre oblique finale", () => {

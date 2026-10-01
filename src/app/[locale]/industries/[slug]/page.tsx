@@ -45,7 +45,7 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
     getTranslations("Waitlist"),
     getCatalog(),
   ]);
-  const name = trade.name.toLowerCase();
+  const name = trade.audience;
   // Seules les solutions actives du catalogue s'affichent, avec leur prix réel.
   const solutions = trade.solutions.flatMap((solution) => {
     const service = catalog.find((s) => s.slug === solution.slug);
@@ -60,7 +60,7 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
       <JsonLd
         data={breadcrumbSchema([
           { name: t("breadcrumbHome"), path: "/" },
-          { name: t("breadcrumbAudience"), path: "/#pour-qui" },
+          { name: t("breadcrumbAudience"), path: "/#who-its-for" },
           { name: trade.name, path },
         ])}
       />
@@ -77,7 +77,7 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
                 </li>
                 <ChevronRight className="size-3.5" aria-hidden="true" />
                 <li>
-                  <Link href="/#pour-qui" className="hover:text-foreground">
+                  <Link href="/#who-its-for" className="hover:text-foreground">
                     {t("breadcrumbAudience")}
                   </Link>
                 </li>

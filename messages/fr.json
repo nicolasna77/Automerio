@@ -63,6 +63,10 @@
     "theme": {
       "toLight": "Activer le thème clair",
       "toDark": "Activer le thème sombre"
+    },
+    "industriesMenu": {
+      "all": "Tous les métiers",
+      "label": "Pour qui ?"
     }
   },
   "Footer": {
@@ -345,7 +349,7 @@
     "audience": {
       "eyebrow": "Pour qui ?",
       "heading": "Pour ceux qui ont les mains prises",
-      "lead": "Artisans, professionnels de la beauté, coachs, petites entreprises : vous reconnaîtrez sans doute votre journée.",
+      "lead": "Artisans, beauté, coachs, restaurants, cabinets : vous reconnaîtrez sans doute votre journée.",
       "items": {
         "artisan": {
           "who": "Artisan",
@@ -362,13 +366,18 @@
           "quote": "Je reçois des demandes pendant mes séances.",
           "answer": "Automerio répond aux messages et note ce que la personne recherche."
         },
+        "restaurant": {
+          "who": "Restaurant",
+          "quote": "Le téléphone sonne en plein service.",
+          "answer": "Automerio prend les commandes avec votre menu et vos prix."
+        },
         "tpe": {
-          "who": "TPE",
+          "who": "Cabinet et TPE",
           "quote": "Les demandes arrivent par tous les canaux.",
           "answer": "Automerio répond sur chacun et regroupe tout dans un seul tableau de bord."
         }
       },
-      "seePage": "Voir la page {name}"
+      "seePage": "Voir la page"
     },
     "why": {
       "eyebrow": "Pourquoi Automerio",

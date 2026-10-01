@@ -20,15 +20,19 @@ import { ServiceGlyph } from "@/components/service-glyph";
 import { useTranslations } from "next-intl";
 import type { ServiceCategory, ServiceMenuItem } from "@/lib/catalog";
 import { SITE_NAV_LINKS } from "@/lib/site";
+import { TRADE_ICONS } from "@/lib/trade-icons";
+import type { IndustryMenuItem } from "@/components/industries-menu";
 
 const MENU_CATEGORIES: ServiceCategory[] = ["COMMUNICATION", "INFORMATION"];
 
 export function SiteMobileNav({
   services,
+  industries,
   loggedIn,
   waitlist = false,
 }: {
   services: ServiceMenuItem[];
+  industries: IndustryMenuItem[];
   loggedIn: boolean;
   waitlist?: boolean;
 }) {
@@ -88,8 +92,31 @@ export function SiteMobileNav({
               );
             })}
 
+            <div>
+              <p className="mb-1 px-3 text-xs font-medium text-muted-foreground">{t("industriesMenu.label")}</p>
+              <ul className="flex flex-col">
+                {industries.map((industry) => {
+                  const Icon = TRADE_ICONS[industry.slug];
+                  return (
+                    <li key={industry.slug}>
+                      <MobileNavLink
+                        href={industry.href}
+                        icon={
+                          <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted text-primary">
+                            {Icon && <Icon className="size-4" aria-hidden="true" />}
+                          </span>
+                        }
+                      >
+                        {industry.name}
+                      </MobileNavLink>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
             <ul className="flex flex-col border-t border-border pt-4">
-              {SITE_NAV_LINKS.map((link) => (
+              {SITE_NAV_LINKS.filter((link) => link.key !== "audience").map((link) => (
                 <li key={link.href}>
                   <MobileNavLink href={link.href}>{t(`nav.${link.key}`)}</MobileNavLink>
                 </li>

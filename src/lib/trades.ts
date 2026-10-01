@@ -7,6 +7,8 @@ export type Trade = {
   slug: string;
   // Nom court, pour les liens et le fil d'Ariane.
   name: string;
+  // Le public au pluriel, après « pour les » : « artisans », « cabinets et TPE ».
+  audience: string;
   metaTitle: string;
   metaDescription: string;
   title: string;
@@ -22,7 +24,7 @@ export type Trade = {
   faq: Faq[];
 };
 
-export const TRADE_PATH_PREFIX = "/pour";
+export const TRADE_PATH_PREFIX = "/industries";
 
 export function tradePath(slug: string): string {
   return `${TRADE_PATH_PREFIX}/${slug}`;

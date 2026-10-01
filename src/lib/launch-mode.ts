@@ -22,6 +22,6 @@ export function isOpenDuringWaitlist(path: string): boolean {
     normalized === "/admin" ||
     normalized.startsWith("/admin/") ||
     // Pages par métier : ouvertes pour être référencées avant le lancement.
-    normalized.startsWith("/pour/")
+    normalized.startsWith("/industries/")
   );
 }
