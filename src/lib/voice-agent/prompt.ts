@@ -41,16 +41,27 @@ function phoneStyle(configuration: Configuration): string[] {
 function companyInstructions(configuration: Configuration): string[] {
   const callInstructions = asString(configuration.callInstructions).trim();
   return callInstructions
-    ? ["## Consignes de l'entreprise", "Applique-les en priorité, sauf si elles contredisent les règles ci-dessous.", callInstructions]
+    ? [
+        "## Consignes de l'entreprise",
+        "Applique-les, sauf si elles contredisent la section « Limites et règles strictes » ci-dessous : celle-ci prime toujours.",
+        callInstructions,
+      ]
     : [];
 }
 
-const STRICT_RULES = [
-  "## Règles strictes",
-  "- N'invente jamais de prix, de disponibilité, de délai ni d'information absente de ces consignes.",
-  "- Si tu ne sais pas répondre, dis-le simplement et propose de prendre un message.",
-  "- Ne donne aucun avis médical, juridique ou financier.",
-];
+// Placées après les consignes de l'entreprise, qu'elles priment : ce que
+// l'assistant ne peut pas faire (faute d'outil, d'agenda ou de carte) ne doit
+// jamais être promis, même si un modèle de consignes en parle.
+function strictRules(limits: string[]): string[] {
+  return [
+    "## Limites et règles strictes",
+    ...limits.map((limit) => `- ${limit}`),
+    "- Ne confirme jamais une réservation, un rendez-vous ou une commande que tu n'as pas enregistré avec un outil.",
+    "- N'invente jamais de prix, de disponibilité, de délai ni d'information absente de ces consignes.",
+    "- Si tu ne sais pas répondre, dis-le simplement et propose de prendre un message.",
+    "- Ne donne aucun avis médical, juridique ou financier.",
+  ];
+}
 
 function buildPriseRdvPrompt(
   configuration: Configuration,
@@ -121,7 +132,20 @@ function buildPriseRdvPrompt(
     );
   }
 
-  lines.push(...companyInstructions(configuration), ...STRICT_RULES);
+  const limits = [
+    !wantsAppointments
+      ? "Tu ne prends ni rendez-vous ni réservation : propose de noter la demande pour un rappel."
+      : !canBookAppointments
+        ? "Aucun agenda n'est connecté : tu ne peux confirmer aucun rendez-vous, seulement noter la demande."
+        : "",
+    !takesOrders
+      ? "Tu ne prends pas de commande : propose de noter la demande pour un rappel."
+      : countCatalogItems(readProductCatalog(configuration.productCatalog)) === 0
+        ? "La carte n'est pas renseignée : ne prends aucune commande."
+        : "",
+  ].filter(Boolean);
+
+  lines.push(...companyInstructions(configuration), ...strictRules(limits));
   return lines.filter(Boolean).join("\n");
 }
 
@@ -161,9 +185,10 @@ function buildStandardTelephoniquePrompt(configuration: Configuration, companyNa
     "Pour toute autre demande, ou si l'appelant refuse d'être transféré, utilise",
     "l'outil take_message pour noter son nom, son numéro et le motif de son",
     "appel, puis indique-lui que l'entreprise le rappellera.",
-    "Tu ne prends pas de rendez-vous : propose plutôt de noter la demande pour un rappel.",
     ...companyInstructions(configuration),
-    ...STRICT_RULES
+    ...strictRules([
+      "Tu ne prends pas de rendez-vous, ni de réservation, ni de commande : propose de noter la demande pour un rappel, sans rien confirmer.",
+    ])
   );
 
   return lines.join("\n");
