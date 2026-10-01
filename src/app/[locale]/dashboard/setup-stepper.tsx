@@ -10,13 +10,15 @@ import {
 } from "@/components/reui/stepper";
 import { cn } from "@/lib/utils";
 
-export type SetupStep = { label: string; done: boolean };
+// « optional » : une étape facultative ne bloque pas la suite et n'est
+// jamais l'étape en cours.
+export type SetupStep = { label: string; done: boolean; optional?: boolean };
 
 // Étapes de mise en service en frise. Chaque étape affiche son propre état :
 // elles ne se terminent pas toujours dans l'ordre (agenda connecté avant le
 // numéro, par exemple). L'étape en cours est la première qui reste à faire.
 export function SetupStepper({ steps }: { steps: SetupStep[] }) {
-  const currentIndex = steps.findIndex((step) => !step.done);
+  const currentIndex = steps.findIndex((step) => !step.done && !step.optional);
   const current = currentIndex === -1 ? null : steps[currentIndex];
   return (
     <div>
@@ -49,6 +51,8 @@ export function SetupStepper({ steps }: { steps: SetupStep[] }) {
                     ? "border-transparent bg-primary text-primary-foreground data-[state=inactive]:bg-primary data-[state=inactive]:text-primary-foreground"
                     : index === currentIndex
                       ? "border-primary data-[state=active]:bg-background data-[state=active]:text-primary"
+                      : step.optional
+                      ? "border-dashed border-border bg-transparent text-muted-foreground"
                       : "border-border bg-transparent text-muted-foreground"
                 )}
               >
@@ -61,7 +65,10 @@ export function SetupStepper({ steps }: { steps: SetupStep[] }) {
                 )}
               >
                 {step.label}
-                <span className="sr-only">{step.done ? " : fait" : index === currentIndex ? " : à faire maintenant" : " : à venir"}</span>
+                {step.optional && !step.done && <span className="text-muted-foreground"> (facultatif)</span>}
+                <span className="sr-only">
+                  {step.done ? " : fait" : index === currentIndex ? " : à faire maintenant" : step.optional ? "" : " : à venir"}
+                </span>
               </span>
             </div>
             {index < steps.length - 1 && (
