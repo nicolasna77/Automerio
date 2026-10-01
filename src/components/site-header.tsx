@@ -68,7 +68,7 @@ export async function SiteHeader() {
               <Link
                 href="/dashboard"
                 className={buttonVariants({
-                  variant: "ghost",
+                  variant: "outline",
                   className: "hidden sm:inline-flex",
                 })}
               >
