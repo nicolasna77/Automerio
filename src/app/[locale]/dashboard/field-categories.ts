@@ -5,7 +5,6 @@ import {
   MessageSquareText,
   Settings2,
   Split,
-  Store,
   Target,
   type LucideIcon,
 } from "lucide-react";
@@ -30,12 +29,6 @@ const CATEGORIES = {
     title: "Votre besoin",
     description: "Ce que l'assistant doit faire pour vous.",
     icon: Target,
-  },
-  business: {
-    id: "business",
-    title: "Coordonnées",
-    description: "Les numéros, adresses et comptes que l'assistant utilise.",
-    icon: Store,
   },
   hours: {
     id: "hours",
@@ -71,12 +64,12 @@ const CATEGORIES = {
 
 const CATEGORY_BY_TYPE: Record<ConfigField["type"], CategoryDef> = {
   multiselect: CATEGORIES.need,
-  tel: CATEGORIES.business,
-  text: CATEGORIES.business,
-  email: CATEGORIES.business,
-  url: CATEGORIES.business,
-  connection: CATEGORIES.business,
-  "file-link": CATEGORIES.business,
+  tel: CATEGORIES.preferences,
+  text: CATEGORIES.preferences,
+  email: CATEGORIES.preferences,
+  url: CATEGORIES.preferences,
+  connection: CATEGORIES.preferences,
+  "file-link": CATEGORIES.preferences,
   "weekly-hours": CATEGORIES.hours,
   select: CATEGORIES.preferences,
   tags: CATEGORIES.preferences,
@@ -84,7 +77,7 @@ const CATEGORY_BY_TYPE: Record<ConfigField["type"], CategoryDef> = {
   consent: CATEGORIES.preferences,
   textarea: CATEGORIES.messages,
   "rules-list": CATEGORIES.rules,
-  address: CATEGORIES.business,
+  address: CATEGORIES.preferences,
 };
 
 // Champs rangés par leur rôle plutôt que par leur type.

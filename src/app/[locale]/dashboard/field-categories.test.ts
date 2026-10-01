@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { ConfigField } from "@/lib/catalog";
+import { findMissingRequiredField, type ConfigField } from "@/lib/catalog";
 import { buildFieldCategories, settingsHiddenKeys } from "./field-categories";
 
 const standard: ConfigField[] = [
@@ -30,8 +30,8 @@ const ids = (fields: ConfigField[], values = {}, omit: string[] = []) =>
 describe("buildFieldCategories", () => {
   it("range chaque champ dans sa catégorie, dans l'ordre des étapes", () => {
     expect(ids(standard)).toEqual([
-      ["business", ["phoneLine"]],
       ["hours", ["openingHours"]],
+      ["preferences", ["phoneLine"]],
       ["messages", ["greetingMessage"]],
       ["rules", ["callRouting"]],
     ]);
@@ -41,7 +41,7 @@ describe("buildFieldCategories", () => {
     expect(ids(appointments)).toEqual([["need", ["objectives"]]]);
     expect(ids(appointments, { objectives: ["appointment"] })).toEqual([
       ["need", ["objectives"]],
-      ["business", ["calendarLink"]],
+      ["preferences", ["calendarLink"]],
     ]);
     // La zone de livraison rejoint le choix « Prise de commande » qui l'affiche.
     expect(ids(appointments, { objectives: ["order"] })).toEqual([["need", ["objectives", "deliveryZone"]]]);
@@ -62,8 +62,8 @@ describe("buildFieldCategories", () => {
 
   it("écarte les champs demandés et ne crée pas d'étape vide", () => {
     expect(ids(standard, {}, ["greetingMessage"]).map(([id]) => id)).toEqual([
-      "business",
       "hours",
+      "preferences",
       "rules",
     ]);
     expect(buildFieldCategories([], {})).toEqual([]);
@@ -75,8 +75,18 @@ describe("buildFieldCategories", () => {
       { key: "b", label: "B", type: "tel" },
     ];
     expect(ids(fields)).toEqual([
-      ["business", ["b"]],
+      ["preferences", ["b"]],
       ["section:Spécifique", ["a"]],
     ]);
+  });
+
+  it("n'exige pas un champ obligatoire que les réglages ne proposent plus", () => {
+    const whatsapp: ConfigField[] = [
+      { key: "whatsappNumber", label: "Numéro WhatsApp", type: "tel", required: true },
+      { key: "faq", label: "Questions fréquentes", type: "textarea" },
+    ];
+    const hidden = settingsHiddenKeys("assistant-whatsapp");
+    expect(findMissingRequiredField(whatsapp, {})?.key).toBe("whatsappNumber");
+    expect(findMissingRequiredField(whatsapp.filter((field) => !hidden.includes(field.key)), {})).toBeUndefined();
   });
 });

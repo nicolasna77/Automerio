@@ -42,7 +42,7 @@ import { formatCentsWithVat } from "@/lib/vat";
 import { getErrorMessage } from "@/lib/utils";
 import { activateService, previewPromoCode, type PromoPreview } from "@/app/[locale]/dashboard/actions";
 import { ConfigFieldsForm } from "@/app/[locale]/dashboard/config-fields";
-import { buildFieldCategories, type FieldCategory } from "@/app/[locale]/dashboard/field-categories";
+import { buildFieldCategories, settingsHiddenKeys, type FieldCategory } from "@/app/[locale]/dashboard/field-categories";
 
 type AppliedPreview = Extract<PromoPreview, { ok: true }>;
 
@@ -158,7 +158,10 @@ export function ActivationFlow({
     ? calculateMonthlyPriceCents(service.tier, chosenUnits)
     : service.monthlyPriceCents;
 
-  const categories = buildFieldCategories(service.configFields, values, [PRODUCT_CATALOG_FIELD_KEY]);
+  const categories = buildFieldCategories(service.configFields, values, [
+    PRODUCT_CATALOG_FIELD_KEY,
+    ...settingsHiddenKeys(service.slug),
+  ]);
   const steps: FlowStep[] = [
     { kind: "plan" },
     ...categories.map((category) => ({ kind: "fields" as const, category })),
