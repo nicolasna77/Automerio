@@ -21,11 +21,13 @@ import { toCalendarBookings } from "@/lib/bookings";
 import { ServiceProgress } from "@/app/[locale]/dashboard/service-progress";
 import { ServiceTimeline } from "@/app/[locale]/dashboard/service-timeline";
 import {
-  CallForwardingCard,
+  hasLiveCalls,
   isLiveTelephony,
+  ServiceCallsContent,
   ServiceConfigurationCard,
   ServiceLiveCard,
 } from "@/app/[locale]/dashboard/service-detail-table";
+import { ServiceActivityTabs } from "@/app/[locale]/dashboard/service-activity-tabs";
 import { TestCallCard } from "@/app/[locale]/dashboard/test-call-card";
 import { isDemoCallAvailable } from "@/lib/demo-call";
 import { ConversationHistory } from "@/app/[locale]/dashboard/conversation-history";
@@ -81,8 +83,11 @@ export default async function ServiceDetailPage({
   const isTelephony = TELEPHONY_SERVICE_SLUGS.has(item.service.slug);
   const showSetup = !isSetupComplete(item);
   const hasMainColumn =
-    showSetup || (isLive && Boolean(item.externalPhoneNumber)) || showBookings || isMessaging;
-  const showProgress = item.status !== "ACTIVE" && item.status !== "CANCELED";
+    (showSetup && !isTelephony) || (isLive && Boolean(item.externalPhoneNumber)) || showBookings || isMessaging;
+  // Avec la mise en service intégrée à l'en-tête (téléphonie), sa liste
+  // d'étapes suffit : pas de seconde barre de progression.
+  const showProgress =
+    item.status !== "ACTIVE" && item.status !== "CANCELED" && !(isTelephony && showSetup);
 
   const { scheduled: scheduledBookings, unscheduled: unscheduledBookings } =
     toCalendarBookings(item.bookings, {
@@ -118,41 +123,90 @@ export default async function ServiceDetailPage({
         ]}
       />
 
-      <header className="flex items-start gap-4">
-        <ServiceGlyphBadge slug={item.service.slug} size="lg" />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
-              <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-                {item.name}
-              </h1>
-              <StatusBadge status={item.status} />
-            </div>
-            <div className="shrink-0">
-              <ServiceDetailActions item={item} />
-            </div>
-          </div>
+      {isTelephony ? (
+        // Téléphonie : présentation de la solution et informations du service
+        // réunies dans une seule carte.
+        <Card>
+          <CardContent className="space-y-6">
+          <header className="flex items-start gap-4">
+            <ServiceGlyphBadge slug={item.service.slug} size="lg" />
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="flex min-w-0 flex-1 basis-56 flex-wrap items-center gap-x-3 gap-y-1">
+                  <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+                    {item.name}
+                  </h1>
+                  <StatusBadge status={item.status} />
+                </div>
+                <div className="shrink-0">
+                  <ServiceDetailActions item={item} />
+                </div>
+              </div>
 
-          {item.name !== item.service.name && (
-            <p className="text-sm text-muted-foreground">{item.service.name}</p>
-          )}
-          <p className="mt-2 max-w-2xl text-muted-foreground">{item.service.description}</p>
+              {item.name !== item.service.name && (
+                <p className="text-sm text-muted-foreground">{item.service.name}</p>
+              )}
+              <p className="mt-2 max-w-2xl text-muted-foreground">{item.service.description}</p>
 
-          <p className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm">
-            <span className="font-medium text-foreground">{describeServiceStatus(item)}</span>
-            {!subscription && (
-              <span className="tabular-nums text-muted-foreground">
-                {formatPriceWithVat(item.service.monthlyPriceCents)}
-              </span>
+              <p className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm">
+                <span className="font-medium text-foreground">{describeServiceStatus(item)}</span>
+                {!subscription && (
+                  <span className="tabular-nums text-muted-foreground">
+                    {formatPriceWithVat(item.service.monthlyPriceCents)}
+                  </span>
+                )}
+              </p>
+              {showProgress && (
+                <div className="max-w-2xl">
+                  <ServiceProgress status={item.status} />
+                </div>
+              )}
+            </div>
+          </header>
+            {showSetup && (
+              <div className="border-t border-border pt-6">
+                <ServiceSetupCard item={item} embedded />
+              </div>
             )}
-          </p>
-          {showProgress && (
-            <div className="max-w-2xl">
-              <ServiceProgress status={item.status} />
+          </CardContent>
+        </Card>
+      ) : (
+        <header className="flex items-start gap-4">
+          <ServiceGlyphBadge slug={item.service.slug} size="lg" />
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="flex min-w-0 flex-1 basis-56 flex-wrap items-center gap-x-3 gap-y-1">
+                <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+                  {item.name}
+                </h1>
+                <StatusBadge status={item.status} />
+              </div>
+              <div className="shrink-0">
+                <ServiceDetailActions item={item} />
+              </div>
             </div>
-          )}
-        </div>
-      </header>
+
+            {item.name !== item.service.name && (
+              <p className="text-sm text-muted-foreground">{item.service.name}</p>
+            )}
+            <p className="mt-2 max-w-2xl text-muted-foreground">{item.service.description}</p>
+
+            <p className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm">
+              <span className="font-medium text-foreground">{describeServiceStatus(item)}</span>
+              {!subscription && (
+                <span className="tabular-nums text-muted-foreground">
+                  {formatPriceWithVat(item.service.monthlyPriceCents)}
+                </span>
+              )}
+            </p>
+            {showProgress && (
+              <div className="max-w-2xl">
+                <ServiceProgress status={item.status} />
+              </div>
+            )}
+          </div>
+        </header>
+      )}
 
       {(calendar === "error" || item.adminNote) && (
         <div className="mt-6 space-y-3">
@@ -176,18 +230,20 @@ export default async function ServiceDetailPage({
         </div>
       )}
 
-      {isTelephony && (
-        <div className="mt-8">
-          <ServiceConfigurationCard item={item} showUsageCap={!subscription?.cap} variant="top" />
-        </div>
-      )}
-
       {hasMainColumn ? (
         <div className="mt-8 grid items-start gap-6 lg:grid-cols-3">
           <div className="min-w-0 space-y-6 lg:col-span-2">
-            {showSetup && <ServiceSetupCard item={item} />}
-            <ServiceLiveCard item={item} />
-            {showBookings && (
+            {showSetup && !isTelephony && <ServiceSetupCard item={item} />}
+            {/* Appels et calendrier ensemble : deux onglets d'une même carte. */}
+            {showBookings && hasLiveCalls(item) ? (
+              <ServiceActivityTabs
+                calls={<ServiceCallsContent item={item} />}
+                calendar={<BookingsCalendar scheduled={scheduledBookings} unscheduled={unscheduledBookings} />}
+              />
+            ) : (
+              <ServiceLiveCard item={item} />
+            )}
+            {showBookings && !hasLiveCalls(item) && (
               <Card>
                 <CardHeader>
                   <CardTitle as="h2" className="text-base">
@@ -203,7 +259,6 @@ export default async function ServiceDetailPage({
               </Card>
             )}
             {isMessaging && <ConversationHistory clientServiceId={item.clientServiceId} />}
-            <CallForwardingCard item={item} />
           </div>
           <aside aria-label="Abonnement et réglages" className="min-w-0 space-y-6">
             {sideCards}

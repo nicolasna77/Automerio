@@ -92,7 +92,25 @@ const CATEGORY_BY_KEY: Record<string, CategoryDef> = {
   voice: CATEGORIES.voice,
   speakingRate: CATEGORIES.voice,
   tone: CATEGORIES.voice,
+  // Adresse de retrait et zone de livraison : avec le choix « Prise de
+  // commande » qui les fait apparaître.
+  businessAddress: CATEGORIES.need,
+  deliveryZone: CATEGORIES.need,
 };
+
+// Champs saisis à l'activation mais plus proposés dans les réglages : ils
+// ne servent pas à l'assistant (les comptes passent par leur connexion, le
+// renvoi par l'onglet Renvoi d'appel). Le lien d'agenda n'est masqué que là
+// où l'onglet Connecteurs le remplace.
+export function settingsHiddenKeys(serviceSlug: string): string[] {
+  return [
+    "phoneLine",
+    "whatsappNumber",
+    "facebookPageName",
+    "instagramUsername",
+    ...(serviceSlug === "prise-rdv-telephone" ? ["calendarLink"] : []),
+  ];
+}
 
 const ORDER = Object.keys(CATEGORIES);
 

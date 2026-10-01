@@ -1,8 +1,10 @@
 import { Link } from "@/i18n/navigation";
-import { Check } from "lucide-react";
+import { Check, Plug } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { SetupStepper } from "./setup-stepper";
+import { CONNECTORS_SECTION_ID } from "./billing-section";
 import {
   asStringArray,
   FACEBOOK_SERVICE_SLUG,
@@ -72,7 +74,14 @@ export function isSetupComplete(item: MyServiceDTO): boolean {
   return clientDone && verified;
 }
 
-export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
+export function ServiceSetupCard({
+  item,
+  embedded = false,
+}: {
+  item: MyServiceDTO;
+  // Dans la carte d'en-tête de la page : un intertitre au lieu d'une carte.
+  embedded?: boolean;
+}) {
   if (isSetupComplete(item)) return null;
 
   const {
@@ -130,36 +139,39 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
     needsCalendarConnection(item);
   const waitingOnAutomerio = clientDone && !verified;
 
-  return (
-    <Card id={SETUP_ANCHOR} className="scroll-mt-24">
-      <CardHeader>
-        <CardTitle as="h2" className="text-base">Mise en service</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-5">
-        <ol className="space-y-2">
-          {steps.map((step) => (
-            <li key={step.label} className="flex items-center gap-2.5 text-sm">
-              <span
-                aria-hidden="true"
-                className={cn(
-                  "flex size-5 shrink-0 items-center justify-center rounded-full",
-                  step.done
-                    ? "bg-primary text-primary-foreground"
-                    : "border border-dashed border-border"
-                )}
-              >
-                {step.done && <Check className="size-3" />}
-              </span>
-              <span
-                className={cn(
-                  step.done ? "text-muted-foreground" : "font-medium text-foreground"
-                )}
-              >
-                {step.label}
-              </span>
-            </li>
-          ))}
-        </ol>
+  // Version intégrée, plus sobre : étapes en frise, encadrés sans bordure.
+  const box = embedded ? "rounded-lg bg-muted/50 p-4" : "rounded-lg border border-border bg-muted/40 p-4";
+
+  const content = (
+    <>
+        {embedded ? (
+          <SetupStepper steps={steps} />
+        ) : (
+          <ol className="space-y-2">
+            {steps.map((step) => (
+              <li key={step.label} className="flex items-center gap-2.5 text-sm">
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    "flex size-5 shrink-0 items-center justify-center rounded-full",
+                    step.done
+                      ? "bg-primary text-primary-foreground"
+                      : "border border-dashed border-border"
+                  )}
+                >
+                  {step.done && <Check className="size-3" />}
+                </span>
+                <span
+                  className={cn(
+                    step.done ? "text-muted-foreground" : "font-medium text-foreground"
+                  )}
+                >
+                  {step.label}
+                </span>
+              </li>
+            ))}
+          </ol>
+        )}
 
         {!paid && (
           <p className="text-sm text-muted-foreground">
@@ -169,7 +181,7 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
         )}
 
         {nextIsPhone && (
-          <div className="rounded-lg border border-border bg-muted/40 p-4">
+          <div className={box}>
             <p className="text-sm font-medium text-foreground">
               Choisissez le numéro qui recevra vos appels
             </p>
@@ -183,7 +195,7 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
         )}
 
         {nextIsWhatsApp && (
-          <div className="rounded-lg border border-border bg-muted/40 p-4">
+          <div className={box}>
             <p className="text-sm font-medium text-foreground">
               Connectez votre compte WhatsApp Business
             </p>
@@ -200,7 +212,7 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
         )}
 
         {nextIsFacebook && (
-          <div className="rounded-lg border border-border bg-muted/40 p-4">
+          <div className={box}>
             <p className="text-sm font-medium text-foreground">
               Connectez votre Page Facebook
             </p>
@@ -217,7 +229,7 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
         )}
 
         {nextIsInstagram && (
-          <div className="rounded-lg border border-border bg-muted/40 p-4">
+          <div className={box}>
             <p className="text-sm font-medium text-foreground">
               Connectez votre compte Instagram
             </p>
@@ -234,7 +246,7 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
         )}
 
         {nextIsCatalog && (
-          <div className="rounded-lg border border-border bg-muted/40 p-4">
+          <div className={box}>
             <p className="text-sm font-medium text-foreground">
               Ajoutez votre carte
             </p>
@@ -252,7 +264,7 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
         )}
 
         {nextIsCalendar && (
-          <div className="rounded-lg border border-border bg-muted/40 p-4">
+          <div className={box}>
             <p className="text-sm font-medium text-foreground">
               Connectez votre agenda
             </p>
@@ -260,10 +272,20 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
               Les rendez-vous pris par téléphone s&apos;ajouteront directement
               dans votre agenda : Google Agenda, Cal.com ou Calendly.
             </p>
-            <CalendarConnection
-              clientServiceId={item.clientServiceId}
-              calendar={item.calendar}
-            />
+            {embedded ? (
+              <Link
+                href={`/dashboard/services/${item.clientServiceId}/configuration#${CONNECTORS_SECTION_ID}`}
+                className={buttonVariants({ variant: "outline", size: "sm" })}
+              >
+                <Plug aria-hidden="true" data-icon="inline-start" />
+                Connecter un agenda
+              </Link>
+            ) : (
+              <CalendarConnection
+                clientServiceId={item.clientServiceId}
+                calendar={item.calendar}
+              />
+            )}
           </div>
         )}
 
@@ -273,6 +295,27 @@ export function ServiceSetupCard({ item }: { item: MyServiceDTO }) {
             en service et vous prévient dès que votre solution est active.
           </p>
         )}
+    </>
+  );
+
+  if (embedded) {
+    return (
+      <section id={SETUP_ANCHOR} aria-labelledby={`${SETUP_ANCHOR}-title`} className="scroll-mt-24">
+        <h2 id={`${SETUP_ANCHOR}-title`} className="text-sm font-medium text-foreground">
+          Mise en service
+        </h2>
+        <div className="mt-4 space-y-5">{content}</div>
+      </section>
+    );
+  }
+
+  return (
+    <Card id={SETUP_ANCHOR} className="scroll-mt-24">
+      <CardHeader>
+        <CardTitle as="h2" className="text-base">Mise en service</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-5">
+        {content}
       </CardContent>
     </Card>
   );
