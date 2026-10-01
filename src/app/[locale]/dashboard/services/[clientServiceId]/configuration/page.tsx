@@ -4,8 +4,9 @@ import { requireUser } from "@/lib/session";
 import { requireActiveOrganization } from "@/lib/organization";
 import { getSubscriptionFor, isRunning } from "@/lib/subscriptions";
 import { ServiceBillingCard } from "@/app/[locale]/dashboard/service-billing-card";
+import { ServiceConnectorsCard } from "@/app/[locale]/dashboard/service-connectors-card";
 import { getMyService } from "@/app/[locale]/dashboard/get-my-service";
-import { canEditConfiguration, withCleanProductCatalog } from "@/lib/catalog";
+import { asStringArray, canEditConfiguration, withCleanProductCatalog } from "@/lib/catalog";
 import { ServiceConfigurationForm } from "./service-configuration-form";
 import { PageHeader, PageShell } from "@/components/page-shell";
 
@@ -54,6 +55,16 @@ export default async function ServiceConfigurationPage({
         initialConfiguration={withCleanProductCatalog(item.configuration)}
         backHref={detailHref}
         companyName={organization.name}
+        connectorsSection={
+          // Seule la prise de rendez-vous se relie à un agenda.
+          item.service.slug === "prise-rdv-telephone" && canEditConfiguration(item) ? (
+            <ServiceConnectorsCard
+              clientServiceId={item.clientServiceId}
+              calendar={item.calendar}
+              takesAppointments={asStringArray(item.configuration.objectives).includes("appointment")}
+            />
+          ) : null
+        }
         billingSection={
           subscription ? (
             <ServiceBillingCard subscription={subscription} organizationId={organization.id} />

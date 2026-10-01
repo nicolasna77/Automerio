@@ -45,9 +45,12 @@ const PROVIDER_HELP: Record<
 export function CalendarConnection({
   clientServiceId,
   calendar,
+  fromSettings = false,
 }: {
   clientServiceId: string;
   calendar: MyServiceDTO["calendar"];
+  // Après Google, revenir sur l'onglet Connecteurs des réglages.
+  fromSettings?: boolean;
 }) {
   const [isPending, startTransition] = useTransition();
   const [dialogFor, setDialogFor] = useState<SchedulingProvider | null>(null);
@@ -94,7 +97,11 @@ export function CalendarConnection({
           variant="outline"
           size="sm"
           nativeButton={false}
-          render={<a href={`/api/google-calendar/connect?clientServiceId=${clientServiceId}`} />}
+          render={
+            <a
+              href={`/api/google-calendar/connect?clientServiceId=${clientServiceId}${fromSettings ? "&from=settings" : ""}`}
+            />
+          }
         >
           <CalendarCheck2 aria-hidden="true" data-icon="inline-start" />
           Google Agenda

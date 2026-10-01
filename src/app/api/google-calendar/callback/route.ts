@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/session";
 import { db } from "@/lib/db";
 import { canReadClientService, viewerOf } from "@/lib/client-service-access";
-import { completeGoogleCalendarConnection, verifyState } from "@/lib/google-calendar";
+import { cookies } from "next/headers";
+import { CONNECTORS_SECTION_ID } from "@/app/[locale]/dashboard/billing-section";
+import { completeGoogleCalendarConnection, GOOGLE_RETURN_COOKIE, verifyState } from "@/lib/google-calendar";
 
 export async function GET(request: Request) {
   const session = await requireUser();
@@ -31,15 +33,22 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL("/dashboard?calendar=error", url));
   }
 
+  const cookieStore = await cookies();
+  const fromSettings = cookieStore.get(GOOGLE_RETURN_COOKIE)?.value === "settings";
+  const back = (status: "connected" | "error") => {
+    const target = fromSettings
+      ? `/dashboard/services/${clientServiceId}/configuration?calendar=${status}#${CONNECTORS_SECTION_ID}`
+      : `/dashboard/services/${clientServiceId}?calendar=${status}`;
+    const response = NextResponse.redirect(new URL(target, url));
+    response.cookies.delete({ name: GOOGLE_RETURN_COOKIE, path: "/api/google-calendar" });
+    return response;
+  };
+
   try {
     await completeGoogleCalendarConnection(clientServiceId, code);
   } catch {
-    return NextResponse.redirect(
-      new URL(`/dashboard/services/${clientServiceId}?calendar=error`, url)
-    );
+    return back("error");
   }
 
-  return NextResponse.redirect(
-    new URL(`/dashboard/services/${clientServiceId}?calendar=connected`, url)
-  );
+  return back("connected");
 }

@@ -14,6 +14,9 @@ function signState(clientServiceId: string): string {
   return signOAuthState(requireEnv("GOOGLE_OAUTH_STATE_SECRET", FEATURE), clientServiceId);
 }
 
+// Cookie posé quand la connexion part des réglages, pour y revenir ensuite.
+export const GOOGLE_RETURN_COOKIE = "google_calendar_return";
+
 export function verifyState(state: string): string | null {
   return verifyOAuthState(requireEnv("GOOGLE_OAUTH_STATE_SECRET", FEATURE), state);
 }
