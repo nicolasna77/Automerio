@@ -310,8 +310,15 @@ export function ServiceConfigurationForm({
                 maxLength={80}
                 onChange={(event) => setName(event.target.value)}
                 aria-invalid={submitAttempted && !name.trim()}
-                aria-describedby={`${nameFieldId}-help`}
+                aria-describedby={
+                  submitAttempted && !name.trim() ? `${nameFieldId}-error ${nameFieldId}-help` : `${nameFieldId}-help`
+                }
               />
+              {submitAttempted && !name.trim() && (
+                <p id={`${nameFieldId}-error`} className="text-sm text-destructive">
+                  Donnez un nom à cette solution, par exemple « Standard de la boutique ».
+                </p>
+              )}
               <p id={`${nameFieldId}-help`} className="text-xs text-muted-foreground">
                 Utile si vous activez la même solution plusieurs fois, pour plusieurs boutiques par exemple.
               </p>
