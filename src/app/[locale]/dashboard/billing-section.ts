@@ -5,3 +5,6 @@ export const BILLING_SECTION_ID = "reglages-abonnement";
 
 // Ancre de l'onglet « Connecteurs » (agenda) des réglages.
 export const CONNECTORS_SECTION_ID = "reglages-connecteurs";
+
+// Ancre de l'onglet « Renvoi d'appel » (téléphonie) des réglages.
+export const FORWARDING_SECTION_ID = "reglages-renvoi";

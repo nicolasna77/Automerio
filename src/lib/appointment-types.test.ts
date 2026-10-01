@@ -49,4 +49,15 @@ describe("prestations et durées", () => {
     expect(prompt).toContain("utilise sa durée dans check_availability et book_appointment");
     expect(prompt).toContain("Pour une autre demande, compte 30 minutes.");
   });
+
+  it("ne promet pas de durée par prestation quand l'agenda impose la sienne", () => {
+    const prompt = buildSystemPrompt(
+      "prise-rdv-telephone",
+      { objectives: ["appointment"], appointmentTypes: [{ trigger: "Couleur", target: "90" }] },
+      { calendarConnected: true, collectsEmail: true, fixedDurationMinutes: 30, companyName: "Salon" }
+    );
+    expect(prompt).toContain("Prestations proposées : Couleur.");
+    expect(prompt).toContain("Chaque rendez-vous dure 30 minutes");
+    expect(prompt).not.toContain("90 min");
+  });
 });
