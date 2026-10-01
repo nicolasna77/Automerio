@@ -216,13 +216,23 @@
 }
 
 /* Hero de l'accueil : un trait lumineux descend le long d'une ligne de la
-   trame. Le parent fixe la hauteur à parcourir (container-type: size). */
+   trame et s'estompe en approchant du bas. Le parent fixe la hauteur à
+   parcourir (container-type: size). Seuls transform et opacity bougent : le
+   navigateur anime sans redessiner. */
 @keyframes hero-beam {
-  from {
+  0% {
     transform: translateY(-100%);
+    opacity: 0;
   }
-  to {
+  15% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
     transform: translateY(100cqh);
+    opacity: 0;
   }
 }
 
