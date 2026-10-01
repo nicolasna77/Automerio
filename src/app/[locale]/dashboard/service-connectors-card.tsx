@@ -43,7 +43,7 @@ export function ServiceConnectorsCard({
             <AlertTriangle aria-hidden="true" />
             <AlertTitle>Connexion à l&apos;agenda impossible</AlertTitle>
             <AlertDescription>
-              Google n&apos;a pas autorisé la connexion. Réessayez, ou contactez-nous si le problème persiste.
+              La connexion à Google Agenda n&apos;a pas abouti. Réessayez avec le bouton Google Agenda ci-dessous, ou écrivez-nous depuis la rubrique Aide si le problème persiste.
             </AlertDescription>
           </Alert>
         )}
