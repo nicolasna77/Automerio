@@ -58,26 +58,35 @@ export function VoicePreview({ clientServiceId, values }: { clientServiceId: str
     });
   }
 
+  // Un seul bouton dont le libellé change : le focus clavier reste dessus
+  // pendant la génération et la lecture (better-accessibility).
+  const label = playing ? "Arrêter" : "Écouter un exemple";
   return (
     <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border border-border bg-muted/40 p-4">
-      {playing ? (
-        <Button type="button" variant="outline" size="sm" onClick={stop}>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        aria-disabled={isLoading || undefined}
+        aria-busy={isLoading || undefined}
+        onClick={() => {
+          if (isLoading) return;
+          if (playing) stop();
+          else play();
+        }}
+      >
+        {isLoading ? (
+          <Loader2 className="animate-spin" aria-hidden="true" data-icon="inline-start" />
+        ) : playing ? (
           <Square aria-hidden="true" data-icon="inline-start" />
-          Arrêter
-        </Button>
-      ) : (
-        <Button type="button" variant="outline" size="sm" onClick={play} disabled={isLoading} aria-busy={isLoading}>
-          {isLoading ? (
-            <Loader2 className="animate-spin" aria-hidden="true" data-icon="inline-start" />
-          ) : (
-            <Play aria-hidden="true" data-icon="inline-start" />
-          )}
-          Écouter un exemple
-        </Button>
-      )}
-      <p className="min-w-0 flex-1 text-sm text-muted-foreground">
-        L&apos;assistant lit votre message d&apos;accueil avec ces réglages, sans passer d&apos;appel.
-        Un aperçu fidèle de la voix ; en appel, elle passe par le téléphone.
+        ) : (
+          <Play aria-hidden="true" data-icon="inline-start" />
+        )}
+        {label}
+      </Button>
+      <p className="min-w-0 flex-1 text-sm text-pretty text-muted-foreground">
+        L&apos;assistant lit votre message d&apos;accueil avec ces réglages, sans passer d&apos;appel. Au
+        téléphone, le son sera un peu moins net.
       </p>
     </div>
   );
