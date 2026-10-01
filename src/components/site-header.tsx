@@ -99,7 +99,7 @@ export async function SiteHeader() {
                 href="/#waitlist"
                 className={buttonVariants({ className: "h-10 px-4 sm:h-9" })}
               >
-                arear <span className="sm:hidden">{tWaitlist("ctaShort")}</span>
+                <span className="sm:hidden">{tWaitlist("ctaShort")}</span>
                 <span className="hidden sm:inline">{tWaitlist("cta")}</span>
               </Link>
             ) : (
