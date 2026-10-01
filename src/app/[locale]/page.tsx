@@ -11,6 +11,7 @@ import { OutcomesSection } from "./home-sections/outcomes-section";
 import { BeforeAfterSection } from "./home-sections/before-after-section";
 import { AudienceSection } from "./home-sections/audience-section";
 import { WhySection } from "./home-sections/why-section";
+import { ProductSection } from "./home-sections/product-section";
 import { TrustSection } from "./home-sections/trust-section";
 import { ServicesSection } from "./home-sections/services-section";
 import { IntegrationsSection } from "./home-sections/integrations-section";
@@ -46,6 +47,7 @@ export default async function HomePage() {
         <BeforeAfterSection />
         <AudienceSection />
         <MethodSection />
+        <ProductSection />
         <WhySection />
         <JsonLd
           data={serviceListSchema(tHome("heading"), services, (service) => ({

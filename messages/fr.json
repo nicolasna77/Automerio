@@ -416,6 +416,21 @@
         }
       },
       "privacy": "Lire la politique de confidentialité"
+    },
+    "product": {
+      "eyebrow": "Votre tableau de bord",
+      "heading": "Vous voyez tout ce que fait votre assistant",
+      "lead": "Chaque appel, chaque rendez-vous et chaque réglage au même endroit, sur ordinateur comme sur téléphone.",
+      "items": {
+        "calendar": {
+          "title": "Les rendez-vous pris pour vous",
+          "description": "Ceux que l'assistant a pris au téléphone s'affichent dans votre calendrier, avec le motif et le numéro du client."
+        },
+        "settings": {
+          "title": "Des réglages que vous modifiez seul",
+          "description": "Horaires, message d'accueil, motifs de transfert : vous changez ce que fait l'assistant quand vous voulez."
+        }
+      }
     }
   },
   "LlmsTxt": {
@@ -784,7 +799,9 @@
   "Screenshots": {
     "demoCaption": "Exemple avec des données de démonstration.",
     "overviewAlt": "Tableau de bord Automerio : les appels à rappeler, le nombre d'appels du mois et la dépense mensuelle.",
-    "callsAlt": "Récapitulatif des appels d'un standard téléphonique : motif, nom de l'appelant, issue de l'appel et appels à rappeler."
+    "callsAlt": "Récapitulatif des appels d'un standard téléphonique : motif, nom de l'appelant, issue de l'appel et appels à rappeler.",
+    "calendarAlt": "Calendrier de la semaine avec les rendez-vous pris par téléphone : nom du client, heure et solution utilisée.",
+    "settingsAlt": "Réglages du standard téléphonique : motifs d'appel et numéro vers lequel transférer chacun."
   },
   "Waitlist": {
     "heading": "Automerio ouvre bientôt",
