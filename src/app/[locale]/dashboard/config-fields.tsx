@@ -167,7 +167,15 @@ function renderFieldInput({
           id={field.key}
           fieldKey={field.key}
           labelledBy={`${field.key}-label`}
-          value={Array.isArray(value) ? (value as RuleRow[]) : []}
+          value={
+            // Anciennes prestations (simple liste de noms) : une ligne chacune,
+            // durée à choisir.
+            Array.isArray(value)
+              ? (value as unknown[]).map((row) =>
+                  typeof row === "string" ? { trigger: row, target: "" } : (row as RuleRow)
+                )
+              : []
+          }
           onChange={onChange}
         />
       );

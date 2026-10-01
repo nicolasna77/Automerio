@@ -452,6 +452,26 @@ export function asStringArray(value: ConfigValue | undefined): string[] {
     : [];
 }
 
+export type AppointmentType = { name: string; minutes: number | null };
+
+// Prestations de la prise de rendez-vous : chacune a sa durée. Les anciens
+// réglages (une simple liste de noms) restent lisibles : la durée est alors
+// celle par défaut. Une durée absente ou invalide vaut null.
+export function readAppointmentTypes(value: ConfigValue | undefined): AppointmentType[] {
+  if (!Array.isArray(value)) return [];
+  return (value as unknown[]).flatMap((entry) => {
+    if (typeof entry === "string") return entry.trim() ? [{ name: entry.trim(), minutes: null }] : [];
+    if (entry && typeof entry === "object" && "trigger" in entry) {
+      const row = entry as RuleRow;
+      const minutes = Number.parseInt(String(row.target), 10);
+      return row.trigger.trim()
+        ? [{ name: row.trigger.trim(), minutes: Number.isFinite(minutes) && minutes > 0 ? minutes : null }]
+        : [];
+    }
+    return [];
+  });
+}
+
 export function asRuleRows(value: ConfigValue | undefined): RuleRow[] {
   if (!Array.isArray(value)) return [];
   return value.filter(

@@ -26,6 +26,7 @@ import {
   type CallTemplate,
 } from "@/content/fr/call-templates";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import {
   WEEK_DAYS,
@@ -385,10 +386,24 @@ const RULE_COLUMNS: Record<
     target: string;
     triggerPlaceholder: string;
     targetPlaceholder: string;
-    targetType?: "tel";
+    // « minutes » : la durée se choisit dans une liste au lieu d'un champ libre.
+    targetType?: "tel" | "minutes";
     empty: string;
+    // Libellés propres au champ : bouton d'ajout et nom d'une ligne.
+    addLabel?: string;
+    rowLabel?: string;
   }
 > = {
+  appointmentTypes: {
+    trigger: "Prestation",
+    target: "Durée",
+    triggerPlaceholder: "Coupe femme",
+    targetPlaceholder: "Durée",
+    targetType: "minutes",
+    empty: "Aucune prestation : l'assistant utilise la durée par défaut.",
+    addLabel: "Ajouter une prestation",
+    rowLabel: "prestation",
+  },
   callRouting: {
     trigger: "Motif de l'appel",
     target: "Transférer vers",
@@ -414,6 +429,11 @@ const DEFAULT_RULE_COLUMNS = {
   empty: "Aucune règle pour l'instant.",
 };
 
+const DURATION_OPTIONS = [15, 20, 30, 45, 60, 75, 90, 120, 150, 180].map((minutes) => ({
+  value: String(minutes),
+  label: minutes < 60 ? `${minutes} min` : `${Math.floor(minutes / 60)} h${minutes % 60 ? ` ${minutes % 60}` : ""}`,
+}));
+
 export function RulesListField({
   id,
   fieldKey,
@@ -427,7 +447,8 @@ export function RulesListField({
   value: RuleRow[];
   onChange: (value: RuleRow[]) => void;
 }) {
-  const columns = RULE_COLUMNS[fieldKey] ?? DEFAULT_RULE_COLUMNS;
+  const columns = { ...DEFAULT_RULE_COLUMNS, ...RULE_COLUMNS[fieldKey] };
+  const rowLabel = columns.rowLabel ?? "règle";
   const [keys, setKeys] = useState<string[]>(() => value.map(() => crypto.randomUUID()));
 
   function updateRow(index: number, patch: Partial<RuleRow>) {
@@ -483,26 +504,49 @@ export function RulesListField({
                 <Input
                   id={`${id}-trigger-${index}`}
                   placeholder={columns.triggerPlaceholder}
-                  aria-label={`${columns.trigger}, règle ${index + 1}`}
+                  aria-label={`${columns.trigger}, ${rowLabel} ${index + 1}`}
                   value={row.trigger}
                   onChange={(e) => updateRow(index, { trigger: e.target.value })}
                 />
-                <Input
-                  id={`${id}-target-${index}`}
-                  type={columns.targetType ?? "text"}
-                  inputMode={columns.targetType === "tel" ? "tel" : undefined}
-                  autoComplete={columns.targetType === "tel" ? "tel" : "off"}
-                  placeholder={columns.targetPlaceholder}
-                  aria-label={`${columns.target}, règle ${index + 1}`}
-                  value={row.target}
-                  onChange={(e) => updateRow(index, { target: e.target.value })}
-                  className="col-start-2 row-start-2 sm:col-start-auto sm:row-start-auto"
-                />
+                {columns.targetType === "minutes" ? (
+                  <Select
+                    value={row.target || null}
+                    items={DURATION_OPTIONS}
+                    onValueChange={(next) => updateRow(index, { target: next ?? "" })}
+                  >
+                    <SelectTrigger
+                      id={`${id}-target-${index}`}
+                      aria-label={`${columns.target}, ${rowLabel} ${index + 1}`}
+                      className="col-start-2 row-start-2 w-full sm:col-start-auto sm:row-start-auto"
+                    >
+                      <SelectValue placeholder="Durée par défaut" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {DURATION_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Input
+                    id={`${id}-target-${index}`}
+                    type={columns.targetType ?? "text"}
+                    inputMode={columns.targetType === "tel" ? "tel" : undefined}
+                    autoComplete={columns.targetType === "tel" ? "tel" : "off"}
+                    placeholder={columns.targetPlaceholder}
+                    aria-label={`${columns.target}, ${rowLabel} ${index + 1}`}
+                    value={row.target}
+                    onChange={(e) => updateRow(index, { target: e.target.value })}
+                    className="col-start-2 row-start-2 sm:col-start-auto sm:row-start-auto"
+                  />
+                )}
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon-sm"
-                  aria-label={`Supprimer la règle ${index + 1}`}
+                  aria-label={`Supprimer la ${rowLabel} ${index + 1}`}
                   className="col-start-3 row-start-1 sm:col-start-auto sm:row-start-auto"
                   onClick={() => removeRow(index)}
                 >
@@ -516,7 +560,7 @@ export function RulesListField({
       <div className="flex flex-wrap items-center gap-1.5">
         <Button type="button" variant="outline" size="sm" onClick={() => addRow()}>
           <Plus aria-hidden="true" data-icon="inline-start" />
-          Ajouter une règle
+          {columns.addLabel ?? "Ajouter une règle"}
         </Button>
         {suggestions.length > 0 && (
           <>

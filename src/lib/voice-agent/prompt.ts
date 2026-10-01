@@ -1,6 +1,7 @@
 import {
   asRuleRows,
   asStringArray,
+  readAppointmentTypes,
   WEEK_DAYS,
   WEEK_DAY_LABELS,
   type Configuration,
@@ -83,8 +84,10 @@ function buildPriseRdvPrompt(
   ];
 
   if (canBookAppointments) {
-    const appointmentTypes = asStringArray(configuration.appointmentTypes);
+    const appointmentTypes = readAppointmentTypes(configuration.appointmentTypes);
     const slotDuration = asString(configuration.slotDuration);
+    const defaultMinutes = Number.parseInt(slotDuration, 10) || null;
+    const durationOf = (minutes: number | null) => minutes ?? defaultMinutes;
     lines.push(
       "Rendez-vous : demande le motif, puis le jour et le moment qui conviennent. Vérifie le",
       "créneau avec check_availability avant de le proposer. Une fois l'appelant d'accord,",
@@ -93,9 +96,15 @@ function buildPriseRdvPrompt(
         ? "Propose-lui de donner son adresse e-mail pour recevoir la confirmation ; ce n'est pas obligatoire. Fais-la épeler et relis-la."
         : "",
       appointmentTypes.length > 0
-        ? `Types de rendez-vous proposés : ${appointmentTypes.join(", ")}.`
+        ? `Prestations proposées : ${appointmentTypes
+            .map((type) => (durationOf(type.minutes) ? `${type.name} (${durationOf(type.minutes)} min)` : type.name))
+            .join(", ")}. Demande quelle prestation est souhaitée, et utilise sa durée dans check_availability et book_appointment.`
         : "",
-      slotDuration ? `Durée standard d'un créneau : ${slotDuration} minutes.` : ""
+      defaultMinutes
+        ? appointmentTypes.length > 0
+          ? `Pour une autre demande, compte ${defaultMinutes} minutes.`
+          : `Durée d'un rendez-vous : ${defaultMinutes} minutes.`
+        : ""
     );
   }
 
