@@ -40,13 +40,28 @@ async function LiveCallCard() {
   );
 }
 
+// Traits lumineux qui descendent le long des lignes verticales de la trame :
+// colonne (multiple de 6rem, le pas de la trame), durée et décalage en
+// secondes. Les décalages négatifs évitent que tout parte en même temps.
+const HERO_BEAMS = [
+  { column: 1, duration: 9, delay: -2 },
+  { column: 3, duration: 7, delay: -5 },
+  { column: 5, duration: 11, delay: -1 },
+  { column: 7, duration: 8, delay: -6 },
+  { column: 9, duration: 10, delay: -3 },
+  { column: 11, duration: 7.5, delay: -8 },
+  { column: 13, duration: 9.5, delay: -4 },
+  { column: 15, duration: 8.5, delay: -7 },
+] as const;
+
 // Trame de fond du hero : lignes fines et un point à chaque croisement,
-// estompée vers les bords (seule trame autorisée, DESIGN.md, Couleurs).
+// estompée vers les bords, parcourue de traits lumineux (seule trame et seule
+// animation décorative autorisées, DESIGN.md, Couleurs et Mouvement).
 function HeroGrid() {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(ellipse_70%_60%_at_50%_0%,black_40%,transparent_100%)]"
+      className="pointer-events-none absolute inset-0 -z-10 [container-type:size] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_0%,black_40%,transparent_100%)]"
       style={{
         backgroundImage: [
           "radial-gradient(circle, var(--border) 1.5px, transparent 1.6px)",
@@ -56,7 +71,18 @@ function HeroGrid() {
         backgroundSize: "6rem 6rem",
         backgroundPosition: "-0.5px -0.5px, -0.5px 0, 0 -0.5px",
       }}
-    />
+    >
+      {HERO_BEAMS.map((beam) => (
+        <span
+          key={beam.column}
+          className="absolute top-0 h-28 w-px bg-linear-to-b from-transparent via-primary/60 to-primary motion-reduce:hidden"
+          style={{
+            left: `calc(${beam.column} * 6rem - 0.5px)`,
+            animation: `hero-beam ${beam.duration}s linear ${beam.delay}s infinite`,
+          }}
+        />
+      ))}
+    </div>
   );
 }
 

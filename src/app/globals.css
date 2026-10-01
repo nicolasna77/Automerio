@@ -215,6 +215,17 @@
   }
 }
 
+/* Hero de l'accueil : un trait lumineux descend le long d'une ligne de la
+   trame. Le parent fixe la hauteur à parcourir (container-type: size). */
+@keyframes hero-beam {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(100cqh);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
