@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "@/i18n/navigation";
 import { ChevronsUpDown, Plus, Settings2 } from "lucide-react";
-import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +17,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { authClient } from "@/lib/auth-client";
+import { useSwitchOrganization } from "@/hooks/use-switch-organization";
 import type { OrganizationSummary } from "@/lib/organization";
 import { OrganizationCreateDialog } from "./organization-create-dialog";
 import { OrganizationManageDialog } from "./organization-manage-dialog";
@@ -35,25 +33,10 @@ export function OrganizationSwitcher({
   active: OrganizationSummary;
   organizations: OrganizationSummary[];
 }) {
-  const router = useRouter();
   const { isMobile } = useSidebar();
   const [createOpen, setCreateOpen] = useState(false);
   const [manageOpen, setManageOpen] = useState(false);
-  const [switchingId, setSwitchingId] = useState<string | null>(null);
-
-  async function handleSwitch(organizationId: string) {
-    if (organizationId === active.id) return;
-    setSwitchingId(organizationId);
-    const { error } = await authClient.organization.setActive({ organizationId });
-    setSwitchingId(null);
-
-    if (error) {
-      console.error("[organisation] changement refusé :", error);
-      toast.error("Impossible de changer d'organisation. Rechargez la page puis réessayez.");
-      return;
-    }
-    router.refresh();
-  }
+  const { switchTo: handleSwitch, switchingId } = useSwitchOrganization(active.id);
 
   return (
     <>
