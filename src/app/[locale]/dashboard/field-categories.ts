@@ -99,15 +99,18 @@ const CATEGORY_BY_KEY: Record<string, CategoryDef> = {
 };
 
 // Champs saisis à l'activation mais plus proposés dans les réglages : ils
-// ne servent pas à l'assistant (les comptes et l'agenda passent par les
-// connecteurs, le renvoi par l'onglet Renvoi d'appel).
-export const SETTINGS_HIDDEN_KEYS = [
-  "phoneLine",
-  "calendarLink",
-  "whatsappNumber",
-  "facebookPageName",
-  "instagramUsername",
-];
+// ne servent pas à l'assistant (les comptes passent par leur connexion, le
+// renvoi par l'onglet Renvoi d'appel). Le lien d'agenda n'est masqué que là
+// où l'onglet Connecteurs le remplace.
+export function settingsHiddenKeys(serviceSlug: string): string[] {
+  return [
+    "phoneLine",
+    "whatsappNumber",
+    "facebookPageName",
+    "instagramUsername",
+    ...(serviceSlug === "prise-rdv-telephone" ? ["calendarLink"] : []),
+  ];
+}
 
 const ORDER = Object.keys(CATEGORIES);
 

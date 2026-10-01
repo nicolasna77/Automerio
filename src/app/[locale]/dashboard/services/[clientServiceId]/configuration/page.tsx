@@ -6,6 +6,7 @@ import { getSubscriptionFor, isRunning } from "@/lib/subscriptions";
 import { ServiceBillingCard } from "@/app/[locale]/dashboard/service-billing-card";
 import { ServiceConnectorsCard } from "@/app/[locale]/dashboard/service-connectors-card";
 import { ServiceForwardingCard } from "@/app/[locale]/dashboard/service-forwarding-card";
+import { settingsHiddenKeys } from "@/app/[locale]/dashboard/field-categories";
 import { isLiveTelephony } from "@/app/[locale]/dashboard/service-detail-table";
 import { getMyService } from "@/app/[locale]/dashboard/get-my-service";
 import { asStringArray, canEditConfiguration, withCleanProductCatalog } from "@/lib/catalog";
@@ -58,6 +59,7 @@ export default async function ServiceConfigurationPage({
         clientServiceId={item.clientServiceId}
         initialName={item.name}
         configFields={item.service.configFields}
+        hiddenKeys={settingsHiddenKeys(item.service.slug)}
         initialConfiguration={withCleanProductCatalog(item.configuration)}
         backHref={detailHref}
         companyName={organization.name}

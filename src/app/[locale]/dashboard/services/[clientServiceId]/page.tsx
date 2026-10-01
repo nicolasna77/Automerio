@@ -1,8 +1,6 @@
 import { titleMetadata } from "@/i18n/metadata";
 import { notFound } from "next/navigation";
-import { AlertTriangle, MessageSquareText, Plug } from "lucide-react";
-import { Link } from "@/i18n/navigation";
-import { buttonVariants } from "@/components/ui/button";
+import { AlertTriangle, MessageSquareText } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireUser } from "@/lib/session";
@@ -36,7 +34,7 @@ import { ConversationHistory } from "@/app/[locale]/dashboard/conversation-histo
 import { ServiceDetailActions } from "@/app/[locale]/dashboard/service-detail-actions";
 import { isSetupComplete, ServiceSetupCard } from "@/app/[locale]/dashboard/service-setup-card";
 import { ServiceSubscriptionCard } from "@/app/[locale]/dashboard/service-subscription-card";
-import { BILLING_SECTION_ID, CONNECTORS_SECTION_ID } from "@/app/[locale]/dashboard/billing-section";
+import { BILLING_SECTION_ID } from "@/app/[locale]/dashboard/billing-section";
 import { getSubscriptionFor } from "@/lib/subscriptions";
 import { formatPriceWithVat } from "@/lib/vat";
 import { PageBreadcrumbs, PageShell } from "@/components/page-shell";
@@ -84,10 +82,6 @@ export default async function ServiceDetailPage({
   // l'historique n'est pas affiché ; l'activité (appels, rendez-vous) prime.
   const isTelephony = TELEPHONY_SERVICE_SLUGS.has(item.service.slug);
   const showSetup = !isSetupComplete(item);
-  // Connecteur manquant hors mise en service (celle-ci le propose déjà) :
-  // une alerte renvoie vers l'onglet Connecteurs des réglages.
-  const needsCalendar =
-    isTelephony && isLive && !showSetup && objectives.includes("appointment") && !item.calendarConnected;
   const hasMainColumn =
     (showSetup && !isTelephony) || (isLive && Boolean(item.externalPhoneNumber)) || showBookings || isMessaging;
   // Avec la mise en service intégrée à l'en-tête (téléphonie), sa liste
@@ -212,25 +206,6 @@ export default async function ServiceDetailPage({
             )}
           </div>
         </header>
-      )}
-
-      {needsCalendar && (
-        <Alert className="mt-6">
-          <Plug aria-hidden="true" />
-          <AlertTitle>Connectez votre agenda</AlertTitle>
-          <AlertDescription>
-            <p>
-              Sans agenda, l&apos;assistant ne peut pas réserver de rendez-vous : il prend seulement un
-              message. Google Agenda, Cal.com ou Calendly.
-            </p>
-            <Link
-              href={`/dashboard/services/${item.clientServiceId}/configuration#${CONNECTORS_SECTION_ID}`}
-              className={buttonVariants({ variant: "outline", size: "sm", className: "mt-3" })}
-            >
-              Connecter un agenda
-            </Link>
-          </AlertDescription>
-        </Alert>
       )}
 
       {(calendar === "error" || item.adminNote) && (

@@ -31,7 +31,7 @@ import { cn, getErrorMessage } from "@/lib/utils";
 import { updateServiceConfiguration } from "@/app/[locale]/dashboard/actions";
 import { ConfigFieldsForm } from "@/app/[locale]/dashboard/config-fields";
 import { VoicePreview } from "@/app/[locale]/dashboard/voice-preview";
-import { buildFieldCategories, SETTINGS_HIDDEN_KEYS } from "@/app/[locale]/dashboard/field-categories";
+import { buildFieldCategories } from "@/app/[locale]/dashboard/field-categories";
 import {
   BILLING_SECTION_ID,
   CONNECTORS_SECTION_ID,
@@ -49,7 +49,8 @@ const IDENTITY_SECTION_ID = "reglages-informations";
 export function ServiceConfigurationForm({
   clientServiceId,
   initialName,
-  configFields,
+  configFields: allConfigFields,
+  hiddenKeys = [],
   initialConfiguration,
   backHref,
   companyName,
@@ -60,6 +61,8 @@ export function ServiceConfigurationForm({
   clientServiceId: string;
   initialName: string;
   configFields: ConfigField[];
+  // Champs que les réglages ne proposent plus : ni affichés, ni exigés.
+  hiddenKeys?: string[];
   initialConfiguration: Configuration;
   backHref: string;
   companyName: string;
@@ -70,6 +73,7 @@ export function ServiceConfigurationForm({
   // Section « Renvoi d'appel » (téléphonie) : un guide, rien à enregistrer.
   forwardingSection?: React.ReactNode;
 }) {
+  const configFields = allConfigFields.filter((field) => !hiddenKeys.includes(field.key));
   const router = useRouter();
   const [isSaving, startSaving] = useTransition();
   const [values, setValues] = useState<Configuration>(() =>
@@ -96,7 +100,7 @@ export function ServiceConfigurationForm({
 
   const catalogField = configFields.find((field) => field.key === PRODUCT_CATALOG_FIELD_KEY);
   const showCatalog = catalogField !== undefined && isFieldVisible(catalogField, values);
-  const categories = buildFieldCategories(configFields, values, [PRODUCT_CATALOG_FIELD_KEY, ...SETTINGS_HIDDEN_KEYS]);
+  const categories = buildFieldCategories(configFields, values, [PRODUCT_CATALOG_FIELD_KEY]);
 
   // Lien direct vers un onglet (« Ajuster l'abonnement » depuis la page de la
   // solution) : l'ancre de l'adresse choisit l'onglet ouvert.

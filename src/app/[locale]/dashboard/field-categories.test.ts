@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ConfigField } from "@/lib/catalog";
-import { buildFieldCategories, SETTINGS_HIDDEN_KEYS } from "./field-categories";
+import { buildFieldCategories, settingsHiddenKeys } from "./field-categories";
 
 const standard: ConfigField[] = [
   { key: "phoneLine", label: "Numéro existant", type: "tel" },
@@ -48,7 +48,16 @@ describe("buildFieldCategories", () => {
   });
 
   it("ne propose plus dans les réglages les champs que l'assistant n'utilise pas", () => {
-    expect(ids(standard, {}, SETTINGS_HIDDEN_KEYS).map(([id]) => id)).toEqual(["hours", "messages", "rules"]);
+    expect(ids(standard, {}, settingsHiddenKeys("standard-telephonique-ia")).map(([id]) => id)).toEqual([
+      "hours",
+      "messages",
+      "rules",
+    ]);
+  });
+
+  it("ne masque le lien d'agenda que là où l'onglet Connecteurs le remplace", () => {
+    expect(settingsHiddenKeys("prise-rdv-telephone")).toContain("calendarLink");
+    expect(settingsHiddenKeys("prise-rdv-automatique")).not.toContain("calendarLink");
   });
 
   it("écarte les champs demandés et ne crée pas d'étape vide", () => {
