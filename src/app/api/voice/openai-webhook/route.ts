@@ -3,6 +3,7 @@ import { getOpenAIClient } from "@/lib/openai";
 import WebSocket from "ws";
 import { db } from "@/lib/db";
 import type { Configuration } from "@/lib/catalog";
+import { voiceSettingsOf } from "@/lib/voice-agent/voice";
 import { buildSystemPrompt } from "@/lib/voice-agent/prompt";
 import { getToolDefinitions, runTool, toRealtimeTools } from "@/lib/voice-agent/tools";
 import { recordUsageEvent } from "@/lib/usage-events";
@@ -106,7 +107,7 @@ export async function POST(request: Request) {
       tools: toRealtimeTools(tools),
       audio: {
         input: { format: { type: "audio/pcmu" }, transcription: INPUT_TRANSCRIPTION },
-        output: { format: { type: "audio/pcmu" } },
+        output: { format: { type: "audio/pcmu" }, ...voiceSettingsOf(configuration) },
       },
     });
   } catch (err) {
@@ -337,7 +338,7 @@ async function acceptTestCall(callId: string, testCallId: string): Promise<void>
       ),
       audio: {
         input: { format: { type: "audio/pcmu" } },
-        output: { format: { type: "audio/pcmu" } },
+        output: { format: { type: "audio/pcmu" }, ...voiceSettingsOf(configuration) },
       },
     });
   } catch (err) {

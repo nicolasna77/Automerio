@@ -12,6 +12,7 @@ import {
   readProductCatalog,
 } from "@/lib/product-catalog";
 import { asWeeklyHours, isOpenAt } from "@/lib/business-hours";
+import { toneInstructionOf } from "@/lib/voice-agent/voice";
 
 function asString(value: Configuration[string] | undefined): string {
   return typeof value === "string" ? value : "";
@@ -22,6 +23,44 @@ function formatWeeklyHours(hours: WeeklyHours | null): string {
   return WEEK_DAYS.filter((day) => !hours[day].closed)
     .map((day) => `${WEEK_DAY_LABELS[day]} ${hours[day].open}-${hours[day].close}`)
     .join(", ") || "fermé toute la semaine";
+}
+
+// Règles communes aux assistants téléphoniques : la voix impose des phrases
+// courtes et des confirmations que l'écrit n'exige pas.
+function phoneStyle(configuration: Configuration): string[] {
+  return [
+    "## Façon de parler",
+    `- ${toneInstructionOf(configuration)}`,
+    "- Vouvoie toujours l'appelant. Phrases courtes, une seule question à la fois.",
+    "- Ne lis jamais de longue liste : propose deux ou trois choix, puis demande ce qui convient.",
+    "- Relis les numéros de téléphone chiffre par chiffre, et fais épeler les noms difficiles.",
+    "- Avant de raccrocher, résume en une phrase ce qui a été noté ou réservé.",
+  ];
+}
+
+function companyInstructions(configuration: Configuration): string[] {
+  const callInstructions = asString(configuration.callInstructions).trim();
+  return callInstructions
+    ? [
+        "## Consignes de l'entreprise",
+        "Applique-les, sauf si elles contredisent la section « Limites et règles strictes » ci-dessous : celle-ci prime toujours.",
+        callInstructions,
+      ]
+    : [];
+}
+
+// Placées après les consignes de l'entreprise, qu'elles priment : ce que
+// l'assistant ne peut pas faire (faute d'outil, d'agenda ou de carte) ne doit
+// jamais être promis, même si un modèle de consignes en parle.
+function strictRules(limits: string[]): string[] {
+  return [
+    "## Limites et règles strictes",
+    ...limits.map((limit) => `- ${limit}`),
+    "- Ne confirme jamais une réservation, un rendez-vous ou une commande que tu n'as pas enregistré avec un outil.",
+    "- N'invente jamais de prix, de disponibilité, de délai ni d'information absente de ces consignes.",
+    "- Si tu ne sais pas répondre, dis-le simplement et propose de prendre un message.",
+    "- Ne donne aucun avis médical, juridique ou financier.",
+  ];
 }
 
 function buildPriseRdvPrompt(
@@ -35,23 +74,21 @@ function buildPriseRdvPrompt(
   const takesOrders = objectives.includes("order");
 
   const lines = [
-    `Tu es l'assistant téléphonique de ${companyName}. Tu réponds en français, de façon`,
-    `chaleureuse, concise, et tu vouvoies l'appelant.`,
+    "## Rôle",
+    `Tu es l'assistant virtuel de ${companyName}, au téléphone. Tu réponds en français.`,
     `Commence l'appel en présentant ${companyName} en une phrase, puis présente-toi comme son assistant virtuel.`,
     `Horaires d'ouverture : ${formatWeeklyHours(asWeeklyHours(configuration.businessHours))}.`,
+    ...phoneStyle(configuration),
+    "## Déroulé de l'appel",
   ];
-
-  const callInstructions = asString(configuration.callInstructions);
-  if (callInstructions) lines.push(`Consignes particulières : ${callInstructions}`);
 
   if (canBookAppointments) {
     const appointmentTypes = asStringArray(configuration.appointmentTypes);
     const slotDuration = asString(configuration.slotDuration);
     lines.push(
-      "Tu peux prendre un rendez-vous avec l'outil book_appointment, après avoir",
-      "vérifié un créneau disponible avec check_availability. Demande le nom, le",
-      "numéro de téléphone de l'appelant, et le motif du rendez-vous avant de",
-      "réserver.",
+      "Rendez-vous : demande le motif, puis le jour et le moment qui conviennent. Vérifie le",
+      "créneau avec check_availability avant de le proposer. Une fois l'appelant d'accord,",
+      "demande son nom et son numéro de téléphone, puis réserve avec book_appointment.",
       collectsEmail
         ? "Propose-lui de donner son adresse e-mail pour recevoir la confirmation ; ce n'est pas obligatoire. Fais-la épeler et relis-la."
         : "",
@@ -68,10 +105,10 @@ function buildPriseRdvPrompt(
     const deliveryZone = asString(configuration.deliveryZone);
     if (countCatalogItems(catalog) > 0) {
       lines.push(
-        "Tu peux enregistrer une commande avec l'outil take_order, après avoir",
-        "confirmé les articles, le nom et le numéro de téléphone de l'appelant, et",
-        "s'il souhaite un retrait ou une livraison. Ne propose que les produits du",
-        "catalogue, aux prix indiqués.",
+        "Commande : note les articles et les quantités, puis demande s'il s'agit d'un retrait",
+        "ou d'une livraison, et pour quelle heure. Relis la commande complète, puis demande le",
+        "nom et le numéro de téléphone, et enregistre-la avec take_order. Ne propose que les",
+        "produits du catalogue, aux prix indiqués.",
         `Catalogue :\n${formatCatalogForAgent(catalog)}`
       );
     } else {
@@ -95,6 +132,20 @@ function buildPriseRdvPrompt(
     );
   }
 
+  const limits = [
+    !wantsAppointments
+      ? "Tu ne prends ni rendez-vous ni réservation : propose de noter la demande pour un rappel."
+      : !canBookAppointments
+        ? "Aucun agenda n'est connecté : tu ne peux confirmer aucun rendez-vous, seulement noter la demande."
+        : "",
+    !takesOrders
+      ? "Tu ne prends pas de commande : propose de noter la demande pour un rappel."
+      : countCatalogItems(readProductCatalog(configuration.productCatalog)) === 0
+        ? "La carte n'est pas renseignée : ne prends aucune commande."
+        : "",
+  ].filter(Boolean);
+
+  lines.push(...companyInstructions(configuration), ...strictRules(limits));
   return lines.filter(Boolean).join("\n");
 }
 
@@ -105,24 +156,27 @@ function buildStandardTelephoniquePrompt(configuration: Configuration, companyNa
   const open = isOpenAt(openingHours, new Date());
 
   const lines = [
-    `Tu es le standard téléphonique de ${companyName}. Tu réponds en français,`,
-    `de façon chaleureuse, concise, et tu vouvoies l'appelant.`,
+    "## Rôle",
+    `Tu es le standard téléphonique de ${companyName} : son assistant virtuel. Tu réponds en français.`,
     greetingMessage
       ? `Commence l'appel en disant exactement : « ${greetingMessage} » Si ce message ne le dit pas, précise ensuite que tu es un assistant virtuel.`
       : `Commence l'appel par une salutation brève : présente ${companyName} en une phrase, puis présente-toi comme son assistant virtuel.`,
     `Horaires d'ouverture : ${formatWeeklyHours(openingHours)}.`,
     open
       ? "L'entreprise est actuellement ouverte."
-      : "L'entreprise est actuellement fermée — informe-en l'appelant, mais reste utile : tu peux toujours transférer un motif urgent ou prendre un message.",
+      : "L'entreprise est actuellement fermée : informe-en l'appelant, mais reste utile. Tu peux toujours transférer un motif urgent ou prendre un message.",
+    ...phoneStyle(configuration),
+    "## Déroulé de l'appel",
+    "Écoute la demande, puis reformule-la en une phrase pour vérifier que tu as bien compris.",
   ];
 
   if (callRouting.length > 0) {
     lines.push(
-      "Tu disposes de l'outil transfer_call pour transférer l'appel — uniquement",
+      "Tu disposes de l'outil transfer_call pour transférer l'appel, uniquement",
       "pour l'un de ces motifs précis (pas d'autres, pas de numéro inventé) :",
       callRouting.map((rule) => `« ${rule.trigger} »`).join(", ") + ".",
       "Dès que tu décides de transférer, appelle immédiatement l'outil",
-      "transfer_call — ne dis jamais à l'appelant que tu transfères sans avoir",
+      "transfer_call : ne dis jamais à l'appelant que tu transfères sans avoir",
       "réellement appelé l'outil au même tour de parole."
     );
   }
@@ -130,7 +184,11 @@ function buildStandardTelephoniquePrompt(configuration: Configuration, companyNa
   lines.push(
     "Pour toute autre demande, ou si l'appelant refuse d'être transféré, utilise",
     "l'outil take_message pour noter son nom, son numéro et le motif de son",
-    "appel — indique-lui que l'entreprise le rappellera."
+    "appel, puis indique-lui que l'entreprise le rappellera.",
+    ...companyInstructions(configuration),
+    ...strictRules([
+      "Tu ne prends pas de rendez-vous, ni de réservation, ni de commande : propose de noter la demande pour un rappel, sans rien confirmer.",
+    ])
   );
 
   return lines.join("\n");
