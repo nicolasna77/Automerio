@@ -14,11 +14,14 @@ export const generateMetadata = titleMetadata("serviceConfiguration");
 
 export default async function ServiceConfigurationPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ clientServiceId: string }>;
+  searchParams: Promise<{ calendar?: string }>;
 }) {
-  const [{ clientServiceId }, session, { active: organization }] = await Promise.all([
+  const [{ clientServiceId }, { calendar: calendarStatus }, session, { active: organization }] = await Promise.all([
     params,
+    searchParams,
     requireUser(),
     requireActiveOrganization(),
   ]);
@@ -62,6 +65,7 @@ export default async function ServiceConfigurationPage({
               clientServiceId={item.clientServiceId}
               calendar={item.calendar}
               takesAppointments={asStringArray(item.configuration.objectives).includes("appointment")}
+              connectionFailed={calendarStatus === "error"}
             />
           ) : null
         }

@@ -35,6 +35,9 @@ export async function GET(request: Request) {
       path: "/api/google-calendar",
       maxAge: 15 * 60,
     });
+  } else {
+    // Une connexion lancée ailleurs ne doit pas hériter d'un ancien retour.
+    response.cookies.delete({ name: GOOGLE_RETURN_COOKIE, path: "/api/google-calendar" });
   }
   return response;
 }

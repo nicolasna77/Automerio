@@ -1,4 +1,5 @@
-import { CalendarCheck2, Plug } from "lucide-react";
+import { AlertTriangle, CalendarCheck2, Plug } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { MyServiceDTO } from "@/lib/catalog";
 import { CalendarConnection } from "./calendar-connection";
@@ -11,10 +12,13 @@ export function ServiceConnectorsCard({
   clientServiceId,
   calendar,
   takesAppointments,
+  connectionFailed = false,
 }: {
   clientServiceId: string;
   calendar: MyServiceDTO["calendar"];
   takesAppointments: boolean;
+  // Retour de Google en échec (?calendar=error).
+  connectionFailed?: boolean;
 }) {
   return (
     <Card id={CONNECTORS_SECTION_ID} className="scroll-mt-24">
@@ -33,7 +37,16 @@ export function ServiceConnectorsCard({
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
+        {connectionFailed && !calendar && (
+          <Alert variant="destructive">
+            <AlertTriangle aria-hidden="true" />
+            <AlertTitle>Connexion à l&apos;agenda impossible</AlertTitle>
+            <AlertDescription>
+              Google n&apos;a pas autorisé la connexion. Réessayez, ou contactez-nous si le problème persiste.
+            </AlertDescription>
+          </Alert>
+        )}
         <div className="rounded-lg border border-border p-4">
           <p className="flex items-center gap-2 text-sm font-medium text-foreground">
             <CalendarCheck2 className="size-4 text-muted-foreground" aria-hidden="true" />
