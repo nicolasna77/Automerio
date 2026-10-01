@@ -1,9 +1,10 @@
 import { Link } from "@/i18n/navigation";
-import { Check } from "lucide-react";
+import { Check, Plug } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { SetupStepper } from "./setup-stepper";
+import { CONNECTORS_SECTION_ID } from "./billing-section";
 import {
   asStringArray,
   FACEBOOK_SERVICE_SLUG,
@@ -271,10 +272,20 @@ export function ServiceSetupCard({
               Les rendez-vous pris par téléphone s&apos;ajouteront directement
               dans votre agenda : Google Agenda, Cal.com ou Calendly.
             </p>
-            <CalendarConnection
-              clientServiceId={item.clientServiceId}
-              calendar={item.calendar}
-            />
+            {embedded ? (
+              <Link
+                href={`/dashboard/services/${item.clientServiceId}/configuration#${CONNECTORS_SECTION_ID}`}
+                className={buttonVariants({ variant: "outline", size: "sm" })}
+              >
+                <Plug aria-hidden="true" data-icon="inline-start" />
+                Connecter un agenda
+              </Link>
+            ) : (
+              <CalendarConnection
+                clientServiceId={item.clientServiceId}
+                calendar={item.calendar}
+              />
+            )}
           </div>
         )}
 

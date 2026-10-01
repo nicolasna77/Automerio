@@ -30,16 +30,29 @@ export function isLiveTelephony(item: MyServiceDTO): boolean {
   );
 }
 
+export function hasLiveCalls(item: MyServiceDTO): boolean {
+  return isLiveTelephony(item) && Boolean(item.externalPhoneNumber);
+}
+
+// Contenu de « Appels reçus », seul ou dans l'onglet de la carte d'activité.
+export function ServiceCallsContent({ item }: { item: MyServiceDTO }) {
+  return (
+    <div className="space-y-4">
+      <UsageCounter clientServiceId={item.clientServiceId} />
+      <CallActivity clientServiceId={item.clientServiceId} />
+    </div>
+  );
+}
+
 export function ServiceLiveCard({ item }: { item: MyServiceDTO }) {
-  if (!isLiveTelephony(item) || !item.externalPhoneNumber) return null;
+  if (!hasLiveCalls(item)) return null;
   return (
     <Card>
       <CardHeader>
         <CardTitle as="h2" className="text-base">Appels reçus</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <UsageCounter clientServiceId={item.clientServiceId} />
-        <CallActivity clientServiceId={item.clientServiceId} />
+      <CardContent>
+        <ServiceCallsContent item={item} />
       </CardContent>
     </Card>
   );

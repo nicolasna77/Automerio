@@ -4,7 +4,7 @@ import { useEffect, useId, useMemo, useState, useTransition } from "react";
 import { Link } from "@/i18n/navigation";
 import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
-import { BadgeInfo, Check, CreditCard, Loader2, Plug, UtensilsCrossed, type LucideIcon } from "lucide-react";
+import { BadgeInfo, Check, CreditCard, Loader2, PhoneForwarded, Plug, UtensilsCrossed, type LucideIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -31,8 +31,12 @@ import { cn, getErrorMessage } from "@/lib/utils";
 import { updateServiceConfiguration } from "@/app/[locale]/dashboard/actions";
 import { ConfigFieldsForm } from "@/app/[locale]/dashboard/config-fields";
 import { VoicePreview } from "@/app/[locale]/dashboard/voice-preview";
-import { buildFieldCategories } from "@/app/[locale]/dashboard/field-categories";
-import { BILLING_SECTION_ID, CONNECTORS_SECTION_ID } from "@/app/[locale]/dashboard/billing-section";
+import { buildFieldCategories, SETTINGS_HIDDEN_KEYS } from "@/app/[locale]/dashboard/field-categories";
+import {
+  BILLING_SECTION_ID,
+  CONNECTORS_SECTION_ID,
+  FORWARDING_SECTION_ID,
+} from "@/app/[locale]/dashboard/billing-section";
 import { ProductCatalogEditor } from "@/app/[locale]/dashboard/product-catalog-editor";
 import { readProductCatalog, type CatalogSection } from "@/lib/product-catalog";
 
@@ -51,6 +55,7 @@ export function ServiceConfigurationForm({
   companyName,
   billingSection = null,
   connectorsSection = null,
+  forwardingSection = null,
 }: {
   clientServiceId: string;
   initialName: string;
@@ -62,6 +67,8 @@ export function ServiceConfigurationForm({
   billingSection?: React.ReactNode;
   // Section « Connecteurs » (agenda), elle aussi hors du bouton Enregistrer.
   connectorsSection?: React.ReactNode;
+  // Section « Renvoi d'appel » (téléphonie) : un guide, rien à enregistrer.
+  forwardingSection?: React.ReactNode;
 }) {
   const router = useRouter();
   const [isSaving, startSaving] = useTransition();
@@ -89,7 +96,7 @@ export function ServiceConfigurationForm({
 
   const catalogField = configFields.find((field) => field.key === PRODUCT_CATALOG_FIELD_KEY);
   const showCatalog = catalogField !== undefined && isFieldVisible(catalogField, values);
-  const categories = buildFieldCategories(configFields, values, [PRODUCT_CATALOG_FIELD_KEY]);
+  const categories = buildFieldCategories(configFields, values, [PRODUCT_CATALOG_FIELD_KEY, ...SETTINGS_HIDDEN_KEYS]);
 
   // Lien direct vers un onglet (« Ajuster l'abonnement » depuis la page de la
   // solution) : l'ancre de l'adresse choisit l'onglet ouvert.
@@ -184,6 +191,9 @@ export function ServiceConfigurationForm({
       ? [{ id: "reglages-carte", title: "Carte et produits", icon: UtensilsCrossed, keys: [PRODUCT_CATALOG_FIELD_KEY] }]
       : []),
     ...(connectorsSection ? [{ id: CONNECTORS_SECTION_ID, title: "Connecteurs", icon: Plug, keys: [] }] : []),
+    ...(forwardingSection
+      ? [{ id: FORWARDING_SECTION_ID, title: "Renvoi d'appel", icon: PhoneForwarded, keys: [] }]
+      : []),
     ...(billingSection ? [{ id: BILLING_SECTION_ID, title: "Abonnement", icon: CreditCard, keys: [] }] : []),
   ];
   const current = sections.find((section) => section.id === activeId) ?? sections[0];
@@ -386,6 +396,17 @@ export function ServiceConfigurationForm({
           </div>
         )}
 
+        {forwardingSection && (
+          <div
+            id={`${FORWARDING_SECTION_ID}-panel`}
+            role="tabpanel"
+            aria-labelledby={`${FORWARDING_SECTION_ID}-tab`}
+            className={panelClass(FORWARDING_SECTION_ID)}
+          >
+            {forwardingSection}
+          </div>
+        )}
+
         {connectorsSection && (
           <div
             id={`${CONNECTORS_SECTION_ID}-panel`}
@@ -411,7 +432,8 @@ export function ServiceConfigurationForm({
         {/* Sur les onglets Abonnement et Connecteurs, dont les actions
             s'appliquent tout de suite, la barre n'apparaît que s'il reste des
             changements ailleurs. */}
-        {((current?.id !== BILLING_SECTION_ID && current?.id !== CONNECTORS_SECTION_ID) || isDirty) && (
+        {(![BILLING_SECTION_ID, CONNECTORS_SECTION_ID, FORWARDING_SECTION_ID].includes(current?.id ?? "") ||
+          isDirty) && (
           <div className="sticky bottom-0 z-20 -mx-4 mt-6 border-t border-border bg-background/95 px-4 py-3 backdrop-blur-sm sm:-mx-6 sm:px-6 lg:mx-0 lg:rounded-t-lg lg:border-x">
             <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2">
               <p role="status" className="mr-auto flex items-center gap-2 text-sm text-muted-foreground">

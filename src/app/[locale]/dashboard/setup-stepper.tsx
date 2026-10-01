@@ -40,12 +40,15 @@ export function SetupStepper({ steps }: { steps: SetupStep[] }) {
           >
             <div className="flex min-w-0 flex-col items-start gap-1.5">
               <StepperIndicator
+                // L'indicateur porte des styles par état (data-state) : on les
+                // surcharge avec les mêmes variantes, sinon l'étape en cours
+                // paraîtrait déjà faite.
                 className={cn(
                   "size-5 border-2 text-[0.625rem]",
                   step.done
-                    ? "border-transparent bg-primary text-primary-foreground"
+                    ? "border-transparent bg-primary text-primary-foreground data-[state=inactive]:bg-primary data-[state=inactive]:text-primary-foreground"
                     : index === currentIndex
-                      ? "border-primary bg-background text-primary"
+                      ? "border-primary data-[state=active]:bg-background data-[state=active]:text-primary"
                       : "border-border bg-transparent text-muted-foreground"
                 )}
               >

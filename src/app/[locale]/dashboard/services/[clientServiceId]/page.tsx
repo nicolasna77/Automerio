@@ -1,6 +1,8 @@
 import { titleMetadata } from "@/i18n/metadata";
 import { notFound } from "next/navigation";
-import { AlertTriangle, MessageSquareText } from "lucide-react";
+import { AlertTriangle, MessageSquareText, Plug } from "lucide-react";
+import { Link } from "@/i18n/navigation";
+import { buttonVariants } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireUser } from "@/lib/session";
@@ -21,18 +23,20 @@ import { toCalendarBookings } from "@/lib/bookings";
 import { ServiceProgress } from "@/app/[locale]/dashboard/service-progress";
 import { ServiceTimeline } from "@/app/[locale]/dashboard/service-timeline";
 import {
-  CallForwardingCard,
+  hasLiveCalls,
   isLiveTelephony,
+  ServiceCallsContent,
   ServiceConfigurationCard,
   ServiceLiveCard,
 } from "@/app/[locale]/dashboard/service-detail-table";
+import { ServiceActivityTabs } from "@/app/[locale]/dashboard/service-activity-tabs";
 import { TestCallCard } from "@/app/[locale]/dashboard/test-call-card";
 import { isDemoCallAvailable } from "@/lib/demo-call";
 import { ConversationHistory } from "@/app/[locale]/dashboard/conversation-history";
 import { ServiceDetailActions } from "@/app/[locale]/dashboard/service-detail-actions";
 import { isSetupComplete, ServiceSetupCard } from "@/app/[locale]/dashboard/service-setup-card";
 import { ServiceSubscriptionCard } from "@/app/[locale]/dashboard/service-subscription-card";
-import { BILLING_SECTION_ID } from "@/app/[locale]/dashboard/billing-section";
+import { BILLING_SECTION_ID, CONNECTORS_SECTION_ID } from "@/app/[locale]/dashboard/billing-section";
 import { getSubscriptionFor } from "@/lib/subscriptions";
 import { formatPriceWithVat } from "@/lib/vat";
 import { PageBreadcrumbs, PageShell } from "@/components/page-shell";
@@ -80,6 +84,10 @@ export default async function ServiceDetailPage({
   // l'historique n'est pas affiché ; l'activité (appels, rendez-vous) prime.
   const isTelephony = TELEPHONY_SERVICE_SLUGS.has(item.service.slug);
   const showSetup = !isSetupComplete(item);
+  // Connecteur manquant hors mise en service (celle-ci le propose déjà) :
+  // une alerte renvoie vers l'onglet Connecteurs des réglages.
+  const needsCalendar =
+    isTelephony && isLive && !showSetup && objectives.includes("appointment") && !item.calendarConnected;
   const hasMainColumn =
     (showSetup && !isTelephony) || (isLive && Boolean(item.externalPhoneNumber)) || showBookings || isMessaging;
   // Avec la mise en service intégrée à l'en-tête (téléphonie), sa liste
@@ -166,9 +174,6 @@ export default async function ServiceDetailPage({
                 <ServiceSetupCard item={item} embedded />
               </div>
             )}
-            <div className="border-t border-border pt-6">
-              <ServiceConfigurationCard item={item} showUsageCap={!subscription?.cap} variant="embedded" />
-            </div>
           </CardContent>
         </Card>
       ) : (
@@ -209,6 +214,25 @@ export default async function ServiceDetailPage({
         </header>
       )}
 
+      {needsCalendar && (
+        <Alert className="mt-6">
+          <Plug aria-hidden="true" />
+          <AlertTitle>Connectez votre agenda</AlertTitle>
+          <AlertDescription>
+            <p>
+              Sans agenda, l&apos;assistant ne peut pas réserver de rendez-vous : il prend seulement un
+              message. Google Agenda, Cal.com ou Calendly.
+            </p>
+            <Link
+              href={`/dashboard/services/${item.clientServiceId}/configuration#${CONNECTORS_SECTION_ID}`}
+              className={buttonVariants({ variant: "outline", size: "sm", className: "mt-3" })}
+            >
+              Connecter un agenda
+            </Link>
+          </AlertDescription>
+        </Alert>
+      )}
+
       {(calendar === "error" || item.adminNote) && (
         <div className="mt-6 space-y-3">
           {calendar === "error" && (
@@ -235,8 +259,16 @@ export default async function ServiceDetailPage({
         <div className="mt-8 grid items-start gap-6 lg:grid-cols-3">
           <div className="min-w-0 space-y-6 lg:col-span-2">
             {showSetup && !isTelephony && <ServiceSetupCard item={item} />}
-            <ServiceLiveCard item={item} />
-            {showBookings && (
+            {/* Appels et calendrier ensemble : deux onglets d'une même carte. */}
+            {showBookings && hasLiveCalls(item) ? (
+              <ServiceActivityTabs
+                calls={<ServiceCallsContent item={item} />}
+                calendar={<BookingsCalendar scheduled={scheduledBookings} unscheduled={unscheduledBookings} />}
+              />
+            ) : (
+              <ServiceLiveCard item={item} />
+            )}
+            {showBookings && !hasLiveCalls(item) && (
               <Card>
                 <CardHeader>
                   <CardTitle as="h2" className="text-base">
@@ -252,7 +284,6 @@ export default async function ServiceDetailPage({
               </Card>
             )}
             {isMessaging && <ConversationHistory clientServiceId={item.clientServiceId} />}
-            <CallForwardingCard item={item} />
           </div>
           <aside aria-label="Abonnement et réglages" className="min-w-0 space-y-6">
             {sideCards}

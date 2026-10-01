@@ -92,7 +92,22 @@ const CATEGORY_BY_KEY: Record<string, CategoryDef> = {
   voice: CATEGORIES.voice,
   speakingRate: CATEGORIES.voice,
   tone: CATEGORIES.voice,
+  // Adresse de retrait et zone de livraison : avec le choix « Prise de
+  // commande » qui les fait apparaître.
+  businessAddress: CATEGORIES.need,
+  deliveryZone: CATEGORIES.need,
 };
+
+// Champs saisis à l'activation mais plus proposés dans les réglages : ils
+// ne servent pas à l'assistant (les comptes et l'agenda passent par les
+// connecteurs, le renvoi par l'onglet Renvoi d'appel).
+export const SETTINGS_HIDDEN_KEYS = [
+  "phoneLine",
+  "calendarLink",
+  "whatsappNumber",
+  "facebookPageName",
+  "instagramUsername",
+];
 
 const ORDER = Object.keys(CATEGORIES);
 
