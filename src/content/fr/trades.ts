@@ -14,6 +14,7 @@ export const TRADES: Trade[] = [
     title: "Vos appels sont pris pendant que vous êtes sur le chantier",
     lead: "Un assistant répond à votre place, vous transfère les urgences et note les demandes de devis. Vous rappelez quand vous avez les mains libres.",
     trades: "Plombiers, électriciens, chauffagistes, menuisiers, couvreurs",
+    photo: { alt: "Un électricien en casque de chantier vérifie un tableau électrique.", credit: "Emmanuel Ikwuegbu" },
     pains: [
       {
         title: "Le téléphone sonne au mauvais moment",
@@ -73,6 +74,7 @@ export const TRADES: Trade[] = [
     title: "Les réservations sont prises pendant que vous êtes avec une cliente",
     lead: "Un assistant répond au téléphone, propose un créneau libre et l'inscrit dans votre agenda. Vous ne lâchez plus les ciseaux pour décrocher.",
     trades: "Salons de coiffure, barbiers, instituts de beauté, esthéticiennes, ongleries",
+    photo: { alt: "Une coiffeuse fait un brushing à une cliente dans un salon.", credit: "Adam Winger" },
     pains: [
       {
         title: "Décrocher en pleine prestation",
@@ -132,6 +134,7 @@ export const TRADES: Trade[] = [
     title: "Les demandes sont prises en charge pendant vos séances",
     lead: "Un assistant répond aux appels et aux messages, note ce que la personne recherche et vous transmet un résumé. Vous restez concentré sur la séance en cours.",
     trades: "Coachs, thérapeutes, sophrologues, praticiens bien-être, formateurs",
+    photo: { alt: "Deux femmes échangent face à face lors d'un rendez-vous.", credit: "Christina @ wocintechchat.com" },
     pains: [
       {
         title: "Le téléphone coupé pendant la séance",
@@ -187,6 +190,7 @@ export const TRADES: Trade[] = [
     title: "Les commandes sont prises au téléphone, même en plein service",
     lead: "Un assistant répond aux appels, prend les commandes avec votre menu et vos prix, et note l'heure de retrait. L'équipe reste en cuisine et en salle.",
     trades: "Restaurants, pizzerias, traiteurs, boulangeries, food trucks",
+    photo: { alt: "Un pizzaïolo enfourne une pizza dans un four à bois.", credit: "Lee Jiyong" },
     pains: [
       {
         title: "Le téléphone sonne en plein coup de feu",
@@ -246,6 +250,7 @@ export const TRADES: Trade[] = [
     title: "Un accueil téléphonique professionnel, sans secrétariat à plein temps",
     lead: "Un assistant répond à chaque appel, oriente les clients vers la bonne personne et prend un message pour les nouvelles demandes. Vos clients ne tombent plus sur la messagerie.",
     trades: "Cabinets d'avocats, experts-comptables, agences immobilières, agences, petites entreprises",
+    photo: { alt: "Une petite équipe travaille ensemble autour d'un ordinateur portable.", credit: "Jud Mackrill" },
     pains: [
       {
         title: "Pas de secrétariat, ou pas tout le temps",

@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { CATALOG } from "@/lib/catalog-data";
 import { TRADES } from "./trades";
@@ -30,6 +31,14 @@ describe("pages par métier", () => {
     for (const trade of TRADES) {
       expect(trade.call.turns[0].speaker).toBe("assistant");
       expect(trade.call.turns[0].text).toContain("assistant virtuel");
+    }
+  });
+
+  it("a une photo pour chaque métier, avec un texte alternatif", () => {
+    for (const trade of TRADES) {
+      expect(existsSync(`public/industries/${trade.slug}.webp`), trade.slug).toBe(true);
+      expect(trade.photo.alt.length).toBeGreaterThan(20);
+      expect(trade.photo.credit.length).toBeGreaterThan(2);
     }
   });
 });

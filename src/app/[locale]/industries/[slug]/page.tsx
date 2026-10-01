@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { ArrowRight, Check, ChevronRight, Phone } from "lucide-react";
@@ -68,7 +69,7 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
       <main id="content" className="flex-1">
         <section className="border-b border-border">
           <div className="mx-auto max-w-6xl px-4 pt-12 pb-16 sm:px-6 sm:pt-16 sm:pb-20">
-            <nav aria-label={t("breadcrumb")} className="flex justify-center">
+            <nav aria-label={t("breadcrumb")}>
               <ol className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
                 <li>
                   <Link href="/" className="hover:text-foreground">
@@ -87,28 +88,42 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
                 </li>
               </ol>
             </nav>
-            <div className="mx-auto mt-8 max-w-3xl text-center">
-              <span className="text-sm font-medium text-primary">{t("eyebrow", { name })}</span>
-              <h1 className="mt-3 text-4xl leading-[1.1] font-semibold tracking-tight text-balance text-foreground sm:text-5xl">
-                {trade.title}
-              </h1>
-              <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-pretty text-muted-foreground">
-                {trade.lead}
-              </p>
-              <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-6">
-                <Link href={waitlist ? "#waitlist" : "/signup"} className={buttonVariants({ size: "lg" })}>
-                  {waitlist ? tWaitlist("cta") : t("signup")}
-                  <ArrowRight data-icon="inline-end" />
-                </Link>
-                <Link
-                  href="#solutions"
-                  className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline focus-visible:focus-ring focus-visible:outline-none"
-                >
-                  {t("seeSolutions")}
-                  <ArrowRight className="size-4" aria-hidden="true" />
-                </Link>
+            <div className="mt-8 grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
+              <div>
+                <span className="text-sm font-medium text-primary">{t("eyebrow", { name })}</span>
+                <h1 className="mt-3 text-4xl leading-[1.1] font-semibold tracking-tight text-balance text-foreground sm:text-5xl">
+                  {trade.title}
+                </h1>
+                <p className="mt-5 max-w-xl text-lg leading-relaxed text-pretty text-muted-foreground">{trade.lead}</p>
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
+                  <Link href={waitlist ? "#waitlist" : "/signup"} className={buttonVariants({ size: "lg" })}>
+                    {waitlist ? tWaitlist("cta") : t("signup")}
+                    <ArrowRight data-icon="inline-end" />
+                  </Link>
+                  <Link
+                    href="#solutions"
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline focus-visible:focus-ring focus-visible:outline-none"
+                  >
+                    {t("seeSolutions")}
+                    <ArrowRight className="size-4" aria-hidden="true" />
+                  </Link>
+                </div>
+                <p className="mt-6 text-sm text-muted-foreground">{t("for", { trades: trade.trades })}</p>
               </div>
-              <p className="mt-6 text-sm text-muted-foreground">{t("for", { trades: trade.trades })}</p>
+              <figure>
+                <Image
+                  src={`/industries/${trade.slug}.webp`}
+                  width={1200}
+                  height={900}
+                  alt={trade.photo.alt}
+                  sizes="(min-width: 1024px) 540px, 100vw"
+                  priority
+                  className="aspect-[4/3] w-full rounded-lg border border-border object-cover"
+                />
+                <figcaption className="mt-2 text-xs text-muted-foreground">
+                  {t("photoCredit", { name: trade.photo.credit })}
+                </figcaption>
+              </figure>
             </div>
           </div>
         </section>

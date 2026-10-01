@@ -15,6 +15,8 @@ export type Trade = {
   lead: string;
   // Les métiers concernés, en une ligne.
   trades: string;
+  // Photo du métier (Unsplash, licence libre), dans public/industries/.
+  photo: { alt: string; credit: string };
   pains: { title: string; description: string }[];
   // Un appel type, avec une entreprise fictive.
   call: { company: string; turns: TradeCallTurn[]; result: string };

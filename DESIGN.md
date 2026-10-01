@@ -95,6 +95,10 @@ tiers (WhatsApp, Messenger, Instagram, Google) restent leurs logos officiels.
   (`scripts/capture-screenshots.ts`), qui remplit le compte de démonstration
   local puis capture le tableau de bord en clair et en sombre (WebP, dans
   `public/screenshots/`).
+- Seule exception : les pages par métier (`/industries/…`) montrent une
+  photo du métier, issue d'Unsplash (licence libre, usage commercial
+  autorisé), recadrée en 4:3 et enregistrée en WebP dans
+  `public/industries/`. Elle porte le nom du photographe en légende.
 - Toute capture porte la légende « Exemple avec des données de
   démonstration ». Les numéros affichés viennent des plages réservées à la
   fiction par l'ARCEP (01 99 00, 06 39 98) : personne ne peut être joint.
