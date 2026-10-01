@@ -126,8 +126,8 @@ export async function HeroSection({ services }: { services: ServiceDTO[] }) {
       <div className="relative mx-auto max-w-6xl px-4 pb-16 sm:px-6 sm:pb-24">
         <ProductScreenshot
           name="dashboard-overview"
-          width={1024}
-          height={640}
+          width={1280}
+          height={800}
           alt={tShots("overviewAlt")}
           caption={tShots("demoCaption")}
           sizes="(min-width: 1152px) 1104px, 100vw"

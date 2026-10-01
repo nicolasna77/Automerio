@@ -213,6 +213,8 @@ async function capture(
     await page.evaluate((value) => localStorage.setItem("theme", value), theme);
     await page.goto(`${BASE_URL}${path}`);
     await page.waitForLoadState("networkidle");
+    // Masque l'indicateur de développement de Next (« N », « Compiling »).
+    await page.addStyleTag({ content: "nextjs-portal { display: none !important; }" });
     await page.waitForTimeout(800);
     if (target.prepare) {
       await target.prepare(page);
@@ -246,7 +248,8 @@ async function main() {
   await page.getByRole("button", { name: "Se connecter" }).click();
   await page.waitForURL("**/dashboard");
 
-  await capture(page, "/dashboard", "dashboard-overview", { clip: { x: 256, y: 64, width: 1024, height: 640 } });
+  // Le hero montre l'application entière, barre latérale comprise.
+  await capture(page, "/dashboard", "dashboard-overview", { clip: { x: 0, y: 0, width: 1280, height: 800 } });
   await capture(page, `/dashboard/services/${clientServiceId}`, "dashboard-calls", { cardHeading: "Appels reçus" });
   await capture(page, "/dashboard/calendar", "dashboard-calendar", {
     clip: { x: 256, y: 64, width: 1024, height: 640 },
