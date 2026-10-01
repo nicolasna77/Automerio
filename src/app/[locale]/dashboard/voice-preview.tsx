@@ -17,8 +17,17 @@ export function VoicePreview({ clientServiceId, values }: { clientServiceId: str
   const [isLoading, startLoading] = useTransition();
   const [playing, setPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  // La voix met une à trois secondes à arriver : si l'on quitte la page entre
+  // temps, elle ne doit pas se lancer sur la page suivante.
+  const mountedRef = useRef(true);
 
-  useEffect(() => () => audioRef.current?.pause(), []);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      audioRef.current?.pause();
+    };
+  }, []);
 
   function stop() {
     audioRef.current?.pause();
@@ -36,6 +45,7 @@ export function VoicePreview({ clientServiceId, values }: { clientServiceId: str
             greeting: asText(values.greetingMessage),
           })
         );
+        if (!mountedRef.current) return;
         audioRef.current?.pause();
         const audio = new Audio(source);
         audio.onended = () => setPlaying(false);
