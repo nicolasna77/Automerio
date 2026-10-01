@@ -33,8 +33,8 @@ const CATEGORIES = {
   },
   business: {
     id: "business",
-    title: "Vos informations",
-    description: "Les coordonnées et comptes que l'assistant utilise.",
+    title: "Coordonnées",
+    description: "Les numéros, adresses et comptes que l'assistant utilise.",
     icon: Store,
   },
   hours: {

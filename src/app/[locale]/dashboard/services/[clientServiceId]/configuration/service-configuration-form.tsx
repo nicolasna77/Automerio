@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useId, useMemo, useState, useTransition } from "react";
 import { Link } from "@/i18n/navigation";
 import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
-import { Check, CreditCard, Loader2, Plug, UtensilsCrossed, type LucideIcon } from "lucide-react";
+import { BadgeInfo, Check, CreditCard, Loader2, Plug, UtensilsCrossed, type LucideIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { unwrap } from "@/lib/action-result";
 import {
   findInvalidWeeklyHours,
@@ -36,8 +38,13 @@ import { readProductCatalog, type CatalogSection } from "@/lib/product-catalog";
 
 type Section = { id: string; title: string; icon: LucideIcon; keys: string[] };
 
+// Onglet « Vos informations » : le nom de la solution, enregistré avec les
+// autres réglages par le même bouton.
+const IDENTITY_SECTION_ID = "reglages-informations";
+
 export function ServiceConfigurationForm({
   clientServiceId,
+  initialName,
   configFields,
   initialConfiguration,
   backHref,
@@ -46,6 +53,7 @@ export function ServiceConfigurationForm({
   connectorsSection = null,
 }: {
   clientServiceId: string;
+  initialName: string;
   configFields: ConfigField[];
   initialConfiguration: Configuration;
   backHref: string;
@@ -66,11 +74,18 @@ export function ServiceConfigurationForm({
       : initialConfiguration
   );
   const [savedSnapshot, setSavedSnapshot] = useState(() => JSON.stringify(values));
+  const nameFieldId = useId();
+  const [name, setName] = useState(initialName);
+  const [savedName, setSavedName] = useState(initialName);
+  const nameDirty = name.trim() !== savedName;
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
   const [savedAt, setSavedAt] = useState<string | null>(null);
 
-  const isDirty = useMemo(() => JSON.stringify(values) !== savedSnapshot, [values, savedSnapshot]);
+  const isDirty = useMemo(
+    () => JSON.stringify(values) !== savedSnapshot || nameDirty,
+    [values, savedSnapshot, nameDirty]
+  );
 
   const catalogField = configFields.find((field) => field.key === PRODUCT_CATALOG_FIELD_KEY);
   const showCatalog = catalogField !== undefined && isFieldVisible(catalogField, values);
@@ -104,6 +119,13 @@ export function ServiceConfigurationForm({
   }
 
   function handleSave() {
+    if (!name.trim()) {
+      setSubmitAttempted(true);
+      toast.error("Renseignez « Nom de la solution » pour enregistrer.");
+      selectTab(IDENTITY_SECTION_ID);
+      requestAnimationFrame(() => document.getElementById(nameFieldId)?.focus());
+      return;
+    }
     const badHours = findInvalidWeeklyHours(configFields, values);
     if (badHours) {
       toast.error(`« ${badHours.label} » : une heure de fermeture vient avant l'ouverture.`);
@@ -130,8 +152,10 @@ export function ServiceConfigurationForm({
 
     startSaving(async () => {
       try {
-        unwrap(await updateServiceConfiguration(clientServiceId, values));
+        unwrap(await updateServiceConfiguration(clientServiceId, values, name.trim()));
         setSavedSnapshot(JSON.stringify(values));
+        setName(name.trim());
+        setSavedName(name.trim());
         setSavedAt(
           new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit" }).format(new Date())
         );
@@ -144,6 +168,7 @@ export function ServiceConfigurationForm({
   }
 
   const sections: Section[] = [
+    { id: IDENTITY_SECTION_ID, title: "Vos informations", icon: BadgeInfo, keys: [] },
     ...categories.map((category) => ({
       id: `reglages-${category.id}`,
       title: category.title,
@@ -161,7 +186,9 @@ export function ServiceConfigurationForm({
   // Onglets modifiés depuis le dernier enregistrement, signalés par un point.
   const saved = JSON.parse(savedSnapshot) as Configuration;
   const isSectionDirty = (section: Section) =>
-    section.keys.some((key) => JSON.stringify(values[key]) !== JSON.stringify(saved[key]));
+    section.id === IDENTITY_SECTION_ID
+      ? nameDirty
+      : section.keys.some((key) => JSON.stringify(values[key]) !== JSON.stringify(saved[key]));
 
   function selectTab(id: string, focusTab = false) {
     setActiveId(id);
@@ -251,6 +278,41 @@ export function ServiceConfigurationForm({
 
       <div className="min-w-0 lg:col-start-2">
         {sections.length > 1 && tabs("horizontal")}
+
+        <div
+          id={`${IDENTITY_SECTION_ID}-panel`}
+          role="tabpanel"
+          aria-labelledby={`${IDENTITY_SECTION_ID}-tab`}
+          className={panelClass(IDENTITY_SECTION_ID)}
+        >
+          <Card>
+            <CardHeader>
+              <div className="flex items-start gap-3">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <BadgeInfo className="size-5" aria-hidden="true" />
+                </span>
+                <div className="min-w-0">
+                  <CardTitle as="h2" className="text-base">Vos informations</CardTitle>
+                  <CardDescription>Le nom de cette solution dans votre tableau de bord.</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Label htmlFor={nameFieldId}>Nom de la solution</Label>
+              <Input
+                id={nameFieldId}
+                value={name}
+                maxLength={80}
+                onChange={(event) => setName(event.target.value)}
+                aria-invalid={submitAttempted && !name.trim()}
+                aria-describedby={`${nameFieldId}-help`}
+              />
+              <p id={`${nameFieldId}-help`} className="text-xs text-muted-foreground">
+                Utile si vous activez la même solution plusieurs fois, pour plusieurs boutiques par exemple.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Tous les onglets restent montés : les saisies en cours sont gardées,
             et un champ en erreur dans un autre onglet reste atteignable. */}
