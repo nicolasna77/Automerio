@@ -20,7 +20,6 @@ export async function SiteHeader() {
     getTranslations("Waitlist"),
   ]);
   const services = waitlist ? [] : catalog.map(({ slug, name, category }) => ({ slug, name, category }));
-  const navLinks = waitlist ? SITE_NAV_LINKS.filter((link) => link.key !== "contact") : SITE_NAV_LINKS;
   const user = session
     ? {
         name: session.user.name,
@@ -49,7 +48,7 @@ export async function SiteHeader() {
             className="ml-8 hidden items-center gap-6 text-sm text-muted-foreground lg:flex"
           >
             {!waitlist && <ServicesMenu services={services} />}
-            {navLinks.map((link) => (
+            {SITE_NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}

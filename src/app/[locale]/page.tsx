@@ -7,7 +7,11 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { getCatalog } from "@/lib/get-catalog";
 import { HeroSection } from "./home-sections/hero-section";
-import { ProblemSection } from "./home-sections/problem-section";
+import { OutcomesSection } from "./home-sections/outcomes-section";
+import { BeforeAfterSection } from "./home-sections/before-after-section";
+import { AudienceSection } from "./home-sections/audience-section";
+import { WhySection } from "./home-sections/why-section";
+import { TrustSection } from "./home-sections/trust-section";
 import { ServicesSection } from "./home-sections/services-section";
 import { IntegrationsSection } from "./home-sections/integrations-section";
 import { MethodSection } from "./home-sections/method-section";
@@ -38,8 +42,11 @@ export default async function HomePage() {
       <SiteHeader />
       <main id="content" className="flex-1">
         <HeroSection services={services} />
-        <ProblemSection />
+        <OutcomesSection />
+        <BeforeAfterSection />
+        <AudienceSection />
         <MethodSection />
+        <WhySection />
         <JsonLd
           data={serviceListSchema(tHome("heading"), services, (service) => ({
             offerName: tService("offerName"),
@@ -51,6 +58,7 @@ export default async function HomePage() {
         {hasSupportPlan && (
           <MaintenanceSection services={services} />
         )}
+        <TrustSection />
         <JsonLd data={faqSchema(faqs)} />
         <FaqSection faqs={faqs} />
         {isWaitlistMode() ? <WaitlistSection /> : <CtaSection />}

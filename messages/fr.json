@@ -43,10 +43,13 @@
     "mainNavLabel": "Navigation principale",
     "legalNavLabel": "Informations légales",
     "nav": {
-      "services": "Nos solutions",
-      "method": "Notre méthode",
+      "services": "Solutions",
+      "method": "Comment ça marche",
       "contact": "Contact",
-      "dashboard": "Tableau de bord"
+      "dashboard": "Tableau de bord",
+      "audience": "Pour qui ?",
+      "pricing": "Tarifs",
+      "faq": "FAQ"
     },
     "auth": {
       "login": "Connexion",
@@ -96,6 +99,10 @@
   },
   "Faq": {
     "items": {
+      "keepNumber": {
+        "question": "Est-ce que je garde mon numéro ?",
+        "answer": "Oui. Vous activez un renvoi d'appel de votre ligne vers l'assistant. Vos clients composent le même numéro qu'avant, et vous coupez le renvoi quand vous voulez."
+      },
       "setup": {
         "question": "Dois-je savoir configurer un outil ou une API ?",
         "answer": "Non. Notre équipe installe, connecte et vérifie chaque automatisation à votre place. Vous n'ouvrez aucun logiciel technique."
@@ -104,21 +111,37 @@
         "question": "Combien de temps avant que ce soit actif ?",
         "answer": "Quelques jours. Vous choisissez votre solution et vous la payez en ligne. Notre équipe l'installe, la teste, puis vous prévient par e-mail le jour où elle est active."
       },
-      "cancel": {
-        "question": "Je peux arrêter quand je veux ?",
-        "answer": "Oui, sans engagement de durée. Et si vous n'êtes pas satisfait, votre abonnement est remboursé sur simple demande dans les 30 jours qui suivent votre premier paiement."
+      "notUnderstood": {
+        "question": "Que se passe-t-il si l'assistant ne comprend pas une demande ?",
+        "answer": "Il prend un message avec les coordonnées de la personne et l'objet de sa demande. Si le motif fait partie de ceux que vous avez choisis, il vous transfère l'appel. Vous retrouvez chaque échange dans votre tableau de bord."
+      },
+      "takeOver": {
+        "question": "Puis-je reprendre la main pendant un appel ?",
+        "answer": "Pas en cours d'appel. En revanche, vous choisissez à l'avance les motifs pour lesquels l'assistant vous transfère l'appel, une urgence par exemple. Pour le reste, il prend un message."
+      },
+      "hours": {
+        "question": "Est-ce que ça fonctionne le soir et le week-end ?",
+        "answer": "Oui, l'assistant répond à toute heure. En dehors de vos horaires d'ouverture, il prend un message que vous traitez à votre retour."
+      },
+      "editAnswers": {
+        "question": "Puis-je modifier ce que dit l'assistant ?",
+        "answer": "Oui. Chaque solution a ses réglages dans votre tableau de bord : présentation, horaires, consignes, motifs de transfert. Vous les modifiez quand vous voulez, et notre équipe peut le faire pour vous."
+      },
+      "ai": {
+        "question": "Mes clients sauront-ils qu'ils parlent à un assistant virtuel ?",
+        "answer": "Oui. Vos clients sont informés lorsqu'ils échangent avec un assistant virtuel : au téléphone, il présente votre entreprise, puis se présente comme son assistant. Il peut ensuite transférer l'appel ou prendre un message pour vous."
       },
       "tools": {
-        "question": "Et si j'ai déjà un agenda ou un numéro de téléphone ?",
-        "answer": "Vous les gardez. L'assistant écrit les rendez-vous dans Google Agenda, Cal.com ou Calendly, et un simple renvoi d'appel lui passe votre ligne actuelle. Pour un autre outil, écrivez-nous : nous vous dirons ce qui est possible."
+        "question": "Est-ce compatible avec mon agenda ?",
+        "answer": "Oui, avec Google Agenda, Cal.com et Calendly : les rendez-vous pris s'y inscrivent directement. Pour un autre outil, écrivez-nous : nous vous dirons ce qui est possible."
+      },
+      "cancel": {
+        "question": "Que se passe-t-il si j'arrête ?",
+        "answer": "Vous résiliez depuis votre espace, sans engagement de durée. Coupez ensuite le renvoi d'appel : vos appels reviennent directement sur votre téléphone. Et si vous n'êtes pas satisfait, votre abonnement est remboursé sur simple demande dans les 30 jours qui suivent votre premier paiement."
       },
       "data": {
         "question": "Mes données sont-elles en sécurité ?",
         "answer": "Nous ne les revendons pas et ne les partageons pas. Elles passent seulement par les prestataires nécessaires au service : téléphonie, IA, paiement et e-mails. Ils sont listés dans notre politique de confidentialité. Vous pouvez exporter ou supprimer vos données depuis votre profil."
-      },
-      "ai": {
-        "question": "Mes clients sauront-ils qu'ils parlent à une IA ?",
-        "answer": "Oui. L'assistant présente votre entreprise, puis se présente comme son assistant virtuel. C'est plus honnête, et c'est ce que demande le règlement européen sur l'IA. Il peut ensuite transférer l'appel ou prendre un message pour vous."
       }
     }
   },
@@ -134,17 +157,14 @@
       "notHere": "Votre question n'est pas là ? <link>Écrivez-nous</link>, nous vous répondons par e-mail."
     },
     "hero": {
-      "title": "Un assistant IA qui répond à vos appels et à vos messages",
-      "lead": "Pour les artisans, les coachs, les indépendants et les TPE. Il décroche quand vous ne pouvez pas, répond sur WhatsApp, Messenger et Instagram, et prend vos rendez-vous. Notre équipe l'installe et le suit pour vous.",
+      "title": "Votre entreprise continue de travailler, même quand vous ne pouvez pas",
+      "lead": "Automerio répond à vos appels et à vos messages, et prend vos rendez-vous pendant que vous travaillez. Notre équipe installe tout et le suit pour vous.",
       "signup": "Créer mon compte",
-      "seeServices": "Voir les solutions et les prix",
+      "howItWorks": "Voir comment ça fonctionne",
       "specs": {
-        "price": "Prix",
-        "priceValue": "dès {price}",
-        "commitment": "Engagement",
-        "commitmentValue": "aucun",
-        "guarantee": "Garantie",
-        "guaranteeValue": "30 jours satisfait ou remboursé"
+        "install": "Installation complète par notre équipe",
+        "commitment": "Sans engagement",
+        "from": "Dès {price}"
       },
       "live": {
         "title": "Appel en cours",
@@ -155,16 +175,26 @@
       "badgeWaitlist": "Lancement bientôt : rejoignez la liste d'attente"
     },
     "cta": {
-      "heading": "Créez votre compte et choisissez votre première solution",
-      "lead": "Notre équipe s'occupe de l'installation. Vous suivez tout depuis votre tableau de bord.",
+      "heading": "Votre temps mérite mieux que les tâches répétitives",
+      "lead": "Dites-nous ce qui vous fait perdre du temps. Nous vous montrons ce qu'Automerio peut prendre en charge.",
       "signup": "Créer mon compte",
-      "ask": "Poser une question",
-      "note": "Sans engagement. Remboursé sur simple demande pendant 30 jours."
+      "ask": "Parler à Automerio",
+      "note": "Sans engagement · Remboursé pendant 30 jours · Aucun rendez-vous commercial obligatoire"
     },
     "services": {
       "heading": "Choisissez ce que vous voulez arrêter de faire vous-même",
       "lead": "Prix affichés. Sans engagement. Vous activez en ligne quand vous êtes prêt.",
-      "subscription": "Abonnement"
+      "subscription": "Abonnement",
+      "included": {
+        "label": "Compris dans chaque solution",
+        "items": {
+          "install": "Installation",
+          "config": "Configuration selon votre activité",
+          "tests": "Tests sur vos cas réels",
+          "adjust": "Suivi et ajustements",
+          "commitment": "Sans engagement"
+        }
+      }
     },
     "support": {
       "description": "En plus du support déjà inclus dans chacune de vos solutions, le support prioritaire vous donne un accompagnement dédié.",
@@ -183,30 +213,10 @@
         }
       }
     },
-    "problem": {
-      "heading": "Chaque tâche répétitive vous coûte du temps que vous ne facturez pas",
-      "lead": "Trois situations que vous reconnaîtrez sans doute.",
-      "items": {
-        "missedCall": {
-          "title": "Un appel manqué, un client perdu",
-          "description": "Vous êtes sur un chantier ou avec un client : le téléphone sonne dans le vide, et l'appelant compose le numéro suivant."
-        },
-        "lateMessage": {
-          "title": "Un message lu le soir, une vente déjà partie",
-          "description": "Un client vous écrit sur WhatsApp à 14 h. Vous répondez à 21 h : entre-temps, il a réservé chez un autre."
-        },
-        "booking": {
-          "title": "Un rendez-vous à caler, puis un autre, puis un autre",
-          "description": "Proposer un créneau, noter le nom, vérifier l'agenda : quelques minutes à chaque fois, et aucune ne se facture."
-        }
-      },
-      "conclusion": "Ces trois tâches, un assistant s'en charge pendant que vous travaillez.",
-      "seeServices": "Voir les solutions"
-    },
     "method": {
-      "eyebrow": "Notre méthode",
+      "eyebrow": "Comment ça marche",
       "heading": "Vous décidez, nous faisons le reste",
-      "lead": "Quatre étapes, dont deux seulement vous demandent quelque chose. Aucune ne vous demande de compétence technique.",
+      "lead": "Rien de technique à configurer. Deux étapes vous prennent quelques minutes, notre équipe s'occupe des deux autres.",
       "steps": {
         "choose": {
           "who": "Vous · 2 minutes",
@@ -282,6 +292,130 @@
           "description": "L'assistant répond aux messages privés de votre compte professionnel."
         }
       }
+    },
+    "outcomes": {
+      "eyebrow": "Solutions",
+      "heading": "Ce qu'Automerio prend en charge",
+      "lead": "Trois tâches qui vous interrompent toute la journée. Vous choisissez celles que vous nous confiez.",
+      "channelsLabel": "Par",
+      "items": {
+        "calls": {
+          "title": "Vos appels",
+          "description": "L'assistant décroche, comprend la demande, puis vous transfère l'appel ou prend un message.",
+          "channels": "votre ligne actuelle"
+        },
+        "bookings": {
+          "title": "Vos rendez-vous",
+          "description": "Il propose un créneau libre et l'inscrit directement dans votre agenda.",
+          "channels": "Google Agenda, Cal.com, Calendly"
+        },
+        "messages": {
+          "title": "Vos messages",
+          "description": "Il répond tout de suite aux messages de vos clients, même le soir.",
+          "channels": "WhatsApp, Messenger, Instagram"
+        }
+      }
+    },
+    "beforeAfter": {
+      "heading": "Le même appel, sans et avec Automerio",
+      "lead": "Vous êtes sur un chantier, en rendez-vous ou en séance. Le téléphone sonne.",
+      "before": {
+        "title": "Sans Automerio",
+        "steps": {
+          "call": "Un client appelle.",
+          "busy": "Vous êtes occupé, personne ne décroche.",
+          "later": "Vous rappelez le soir.",
+          "lost": "Il a déjà trouvé quelqu'un d'autre."
+        }
+      },
+      "after": {
+        "title": "Avec Automerio",
+        "steps": {
+          "call": "Un client appelle.",
+          "answer": "L'assistant décroche.",
+          "understand": "Il comprend la demande et note les coordonnées.",
+          "act": "Il prend le rendez-vous, ou vous transfère l'appel si c'est urgent.",
+          "summary": "Vous retrouvez le résumé dans votre tableau de bord."
+        }
+      },
+      "result": "Votre activité ne s'arrête plus quand vous êtes occupé.",
+      "seeServices": "Voir les solutions"
+    },
+    "audience": {
+      "eyebrow": "Pour qui ?",
+      "heading": "Pour ceux qui ont les mains prises",
+      "lead": "Artisans, professionnels de la beauté, coachs, petites entreprises : vous reconnaîtrez sans doute votre journée.",
+      "items": {
+        "artisan": {
+          "who": "Artisan",
+          "quote": "Je suis sur un chantier, je ne peux pas répondre.",
+          "answer": "Automerio prend l'appel et vous transfère les urgences."
+        },
+        "beauty": {
+          "who": "Coiffure et beauté",
+          "quote": "Je ne veux plus décrocher en pleine prestation.",
+          "answer": "Automerio répond et inscrit les réservations dans votre agenda."
+        },
+        "coach": {
+          "who": "Coach",
+          "quote": "Je reçois des demandes pendant mes séances.",
+          "answer": "Automerio répond aux messages et note ce que la personne recherche."
+        },
+        "tpe": {
+          "who": "TPE",
+          "quote": "Les demandes arrivent par tous les canaux.",
+          "answer": "Automerio répond sur chacun et regroupe tout dans un seul tableau de bord."
+        }
+      }
+    },
+    "why": {
+      "eyebrow": "Pourquoi Automerio",
+      "heading": "Pas un logiciel de plus.",
+      "headingSecond": "Un service qui travaille pour vous.",
+      "lead": "Un logiciel d'automatisation vous laisse tout le travail technique. Avec Automerio, notre équipe s'en charge.",
+      "software": "Un logiciel classique",
+      "us": "Avec Automerio",
+      "rows": {
+        "setup": {
+          "software": "Vous le configurez",
+          "us": "Nous installons"
+        },
+        "connect": {
+          "software": "Vous connectez vos outils",
+          "us": "Nous les connectons"
+        },
+        "monitor": {
+          "software": "Vous surveillez",
+          "us": "Nous surveillons"
+        },
+        "fix": {
+          "software": "Vous dépannez",
+          "us": "Nous ajustons"
+        }
+      }
+    },
+    "trust": {
+      "heading": "Vos données et celles de vos clients",
+      "lead": "Un service qui répond à vos clients doit être clair sur ce qu'il fait de leurs informations.",
+      "items": {
+        "informed": {
+          "title": "Des clients informés",
+          "description": "Vos clients sont informés lorsqu'ils échangent avec un assistant virtuel."
+        },
+        "providers": {
+          "title": "Des prestataires identifiés",
+          "description": "Téléphonie, IA, paiement, e-mails : chaque prestataire est listé dans notre politique de confidentialité."
+        },
+        "noResale": {
+          "title": "Rien n'est revendu",
+          "description": "Vos données servent à faire fonctionner vos solutions. Nous ne les revendons pas et ne les partageons pas."
+        },
+        "control": {
+          "title": "Vous gardez la main",
+          "description": "Vous exportez ou supprimez vos données depuis votre profil, quand vous voulez."
+        }
+      },
+      "privacy": "Lire la politique de confidentialité"
     }
   },
   "LlmsTxt": {

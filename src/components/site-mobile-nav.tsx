@@ -89,7 +89,7 @@ export function SiteMobileNav({
             })}
 
             <ul className="flex flex-col border-t border-border pt-4">
-              {SITE_NAV_LINKS.filter((link) => !waitlist || link.key !== "contact").map((link) => (
+              {SITE_NAV_LINKS.map((link) => (
                 <li key={link.href}>
                   <MobileNavLink href={link.href}>{t(`nav.${link.key}`)}</MobileNavLink>
                 </li>
