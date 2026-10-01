@@ -1,5 +1,5 @@
 import { titleMetadata } from "@/i18n/metadata";
-import { Building2, UserPlus } from "lucide-react";
+import { UserPlus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,11 +13,12 @@ import { isOrganizationManager, roleLabel } from "@/lib/organization-roles";
 import { TeamMembers } from "./team-members";
 import { PendingInvitations } from "./pending-invitations";
 import { InviteForm } from "./invite-form";
+import { OrganizationPicker } from "./organization-picker";
 
 export const generateMetadata = titleMetadata("organization");
 
 export default async function OrganisationPage() {
-  const [session, { active: organization }] = await Promise.all([
+  const [session, { active: organization, organizations }] = await Promise.all([
     requireUser(),
     requireActiveOrganization(),
   ]);
@@ -54,11 +55,10 @@ export default async function OrganisationPage() {
         title="Organisation"
         description={
           <>
-            <p className="flex flex-wrap items-center gap-2 text-foreground">
-              <Building2 className="size-4 text-muted-foreground" aria-hidden="true" />
-              <span className="font-medium">{organization.name}</span>
+            <div className="flex flex-wrap items-center gap-2">
+              <OrganizationPicker active={organization} organizations={organizations} />
               {myRole && <Badge variant="secondary">Vous : {roleLabel(myRole)}</Badge>}
-            </p>
+            </div>
             <p className="mt-2">
               Les personnes qui ont accès aux solutions de cette entreprise. Un
               collaborateur consulte et configure ; un responsable peut en plus
