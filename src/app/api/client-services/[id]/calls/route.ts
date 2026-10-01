@@ -129,5 +129,6 @@ export async function GET(
     })),
     pendingCount,
     days,
+    truncated: (day !== null || status !== "all") && recentRows.length === FILTERED_LIMIT,
   });
 }

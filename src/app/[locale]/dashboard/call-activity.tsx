@@ -44,6 +44,8 @@ type CallsResponse = {
   recent: RecentCall[];
   pendingCount: number;
   days: { day: string; count: number }[];
+  // Vrai quand la liste filtrée a été coupée à sa limite.
+  truncated?: boolean;
 };
 
 type StatusFilter = "all" | "todo" | "done";
@@ -60,9 +62,17 @@ const parisKey = (date: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: "E
 
 // « aujourd'hui », « hier », sinon « lun. 28 sept. » ; la clé est un jour
 // parisien (AAAA-MM-JJ).
+// La veille d'un jour parisien, calculée sur la date (à midi UTC) et non en
+// retirant 24 heures : les jours de changement d'heure durent 23 ou 25 heures.
+function previousDayKey(key: string): string {
+  const [year, month, day] = key.split("-").map(Number);
+  return new Date(Date.UTC(year, month - 1, day - 1, 12)).toISOString().slice(0, 10);
+}
+
 function dayLabel(key: string): string {
-  if (key === parisKey(new Date())) return "Aujourd'hui";
-  if (key === parisKey(new Date(Date.now() - 86_400_000))) return "Hier";
+  const today = parisKey(new Date());
+  if (key === today) return "Aujourd'hui";
+  if (key === previousDayKey(today)) return "Hier";
   const [year, month, day] = key.split("-").map(Number);
   return new Date(Date.UTC(year, month - 1, day, 12)).toLocaleDateString("fr-FR", {
     weekday: "short",
@@ -332,18 +342,23 @@ export function CallActivity({ clientServiceId }: { clientServiceId: string }) {
     const query = new URLSearchParams();
     if (status !== "all") query.set("status", status);
     if (day !== ALL_DAYS) query.set("day", day);
-    const url = `/api/client-services/${clientServiceId}/calls${query.size > 0 ? `?${query}` : ""}`;
+    const search = query.toString();
+    const url = `/api/client-services/${clientServiceId}/calls${search ? `?${search}` : ""}`;
 
     async function poll() {
       try {
         const res = await fetch(url);
-        if (!res.ok) return;
+        if (!res.ok) {
+          if (!cancelled) setFiltering(false);
+          return;
+        }
         const json: CallsResponse = await res.json();
         if (!cancelled) {
           setData(json);
           setFiltering(false);
         }
       } catch {
+        if (!cancelled) setFiltering(false);
       }
     }
 
@@ -475,8 +490,17 @@ export function CallActivity({ clientServiceId }: { clientServiceId: string }) {
         </div>
 
         <p role="status" className="sr-only">
-          {filtering ? "Mise à jour de la liste…" : `${plural(data.recent.length, "appel")} dans la liste`}
+          {filtering
+            ? "Mise à jour de la liste…"
+            : data.truncated
+              ? `Les ${data.recent.length} appels les plus récents`
+              : `${plural(data.recent.length, "appel")} dans la liste`}
         </p>
+        {data.truncated && !filtering && (
+          <p className="mb-2 text-xs text-muted-foreground">
+            Les {data.recent.length} appels les plus récents. Choisissez un jour pour voir les plus anciens.
+          </p>
+        )}
 
         {data.recent.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border px-4 py-6 text-center text-sm">
