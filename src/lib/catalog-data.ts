@@ -146,15 +146,17 @@ export const CATALOG: CatalogService[] = [
       },
       {
         key: "appointmentTypes",
-        label: "Types de rendez-vous",
-        type: "tags",
+        label: "Prestations et durées",
+        type: "rules-list",
+        helpText: "Chaque prestation a sa durée : l'assistant réserve un créneau de la bonne longueur.",
         showIf: { key: "objectives", includes: "appointment" },
       },
       {
         key: "slotDuration",
-        label: "Durée d'un créneau",
+        label: "Durée par défaut",
         type: "select",
         options: SLOT_DURATION_OPTIONS,
+        helpText: "Pour une demande qui ne figure pas dans vos prestations.",
         showIf: { key: "objectives", includes: "appointment" },
       },
       {

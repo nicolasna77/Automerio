@@ -37,10 +37,15 @@ function findSipHeader(
 // donc proposer à l'appelant de donner son adresse.
 function calendarOf(clientService: {
   calendarConnection: unknown;
-  schedulingConnection: unknown;
-}): { calendarConnected: boolean; collectsEmail: boolean } {
+  schedulingConnection: { durationMinutes: number } | null;
+}): { calendarConnected: boolean; collectsEmail: boolean; fixedDurationMinutes: number | null } {
   const collectsEmail = !!clientService.schedulingConnection;
-  return { calendarConnected: collectsEmail || !!clientService.calendarConnection, collectsEmail };
+  return {
+    calendarConnected: collectsEmail || !!clientService.calendarConnection,
+    collectsEmail,
+    // Cal.com et Calendly réservent avec la durée de leur type d'événement.
+    fixedDurationMinutes: clientService.schedulingConnection?.durationMinutes ?? null,
+  };
 }
 
 export async function POST(request: Request) {
@@ -86,10 +91,11 @@ export async function POST(request: Request) {
   }
 
   const configuration = (clientService.configuration ?? {}) as Configuration;
-  const { calendarConnected, collectsEmail } = calendarOf(clientService);
+  const { calendarConnected, collectsEmail, fixedDurationMinutes } = calendarOf(clientService);
   const systemPrompt = buildSystemPrompt(clientService.service.slug, configuration, {
     calendarConnected,
     collectsEmail,
+    fixedDurationMinutes,
     companyName: clientService.organization.name,
   });
   const tools = getToolDefinitions(
@@ -322,7 +328,7 @@ async function acceptTestCall(callId: string, testCallId: string): Promise<void>
 
   const { clientService } = testCall;
   const configuration = (clientService.configuration ?? {}) as Configuration;
-  const { calendarConnected, collectsEmail } = calendarOf(clientService);
+  const { calendarConnected, collectsEmail, fixedDurationMinutes } = calendarOf(clientService);
 
   try {
     await getOpenAIClient().realtime.calls.accept(callId, {
@@ -331,6 +337,7 @@ async function acceptTestCall(callId: string, testCallId: string): Promise<void>
       instructions: buildSystemPrompt(clientService.service.slug, configuration, {
         calendarConnected,
         collectsEmail,
+        fixedDurationMinutes,
         companyName: clientService.organization.name,
       }),
       tools: toRealtimeTools(

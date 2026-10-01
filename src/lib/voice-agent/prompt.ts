@@ -1,6 +1,7 @@
 import {
   asRuleRows,
   asStringArray,
+  readAppointmentTypes,
   WEEK_DAYS,
   WEEK_DAY_LABELS,
   type Configuration,
@@ -67,7 +68,8 @@ function buildPriseRdvPrompt(
   configuration: Configuration,
   companyName: string,
   calendarConnected: boolean,
-  collectsEmail: boolean
+  collectsEmail: boolean,
+  fixedDurationMinutes: number | null = null
 ): string {
   const objectives = asStringArray(configuration.objectives);
   const canBookAppointments = objectives.includes("appointment") && calendarConnected;
@@ -83,8 +85,10 @@ function buildPriseRdvPrompt(
   ];
 
   if (canBookAppointments) {
-    const appointmentTypes = asStringArray(configuration.appointmentTypes);
+    const appointmentTypes = readAppointmentTypes(configuration.appointmentTypes);
     const slotDuration = asString(configuration.slotDuration);
+    const defaultMinutes = Number.parseInt(slotDuration, 10) || null;
+    const durationOf = (minutes: number | null) => minutes ?? defaultMinutes;
     lines.push(
       "Rendez-vous : demande le motif, puis le jour et le moment qui conviennent. Vérifie le",
       "créneau avec check_availability avant de le proposer. Une fois l'appelant d'accord,",
@@ -92,10 +96,27 @@ function buildPriseRdvPrompt(
       collectsEmail
         ? "Propose-lui de donner son adresse e-mail pour recevoir la confirmation ; ce n'est pas obligatoire. Fais-la épeler et relis-la."
         : "",
-      appointmentTypes.length > 0
-        ? `Types de rendez-vous proposés : ${appointmentTypes.join(", ")}.`
-        : "",
-      slotDuration ? `Durée standard d'un créneau : ${slotDuration} minutes.` : ""
+      // Avec Cal.com ou Calendly, la durée est celle du type d'événement : on
+      // ne promet pas une durée par prestation que l'agenda n'appliquerait pas.
+      fixedDurationMinutes
+        ? [
+            appointmentTypes.length > 0
+              ? `Prestations proposées : ${appointmentTypes.map((type) => type.name).join(", ")}.`
+              : "",
+            `Chaque rendez-vous dure ${fixedDurationMinutes} minutes : c'est la durée réglée dans l'agenda.`,
+          ]
+            .filter(Boolean)
+            .join(" ")
+        : appointmentTypes.length > 0
+          ? `Prestations proposées : ${appointmentTypes
+              .map((type) => (durationOf(type.minutes) ? `${type.name} (${durationOf(type.minutes)} min)` : type.name))
+              .join(", ")}. Demande quelle prestation est souhaitée, et utilise sa durée dans check_availability et book_appointment.`
+          : "",
+      !fixedDurationMinutes && defaultMinutes
+        ? appointmentTypes.length > 0
+          ? `Pour une autre demande, compte ${defaultMinutes} minutes.`
+          : `Durée d'un rendez-vous : ${defaultMinutes} minutes.`
+        : ""
     );
   }
 
@@ -221,7 +242,14 @@ function buildMessagingPrompt(
 export function buildSystemPrompt(
   serviceSlug: string,
   configuration: Configuration,
-  options: { calendarConnected: boolean; collectsEmail?: boolean; companyName: string }
+  options: {
+    calendarConnected: boolean;
+    collectsEmail?: boolean;
+    // Durée imposée par l'agenda (Cal.com, Calendly) : elle prime sur celle
+    // des prestations.
+    fixedDurationMinutes?: number | null;
+    companyName: string;
+  }
 ): string {
   const companyName = options.companyName || "cette entreprise";
 
@@ -240,7 +268,8 @@ export function buildSystemPrompt(
         configuration,
         companyName,
         options.calendarConnected,
-        options.collectsEmail ?? false
+        options.collectsEmail ?? false,
+        options.fixedDurationMinutes ?? null
       );
   }
 }

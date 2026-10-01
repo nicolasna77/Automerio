@@ -92,6 +92,8 @@ const CATEGORY_BY_KEY: Record<string, CategoryDef> = {
   voice: CATEGORIES.voice,
   speakingRate: CATEGORIES.voice,
   tone: CATEGORIES.voice,
+  // Prestations et durées : à côté de la durée par défaut.
+  appointmentTypes: CATEGORIES.preferences,
   // Adresse de retrait et zone de livraison : avec le choix « Prise de
   // commande » qui les fait apparaître.
   businessAddress: CATEGORIES.need,
