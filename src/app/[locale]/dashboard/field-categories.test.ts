@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ConfigField } from "@/lib/catalog";
-import { buildFieldCategories } from "./field-categories";
+import { buildFieldCategories, SETTINGS_HIDDEN_KEYS } from "./field-categories";
 
 const standard: ConfigField[] = [
   { key: "phoneLine", label: "Numéro existant", type: "tel" },
@@ -43,10 +43,12 @@ describe("buildFieldCategories", () => {
       ["need", ["objectives"]],
       ["business", ["calendarLink"]],
     ]);
-    expect(ids(appointments, { objectives: ["order"] })).toEqual([
-      ["need", ["objectives"]],
-      ["messages", ["deliveryZone"]],
-    ]);
+    // La zone de livraison rejoint le choix « Prise de commande » qui l'affiche.
+    expect(ids(appointments, { objectives: ["order"] })).toEqual([["need", ["objectives", "deliveryZone"]]]);
+  });
+
+  it("ne propose plus dans les réglages les champs que l'assistant n'utilise pas", () => {
+    expect(ids(standard, {}, SETTINGS_HIDDEN_KEYS).map(([id]) => id)).toEqual(["hours", "messages", "rules"]);
   });
 
   it("écarte les champs demandés et ne crée pas d'étape vide", () => {
