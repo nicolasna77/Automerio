@@ -19,7 +19,9 @@ export async function SiteHeader() {
     getTranslations("Site"),
     getTranslations("Waitlist"),
   ]);
-  const services = waitlist ? [] : catalog.map(({ slug, name, category }) => ({ slug, name, category }));
+  const services = waitlist
+    ? []
+    : catalog.map(({ slug, name, category }) => ({ slug, name, category }));
   const user = session
     ? {
         name: session.user.name,
@@ -39,10 +41,13 @@ export async function SiteHeader() {
       <header className="sticky top-0 z-50 border-b bg-background/90 backdrop-blur supports-backdrop-filter:bg-background/75">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-1">
-            <SiteMobileNav services={services} loggedIn={!!user} waitlist={waitlist} />
+            <SiteMobileNav
+              services={services}
+              loggedIn={!!user}
+              waitlist={waitlist}
+            />
             <AutomerioLogo />
           </div>
-
           <nav
             aria-label={t("mainNavLabel")}
             className="ml-8 hidden items-center gap-6 text-sm text-muted-foreground lg:flex"
@@ -57,17 +62,19 @@ export async function SiteHeader() {
                 {t(`nav.${link.key}`)}
               </Link>
             ))}
+          </nav>
+          <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
             {user && !waitlist && (
               <Link
                 href="/dashboard"
-                className="rounded-md transition-colors hover:text-foreground focus-visible:focus-ring"
+                className={buttonVariants({
+                  variant: "ghost",
+                  className: "hidden sm:inline-flex",
+                })}
               >
                 {t("nav.dashboard")}
               </Link>
             )}
-          </nav>
-
-          <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
             <ThemeToggle />
             {user ? (
               <UserMenu
@@ -76,7 +83,10 @@ export async function SiteHeader() {
                 isAdmin={user.isAdmin}
               />
             ) : waitlist ? (
-              <Link href="/#waitlist" className={buttonVariants({ className: "h-10 px-4 sm:h-9" })}>
+              <Link
+                href="/#waitlist"
+                className={buttonVariants({ className: "h-10 px-4 sm:h-9" })}
+              >
                 <span className="sm:hidden">{tWaitlist("ctaShort")}</span>
                 <span className="hidden sm:inline">{tWaitlist("cta")}</span>
               </Link>
