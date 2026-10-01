@@ -28,6 +28,7 @@ import {
 import { cn, getErrorMessage } from "@/lib/utils";
 import { updateServiceConfiguration } from "@/app/[locale]/dashboard/actions";
 import { ConfigFieldsForm } from "@/app/[locale]/dashboard/config-fields";
+import { VoicePreview } from "@/app/[locale]/dashboard/voice-preview";
 import { buildFieldCategories } from "@/app/[locale]/dashboard/field-categories";
 import { BILLING_SECTION_ID, CONNECTORS_SECTION_ID } from "@/app/[locale]/dashboard/billing-section";
 import { ProductCatalogEditor } from "@/app/[locale]/dashboard/product-catalog-editor";
@@ -281,6 +282,7 @@ export function ServiceConfigurationForm({
                   submitAttempted={submitAttempted}
                   companyName={companyName}
                 />
+                {category.id === "voice" && <VoicePreview clientServiceId={clientServiceId} values={values} />}
               </CardContent>
             </Card>
           </div>

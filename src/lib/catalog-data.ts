@@ -43,7 +43,7 @@ const VOICE_FIELDS: CatalogService["configFields"] = [
     type: "select",
     options: [...VOICE_OPTIONS],
     placeholder: "Marin : voix féminine, naturelle (par défaut)",
-    helpText: "Écoutez le résultat avec « Tester votre assistant », sur la page de la solution.",
+    helpText: "Écoutez-la avec « Écouter un exemple », plus bas, sans passer d'appel.",
   },
   {
     key: "speakingRate",
