@@ -108,6 +108,10 @@
         "question": "Est-ce que je garde mon numéro ?",
         "answer": "Oui. Vous activez un renvoi d'appel de votre ligne vers l'assistant. Vos clients composent le même numéro qu'avant, et vous coupez le renvoi quand vous voulez."
       },
+      "price": {
+        "question": "Combien ça coûte ?",
+        "answer": "Chaque solution a son prix mensuel affiché, sans devis ni engagement. Le téléphone comprend un volume de minutes ; au-delà, la minute est facturée au tarif indiqué sur la page de la solution. L'installation par notre équipe est comprise, et vous êtes remboursé sur simple demande pendant 30 jours."
+      },
       "setup": {
         "question": "Dois-je savoir configurer un outil ou une API ?",
         "answer": "Non. Notre équipe installe, connecte et vérifie chaque automatisation à votre place. Vous n'ouvrez aucun logiciel technique."
@@ -163,11 +167,11 @@
     },
     "hero": {
       "title": "Votre entreprise continue de travailler, même quand vous ne pouvez pas",
-      "lead": "Automerio répond à vos appels et à vos messages, et prend vos rendez-vous pendant que vous travaillez. Notre équipe installe tout et le suit pour vous.",
+      "lead": "Un assistant décroche à votre place, répond à vos messages et remplit votre agenda, à toute heure. Notre équipe l'installe et le règle pour vous : rien de technique à faire.",
       "signup": "Créer mon compte",
       "howItWorks": "Voir comment ça fonctionne",
       "specs": {
-        "install": "Installation complète par notre équipe",
+        "install": "Installé pour vous en quelques jours",
         "commitment": "Sans engagement",
         "from": "Dès {price}"
       },
@@ -176,19 +180,19 @@
         "caller": "Appelant",
         "assistant": "Assistant"
       },
-      "badge": "Nouveau : vos rendez-vous dans Google Agenda, Cal.com ou Calendly",
+      "badge": "Nouveau : choisissez la voix de votre assistant",
       "badgeWaitlist": "Lancement bientôt : rejoignez la liste d'attente"
     },
     "cta": {
       "heading": "Votre temps mérite mieux que les tâches répétitives",
-      "lead": "Dites-nous ce qui vous fait perdre du temps. Nous vous montrons ce qu'Automerio peut prendre en charge.",
+      "lead": "Choisissez une solution en quelques minutes. Notre équipe l'installe, la teste et vous prévient le jour où elle répond à vos clients.",
       "signup": "Créer mon compte",
       "ask": "Parler à Automerio",
       "note": "Sans engagement · Remboursé pendant 30 jours · Aucun rendez-vous commercial obligatoire"
     },
     "services": {
       "heading": "Choisissez ce que vous voulez arrêter de faire vous-même",
-      "lead": "Prix affichés. Sans engagement. Vous activez en ligne quand vous êtes prêt.",
+      "lead": "Prix affichés, sans devis ni engagement. Vous activez en ligne quand vous êtes prêt, notre équipe s'occupe du reste.",
       "subscription": "Abonnement",
       "included": {
         "label": "Compris dans chaque solution",
@@ -300,23 +304,23 @@
     },
     "outcomes": {
       "eyebrow": "Solutions",
-      "heading": "Ce qu'Automerio prend en charge",
-      "lead": "Trois tâches qui vous interrompent toute la journée. Vous choisissez celles que vous nous confiez.",
+      "heading": "Ce qu'Automerio fait à votre place",
+      "lead": "Les appels, les rendez-vous et les messages vous interrompent toute la journée. Confiez ceux que vous voulez, gardez la main sur le reste.",
       "channelsLabel": "Par",
       "items": {
         "calls": {
           "title": "Vos appels",
-          "description": "L'assistant décroche, comprend la demande, puis vous transfère l'appel ou prend un message.",
+          "description": "L'assistant décroche à chaque appel, comprend la demande, vous passe les urgences et prend un message clair pour le reste.",
           "channels": "votre ligne actuelle"
         },
         "bookings": {
           "title": "Vos rendez-vous",
-          "description": "Il propose un créneau libre et l'inscrit directement dans votre agenda.",
+          "description": "Il propose un créneau libre et l'inscrit dans votre agenda, avec la bonne durée pour chaque prestation.",
           "channels": "Google Agenda, Cal.com, Calendly"
         },
         "messages": {
           "title": "Vos messages",
-          "description": "Il répond tout de suite aux messages de vos clients, même le soir.",
+          "description": "Il répond tout de suite aux questions de vos clients, même à 22 h, avec les informations que vous lui donnez.",
           "channels": "WhatsApp, Messenger, Instagram"
         }
       }
@@ -343,7 +347,7 @@
           "summary": "Vous retrouvez le résumé dans votre tableau de bord."
         }
       },
-      "result": "Votre activité ne s'arrête plus quand vous êtes occupé.",
+      "result": "Chaque appel trouve une réponse, même quand vous avez les mains prises.",
       "seeServices": "Voir les solutions"
     },
     "audience": {
@@ -431,7 +435,7 @@
     "product": {
       "eyebrow": "Votre tableau de bord",
       "heading": "Vous voyez tout ce que fait votre assistant",
-      "lead": "Chaque appel, chaque rendez-vous et chaque réglage au même endroit, sur ordinateur comme sur téléphone.",
+      "lead": "Chaque appel, chaque rendez-vous et chaque réglage au même endroit, sur ordinateur comme sur téléphone. Vous savez toujours ce qui a été fait pour vous.",
       "items": {
         "calendar": {
           "title": "Les rendez-vous pris pour vous",
@@ -816,7 +820,7 @@
     "settingsAlt": "Réglages du standard téléphonique : motifs d'appel et numéro vers lequel transférer chacun."
   },
   "Waitlist": {
-    "heading": "Automerio ouvre bientôt",
+    "heading": "Soyez parmi les premiers à confier vos appels à Automerio",
     "lead": "Laissez vos coordonnées. Nous vous rappelons pour parler de votre activité, ou nous vous prévenons le jour du lancement.",
     "cta": "Être prévenu du lancement",
     "ctaShort": "Être prévenu",
