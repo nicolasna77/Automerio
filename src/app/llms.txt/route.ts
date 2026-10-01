@@ -9,6 +9,7 @@ import { getFaqs } from "@/lib/site-metadata";
 import type { ServiceCategory } from "@/lib/catalog";
 import { formatCentsWithVat } from "@/lib/vat";
 import { usageCapLabelOf } from "@/lib/usage-cap";
+import { getTrades, tradePath } from "@/lib/trades";
 
 export const dynamic = "force-dynamic";
 
@@ -74,6 +75,12 @@ export async function GET() {
     }
     lines.push("");
   }
+
+  lines.push(`## ${t("tradesHeading")}`, "");
+  for (const trade of getTrades()) {
+    lines.push(`- [${trade.metaTitle}](${absoluteUrl(tradePath(trade.slug))}) : ${trade.metaDescription}`);
+  }
+  lines.push("");
 
   lines.push(`## ${t("faqHeading")}`, "");
   for (const faq of faqs) {

@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { AutomerioLogo } from "@/components/brand";
 import { isWaitlistMode } from "@/lib/launch-mode";
+import { getTrades, tradePath } from "@/lib/trades";
 
 const LEGAL_LINKS = [
   { href: "/legal-notice", key: "legalNotice" },
@@ -35,6 +36,18 @@ export async function SiteFooter() {
                   {t("method")}
                 </Link>
               </li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="font-medium text-foreground">{t("audience")}</h3>
+            <ul className="mt-3 space-y-2">
+              {getTrades().map((trade) => (
+                <li key={trade.slug}>
+                  <Link href={tradePath(trade.slug)} className="hover:text-foreground">
+                    {trade.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
           {!isWaitlistMode() && (

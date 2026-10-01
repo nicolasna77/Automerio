@@ -81,7 +81,8 @@
       "terms": "CGV",
       "privacy": "Confidentialité",
       "cookies": "Cookies"
-    }
+    },
+    "audience": "Pour qui ?"
   },
   "Catalog": {
     "categories": {
@@ -366,7 +367,8 @@
           "quote": "Les demandes arrivent par tous les canaux.",
           "answer": "Automerio répond sur chacun et regroupe tout dans un seul tableau de bord."
         }
-      }
+      },
+      "seePage": "Voir la page {name}"
     },
     "why": {
       "eyebrow": "Pourquoi Automerio",
@@ -446,7 +448,8 @@
     "waitlistNotice": "Le service ouvre bientôt. En attendant, le site présente les solutions et leurs tarifs, et une liste d'attente permet d'être prévenu du lancement ou recontacté : {url}",
     "updated": "Dernière mise à jour du catalogue : {date}.",
     "pricingFile": "Tous les tarifs, quotas et dépassements, en un seul fichier : {url}",
-    "waitlistForm": "Liste d'attente et demande de rappel : {url}"
+    "waitlistForm": "Liste d'attente et demande de rappel : {url}",
+    "tradesHeading": "Par métier"
   },
   "Price": {
     "none": "—",
@@ -830,5 +833,29 @@
       "missingChoice": "Cochez au moins une des deux cases.",
       "rateLimited": "Trop de demandes envoyées récemment. Réessayez dans quelques minutes."
     }
+  },
+  "TradePage": {
+    "breadcrumb": "Fil d'Ariane",
+    "breadcrumbHome": "Accueil",
+    "breadcrumbAudience": "Pour qui ?",
+    "eyebrow": "Automerio pour les {name}",
+    "for": "Pour : {trades}",
+    "signup": "Créer mon compte",
+    "seeSolutions": "Voir les solutions utiles",
+    "painsHeading": "Vous vous reconnaissez ?",
+    "callHeading": "Un appel, du début à la fin",
+    "callLead": "Un exemple avec une entreprise fictive. Vos réglages décident de ce que dit l'assistant.",
+    "caller": "Appelant",
+    "assistant": "Assistant",
+    "result": "Résultat",
+    "solutionsHeading": "Les solutions utiles pour les {name}",
+    "solutionsLead": "Installées et suivies par notre équipe. Sans engagement.",
+    "seeSolution": "Voir la solution",
+    "faqHeading": "Vos questions",
+    "otherTrades": "Automerio pour d'autres métiers",
+    "ctaHeading": "Votre temps mérite mieux que les tâches répétitives",
+    "ctaLead": "Choisissez une solution, notre équipe l'installe et la règle sur votre activité.",
+    "ctaContact": "Parler à Automerio",
+    "ctaNote": "Sans engagement · Remboursé pendant 30 jours"
   }
 }

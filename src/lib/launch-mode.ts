@@ -17,5 +17,11 @@ const PUBLIC_PATHS = new Set([
 
 export function isOpenDuringWaitlist(path: string): boolean {
   const normalized = path.length > 1 ? path.replace(/\/+$/, "") : path;
-  return PUBLIC_PATHS.has(normalized) || normalized === "/admin" || normalized.startsWith("/admin/");
+  return (
+    PUBLIC_PATHS.has(normalized) ||
+    normalized === "/admin" ||
+    normalized.startsWith("/admin/") ||
+    // Pages par métier : ouvertes pour être référencées avant le lancement.
+    normalized.startsWith("/pour/")
+  );
 }
