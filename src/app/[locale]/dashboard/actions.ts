@@ -402,12 +402,15 @@ export async function updateServiceConfiguration(
     if (name !== undefined && !trimmedName) {
       throw new ActionError("Merci de donner un nom à cette solution.");
     }
+    if (trimmedName && trimmedName.length > 80) {
+      throw new ActionError("Le nom de la solution ne doit pas dépasser 80 caractères.");
+    }
     try {
       await db.clientService.update({
         where: { id: clientServiceId },
         data: {
           configuration: withCleanProductCatalog(configuration),
-          ...(trimmedName && { name: trimmedName.slice(0, 80) }),
+          ...(trimmedName && { name: trimmedName }),
         },
       });
     } catch (err) {

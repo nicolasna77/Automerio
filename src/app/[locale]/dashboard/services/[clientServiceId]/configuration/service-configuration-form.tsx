@@ -150,12 +150,17 @@ export function ServiceConfigurationForm({
       return;
     }
 
+    // Le nom n'est envoyé que s'il a changé : un ancien nom n'est jamais
+    // retouché par l'enregistrement d'un autre réglage. Une saisie faite
+    // pendant l'enregistrement n'est pas écrasée.
+    const submittedName = name.trim();
     startSaving(async () => {
       try {
-        unwrap(await updateServiceConfiguration(clientServiceId, values, name.trim()));
+        unwrap(
+          await updateServiceConfiguration(clientServiceId, values, nameDirty ? submittedName : undefined)
+        );
         setSavedSnapshot(JSON.stringify(values));
-        setName(name.trim());
-        setSavedName(name.trim());
+        setSavedName(submittedName);
         setSavedAt(
           new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit" }).format(new Date())
         );
