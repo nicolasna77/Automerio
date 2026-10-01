@@ -100,8 +100,14 @@ async function seedDemoCalls(db: PrismaClient): Promise<string> {
   }
   await db.usageEvent.deleteMany({ where: { externalId: { startsWith: DEMO_PREFIX } } });
   const now = Date.now();
+  // Les appels doivent tomber dans le mois en cours, sinon la vue d'ensemble
+  // affiche « 0 appel ce mois-ci » les premiers jours du mois.
+  const today = new Date(now);
+  const sinceMonthStart = now - new Date(today.getFullYear(), today.getMonth(), 1).getTime();
+  const oldest = Math.max(...DEMO_CALLS.map((call) => call.minutesAgo)) * 60_000;
+  const scale = oldest < sinceMonthStart ? 1 : Math.max((sinceMonthStart - 60_000) / oldest, 0.01);
   for (const [index, call] of DEMO_CALLS.entries()) {
-    const occurredAt = new Date(now - call.minutesAgo * 60_000);
+    const occurredAt = new Date(now - call.minutesAgo * 60_000 * scale);
     await db.usageEvent.create({
       data: {
         clientServiceId: clientService.id,
@@ -124,18 +130,94 @@ async function seedDemoCalls(db: PrismaClient): Promise<string> {
       },
     });
   }
+  await db.clientService.update({
+    where: { id: clientService.id },
+    data: {
+      configuration: {
+        ...(clientService.configuration as Record<string, unknown>),
+        ...DEMO_SETTINGS,
+      },
+    },
+  });
   return clientService.id;
+}
+
+const DEMO_SETTINGS = {
+  greetingMessage: "Bonjour, vous êtes bien chez Plomberie Lefèvre. Je suis l'assistant virtuel de l'entreprise.",
+  openingHours: {
+    mon: { closed: false, open: "08:00", close: "18:00" },
+    tue: { closed: false, open: "08:00", close: "18:00" },
+    wed: { closed: false, open: "08:00", close: "18:00" },
+    thu: { closed: false, open: "08:00", close: "18:00" },
+    fri: { closed: false, open: "08:00", close: "17:00" },
+    sat: { closed: false, open: "09:00", close: "12:00" },
+    sun: { closed: true, open: "09:00", close: "18:00" },
+  },
+  callRouting: [
+    { trigger: "Fuite ou dégât des eaux", target: "+33 6 12 34 56 78" },
+    { trigger: "Panne de chauffage", target: "+33 6 12 34 56 78" },
+    { trigger: "Fournisseur ou facture", target: "+33 6 98 76 54 32" },
+  ],
+};
+
+// Rendez-vous de la semaine en cours, du lundi au vendredi (jour, heure, durée).
+const DEMO_BOOKINGS = [
+  { day: 0, hour: 9, minutes: 60, name: "Claire Vasseur", notes: "Devis chauffe-eau 200 litres." },
+  { day: 0, hour: 14, minutes: 30, name: "Hugo Marchand", notes: "Robinet de salle de bain qui goutte." },
+  { day: 1, hour: 10, minutes: 90, name: "Nadia Benali", notes: "Évacuation de douche bouchée." },
+  { day: 2, hour: 8, minutes: 60, name: "Julien Perrin", notes: "Contrôle après réparation de fuite." },
+  { day: 2, hour: 16, minutes: 30, name: "Léa Fontaine", notes: "Remplacement d'un mitigeur." },
+  { day: 3, hour: 11, minutes: 60, name: "Thomas Girard", notes: "Entretien annuel de chaudière." },
+  { day: 4, hour: 9, minutes: 30, name: "Sarah Mercier", notes: "Devis salle de bain." },
+  { day: 4, hour: 15, minutes: 60, name: "Paul Roussel", notes: "Radiateur qui ne chauffe plus." },
+];
+
+async function seedDemoBookings(db: PrismaClient) {
+  const user = await db.user.findUniqueOrThrow({ where: { email: DEMO_EMAIL } });
+  const clientService = await db.clientService.findFirstOrThrow({
+    where: { userId: user.id, service: { slug: "prise-rdv-telephone" } },
+  });
+  await db.booking.deleteMany({ where: { externalBookingId: { startsWith: DEMO_PREFIX } } });
+  const monday = new Date();
+  monday.setHours(0, 0, 0, 0);
+  monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
+  for (const [index, booking] of DEMO_BOOKINGS.entries()) {
+    const startAt = new Date(monday);
+    startAt.setDate(monday.getDate() + booking.day);
+    startAt.setHours(booking.hour);
+    await db.booking.create({
+      data: {
+        clientServiceId: clientService.id,
+        kind: "appointment",
+        customerName: booking.name,
+        customerPhone: `+3363998${String(1000 + index * 37).padStart(4, "0")}`,
+        startAt,
+        endAt: new Date(startAt.getTime() + booking.minutes * 60_000),
+        notes: booking.notes,
+        externalBookingId: `${DEMO_PREFIX}${index}`,
+      },
+    });
+  }
 }
 
 type Clip = { x: number; y: number; width: number; height: number };
 
-async function capture(page: Page, path: string, name: string, target: { cardHeading?: string; clip?: Clip }) {
+async function capture(
+  page: Page,
+  path: string,
+  name: string,
+  target: { cardHeading?: string; clip?: Clip; prepare?: (page: Page) => Promise<void> }
+) {
   for (const theme of ["light", "dark"] as const) {
     await page.emulateMedia({ colorScheme: theme });
     await page.evaluate((value) => localStorage.setItem("theme", value), theme);
     await page.goto(`${BASE_URL}${path}`);
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(800);
+    if (target.prepare) {
+      await target.prepare(page);
+      await page.waitForTimeout(400);
+    }
     const { cardHeading, clip = { x: 0, y: 0, width: 1280, height: 800 } } = target;
     const png = cardHeading
       ? await page
@@ -152,6 +234,7 @@ async function main() {
   assertLocal();
   const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL! }) });
   const clientServiceId = await seedDemoCalls(db);
+  await seedDemoBookings(db);
   await db.$disconnect();
 
   await mkdir(OUT_DIR, { recursive: true });
@@ -165,6 +248,14 @@ async function main() {
 
   await capture(page, "/dashboard", "dashboard-overview", { clip: { x: 256, y: 64, width: 1024, height: 640 } });
   await capture(page, `/dashboard/services/${clientServiceId}`, "dashboard-calls", { cardHeading: "Appels reçus" });
+  await capture(page, "/dashboard/calendar", "dashboard-calendar", {
+    clip: { x: 256, y: 64, width: 1024, height: 640 },
+    prepare: (page) => page.getByRole("button", { name: "Semaine" }).click(),
+  });
+  await capture(page, `/dashboard/services/${clientServiceId}/configuration`, "dashboard-settings", {
+    clip: { x: 256, y: 64, width: 1024, height: 640 },
+    prepare: (page) => page.getByRole("tab", { name: "Règles" }).click(),
+  });
   await browser.close();
 }
 
