@@ -9,6 +9,7 @@ export const SITE_NAV_LINKS = [
 
 export const FAQ_KEYS = [
   "keepNumber",
+  "price",
   "setup",
   "delay",
   "notUnderstood",
