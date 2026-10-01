@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { settingsHiddenKeys } from "./field-categories";
 import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { stripeClient } from "@/lib/auth";
@@ -212,7 +213,10 @@ export async function activateService(
       monthlyPriceCents = calculateMonthlyPriceCents(tier, units);
     }
 
-    const configFields = (service.configFields as ConfigField[]) ?? [];
+    const hidden = settingsHiddenKeys(service.slug);
+    const configFields = ((service.configFields as ConfigField[]) ?? []).filter(
+      (field) => !hidden.includes(field.key)
+    );
     const missing = findMissingRequiredField(configFields, configuration);
     if (missing) {
       throw new ActionError(`Le champ « ${missing.label} » est requis.`);
@@ -391,8 +395,11 @@ export async function updateServiceConfiguration(
     ]);
     await requireMemberOn(clientService, userId);
 
-    const configFields =
-      (clientService.service.configFields as ConfigField[]) ?? [];
+    // Les champs que les réglages ne proposent plus ne sont pas exigés.
+    const hidden = settingsHiddenKeys(clientService.service.slug);
+    const configFields = ((clientService.service.configFields as ConfigField[]) ?? []).filter(
+      (field) => !hidden.includes(field.key)
+    );
     const missing = findMissingRequiredField(configFields, configuration);
     if (missing) {
       throw new ActionError(`Le champ « ${missing.label} » est requis.`);
