@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { absoluteUrl } from "@/lib/site";
 import { isWaitlistMode } from "@/lib/launch-mode";
 import { LEGAL_LAST_UPDATED } from "@/lib/legal";
+import { getTrades, tradePath } from "@/lib/trades";
 
 export const dynamic = "force-dynamic";
 
@@ -35,8 +36,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.2,
   }));
 
-  // En mode présentation, seules l'accueil et les pages légales sont ouvertes.
-  if (isWaitlistMode()) return [home, ...legal];
+  // Pages par métier : ouvertes même en mode présentation.
+  const trades = getTrades().map((trade) => ({
+    url: absoluteUrl(tradePath(trade.slug)),
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
+
+  // En mode présentation, seules l'accueil, les pages par métier et les pages
+  // légales sont ouvertes.
+  if (isWaitlistMode()) return [home, ...trades, ...legal];
 
   return [
     home,
@@ -51,6 +60,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly" as const,
       priority: 0.8,
     })),
+    ...trades,
     ...legal,
   ];
 }

@@ -26,7 +26,9 @@ async function LiveCallCard() {
           <Phone className="size-4 text-primary" />
           {t("title")}
         </p>
-        <span className="font-mono text-xs tabular-nums text-muted-foreground">00:42</span>
+        <span className="font-mono text-xs tabular-nums text-muted-foreground">
+          00:42
+        </span>
       </div>
       <dl className="mt-3 space-y-2 border-t border-border pt-3 text-xs leading-snug">
         {turns.map((turn) => (
@@ -64,7 +66,7 @@ function HeroGrid() {
     <>
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(ellipse_70%_60%_at_50%_0%,black_40%,transparent_100%)]"
+        className="pointer-events-none absolute inset-0 -z-10 mask-[radial-gradient(ellipse_70%_60%_at_50%_0%,black_40%,transparent_100%)]"
         style={{
           backgroundImage: [
             "radial-gradient(circle, var(--border) 1.5px, transparent 1.6px)",
@@ -103,14 +105,19 @@ export async function HeroSection({ services }: { services: ServiceDTO[] }) {
     getPriceFormatter(),
   ]);
   const monthlyPrices = services
-    .filter((s) => s.category === "COMMUNICATION" && s.monthlyPriceCents !== null)
+    .filter(
+      (s) => s.category === "COMMUNICATION" && s.monthlyPriceCents !== null,
+    )
     .map((s) => s.monthlyPriceCents as number);
-  const fromPrice = monthlyPrices.length > 0 ? Math.min(...monthlyPrices) : null;
+  const fromPrice =
+    monthlyPrices.length > 0 ? Math.min(...monthlyPrices) : null;
 
   const specs = [
     t("specs.install"),
     t("specs.commitment"),
-    fromPrice !== null ? t("specs.from", { price: price.perMonthWithVat(fromPrice) }) : null,
+    fromPrice !== null
+      ? t("specs.from", { price: price.perMonthWithVat(fromPrice) })
+      : null,
   ].filter((spec): spec is string => spec !== null);
 
   return (
@@ -121,9 +128,15 @@ export async function HeroSection({ services }: { services: ServiceDTO[] }) {
           href={waitlist ? "#waitlist" : "#services"}
           className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-sm text-foreground shadow-sm transition-colors hover:bg-muted focus-visible:focus-ring focus-visible:outline-none"
         >
-          <span aria-hidden="true" className="size-1.5 rounded-full bg-primary" />
+          <span
+            aria-hidden="true"
+            className="size-1.5 rounded-full bg-primary"
+          />
           {waitlist ? t("badgeWaitlist") : t("badge")}
-          <ChevronRight className="size-3.5 text-muted-foreground" aria-hidden="true" />
+          <ChevronRight
+            className="size-3.5 text-muted-foreground"
+            aria-hidden="true"
+          />
         </Link>
 
         <h1 className="mx-auto mt-8 max-w-4xl text-4xl leading-[1.08] font-semibold tracking-tight text-balance text-foreground sm:text-6xl lg:text-7xl">
@@ -134,7 +147,10 @@ export async function HeroSection({ services }: { services: ServiceDTO[] }) {
         </p>
 
         <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-6">
-          <Link href={waitlist ? "#waitlist" : "/signup"} className={buttonVariants({ size: "lg" })}>
+          <Link
+            href={waitlist ? "#waitlist" : "/signup"}
+            className={buttonVariants({ size: "lg" })}
+          >
             {waitlist ? tWaitlist("cta") : t("signup")}
             <ArrowRight data-icon="inline-end" />
           </Link>

@@ -14,6 +14,11 @@ describe("isOpenDuringWaitlist", () => {
     }
   });
 
+  it("laisse voir les pages par métier, pour le référencement", () => {
+    expect(isOpenDuringWaitlist("/industries/tradespeople")).toBe(true);
+    expect(isOpenDuringWaitlist("/industries")).toBe(false);
+  });
+
   it("ignore la barre oblique finale", () => {
     expect(isOpenDuringWaitlist("/privacy/")).toBe(true);
   });

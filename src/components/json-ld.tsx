@@ -46,6 +46,19 @@ export function faqSchema(items: Faq[]) {
   };
 }
 
+export function breadcrumbSchema(items: { name: string; path: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: absoluteUrl(item.path),
+    })),
+  };
+}
+
 type ServiceLabels = { offerName: string; termsOfService: string | null };
 
 export function serviceSchema(service: ServiceDTO, labels: ServiceLabels) {

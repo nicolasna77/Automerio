@@ -2,7 +2,7 @@ export const SITE_NAME = "Automerio";
 
 export const SITE_NAV_LINKS = [
   { href: "/#method", key: "method" },
-  { href: "/#pour-qui", key: "audience" },
+  { href: "/#who-its-for", key: "audience" },
   { href: "/#services", key: "pricing" },
   { href: "/#faq", key: "faq" },
 ] as const;
