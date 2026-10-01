@@ -110,7 +110,7 @@
       },
       "price": {
         "question": "Combien ça coûte ?",
-        "answer": "Chaque solution a son prix mensuel affiché, sans devis ni engagement. Le téléphone comprend un volume de minutes ; au-delà, la minute est facturée au tarif indiqué sur la page de la solution. L'installation par notre équipe est comprise, et vous êtes remboursé sur simple demande pendant 30 jours."
+        "answer": "Chaque solution a son prix mensuel affiché, sans devis ni engagement. Elle comprend un volume d'usage, en minutes d'appel ou en réponses ; au-delà, l'usage est facturé au tarif affiché avec la solution. L'installation par notre équipe est comprise. Si vous n'êtes pas satisfait, votre abonnement est remboursé sur simple demande dans les {days} jours qui suivent votre premier paiement."
       },
       "setup": {
         "question": "Dois-je savoir configurer un outil ou une API ?",
@@ -146,7 +146,7 @@
       },
       "cancel": {
         "question": "Que se passe-t-il si j'arrête ?",
-        "answer": "Vous résiliez depuis votre espace, sans engagement de durée. Coupez ensuite le renvoi d'appel : vos appels reviennent directement sur votre téléphone. Et si vous n'êtes pas satisfait, votre abonnement est remboursé sur simple demande dans les 30 jours qui suivent votre premier paiement."
+        "answer": "Vous résiliez depuis votre espace, sans engagement de durée. Coupez ensuite le renvoi d'appel : vos appels reviennent directement sur votre téléphone. Et si vous n'êtes pas satisfait, votre abonnement est remboursé sur simple demande dans les {days} jours qui suivent votre premier paiement."
       },
       "data": {
         "question": "Mes données sont-elles en sécurité ?",
@@ -180,19 +180,19 @@
         "caller": "Appelant",
         "assistant": "Assistant"
       },
-      "badge": "Nouveau : choisissez la voix de votre assistant",
+      "badge": "Nouveau : vos rendez-vous dans Google Agenda, Cal.com ou Calendly",
       "badgeWaitlist": "Lancement bientôt : rejoignez la liste d'attente"
     },
     "cta": {
       "heading": "Votre temps mérite mieux que les tâches répétitives",
-      "lead": "Choisissez une solution en quelques minutes. Notre équipe l'installe, la teste et vous prévient le jour où elle répond à vos clients.",
+      "lead": "Choisissez une solution en quelques minutes, ou dites-nous ce qui vous fait perdre du temps : nous vous montrons ce qu'Automerio peut prendre en charge.",
       "signup": "Créer mon compte",
       "ask": "Parler à Automerio",
       "note": "Sans engagement · Remboursé pendant 30 jours · Aucun rendez-vous commercial obligatoire"
     },
     "services": {
       "heading": "Choisissez ce que vous voulez arrêter de faire vous-même",
-      "lead": "Prix affichés, sans devis ni engagement. Vous activez en ligne quand vous êtes prêt, notre équipe s'occupe du reste.",
+      "lead": "Prix affichés, sans devis ni engagement. Notre équipe installe et règle chaque solution pour vous.",
       "subscription": "Abonnement",
       "included": {
         "label": "Compris dans chaque solution",
@@ -315,7 +315,7 @@
         },
         "bookings": {
           "title": "Vos rendez-vous",
-          "description": "Il propose un créneau libre et l'inscrit dans votre agenda, avec la bonne durée pour chaque prestation.",
+          "description": "Il vérifie vos disponibilités, propose un créneau libre et l'inscrit directement dans votre agenda.",
           "channels": "Google Agenda, Cal.com, Calendly"
         },
         "messages": {

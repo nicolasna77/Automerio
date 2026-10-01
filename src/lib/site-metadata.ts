@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import type { Locale } from "@/i18n/routing";
 import { FAQ_KEYS, SITE_NAME, type Faq } from "@/lib/site";
+import { REFUND_GUARANTEE_DAYS } from "@/lib/legal";
 
 export async function siteOpenGraph(
   options: { url?: string; title?: string; description?: string } = {}
@@ -20,5 +21,9 @@ export async function siteOpenGraph(
 
 export async function getFaqs(locale?: Locale): Promise<Faq[]> {
   const t = await getTranslations({ locale: locale ?? (await getLocale()), namespace: "Faq.items" });
-  return FAQ_KEYS.map((key) => ({ question: t(`${key}.question`), answer: t(`${key}.answer`) }));
+  // La durée de la garantie vient de la même constante que les CGV.
+  return FAQ_KEYS.map((key) => ({
+    question: t(`${key}.question`),
+    answer: t(`${key}.answer`, { days: REFUND_GUARANTEE_DAYS }),
+  }));
 }
