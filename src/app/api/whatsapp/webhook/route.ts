@@ -59,7 +59,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ received: true });
   }
 
-  const conversationId = await claimInboundMessage({
+  const conversation = await claimInboundMessage({
     clientServiceId: clientService.id,
     channel: "WHATSAPP",
     contactId: message.from,
@@ -69,28 +69,31 @@ export async function POST(request: Request) {
     console.error(`[whatsapp] échec d'enregistrement de la conversation ${message.id} :`, err);
     return undefined;
   });
-  if (conversationId === null) {
+  if (conversation === null) {
     return NextResponse.json({ received: true });
   }
 
   let sentReply: string | null = null;
-  try {
-    const replyText = await generateMessagingReply(clientService, message.text.body);
-    if (replyText) {
-      await sendWhatsAppMessage(
-        phoneNumberId,
-        message.from,
-        replyText,
-        clientService.whatsappAccessToken
-      );
-      sentReply = replyText;
+  // Le client a repris la main : le message est enregistré, l'assistant se tait.
+  if (!conversation?.humanTakeover) {
+    try {
+      const replyText = await generateMessagingReply(clientService, message.text.body);
+      if (replyText) {
+        await sendWhatsAppMessage(
+          phoneNumberId,
+          message.from,
+          replyText,
+          clientService.whatsappAccessToken
+        );
+        sentReply = replyText;
+      }
+    } catch (err) {
+      console.error(`[whatsapp] échec de réponse au message ${message.id} :`, err);
     }
-  } catch (err) {
-    console.error(`[whatsapp] échec de réponse au message ${message.id} :`, err);
   }
 
-  if (sentReply && conversationId) {
-    await recordReply(conversationId, sentReply).catch((err) =>
+  if (sentReply && conversation) {
+    await recordReply(conversation.id, sentReply).catch((err) =>
       console.error(`[whatsapp] échec d'enregistrement de la réponse à ${message.id} :`, err)
     );
   }

@@ -31,9 +31,10 @@ model User {
   helpRequestMessages     HelpRequestMessage[]
   auditLogs               AuditLog[]
 
-  members     Member[]
-  testCalls   TestCall[]
-  invitations Invitation[]
+  members             Member[]
+  testCalls           TestCall[]
+  conversationReplies ConversationMessage[]
+  invitations         Invitation[]
 
   @@unique([email])
   @@map("user")
@@ -570,6 +571,12 @@ model Conversation {
   channel         MessagingChannel
   contactId       String
   lastMessageAt   DateTime              @default(now())
+  // Dernier message du contact : Meta n'autorise une réponse libre que dans
+  // les 24 h qui suivent.
+  lastInboundAt   DateTime?
+  // Renseignée quand le client a repris la main : l'assistant ne répond plus
+  // dans cette conversation jusqu'à ce qu'on la lui rende.
+  humanTakeoverAt DateTime?
   createdAt       DateTime              @default(now())
   messages        ConversationMessage[]
 
@@ -585,6 +592,9 @@ model ConversationMessage {
   direction      MessageDirection
   text           String
   externalId     String?          @unique
+  // Réponse écrite par un membre de l'organisation ; vide pour l'assistant.
+  sentById       String?
+  sentBy         User?            @relation(fields: [sentById], references: [id], onDelete: SetNull)
   createdAt      DateTime         @default(now())
 
   @@index([conversationId, createdAt])
