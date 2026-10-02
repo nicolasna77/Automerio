@@ -79,7 +79,7 @@ function HeroGrid() {
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[60%] overflow-hidden [container-type:size] motion-reduce:hidden"
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[60%] overflow-hidden @container-size motion-reduce:hidden"
       >
         {HERO_BEAMS.map((beam) => (
           <span
