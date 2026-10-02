@@ -1,8 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("@/lib/db", () => ({ db: {} }));
+const findMany = vi.fn();
+vi.mock("@/lib/db", () => ({ db: { conversationMessage: { findMany: (...args: unknown[]) => findMany(...args) } } }));
 
-import { contactLabel } from "./conversations";
+import { contactLabel, getConversationDays, replyWindowClosesAt } from "./conversations";
 
 describe("contactLabel", () => {
   it("affiche un numero WhatsApp francais comme on l'ecrit", () => {
@@ -16,5 +17,31 @@ describe("contactLabel", () => {
   it("resume un identifiant Messenger ou Instagram a ses derniers caracteres", () => {
     expect(contactLabel("MESSENGER", "6843201958772341")).toBe("Contact ·2341");
     expect(contactLabel("INSTAGRAM", "17841400000009876")).toBe("Contact ·9876");
+  });
+});
+
+describe("replyWindowClosesAt", () => {
+  it("ferme la fenetre de reponse 24 h apres le dernier message du contact", () => {
+    expect(replyWindowClosesAt(new Date("2026-10-01T08:30:00Z"))?.toISOString()).toBe("2026-10-02T08:30:00.000Z");
+  });
+
+  it("ne laisse pas repondre a un contact qui n'a jamais ecrit", () => {
+    expect(replyWindowClosesAt(null)).toBeNull();
+  });
+});
+
+describe("getConversationDays", () => {
+  it("compte les conversations par jour de Paris, du plus recent au plus ancien", async () => {
+    findMany.mockResolvedValueOnce([
+      { conversationId: "a", createdAt: new Date("2026-10-01T22:30:00Z") }, // 2 oct., 0 h 30 à Paris
+      { conversationId: "a", createdAt: new Date("2026-10-02T08:00:00Z") },
+      { conversationId: "b", createdAt: new Date("2026-10-02T09:00:00Z") },
+      { conversationId: "b", createdAt: new Date("2026-10-01T10:00:00Z") },
+    ]);
+
+    expect(await getConversationDays("cs")).toEqual([
+      { day: "2026-10-02", count: 2 },
+      { day: "2026-10-01", count: 1 },
+    ]);
   });
 });

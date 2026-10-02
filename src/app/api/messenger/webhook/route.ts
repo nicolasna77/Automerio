@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ received: true });
   }
 
-  const conversationId = await claimInboundMessage({
+  const conversation = await claimInboundMessage({
     clientServiceId: clientService.id,
     channel: "MESSENGER",
     contactId: senderId,
@@ -65,23 +65,26 @@ export async function POST(request: Request) {
     console.error(`[messenger] échec d'enregistrement de la conversation ${message.mid} :`, err);
     return undefined;
   });
-  if (conversationId === null) {
+  if (conversation === null) {
     return NextResponse.json({ received: true });
   }
 
   let sentReply: string | null = null;
-  try {
-    const replyText = await generateMessagingReply(clientService, message.text);
-    if (replyText && clientService.facebookPageAccessToken) {
-      await sendMessengerMessage(pageId, senderId, replyText, clientService.facebookPageAccessToken);
-      sentReply = replyText;
+  // Le client a repris la main : le message est enregistré, l'assistant se tait.
+  if (!conversation?.humanTakeover) {
+    try {
+      const replyText = await generateMessagingReply(clientService, message.text);
+      if (replyText && clientService.facebookPageAccessToken) {
+        await sendMessengerMessage(pageId, senderId, replyText, clientService.facebookPageAccessToken);
+        sentReply = replyText;
+      }
+    } catch (err) {
+      console.error(`[messenger] échec de réponse au message ${message.mid} :`, err);
     }
-  } catch (err) {
-    console.error(`[messenger] échec de réponse au message ${message.mid} :`, err);
   }
 
-  if (sentReply && conversationId) {
-    await recordReply(conversationId, sentReply).catch((err) =>
+  if (sentReply && conversation) {
+    await recordReply(conversation.id, sentReply).catch((err) =>
       console.error(`[messenger] échec d'enregistrement de la réponse à ${message.mid} :`, err)
     );
   }

@@ -1,14 +1,20 @@
 import { Prisma, type MessagingChannel } from "@prisma/client";
 import { db } from "@/lib/db";
 import { checkQuotaAlerts } from "@/lib/overage-billing";
+import { REPLY_WINDOW_MS } from "@/lib/conversation-limits";
+import { parisDayKey } from "@/lib/paris-day";
 
+export type ClaimedConversation = { id: string; humanTakeover: boolean };
+
+// Enregistre un message reçu. Renvoie null si Meta le livre une seconde fois ;
+// `humanTakeover` indique que le client a repris la main : l'assistant se tait.
 export async function claimInboundMessage(input: {
   clientServiceId: string;
   channel: MessagingChannel;
   contactId: string;
   text: string;
   externalId: string;
-}): Promise<string | null> {
+}): Promise<ClaimedConversation | null> {
   const now = new Date();
   try {
     return await db.$transaction(async (tx) => {
@@ -25,9 +31,10 @@ export async function claimInboundMessage(input: {
           channel: input.channel,
           contactId: input.contactId,
           lastMessageAt: now,
+          lastInboundAt: now,
         },
-        update: { lastMessageAt: now },
-        select: { id: true },
+        update: { lastMessageAt: now, lastInboundAt: now },
+        select: { id: true, humanTakeoverAt: true },
       });
 
       await tx.conversationMessage.create({
@@ -39,7 +46,7 @@ export async function claimInboundMessage(input: {
           createdAt: now,
         },
       });
-      return conversation.id;
+      return { id: conversation.id, humanTakeover: conversation.humanTakeoverAt !== null };
     });
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
@@ -80,20 +87,35 @@ export function contactLabel(channel: MessagingChannel, contactId: string): stri
   return `Contact ·${contactId.slice(-4)}`;
 }
 
-const CONVERSATION_LIMIT = 20;
+export function replyWindowClosesAt(lastInboundAt: Date | null): Date | null {
+  return lastInboundAt ? new Date(lastInboundAt.getTime() + REPLY_WINDOW_MS) : null;
+}
+
+const CONVERSATION_LIMIT = 30;
 const MESSAGES_PER_CONVERSATION = 50;
 
+export type MessageAuthor = "CONTACT" | "ASSISTANT" | "HUMAN";
+
+// Dates en chaînes ISO : la même forme sert au rendu serveur et au polling.
 export type ConversationView = {
   id: string;
   contact: string;
-  lastMessageAt: Date;
+  channel: MessagingChannel;
+  lastMessageAt: string;
+  replyWindowClosesAt: string | null;
+  humanTakeover: boolean;
   messageCount: number;
-  messages: { id: string; direction: "INBOUND" | "OUTBOUND"; text: string; createdAt: Date }[];
+  messages: { id: string; author: MessageAuthor; authorName: string | null; text: string; createdAt: string }[];
 };
 
-export async function getConversations(clientServiceId: string): Promise<ConversationView[]> {
+// Avec un jour (bornes de parisDayRange) : les conversations qui ont reçu ou
+// envoyé au moins un message ce jour-là, avec tout leur fil.
+export async function getConversations(
+  clientServiceId: string,
+  day?: { gte: Date; lt: Date } | null
+): Promise<ConversationView[]> {
   const conversations = await db.conversation.findMany({
-    where: { clientServiceId },
+    where: { clientServiceId, ...(day && { messages: { some: { createdAt: day } } }) },
     orderBy: { lastMessageAt: "desc" },
     take: CONVERSATION_LIMIT,
     include: {
@@ -101,7 +123,14 @@ export async function getConversations(clientServiceId: string): Promise<Convers
       messages: {
         orderBy: { createdAt: "desc" },
         take: MESSAGES_PER_CONVERSATION,
-        select: { id: true, direction: true, text: true, createdAt: true },
+        select: {
+          id: true,
+          direction: true,
+          text: true,
+          createdAt: true,
+          sentById: true,
+          sentBy: { select: { name: true } },
+        },
       },
     },
   });
@@ -109,8 +138,46 @@ export async function getConversations(clientServiceId: string): Promise<Convers
   return conversations.map((conversation) => ({
     id: conversation.id,
     contact: contactLabel(conversation.channel, conversation.contactId),
-    lastMessageAt: conversation.lastMessageAt,
+    channel: conversation.channel,
+    lastMessageAt: conversation.lastMessageAt.toISOString(),
+    replyWindowClosesAt: replyWindowClosesAt(conversation.lastInboundAt)?.toISOString() ?? null,
+    humanTakeover: conversation.humanTakeoverAt !== null,
     messageCount: conversation._count.messages,
-    messages: [...conversation.messages].reverse(),
+    messages: [...conversation.messages].reverse().map((message) => ({
+      id: message.id,
+      author:
+        message.direction === "INBOUND" ? "CONTACT" : message.sentById ? "HUMAN" : "ASSISTANT",
+      authorName: message.sentBy?.name ?? null,
+      text: message.text,
+      createdAt: message.createdAt.toISOString(),
+    })),
   }));
+}
+
+// Jours proposés dans le filtre : les 60 derniers.
+const DAYS_WINDOW_MS = 60 * 24 * 60 * 60 * 1000;
+
+export type ConversationDay = { day: string; count: number };
+
+// Jours (heure de Paris) qui ont eu des échanges, du plus récent au plus
+// ancien, avec le nombre de conversations actives ce jour-là.
+export async function getConversationDays(clientServiceId: string): Promise<ConversationDay[]> {
+  const messages = await db.conversationMessage.findMany({
+    where: {
+      conversation: { clientServiceId },
+      createdAt: { gte: new Date(Date.now() - DAYS_WINDOW_MS) },
+    },
+    select: { conversationId: true, createdAt: true },
+  });
+
+  const conversationsByDay = new Map<string, Set<string>>();
+  for (const message of messages) {
+    const key = parisDayKey(message.createdAt);
+    const ids = conversationsByDay.get(key) ?? new Set<string>();
+    ids.add(message.conversationId);
+    conversationsByDay.set(key, ids);
+  }
+  return [...conversationsByDay.entries()]
+    .toSorted(([a], [b]) => b.localeCompare(a))
+    .map(([day, ids]) => ({ day, count: ids.size }));
 }
