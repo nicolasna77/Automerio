@@ -59,3 +59,6 @@ next-env.d.ts
 
 # Sessions Playwright mises de côté par auth.setup.ts
 /e2e/.auth/
+
+# Scripts personnels de capture de référence
+zz-*.mjs
