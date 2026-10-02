@@ -1,8 +1,11 @@
 import { Prisma, type MessagingChannel } from "@prisma/client";
 import { db } from "@/lib/db";
 import { checkQuotaAlerts } from "@/lib/overage-billing";
-import { REPLY_WINDOW_MS } from "@/lib/conversation-limits";
-import { parisDayKey } from "@/lib/paris-day";
+import {
+  CONVERSATION_LIMIT,
+  FILTERED_CONVERSATION_LIMIT,
+  REPLY_WINDOW_MS,
+} from "@/lib/conversation-limits";
 
 export type ClaimedConversation = { id: string; humanTakeover: boolean };
 
@@ -91,7 +94,6 @@ export function replyWindowClosesAt(lastInboundAt: Date | null): Date | null {
   return lastInboundAt ? new Date(lastInboundAt.getTime() + REPLY_WINDOW_MS) : null;
 }
 
-const CONVERSATION_LIMIT = 30;
 const MESSAGES_PER_CONVERSATION = 50;
 
 export type MessageAuthor = "CONTACT" | "ASSISTANT" | "HUMAN";
@@ -117,7 +119,7 @@ export async function getConversations(
   const conversations = await db.conversation.findMany({
     where: { clientServiceId, ...(day && { messages: { some: { createdAt: day } } }) },
     orderBy: { lastMessageAt: "desc" },
-    take: CONVERSATION_LIMIT,
+    take: day ? FILTERED_CONVERSATION_LIMIT : CONVERSATION_LIMIT,
     include: {
       _count: { select: { messages: true } },
       messages: {
@@ -160,24 +162,18 @@ const DAYS_WINDOW_MS = 60 * 24 * 60 * 60 * 1000;
 export type ConversationDay = { day: string; count: number };
 
 // Jours (heure de Paris) qui ont eu des échanges, du plus récent au plus
-// ancien, avec le nombre de conversations actives ce jour-là.
+// ancien, avec le nombre de conversations actives ce jour-là. Regroupé par la
+// base : appelé à chaque passage du polling. Les dates sont stockées en UTC
+// sans fuseau, d'où la double conversion.
 export async function getConversationDays(clientServiceId: string): Promise<ConversationDay[]> {
-  const messages = await db.conversationMessage.findMany({
-    where: {
-      conversation: { clientServiceId },
-      createdAt: { gte: new Date(Date.now() - DAYS_WINDOW_MS) },
-    },
-    select: { conversationId: true, createdAt: true },
-  });
-
-  const conversationsByDay = new Map<string, Set<string>>();
-  for (const message of messages) {
-    const key = parisDayKey(message.createdAt);
-    const ids = conversationsByDay.get(key) ?? new Set<string>();
-    ids.add(message.conversationId);
-    conversationsByDay.set(key, ids);
-  }
-  return [...conversationsByDay.entries()]
-    .toSorted(([a], [b]) => b.localeCompare(a))
-    .map(([day, ids]) => ({ day, count: ids.size }));
+  const since = new Date(Date.now() - DAYS_WINDOW_MS);
+  return db.$queryRaw<ConversationDay[]>`
+    SELECT to_char((m."createdAt" AT TIME ZONE 'UTC') AT TIME ZONE 'Europe/Paris', 'YYYY-MM-DD') AS day,
+           COUNT(DISTINCT m."conversationId")::int AS count
+    FROM "conversation_message" m
+    JOIN "conversation" c ON c."id" = m."conversationId"
+    WHERE c."clientServiceId" = ${clientServiceId} AND m."createdAt" >= ${since}
+    GROUP BY 1
+    ORDER BY 1 DESC
+  `;
 }

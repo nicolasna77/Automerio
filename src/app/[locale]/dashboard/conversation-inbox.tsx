@@ -8,10 +8,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { pollWhileVisible } from "@/lib/poll-while-visible";
 import { parisDayKey } from "@/lib/paris-day";
-import { dayLabel, dayPhrase } from "@/lib/day-label";
+import { dayLabel, dayPhrase, previousDayKey } from "@/lib/day-label";
 import { unwrap } from "@/lib/action-result";
 import { cn, getErrorMessage } from "@/lib/utils";
-import { MAX_REPLY_LENGTH } from "@/lib/conversation-limits";
+import { CONVERSATION_LIMIT, FILTERED_CONVERSATION_LIMIT, MAX_REPLY_LENGTH } from "@/lib/conversation-limits";
 import type { ConversationDay, ConversationView, MessageAuthor } from "@/lib/conversations";
 import {
   handBackConversation,
@@ -46,19 +46,16 @@ const deadlineFormat = new Intl.DateTimeFormat("fr-FR", {
   minute: "2-digit",
 });
 
-function relativeDayKey(offsetDays: number): string {
-  return parisDayKey(new Date(Date.now() - offsetDays * 24 * 60 * 60 * 1000));
-}
-
 // Heure seule pour aujourd'hui, date courte au-delà : comme une messagerie.
 function formatListTime(iso: string): string {
   const date = new Date(iso);
-  return parisDayKey(date) === relativeDayKey(0) ? timeFormat.format(date) : shortDayFormat.format(date);
+  return parisDayKey(date) === parisDayKey(new Date()) ? timeFormat.format(date) : shortDayFormat.format(date);
 }
 
 function formatDaySeparator(dayKey: string, sample: Date): string {
-  if (dayKey === relativeDayKey(0)) return "Aujourd'hui";
-  if (dayKey === relativeDayKey(1)) return "Hier";
+  const today = parisDayKey(new Date());
+  if (dayKey === today) return "Aujourd'hui";
+  if (dayKey === previousDayKey(today)) return "Hier";
   return longDayFormat.format(sample);
 }
 
@@ -99,17 +96,26 @@ export function ConversationInbox({
   const dayParam = day === ALL_DAYS ? null : day;
   // Le premier rendu vient du serveur : pas de rechargement immédiat au montage.
   const isFirstLoad = useRef(true);
+  // Chaque résultat d'action incrémente ce compteur : une réponse de polling
+  // partie avant ne doit pas le remplacer par un état plus ancien.
+  const updateGeneration = useRef(0);
+
+  function applyActionResult(next: ConversationView[]) {
+    updateGeneration.current += 1;
+    setConversations(next);
+  }
 
   useEffect(() => {
     let cancelled = false;
     const url = `/api/client-services/${clientServiceId}/conversations${dayParam ? `?day=${dayParam}` : ""}`;
     async function poll() {
+      const generation = updateGeneration.current;
       try {
         const res = await fetch(url);
         if (!res.ok) return;
         const json: { conversations: ConversationView[]; days: ConversationDay[] } = await res.json();
         if (!cancelled) {
-          setConversations(json.conversations);
+          if (generation === updateGeneration.current) setConversations(json.conversations);
           setDays(json.days);
         }
       } catch {
@@ -135,6 +141,9 @@ export function ConversationInbox({
     setMobileView("list");
   }
 
+  const limit = day === ALL_DAYS ? CONVERSATION_LIMIT : FILTERED_CONVERSATION_LIMIT;
+  const truncated = conversations.length >= limit;
+
   // Si la conversation ouverte sort du filtre, la première de la liste prend sa place.
   const selected = conversations.find((c) => c.id === selectedId) ?? conversations[0] ?? null;
 
@@ -157,7 +166,11 @@ export function ConversationInbox({
         <p role="status" className="text-sm text-muted-foreground">
           {filtering
             ? "Mise à jour de la liste…"
-            : `${plural(conversations.length, "conversation")}${day === ALL_DAYS ? "" : ` ${dayPhrase(day)}`}`}
+            : truncated
+              ? day === ALL_DAYS
+                ? `Les ${limit} conversations les plus récentes. Choisissez un jour pour voir les autres.`
+                : `Les ${limit} conversations les plus récentes ${dayPhrase(day)}.`
+              : `${plural(conversations.length, "conversation")}${day === ALL_DAYS ? "" : ` ${dayPhrase(day)}`}`}
         </p>
         <Select
           value={day}
@@ -226,8 +239,9 @@ export function ConversationInbox({
                         setMobileView("thread");
                       }}
                       className={cn(
-                        "flex w-full items-start gap-3 px-3 py-3 text-left transition-colors duration-150 hover:bg-muted/60 focus-visible:focus-ring focus-visible:-outline-offset-2 motion-reduce:transition-none",
-                        isSelected && "bg-muted"
+                        "flex w-full items-start gap-3 px-3 py-3 text-left transition-colors duration-150 hover:bg-muted/40 focus-visible:focus-ring focus-visible:-outline-offset-2 motion-reduce:transition-none",
+                        // Fond léger et filet vert : « À répondre » garde un contraste suffisant.
+                        isSelected && "bg-muted/50 shadow-[inset_3px_0_0_var(--primary)]"
                       )}
                     >
                       <span
@@ -287,7 +301,7 @@ export function ConversationInbox({
                 visible={mobileView === "thread"}
                 onBack={() => setMobileView("list")}
                 day={dayParam}
-                onUpdate={setConversations}
+                onUpdate={applyActionResult}
               />
             ) : (
               <p className="m-auto p-6 text-sm text-muted-foreground">Choisissez une conversation.</p>
@@ -335,14 +349,18 @@ function ConversationThread({
         onUpdate(unwrap(await action(conversation.id, day)));
         if (!conversation.humanTakeover) textareaRef.current?.focus();
       } catch (err) {
-        toast.error(getErrorMessage(err, "La conversation n'a pas pu être mise à jour."));
+        toast.error(getErrorMessage(err, "La conversation n'a pas pu être mise à jour. Réessayez dans un instant."));
       }
     });
   }
 
   function send() {
     const text = draft.trim();
-    if (!text || isSending) return;
+    if (isSending) return;
+    if (!text) {
+      textareaRef.current?.focus();
+      return;
+    }
     setPendingText(text);
     setDraft("");
     startSending(async () => {
@@ -350,7 +368,7 @@ function ConversationThread({
         onUpdate(unwrap(await sendConversationReply(conversation.id, text, day)));
       } catch (err) {
         setDraft(text);
-        toast.error(getErrorMessage(err, "Le message n'a pas pu être envoyé."));
+        toast.error(getErrorMessage(err, "Le message n'a pas pu être envoyé. Réessayez dans un instant."));
       } finally {
         setPendingText(null);
       }
@@ -406,7 +424,13 @@ function ConversationThread({
         </Button>
       </header>
 
-      <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto bg-background/60 px-3 py-4 sm:px-4">
+      {/* role="log" : les messages qui arrivent pendant la lecture sont annoncés. */}
+      <div
+        ref={scrollRef}
+        role="log"
+        aria-label={`Messages avec ${conversation.contact}`}
+        className="min-h-0 flex-1 overflow-y-auto bg-background/60 px-3 py-4 sm:px-4"
+      >
         <ol aria-label={`Échanges avec ${conversation.contact}`} className="space-y-1">
           {days.map((day) => (
             <Fragment key={day.key}>
@@ -471,7 +495,7 @@ function ConversationThread({
               <Button
                 type="submit"
                 size="icon-lg"
-                disabled={!draft.trim() || isSending}
+                disabled={isSending}
                 aria-label="Envoyer la réponse"
                 className="rounded-lg"
               >
@@ -542,8 +566,8 @@ function MessageBubble({
         {text}
         <span
           className={cn(
-            "mt-1 block text-right text-[0.6875rem] tabular-nums",
-            author === "HUMAN" ? "text-primary-foreground/80" : "text-muted-foreground"
+            "mt-1 block text-right text-xs tabular-nums",
+            author === "HUMAN" ? "text-primary-foreground" : "text-muted-foreground"
           )}
         >
           {time}

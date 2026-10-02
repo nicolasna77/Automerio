@@ -90,6 +90,23 @@ export async function sendConversationReply(
       );
     }
 
+    // Le message est enregistré avant l'envoi : si l'écriture échouait après
+    // un envoi réussi, le client réessaierait et le contact le recevrait deux
+    // fois. Répondre soi-même vaut reprise de main : l'assistant ne doit pas
+    // contredire la réponse au message suivant.
+    const now = new Date();
+    const [message] = await db.$transaction([
+      db.conversationMessage.create({
+        data: { conversationId, direction: "OUTBOUND", text, sentById: userId, createdAt: now },
+        select: { id: true },
+      }),
+      db.conversation.update({
+        where: { id: conversationId },
+        data: { lastMessageAt: now, humanTakeoverAt: conversation.humanTakeoverAt ?? now },
+      }),
+    ]);
+
+    let failure: ActionError | null = null;
     try {
       const sent = await sendToContact(
         conversation.clientService,
@@ -98,26 +115,19 @@ export async function sendConversationReply(
         text
       );
       if (!sent) {
-        throw new ActionError("Le compte n'est plus connecté. Reconnectez-le depuis l'onglet Connecteurs.");
+        failure = new ActionError("Le compte n'est plus connecté. Reconnectez-le depuis l'onglet Connecteurs.");
       }
     } catch (err) {
-      if (err instanceof ActionError) throw err;
       console.error(`[conversations] échec d'envoi dans ${conversationId} :`, err);
-      throw new ActionError("Le message n'a pas pu être envoyé. Réessayez dans un instant.");
+      failure = new ActionError("Le message n'a pas pu être envoyé. Réessayez dans un instant.");
     }
-
-    // Répondre soi-même vaut reprise de main : l'assistant ne doit pas
-    // contredire la réponse au message suivant.
-    const now = new Date();
-    await db.$transaction([
-      db.conversationMessage.create({
-        data: { conversationId, direction: "OUTBOUND", text, sentById: userId, createdAt: now },
-      }),
-      db.conversation.update({
-        where: { id: conversationId },
-        data: { lastMessageAt: now, humanTakeoverAt: conversation.humanTakeoverAt ?? now },
-      }),
-    ]);
+    if (failure) {
+      // Rien n'est parti : le message ne doit pas rester dans l'historique.
+      await db.conversationMessage.delete({ where: { id: message.id } }).catch((err) =>
+        console.error(`[conversations] message non envoyé ${message.id} non supprimé :`, err)
+      );
+      throw failure;
+    }
     return refreshedList(conversation.clientServiceId, day);
   });
 }
