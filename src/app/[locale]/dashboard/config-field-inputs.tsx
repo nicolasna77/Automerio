@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Check, CalendarDays, Clock, Copy, FileText, Plus, Trash2, X } from "lucide-react";
@@ -267,6 +268,8 @@ export function WeeklyHoursField({
   unset?: boolean;
   onChange: (value: WeeklyHours) => void;
 }) {
+  const t = useTranslations("Dashboard.weeklyHours");
+
   function updateDay(day: Day, patch: Partial<WeeklyHours[Day]>) {
     onChange({ ...value, [day]: { ...value[day], ...patch } });
   }
@@ -312,8 +315,7 @@ export function WeeklyHoursField({
 
       {unset && (
         <p id={`${id}-unset`} className="rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
-          Horaires non précisés : l&apos;assistant répond à toute heure. Choisissez un horaire courant ou
-          ouvrez vos jours pour qu&apos;il annonce vos heures et ce que vous faites en dehors.
+          {t("unsetNotice")}
         </p>
       )}
       <div
@@ -341,7 +343,7 @@ export function WeeklyHoursField({
                   </label>
                 </div>
                 {hours.closed ? (
-                  <span className="text-sm text-muted-foreground">{unset ? "Non précisé" : "Fermé"}</span>
+                  <span className="text-sm text-muted-foreground">{unset ? t("unsetDay") : t("closed")}</span>
                 ) : (
                   <div className="flex items-center gap-2">
                     <TimePicker
