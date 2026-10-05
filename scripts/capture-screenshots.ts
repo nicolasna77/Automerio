@@ -160,6 +160,90 @@ const DEMO_SETTINGS = {
   ],
 };
 
+// Conversations WhatsApp de démonstration : numéros des plages réservées à la
+// fiction (06 39 98), réponses de l'assistant et une reprise en main.
+const DEMO_CONVERSATIONS = [
+  {
+    contactId: "+33639980611",
+    minutesAgo: 25,
+    takeover: false,
+    messages: [
+      { direction: "INBOUND", text: "Bonjour, vous intervenez le samedi ?" },
+      { direction: "OUTBOUND", text: "Bonjour ! Oui, Plomberie Lefèvre intervient le samedi de 9 h à 12 h. Souhaitez-vous un rendez-vous ?" },
+      { direction: "INBOUND", text: "Oui, pour un robinet qui fuit." },
+      { direction: "OUTBOUND", text: "C'est noté. Pouvez-vous me donner votre adresse ? Marc vous confirme le créneau dans la journée." },
+    ],
+  },
+  {
+    contactId: "+33639980724",
+    minutesAgo: 95,
+    takeover: true,
+    messages: [
+      { direction: "INBOUND", text: "Combien coûte le remplacement d'un chauffe-eau de 200 litres ?" },
+      { direction: "OUTBOUND", text: "Le prix dépend du modèle et de l'installation. Je transmets votre demande pour un devis." },
+      { direction: "OUTBOUND", text: "Bonjour, c'est Marc. Je peux passer jeudi à 14 h pour le devis, cela vous convient ?", fromOwner: true },
+    ],
+  },
+  {
+    contactId: "+33639980857",
+    minutesAgo: 60 * 20,
+    takeover: false,
+    messages: [
+      { direction: "INBOUND", text: "Vous intervenez à Villeurbanne ?" },
+      { direction: "OUTBOUND", text: "Oui, Plomberie Lefèvre intervient à Lyon et dans les communes voisines, dont Villeurbanne." },
+    ],
+  },
+] as const;
+
+async function seedDemoConversations(db: PrismaClient): Promise<string> {
+  const user = await db.user.findUniqueOrThrow({ where: { email: DEMO_EMAIL } });
+  const telephony = await db.clientService.findFirstOrThrow({
+    where: { userId: user.id, service: { slug: "standard-telephonique-ia" } },
+  });
+  const service = await db.service.findUniqueOrThrow({ where: { slug: "assistant-whatsapp" } });
+  const name = "Réponses automatiques sur WhatsApp";
+  const clientService = await db.clientService.upsert({
+    where: { organizationId_serviceId_name: { organizationId: telephony.organizationId, serviceId: service.id, name } },
+    update: { status: "ACTIVE", whatsappPhoneNumberId: `${DEMO_PREFIX}whatsapp`, whatsappDisplayNumber: "+33199001234" },
+    create: {
+      userId: user.id,
+      organizationId: telephony.organizationId,
+      serviceId: service.id,
+      name,
+      status: "ACTIVE",
+      activatedAt: new Date(),
+      whatsappPhoneNumberId: `${DEMO_PREFIX}whatsapp`,
+      whatsappDisplayNumber: "+33199001234",
+    },
+  });
+  await db.conversation.deleteMany({ where: { clientServiceId: clientService.id } });
+  const now = Date.now();
+  for (const conversation of DEMO_CONVERSATIONS) {
+    const end = now - conversation.minutesAgo * 60_000;
+    const step = 4 * 60_000;
+    const start = end - (conversation.messages.length - 1) * step;
+    await db.conversation.create({
+      data: {
+        clientServiceId: clientService.id,
+        channel: "WHATSAPP",
+        contactId: conversation.contactId,
+        lastMessageAt: new Date(end),
+        lastInboundAt: new Date(start),
+        humanTakeoverAt: conversation.takeover ? new Date(end) : null,
+        messages: {
+          create: conversation.messages.map((message, index) => ({
+            direction: message.direction,
+            text: message.text,
+            sentById: "fromOwner" in message && message.fromOwner ? user.id : null,
+            createdAt: new Date(start + index * step),
+          })),
+        },
+      },
+    });
+  }
+  return clientService.id;
+}
+
 // Rendez-vous de la semaine en cours, du lundi au vendredi (jour, heure, durée).
 const DEMO_BOOKINGS = [
   { day: 0, hour: 9, minutes: 60, name: "Claire Vasseur", notes: "Devis chauffe-eau 200 litres." },
@@ -223,7 +307,10 @@ async function capture(
     await page.goto(`${BASE_URL}${path}`);
     await page.waitForLoadState("networkidle");
     // Masque l'indicateur de développement de Next (« N », « Compiling »).
-    await page.addStyleTag({ content: "nextjs-portal { display: none !important; }" });
+    // L'en-tête collant recouvrirait le haut d'une carte capturée seule.
+    await page.addStyleTag({
+      content: "nextjs-portal { display: none !important; } header { position: static !important; }",
+    });
     await page.waitForTimeout(800);
     if (target.prepare) {
       await target.prepare(page);
@@ -247,6 +334,7 @@ async function main() {
   const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL! }) });
   const clientServiceId = await seedDemoCalls(db);
   await seedDemoBookings(db);
+  const whatsappServiceId = await seedDemoConversations(db);
   await db.$disconnect();
 
   await mkdir(OUT_DIR, { recursive: true });
@@ -265,6 +353,9 @@ async function main() {
     viewport: { width: 1024, height: 800 },
     clip: { x: 256, y: 64, width: 768, height: 576 },
     prepare: (page) => page.getByRole("button", { name: "Semaine" }).click(),
+  });
+  await capture(page, `/dashboard/services/${whatsappServiceId}`, "dashboard-conversations", {
+    cardHeading: "Conversations",
   });
   await capture(page, `/dashboard/services/${clientServiceId}/configuration`, "dashboard-settings", {
     clip: { x: 256, y: 64, width: 1024, height: 640 },

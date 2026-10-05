@@ -287,11 +287,15 @@
       },
       "dashboard": {
         "heading": "Vous voyez tout ce que fait votre assistant",
-        "lead": "Chaque appel, chaque rendez-vous et chaque réglage au même endroit, sur ordinateur comme sur téléphone.",
+        "lead": "Chaque appel, chaque message, chaque rendez-vous et chaque réglage au même endroit, sur ordinateur comme sur téléphone.",
         "items": {
           "calls": {
             "title": "Le résumé de chaque appel",
             "description": "Le motif, le nom de l'appelant, ce qui a été fait, et les appels qui attendent votre rappel."
+          },
+          "conversations": {
+            "title": "Les conversations écrites",
+            "description": "Les réponses de l'assistant sur WhatsApp, Messenger et Instagram. Vous reprenez la main sur un contact quand vous voulez."
           },
           "calendar": {
             "title": "Les rendez-vous pris pour vous",
@@ -820,6 +824,7 @@
     "demoCaption": "Exemple avec des données de démonstration.",
     "overviewAlt": "Tableau de bord Automerio : les appels à rappeler, le nombre d'appels du mois et la dépense mensuelle.",
     "callsAlt": "Récapitulatif des appels d'un standard téléphonique : motif, nom de l'appelant, issue de l'appel et appels à rappeler.",
+    "conversationsAlt": "Boîte de conversations WhatsApp : trois contacts, les réponses de l'assistant et une conversation reprise en main par le client.",
     "calendarAlt": "Calendrier de la semaine avec les rendez-vous pris par téléphone : nom du client, heure et solution utilisée.",
     "settingsAlt": "Réglages du standard téléphonique : motifs d'appel et numéro vers lequel transférer chacun."
   },
