@@ -14,7 +14,7 @@ import {
   isDemoCallDryRun,
   normalizeFrenchPhone,
 } from "@/lib/demo-call";
-import { ActionError, runAction } from "@/lib/run-action";
+import { ActionError, actionError, runAction } from "@/lib/run-action";
 import { placeDemoCall } from "@/lib/twilio";
 
 const TESTABLE_STATUSES = new Set(["CONFIGURING", "ACTIVE"]);
@@ -23,7 +23,7 @@ export async function requestTestCallAction(clientServiceId: string, phone: stri
   return runAction(async () => {
     const session = await requireUser();
     if (!(await assertCanReadClientService(clientServiceId, session.user.id))) {
-      throw new ActionError("Cette solution n'appartient pas à votre organisation.");
+      throw actionError("notYourService");
     }
 
     const clientService = await db.clientService.findUnique({
@@ -31,18 +31,18 @@ export async function requestTestCallAction(clientServiceId: string, phone: stri
       select: { status: true, service: { select: { slug: true } } },
     });
     if (!clientService || !TELEPHONY_SERVICE_SLUGS.has(clientService.service.slug)) {
-      throw new ActionError("Seules les solutions téléphoniques se testent par un appel.");
+      throw actionError("phoneOnlyTest");
     }
     if (!TESTABLE_STATUSES.has(clientService.status)) {
-      throw new ActionError("Le test est disponible une fois le paiement confirmé.");
+      throw actionError("testAfterPayment");
     }
 
     const to = normalizeFrenchPhone(phone);
     if (!to) {
-      throw new ActionError("Saisissez un numéro de mobile ou de fixe français, par exemple 06 12 34 56 78.");
+      throw actionError("frenchNumberRequired");
     }
     if (!isDemoCallAvailable()) {
-      throw new ActionError("Le test d'appel n'est pas disponible pour le moment. Réessayez plus tard.");
+      throw actionError("testUnavailable");
     }
 
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
@@ -50,7 +50,7 @@ export async function requestTestCallAction(clientServiceId: string, phone: stri
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${clientServiceId}))`;
       const recent = await tx.testCall.count({ where: { clientServiceId, createdAt: { gte: since } } });
       if (recent >= TEST_CALLS_PER_DAY) {
-        throw new ActionError(`Vous avez fait ${TEST_CALLS_PER_DAY} tests aujourd'hui. Réessayez demain.`);
+        throw actionError("testLimit", { count: TEST_CALLS_PER_DAY });
       }
       const testCall = await tx.testCall.create({
         data: { clientServiceId, requestedById: session.user.id },
@@ -76,7 +76,7 @@ export async function requestTestCallAction(clientServiceId: string, phone: stri
       const code = err && typeof err === "object" && "code" in err ? err.code : "inconnu";
       console.error(`[test] échec de l'appel sortant ${testCall.id} (code Twilio ${code}).`);
       await db.testCall.delete({ where: { id: testCall.id } });
-      throw new ActionError("L'appel n'a pas pu être lancé. Vérifiez le numéro, puis réessayez.");
+      throw actionError("callFailed");
     }
 
     return { displayNumber: formatFrenchPhone(to), remaining: TEST_CALLS_PER_DAY - recent - 1 };

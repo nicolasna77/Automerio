@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { requireUser } from "@/lib/session";
-import { ActionError, runAction } from "@/lib/run-action";
+import { ActionError, actionError, runAction } from "@/lib/run-action";
 import { checkRateLimit } from "@/lib/rate-limit";
 import {
   canChangeRole,
@@ -17,15 +17,13 @@ import {
   type Verdict,
 } from "@/lib/organization-roles";
 
-const TOO_MANY_ATTEMPTS = "Trop de tentatives. Réessayez dans quelques minutes.";
-
 async function loadTeam(organizationId: string, actorUserId: string) {
   const members = await db.member.findMany({
     where: { organizationId },
     select: { id: true, userId: true, role: true },
   });
   const actor = members.find((m) => m.userId === actorUserId);
-  if (!actor) throw new ActionError("Vous n'avez pas accès à cette organisation.");
+  if (!actor) throw actionError("noOrganizationAccess");
   return { members, actor };
 }
 
@@ -37,7 +35,7 @@ type TeamRow = TeamMember & { id: string };
 
 function findTarget(members: TeamRow[], memberId: string): TeamRow {
   const target = members.find((m) => m.id === memberId);
-  if (!target) throw new ActionError("Ce membre ne fait pas partie de l'organisation.");
+  if (!target) throw actionError("notAMember");
   return target;
 }
 
@@ -49,15 +47,15 @@ export async function inviteMemberAction(
   return runAction(async () => {
     const session = await requireUser();
     if (!(await checkRateLimit("organization-invite", session.user.id, "1 h", 20))) {
-      throw new ActionError(TOO_MANY_ATTEMPTS);
+      throw actionError("tooManyTries");
     }
 
     const trimmedEmail = email.trim().toLowerCase();
     if (!trimmedEmail.includes("@")) {
-      throw new ActionError("Cette adresse e-mail n'est pas valide.");
+      throw actionError("invalidEmail");
     }
     if (!isInvitableRole(role)) {
-      throw new ActionError("Ce rôle ne peut pas être attribué ici.");
+      throw actionError("roleNotAllowed");
     }
 
     const { members, actor } = await loadTeam(organizationId, session.user.id);
@@ -68,10 +66,10 @@ export async function inviteMemberAction(
       select: { id: true },
     });
     if (alreadyMember) {
-      throw new ActionError("Cette personne fait déjà partie de l'organisation.");
+      throw actionError("alreadyMember");
     }
     if (members.length === 0) {
-      throw new ActionError("Cette organisation n'a aucun membre.");
+      throw actionError("noMembers");
     }
 
     try {
@@ -81,7 +79,7 @@ export async function inviteMemberAction(
       });
     } catch (err) {
       console.error("[organisation] invitation refusée :", err);
-      throw new ActionError("L'invitation n'a pas pu être envoyée. Réessayez.");
+      throw actionError("inviteFailed");
     }
 
     revalidatePath("/dashboard/organization");
@@ -102,7 +100,7 @@ export async function cancelInvitationAction(
       select: { organizationId: true },
     });
     if (!invitation || invitation.organizationId !== organizationId) {
-      throw new ActionError("Cette invitation n'existe plus.");
+      throw actionError("invitationGone");
     }
 
     await auth.api.cancelInvitation({
@@ -167,7 +165,7 @@ export async function transferOwnershipAction(organizationId: string, memberId: 
         data: { role: "admin" },
       });
       if (demoted.count === 0) {
-        throw new ActionError("Votre rôle a changé entre-temps. Rechargez la page.");
+        throw actionError("roleChangedMeanwhile");
       }
       await tx.member.update({ where: { id: target.id }, data: { role: "owner" } });
     });
