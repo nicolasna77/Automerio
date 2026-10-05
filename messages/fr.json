@@ -290,22 +290,27 @@
         "lead": "Chaque appel, chaque message, chaque rendez-vous et chaque réglage au même endroit, sur ordinateur comme sur téléphone.",
         "items": {
           "calls": {
+            "tab": "Appels",
             "title": "Le résumé de chaque appel",
             "description": "Le motif, le nom de l'appelant, ce qui a été fait, et les appels qui attendent votre rappel."
           },
           "conversations": {
+            "tab": "Conversations",
             "title": "Les conversations écrites",
             "description": "Les réponses de l'assistant sur WhatsApp, Messenger et Instagram. Vous reprenez la main sur un contact quand vous voulez."
           },
           "calendar": {
+            "tab": "Calendrier",
             "title": "Les rendez-vous pris pour vous",
             "description": "Ceux que l'assistant a pris au téléphone s'affichent dans votre calendrier, avec le motif et le numéro du client."
           },
           "settings": {
+            "tab": "Réglages",
             "title": "Des réglages que vous modifiez seul",
             "description": "Horaires, message d'accueil, motifs de transfert : vous changez ce que fait l'assistant quand vous voulez."
           }
-        }
+        },
+        "tabsLabel": "Vues du tableau de bord"
       }
     },
     "integrations": {

@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
-import { ProductScreenshot } from "@/components/product-screenshot";
 import { cn } from "@/lib/utils";
 import { BriefIllustration, SetupIllustration } from "./method-illustrations";
+import { DashboardTabs } from "./dashboard-tabs";
 
 // Deux colonnes plutôt qu'un zigzag de quatre rangées : ce qui revient au
 // client, puis ce que fait l'équipe. Les numéros d'étape gardent l'ordre.
@@ -24,14 +24,12 @@ const COLUMNS = [
   },
 ] as const;
 
-// Colonne de gauche : les échanges avec les clients, au téléphone et par
-// message ; à droite, le calendrier et les réglages.
-const LEFT_SHOTS = [
+// Vues du tableau de bord, dans l'ordre des onglets : les échanges avec les
+// clients d'abord, puis l'agenda et les réglages. Dimensions réelles des
+// captures (px CSS), pour ne jamais les agrandir.
+const SHOTS = [
   { key: "calls", name: "dashboard-calls", width: 632, height: 650, alt: "callsAlt", url: "automerio.com/dashboard/services" },
   { key: "conversations", name: "dashboard-conversations", width: 632, height: 762, alt: "conversationsAlt", url: "automerio.com/dashboard/services" },
-] as const;
-
-const SHOTS = [
   { key: "calendar", name: "dashboard-calendar", width: 768, height: 576, alt: "calendarAlt", url: "automerio.com/dashboard/calendar" },
   { key: "settings", name: "dashboard-settings", width: 1024, height: 640, alt: "settingsAlt", url: "automerio.com/dashboard/services" },
 ] as const;
@@ -93,8 +91,8 @@ export async function MethodSection() {
           })}
         </div>
 
-        {/* Le suivi (étape 04) : appels et conversations à gauche, calendrier
-            et réglages à droite. */}
+        {/* Le suivi (étape 04) : une vue du tableau de bord à la fois, en
+            grand, au choix par onglet. */}
         <div className="mt-20 sm:mt-28">
           <div className="max-w-2xl">
             <h3 className="text-2xl font-semibold tracking-tight text-balance text-foreground sm:text-3xl">
@@ -102,50 +100,17 @@ export async function MethodSection() {
             </h3>
             <p className="mt-3 text-lg leading-relaxed text-muted-foreground">{t("dashboard.lead")}</p>
           </div>
-          <div className="mt-10 grid gap-10 lg:grid-cols-2 lg:gap-8">
-            <ul className="grid min-w-0 content-start gap-10 lg:gap-8">
-              {LEFT_SHOTS.map((shot) => (
-                <li key={shot.key} className="min-w-0">
-                  <h4 className="text-lg font-semibold tracking-tight text-foreground">
-                    {t(`dashboard.items.${shot.key}.title`)}
-                  </h4>
-                  <p className="mt-1.5 mb-5 leading-relaxed text-muted-foreground">
-                    {t(`dashboard.items.${shot.key}.description`)}
-                  </p>
-                  <ProductScreenshot
-                    name={shot.name}
-                    width={shot.width}
-                    height={shot.height}
-                    alt={tShots(shot.alt)}
-                    caption={tShots("demoCaption")}
-                    sizes="(min-width: 1152px) 548px, 100vw"
-                    windowUrl={shot.url}
-                  />
-                </li>
-              ))}
-            </ul>
-            <ul className="grid min-w-0 content-start gap-10 lg:gap-8">
-              {SHOTS.map((shot) => (
-                <li key={shot.key} className="min-w-0">
-                  <h4 className="text-lg font-semibold tracking-tight text-foreground">
-                    {t(`dashboard.items.${shot.key}.title`)}
-                  </h4>
-                  <p className="mt-1.5 mb-5 leading-relaxed text-muted-foreground">
-                    {t(`dashboard.items.${shot.key}.description`)}
-                  </p>
-                  <ProductScreenshot
-                    name={shot.name}
-                    width={shot.width}
-                    height={shot.height}
-                    alt={tShots(shot.alt)}
-                    caption={tShots("demoCaption")}
-                    sizes="(min-width: 1152px) 548px, 100vw"
-                    windowUrl={shot.url}
-                  />
-                </li>
-              ))}
-            </ul>
-          </div>
+          <DashboardTabs
+            label={t("dashboard.tabsLabel")}
+            caption={tShots("demoCaption")}
+            shots={SHOTS.map((shot) => ({
+              ...shot,
+              tab: t(`dashboard.items.${shot.key}.tab`),
+              title: t(`dashboard.items.${shot.key}.title`),
+              description: t(`dashboard.items.${shot.key}.description`),
+              alt: tShots(shot.alt),
+            }))}
+          />
         </div>
       </div>
     </section>

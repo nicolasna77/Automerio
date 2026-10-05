@@ -34,10 +34,11 @@ export function BeforeAfterTabs({
     tabs.current[next]?.focus();
   }
 
-  function handleKey(event: KeyboardEvent<HTMLButtonElement>) {
+  // Les flèches partent de l'onglet qui a reçu la touche.
+  function handleKey(event: KeyboardEvent<HTMLButtonElement>, index: number) {
     const moves: Record<string, number> = {
-      ArrowRight: selected + 1,
-      ArrowLeft: selected - 1,
+      ArrowRight: index + 1,
+      ArrowLeft: index - 1,
       Home: 0,
       End: cases.length - 1,
     };
@@ -68,7 +69,7 @@ export function BeforeAfterTabs({
             aria-controls={`${id}-panel`}
             tabIndex={index === selected ? 0 : -1}
             onClick={() => setSelected(index)}
-            onKeyDown={handleKey}
+            onKeyDown={(event) => handleKey(event, index)}
             className={cn(
               "rounded-md px-3 py-1.5 text-sm font-medium transition-colors focus-visible:focus-ring",
               index === selected
