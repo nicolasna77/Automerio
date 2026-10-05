@@ -1,12 +1,13 @@
 import { getTranslations } from "next-intl/server";
+import { getPriceFormatter } from "@/lib/price-format-server";
 import { PhoneCall, Wallet, Zap } from "lucide-react";
 import { StatStrip, type Stat } from "@/components/stat-strip";
 import { db } from "@/lib/db";
 import { formatEuroAmount } from "@/lib/catalog";
-import { excludingVatSuffix } from "@/lib/vat";
 
 export async function OverviewStats({ organizationId }: { organizationId: string }) {
   const t = await getTranslations("Dashboard.overview.stats");
+  const price = await getPriceFormatter();
   const now = new Date();
   const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
@@ -48,7 +49,7 @@ export async function OverviewStats({ organizationId }: { organizationId: string
       value: formatEuroAmount(monthlySpendCents),
       unit: t("perMonthUnit"),
       note: [
-        excludingVatSuffix(monthlySpendCents),
+        price.excludingVatSuffix(monthlySpendCents),
         settingUpNote ? t("excludingSettingUp") : null,
       ]
         .filter((part): part is string => part !== null)

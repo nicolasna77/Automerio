@@ -1,10 +1,11 @@
 import { CreditCard } from "lucide-react";
+import { useLabels } from "@/hooks/use-labels";
+import { usePriceFormatter } from "@/hooks/use-price-formatter";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { MonthlyPrice } from "@/components/monthly-price";
-import { formatUsageCap, formatUsageUnits } from "@/lib/usage-cap";
-import { describeNextCharge, describePeriod, isRunning, type MySubscription } from "@/lib/subscriptions";
+import { isRunning, type MySubscription } from "@/lib/subscriptions";
 import { ChangeQuotaDialog } from "./change-quota-dialog";
 import { BillingPortalButton } from "./payments/billing-portal-button";
 import { BILLING_SECTION_ID } from "./billing-section";
@@ -20,6 +21,8 @@ export function ServiceBillingCard({
   organizationId: string;
 }) {
   const t = useTranslations("Dashboard.settingsCards.billing");
+  const labels = useLabels();
+  const price = usePriceFormatter();
   const running = isRunning(subscription);
   const adjustable = running && subscription.tier !== null && subscription.cap !== null;
 
@@ -44,7 +47,7 @@ export function ServiceBillingCard({
             <MonthlyPrice cents={subscription.monthlyPriceCents} />
             {running && (
               <span className="mt-0.5 block text-xs text-muted-foreground">
-                {describePeriod(subscription)}
+                {labels.period(subscription.period)}
               </span>
             )}
           </BillingRow>
@@ -63,11 +66,11 @@ export function ServiceBillingCard({
               }
             >
               {t.rich("perMonth", {
-                units: formatUsageUnits(subscription.cap.includedUnits, subscription.cap.unit),
+                units: price.usageUnits(subscription.cap.includedUnits, subscription.cap.unit),
                 volume: (chunks) => <span className="font-mono tabular-nums">{chunks}</span>,
               })}
               <span className="mt-0.5 block text-xs text-muted-foreground">
-                {formatUsageCap(subscription.cap)}
+                {price.usageCap(subscription.cap)}
               </span>
             </BillingRow>
           )}
@@ -80,7 +83,7 @@ export function ServiceBillingCard({
           </BillingRow>
 
           <BillingRow label={t("invoicing")}>
-            {describeNextCharge(subscription)}
+            {labels.nextCharge(subscription, price.withVat(subscription.monthlyPriceCents))}
             <Link
               href="/dashboard/payments"
               className="mt-0.5 block text-xs text-primary underline-offset-4 hover:underline"

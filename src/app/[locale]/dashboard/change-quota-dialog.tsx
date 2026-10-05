@@ -1,5 +1,6 @@
 "use client";
 
+import { usePriceFormatter } from "@/hooks/use-price-formatter";
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { useRouter } from "@/i18n/navigation";
@@ -17,8 +18,6 @@ import {
 import { SubscriptionMinutesSlider } from "@/components/subscription/subscription-minutes-slider";
 import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
-import { formatUsageUnits } from "@/lib/usage-cap";
-import { formatCentsWithVat } from "@/lib/vat";
 import {
   calculateMonthlyPriceCents,
   type SubscriptionTier,
@@ -38,6 +37,7 @@ export function ChangeQuotaDialog({
   const tSimulator = useTranslations("PriceSimulator");
   const t = useTranslations("Dashboard.quota");
   const tCommon = useTranslations("Common");
+  const price = usePriceFormatter();
   const [open, setOpen] = useState(false);
   const [units, setUnits] = useState(currentUnits);
   const [pending, startTransition] = useTransition();
@@ -55,10 +55,10 @@ export function ChangeQuotaDialog({
         toast.success(
           immediateChargeCents > 0
             ? t("raisedWithCharge", {
-                volume: formatUsageUnits(units, tier.unit),
-                amount: formatCentsWithVat(immediateChargeCents),
+                volume: price.usageUnits(units, tier.unit),
+                amount: price.withVat(immediateChargeCents),
               })
-            : t("changed", { volume: formatUsageUnits(units, tier.unit) })
+            : t("changed", { volume: price.usageUnits(units, tier.unit) })
         );
         setOpen(false);
         router.refresh();
@@ -101,8 +101,8 @@ export function ChangeQuotaDialog({
             {unchanged
               ? t("unchanged")
               : t(nextPrice > currentPrice ? "increase" : "decrease", {
-                  from: formatCentsWithVat(currentPrice),
-                  to: formatCentsWithVat(nextPrice),
+                  from: price.withVat(currentPrice),
+                  to: price.withVat(nextPrice),
                 })}
           </p>
 

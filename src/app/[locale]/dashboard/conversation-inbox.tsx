@@ -1,5 +1,6 @@
 "use client";
 
+import { useLabels } from "@/hooks/use-labels";
 import { Fragment, useEffect, useLayoutEffect, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { ArrowLeft, Bot, Hand, Loader2, MessageSquare, SendHorizontal } from "lucide-react";
@@ -9,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { pollWhileVisible } from "@/lib/poll-while-visible";
 import { parisDayKey } from "@/lib/paris-day";
-import { dayLabel, dayPhrase, previousDayKey } from "@/lib/day-label";
+import { previousDayKey } from "@/lib/day-label";
 import { unwrap } from "@/lib/action-result";
 import { cn, getErrorMessage } from "@/lib/utils";
 import { CONVERSATION_LIMIT, FILTERED_CONVERSATION_LIMIT, MAX_REPLY_LENGTH } from "@/lib/conversation-limits";
@@ -89,6 +90,7 @@ export function ConversationInbox({
   initialDays: ConversationDay[];
 }) {
   const t = useTranslations("Dashboard.conversations");
+  const labels = useLabels();
   const [conversations, setConversations] = useState(initialConversations);
   const [days, setDays] = useState(initialDays);
   const [day, setDay] = useState<string>(ALL_DAYS);
@@ -169,16 +171,16 @@ export function ConversationInbox({
             : truncated
               ? day === ALL_DAYS
                 ? t("truncatedAll", { limit })
-                : t("truncatedDay", { limit, day: dayPhrase(day) })
+                : t("truncatedDay", { limit, day: labels.dayPhrase(day) })
               : day === ALL_DAYS
                 ? t("count", { count: conversations.length })
-                : t("countDay", { count: conversations.length, day: dayPhrase(day) })}
+                : t("countDay", { count: conversations.length, day: labels.dayPhrase(day) })}
         </p>
         <Select
           value={day}
           items={[
             { value: ALL_DAYS, label: t("allDays") },
-            ...days.map((entry) => ({ value: entry.day, label: dayLabel(entry.day) })),
+            ...days.map((entry) => ({ value: entry.day, label: labels.dayLabel(entry.day) })),
           ]}
           onValueChange={(next) => changeDay(next ?? ALL_DAYS)}
         >
@@ -189,7 +191,7 @@ export function ConversationInbox({
             <SelectItem value={ALL_DAYS}>{t("allDays")}</SelectItem>
             {days.map((entry) => (
               <SelectItem key={entry.day} value={entry.day}>
-                {dayLabel(entry.day)}
+                {labels.dayLabel(entry.day)}
                 <span className="sr-only">, </span>
                 <span className="ml-auto pl-3 text-xs tabular-nums text-muted-foreground">
                   {t("count", { count: entry.count })}
@@ -203,7 +205,7 @@ export function ConversationInbox({
       {conversations.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border px-4 py-10 text-center text-sm">
           <p className="text-muted-foreground">
-            {filtering ? t("updating") : t("emptyForDay", { day: dayPhrase(day) })}
+            {filtering ? t("updating") : t("emptyForDay", { day: labels.dayPhrase(day) })}
           </p>
           {!filtering && (
             <Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => changeDay(ALL_DAYS)}>
@@ -329,6 +331,7 @@ function ConversationThread({
   onUpdate: (conversations: ConversationView[]) => void;
 }) {
   const t = useTranslations("Dashboard.conversations");
+  const labels = useLabels();
   const [draft, setDraft] = useState("");
   const [pendingText, setPendingText] = useState<string | null>(null);
   const [isSending, startSending] = useTransition();
@@ -546,6 +549,7 @@ function MessageBubble({
   pending?: boolean;
 }) {
   const t = useTranslations("Dashboard.conversations");
+  const labels = useLabels();
   const fromContact = author === "CONTACT";
   const label =
     author === "ASSISTANT" ? t("authorAssistant") : author === "HUMAN" ? (authorName ?? t("authorYou")) : t("authorContact");

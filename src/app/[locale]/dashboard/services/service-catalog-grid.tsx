@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl";
+import { usePriceFormatter } from "@/hooks/use-price-formatter";
 import { Link } from "@/i18n/navigation";
 import { PackageSearch } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
@@ -7,7 +8,6 @@ import { StatusBadge } from "@/components/status-badge";
 import type { ClientServiceStatus, ServiceDTO } from "@/lib/catalog";
 import { EmptyState } from "@/components/empty-state";
 import { MonthlyPrice } from "@/components/monthly-price";
-import { formatUsageCap } from "@/lib/usage-cap";
 import { ServiceGlyphBadge } from "@/components/service-glyph";
 
 export function ServiceCatalogGrid({
@@ -18,6 +18,7 @@ export function ServiceCatalogGrid({
   statusByServiceId: Record<string, ClientServiceStatus>;
 }) {
   const t = useTranslations("Dashboard.services.catalog");
+  const price = usePriceFormatter();
   if (services.length === 0) {
     return (
       <EmptyState
@@ -54,7 +55,7 @@ export function ServiceCatalogGrid({
                 </div>
                 {service.usageCap && (
                   <p className="mt-0.5 text-xs text-muted-foreground">
-                    {formatUsageCap(service.usageCap)}
+                    {price.usageCap(service.usageCap)}
                   </p>
                 )}
               </CardContent>

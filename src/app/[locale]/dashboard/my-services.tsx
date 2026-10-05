@@ -1,5 +1,6 @@
 "use client";
 
+import { useLabels } from "@/hooks/use-labels";
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Search, Sparkles } from "lucide-react";
@@ -8,11 +9,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import {
-  STATUS_LABELS,
-  type ClientServiceStatus,
-  type MyServiceDTO,
-} from "@/lib/catalog";
+import { type ClientServiceStatus, type MyServiceDTO } from "@/lib/catalog";
 import { MyServiceRow, SOLUTION_COLUMNS } from "./my-service-row";
 import { CATALOGUE_PATH } from "./services/paths";
 
@@ -30,6 +27,7 @@ type StatusFilter = ClientServiceStatus | "all";
 
 export function MyServices({ items }: { items: MyServiceDTO[] }) {
   const t = useTranslations("Dashboard.services.list");
+  const labels = useLabels();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
 
@@ -61,7 +59,7 @@ export function MyServices({ items }: { items: MyServiceDTO[] }) {
     { value: "all", label: t("all"), count: items.length },
     ...STATUS_ORDER.filter((status) => counts.has(status)).map((status) => ({
       value: status,
-      label: STATUS_LABELS[status],
+      label: labels.status(status),
       count: counts.get(status) ?? 0,
     })),
   ];

@@ -1,5 +1,6 @@
 "use client";
 
+import { useLabels } from "@/hooks/use-labels";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { format, parseISO } from "date-fns";
@@ -29,12 +30,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import {
-  WEEK_DAYS,
-  WEEK_DAY_LABELS,
-  type RuleRow,
-  type WeeklyHours,
-} from "@/lib/catalog";
+import { WEEK_DAYS, type RuleRow, type WeeklyHours } from "@/lib/catalog";
 
 export function DateField({
   id,
@@ -273,6 +269,7 @@ export function WeeklyHoursField({
 }) {
   const t = useTranslations("Dashboard.weeklyHours");
   const tHours = useTranslations("Dashboard.fields.hours");
+  const labels = useLabels();
 
   function updateDay(day: Day, patch: Partial<WeeklyHours[Day]>) {
     onChange({ ...value, [day]: { ...value[day], ...patch } });
@@ -343,7 +340,7 @@ export function WeeklyHoursField({
                     onCheckedChange={(open) => updateDay(day, { closed: !open })}
                   />
                   <label htmlFor={switchId} className="text-sm font-medium text-foreground">
-                    {WEEK_DAY_LABELS[day]}
+                    {labels.weekDay(day)}
                   </label>
                 </div>
                 {hours.closed ? (
@@ -352,7 +349,7 @@ export function WeeklyHoursField({
                   <div className="flex items-center gap-2">
                     <TimePicker
                       value={hours.open}
-                      label={tHours("opening", { day: WEEK_DAY_LABELS[day] })}
+                      label={tHours("opening", { day: labels.weekDay(day) })}
                       invalid={invalid}
                       onChange={(open) => updateDay(day, { open })}
                     />
@@ -361,7 +358,7 @@ export function WeeklyHoursField({
                     </span>
                     <TimePicker
                       value={hours.close}
-                      label={tHours("closing", { day: WEEK_DAY_LABELS[day] })}
+                      label={tHours("closing", { day: labels.weekDay(day) })}
                       invalid={invalid}
                       onChange={(close) => updateDay(day, { close })}
                     />
@@ -387,7 +384,7 @@ export function WeeklyHoursField({
           className="h-auto min-h-8 whitespace-normal text-left"
         >
           <Copy aria-hidden="true" data-icon="inline-start" />
-          {tHours("copyFirst", { day: WEEK_DAY_LABELS[firstOpen].toLowerCase() })}
+          {tHours("copyFirst", { day: labels.weekDay(firstOpen).toLowerCase() })}
         </Button>
       )}
     </div>

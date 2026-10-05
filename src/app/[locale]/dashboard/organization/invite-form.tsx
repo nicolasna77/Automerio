@@ -1,5 +1,6 @@
 "use client";
 
+import { useLabels } from "@/hooks/use-labels";
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
@@ -16,17 +17,14 @@ import {
 } from "@/components/ui/select";
 import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
-import {
-  INVITABLE_ROLES,
-  INVITABLE_ROLE_ITEMS,
-  ROLE_DESCRIPTIONS,
-  roleLabel,
-} from "@/lib/organization-roles";
+import { INVITABLE_ROLES } from "@/lib/organization-roles";
 import { inviteMemberAction } from "./actions";
 
 export function InviteForm({ organizationId }: { organizationId: string }) {
   const router = useRouter();
   const t = useTranslations("Dashboard.organization.inviteForm");
+  const labels = useLabels();
+  const roleItems = Object.fromEntries(INVITABLE_ROLES.map((value) => [value, labels.role(value)]));
   const tCommon = useTranslations("Common");
   const [pending, startTransition] = useTransition();
   const [email, setEmail] = useState("");
@@ -66,7 +64,7 @@ export function InviteForm({ organizationId }: { organizationId: string }) {
           <Label htmlFor="invite-role">{t("role")}</Label>
           <Select
             value={role}
-            items={INVITABLE_ROLE_ITEMS}
+            items={roleItems}
             onValueChange={(value) => value && setRole(value)}
             disabled={pending}
           >
@@ -76,7 +74,7 @@ export function InviteForm({ organizationId }: { organizationId: string }) {
             <SelectContent>
               {INVITABLE_ROLES.map((value) => (
                 <SelectItem key={value} value={value}>
-                  {roleLabel(value)}
+                  {labels.role(value)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -87,7 +85,7 @@ export function InviteForm({ organizationId }: { organizationId: string }) {
         </Button>
       </div>
       <p className="max-w-xl text-xs leading-relaxed text-muted-foreground">
-        {t("help", { roleDescription: ROLE_DESCRIPTIONS[role] ?? "" })}
+        {t("help", { roleDescription: labels.roleDescription(role) ?? "" })}
       </p>
     </form>
   );

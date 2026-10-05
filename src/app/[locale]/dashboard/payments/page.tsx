@@ -1,4 +1,5 @@
 import { titleMetadata } from "@/i18n/metadata";
+import { getPriceFormatter } from "@/lib/price-format-server";
 import { FileText, TriangleAlert } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { useTranslations } from "next-intl";
@@ -21,7 +22,7 @@ import { formatDate, formatEuroAmount } from "@/lib/catalog";
 import { getMyInvoices, type InvoiceDTO } from "../get-invoices";
 import { organizationCustomerId } from "@/lib/organization-billing";
 import { BillingPortalButton } from "./billing-portal-button";
-import { VAT_PERCENTAGE, excludingVatSuffix } from "@/lib/vat";
+import { VAT_PERCENTAGE } from "@/lib/vat";
 import { PageHeader, PageShell } from "@/components/page-shell";
 
 export const generateMetadata = titleMetadata("payments");
@@ -54,6 +55,7 @@ export default async function PaiementsPage() {
     getTranslations("Dashboard.payments"),
     getTranslations("Dashboard.subscriptions"),
   ]);
+  const price = await getPriceFormatter();
 
   return (
     <PageShell size="wide">
@@ -127,7 +129,7 @@ export default async function PaiementsPage() {
                     </span>
                     <span className="text-muted-foreground">{t("table.inclVat")}</span>
                     <span className="block text-xs text-muted-foreground">
-                      {excludingVatSuffix(invoice.amountPaidCents)}
+                      {price.excludingVatSuffix(invoice.amountPaidCents)}
                     </span>
                   </TableCell>
                   <TableCell>

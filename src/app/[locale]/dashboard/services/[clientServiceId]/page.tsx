@@ -1,4 +1,5 @@
 import { titleMetadata } from "@/i18n/metadata";
+import { getLabels } from "@/lib/labels-server";
 import { getTranslations } from "next-intl/server";
 import { formatFrenchPhone } from "@/lib/phone-format";
 import { notFound } from "next/navigation";
@@ -10,14 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireUser } from "@/lib/session";
 import { requireActiveOrganization } from "@/lib/organization";
 import { getMyService } from "@/app/[locale]/dashboard/get-my-service";
-import {
-  asStringArray,
-  describeServiceStatus,
-  FACEBOOK_SERVICE_SLUG,
-  INSTAGRAM_SERVICE_SLUG,
-  TELEPHONY_SERVICE_SLUGS,
-  WHATSAPP_SERVICE_SLUG,
-} from "@/lib/catalog";
+import { asStringArray, FACEBOOK_SERVICE_SLUG, INSTAGRAM_SERVICE_SLUG, TELEPHONY_SERVICE_SLUGS, WHATSAPP_SERVICE_SLUG } from "@/lib/catalog";
 import { StatusBadge } from "@/components/status-badge";
 import { ServiceGlyphBadge } from "@/components/service-glyph";
 import { BookingsCalendar } from "@/components/bookings-calendar";
@@ -63,12 +57,13 @@ export default async function ServiceDetailPage({
   params: Promise<{ clientServiceId: string }>;
   searchParams: Promise<{ calendar?: string }>;
 }) {
-  const [{ clientServiceId }, { calendar }, session, , t] = await Promise.all([
+  const [{ clientServiceId }, { calendar }, session, , t, labels] = await Promise.all([
     params,
     searchParams,
     requireUser(),
     requireActiveOrganization(),
     getTranslations("Dashboard.service"),
+    getLabels(),
   ]);
   // L'abonnement est lu en parallèle, mais rien n'est affiché avant que
   // getMyService ait vérifié que la solution appartient bien au client.
@@ -150,7 +145,7 @@ export default async function ServiceDetailPage({
           <p className="order-3 mt-2 max-w-2xl text-muted-foreground sm:col-start-1">{item.service.description}</p>
 
           <p className="order-5 mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm sm:col-start-1">
-            <span className="font-medium text-foreground">{describeServiceStatus(item)}</span>
+            <span className="font-medium text-foreground">{labels.serviceStatus(item)}</span>
             {!subscription && (
               <span className="tabular-nums text-muted-foreground">
                 {formatPriceWithVat(item.service.monthlyPriceCents)}

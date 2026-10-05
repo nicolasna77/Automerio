@@ -1,14 +1,16 @@
 import { MessageCircle } from "lucide-react";
+import { useLabels } from "@/hooks/use-labels";
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { formatDate } from "@/lib/catalog";
-import { HELP_REQUEST_STATUS_LABELS, type HelpRequestDTO } from "@/lib/help";
+import { type HelpRequestDTO } from "@/lib/help";
 import { HelpRequestThread } from "@/components/help-request-thread";
 import { HelpRequestReplyForm } from "./help-request-reply-form";
 
 export function HelpRequestHistory({ items }: { items: HelpRequestDTO[] }) {
   const t = useTranslations("Dashboard.help");
+  const labels = useLabels();
   return (
     <section aria-labelledby="help-history-heading" className="mt-10">
       <h2
@@ -50,7 +52,7 @@ export function HelpRequestHistory({ items }: { items: HelpRequestDTO[] }) {
                     variant={item.status === "OPEN" ? "outline" : "secondary"}
                     className="shrink-0"
                   >
-                    {HELP_REQUEST_STATUS_LABELS[item.status]}
+                    {labels.helpStatus(item.status)}
                   </Badge>
                 </div>
               </CardHeader>

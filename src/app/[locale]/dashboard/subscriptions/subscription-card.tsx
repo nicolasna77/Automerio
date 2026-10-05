@@ -1,16 +1,13 @@
 import { Link } from "@/i18n/navigation";
+import { usePriceFormatter } from "@/hooks/use-price-formatter";
+import { useLabels } from "@/hooks/use-labels";
 import { useTranslations } from "next-intl";
 import { TriangleAlert } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { StatusBadge } from "@/components/status-badge";
 import { ServiceGlyph } from "@/components/service-glyph";
 import { MonthlyPrice } from "@/components/monthly-price";
-import {
-  describeNextCharge,
-  describePeriod,
-  isRunning,
-  type MySubscription,
-} from "@/lib/subscriptions";
+import { isRunning, type MySubscription } from "@/lib/subscriptions";
 import { UsageGauge } from "./usage-gauge";
 import { SubscriptionActions } from "./subscription-actions";
 
@@ -20,6 +17,8 @@ export function SubscriptionCard({
   subscription: MySubscription;
 }) {
   const t = useTranslations("Dashboard");
+  const labels = useLabels();
+  const price = usePriceFormatter();
   const running = isRunning(subscription);
 
   const body = [
@@ -34,7 +33,7 @@ export function SubscriptionCard({
     ),
     running && (
       <p key="period" className="text-sm text-muted-foreground">
-        {describePeriod(subscription)}
+        {labels.period(subscription.period)}
       </p>
     ),
     subscription.cap && subscription.usage ? (
@@ -85,7 +84,7 @@ export function SubscriptionCard({
       {body.length > 0 && <CardContent className="space-y-4">{body}</CardContent>}
 
       <CardFooter className="flex flex-wrap items-center justify-between gap-3 border-t pt-4">
-        <p className="text-sm text-muted-foreground">{describeNextCharge(subscription)}</p>
+        <p className="text-sm text-muted-foreground">{labels.nextCharge(subscription, price.withVat(subscription.monthlyPriceCents))}</p>
         <SubscriptionActions subscription={subscription} running={running} />
       </CardFooter>
     </Card>

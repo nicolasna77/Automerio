@@ -1,5 +1,6 @@
 "use client";
 
+import { useLabels } from "@/hooks/use-labels";
 import { useEffect, useId, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -13,7 +14,6 @@ import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
 import { setCallHandledAction } from "./call-actions";
 import { pollWhileVisible } from "@/lib/poll-while-visible";
-import { dayLabel, dayPhrase } from "@/lib/day-label";
 import { formatFrenchPhone } from "@/lib/phone-format";
 
 const POLL_INTERVAL_MS = 5_000;
@@ -300,6 +300,7 @@ function RecentCallItem({
 
 export function CallActivity({ clientServiceId }: { clientServiceId: string }) {
   const t = useTranslations("Dashboard.calls");
+  const labels = useLabels();
   const [data, setData] = useState<CallsResponse | null>(null);
   const [expandedIds, setExpandedIds] = useState<ReadonlySet<string>>(new Set());
   const [status, setStatus] = useState<StatusFilter>("all");
@@ -437,7 +438,7 @@ export function CallActivity({ clientServiceId }: { clientServiceId: string }) {
             value={day}
             items={[
               { value: ALL_DAYS, label: t("allDays") },
-              ...data.days.map((entry) => ({ value: entry.day, label: dayLabel(entry.day) })),
+              ...data.days.map((entry) => ({ value: entry.day, label: labels.dayLabel(entry.day) })),
             ]}
             onValueChange={(next) => changeDay(next ?? ALL_DAYS)}
           >
@@ -448,7 +449,7 @@ export function CallActivity({ clientServiceId }: { clientServiceId: string }) {
               <SelectItem value={ALL_DAYS}>{t("allDays")}</SelectItem>
               {data.days.map((entry) => (
                 <SelectItem key={entry.day} value={entry.day}>
-                  {dayLabel(entry.day)}
+                  {labels.dayLabel(entry.day)}
                   <span className="sr-only">, </span>
                   <span className="ml-auto pl-3 text-xs tabular-nums text-muted-foreground">
                     {t("callCount", { count: entry.count })}
@@ -477,7 +478,7 @@ export function CallActivity({ clientServiceId }: { clientServiceId: string }) {
             <p className="text-muted-foreground">
               {(() => {
                 const empty = status === "todo" ? t("emptyTodo") : status === "done" ? t("emptyDone") : t("emptyAll");
-                return day !== ALL_DAYS ? t("emptyForDay", { empty, day: dayPhrase(day) }) : t("emptyNow", { empty });
+                return day !== ALL_DAYS ? t("emptyForDay", { empty, day: labels.dayPhrase(day) }) : t("emptyNow", { empty });
               })()}
             </p>
             {(status !== "all" || day !== ALL_DAYS) && (

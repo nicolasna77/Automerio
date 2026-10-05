@@ -2016,7 +2016,16 @@
     "close": "Fermer",
     "back": "Retour",
     "continue": "Continuer",
-    "sending": "Envoi…"
+    "sending": "Envoi…",
+    "stepOf": "Étape {current} sur {total}",
+    "stepOfDone": "Étape {current} sur {total}, terminée",
+    "stepPrefix": "{step} : ",
+    "previous": "← Précédent",
+    "next": "Suivant →",
+    "pageOf": "Page {page} sur {total}",
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe",
+    "capsLock": "Verr. Maj est activé."
   },
   "Actions": {
     "generic": "Une erreur est survenue. Réessayez dans un instant.",
@@ -2092,5 +2101,146 @@
     "previewPhoneOnly": "L'écoute n'existe que pour les solutions téléphoniques.",
     "previewUnavailable": "L'écoute n'est pas disponible pour le moment.",
     "tooManyPreviews": "Trop d'écoutes. Réessayez dans quelques minutes."
+  },
+  "Labels": {
+    "status": {
+      "PENDING_PAYMENT": "Paiement en cours",
+      "CONFIGURING": "En configuration",
+      "ACTIVE": "Actif",
+      "CANCELED": "Résilié"
+    },
+    "serviceEvent": {
+      "CREATED": "Demande d'activation envoyée",
+      "PAYMENT_RECEIVED": "Paiement reçu",
+      "PAYMENT_FAILED": "Paiement refusé",
+      "ACTIVATED": "Solution vérifiée et activée",
+      "NOTE_ADDED": "Note de l'équipe Automerio",
+      "PHONE_ASSIGNED": "Numéro de téléphone attribué",
+      "CALENDAR_CONNECTED": "Agenda connecté",
+      "CALENDAR_DISCONNECTED": "Agenda déconnecté",
+      "WHATSAPP_CONNECTED": "Compte WhatsApp connecté",
+      "WHATSAPP_DISCONNECTED": "Compte WhatsApp déconnecté",
+      "FACEBOOK_CONNECTED": "Page Facebook connectée",
+      "FACEBOOK_DISCONNECTED": "Page Facebook déconnectée",
+      "INSTAGRAM_CONNECTED": "Compte Instagram connecté",
+      "INSTAGRAM_DISCONNECTED": "Compte Instagram déconnecté",
+      "QUOTA_CHANGED": "Volume de l'abonnement modifié",
+      "QUOTA_WARNING": "80 % du forfait consommé",
+      "QUOTA_EXCEEDED": "Forfait dépassé",
+      "CONFIGURATION_UPDATED": "Configuration mise à jour",
+      "CANCELED": "Solution résiliée"
+    },
+    "weekDay": {
+      "mon": "Lundi",
+      "tue": "Mardi",
+      "wed": "Mercredi",
+      "thu": "Jeudi",
+      "fri": "Vendredi",
+      "sat": "Samedi",
+      "sun": "Dimanche"
+    },
+    "role": {
+      "owner": "Propriétaire",
+      "admin": "Responsable",
+      "member": "Collaborateur"
+    },
+    "roleDescription": {
+      "owner": "Gère l'entreprise, l'équipe et les paiements.",
+      "admin": "Gère l'équipe et les paiements, comme le propriétaire.",
+      "member": "Consulte et configure les solutions, sans engager de dépense."
+    },
+    "helpStatus": {
+      "OPEN": "En attente",
+      "RESOLVED": "Traité"
+    },
+    "notification": {
+      "HELP_REQUEST_REPLY": {
+        "label": "Réponse de l'équipe dans une demande d'aide",
+        "description": "Quand l'équipe Automerio répond dans le fil d'une de vos demandes d'aide."
+      },
+      "HELP_REQUEST_RESOLVED": {
+        "label": "Demande d'aide marquée comme traitée",
+        "description": "Quand l'équipe Automerio marque votre demande d'aide comme traitée."
+      },
+      "SERVICE_ACTIVATED": {
+        "label": "Activation d'une solution",
+        "description": "Quand une solution payée devient active."
+      },
+      "SERVICE_NOTE_ADDED": {
+        "label": "Note ajoutée par l'équipe",
+        "description": "Quand l'équipe ajoute une note sur une de vos solutions."
+      },
+      "SERVICE_CANCELED": {
+        "label": "Confirmation de résiliation",
+        "description": "Confirmation quand vous résiliez vous-même une solution."
+      },
+      "QUOTA_ALERT": {
+        "label": "Forfait bientôt atteint ou dépassé",
+        "description": "Quand une solution atteint 80 % puis 100 % de son forfait du mois, avant que le dépassement soit facturé."
+      },
+      "CALL_SUMMARY": {
+        "label": "Résumé de chaque appel",
+        "description": "Après chaque appel traité par votre assistant téléphonique : le motif et ce qu'il faut faire."
+      },
+      "WEEKLY_DIGEST": {
+        "label": "Bilan de la semaine",
+        "description": "Chaque lundi, ce que vos solutions ont fait la semaine passée : appels, rendez-vous, messages."
+      }
+    },
+    "serviceStatus": {
+      "activeSince": "Actif depuis le {date}",
+      "active": "Actif",
+      "pendingSince": "En attente de paiement depuis le {date}",
+      "configuring": "Paiement confirmé. Déploiement en cours par l'équipe Automerio",
+      "canceledOn": "Résilié le {date}",
+      "canceled": "Résilié"
+    },
+    "setup": {
+      "phoneNumber": {
+        "hint": "Choisissez un numéro pour que l'assistant puisse décrocher",
+        "cta": "Choisir un numéro"
+      },
+      "whatsapp": {
+        "hint": "Connectez votre compte WhatsApp pour que l'assistant puisse répondre",
+        "cta": "Connecter WhatsApp"
+      },
+      "facebook": {
+        "hint": "Connectez votre Page Facebook pour que l'assistant puisse répondre",
+        "cta": "Connecter ma Page"
+      },
+      "instagram": {
+        "hint": "Connectez votre compte Instagram pour que l'assistant puisse répondre",
+        "cta": "Connecter Instagram"
+      },
+      "productCatalog": {
+        "hint": "Ajoutez votre carte pour que l'assistant prenne les commandes",
+        "cta": "Ajouter ma carte"
+      }
+    },
+    "period": {
+      "since": "Depuis le {start}",
+      "range": "Période du {start} au {end}"
+    },
+    "nextCharge": {
+      "canceledOn": "Résilié le {date}, plus aucun prélèvement",
+      "canceled": "Résilié, plus aucun prélèvement",
+      "pending": "Aucun prélèvement tant que le premier paiement n'est pas réglé",
+      "notRenewedAfter": "Ne sera pas renouvelé après le {date}",
+      "notRenewed": "Ne sera pas renouvelé",
+      "nextOn": "Prochain prélèvement : {amount} le {date}",
+      "next": "Prochain prélèvement : {amount}"
+    },
+    "day": {
+      "today": "Aujourd'hui",
+      "yesterday": "Hier",
+      "todayPhrase": "aujourd'hui",
+      "yesterdayPhrase": "hier",
+      "on": "le {day}"
+    },
+    "catalog": {
+      "none": "Aucun produit",
+      "products": "{count, plural, one {# produit} other {# produits}}",
+      "inSections": "{count, plural, one {# produit} other {# produits}} dans {sections} rubriques"
+    }
   }
 }

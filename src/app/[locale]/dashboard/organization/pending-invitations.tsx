@@ -1,5 +1,6 @@
 "use client";
 
+import { useLabels } from "@/hooks/use-labels";
 import { useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
@@ -9,7 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
-import { roleLabel } from "@/lib/organization-roles";
 import { cancelInvitationAction } from "./actions";
 
 export type PendingInvitation = {
@@ -30,6 +30,7 @@ export function PendingInvitations({
 }) {
   const router = useRouter();
   const t = useTranslations("Dashboard.organization.invitations");
+  const labels = useLabels();
   const tCommon = useTranslations("Common");
   const [pending, startTransition] = useTransition();
 
@@ -67,7 +68,7 @@ export function PendingInvitations({
             </div>
 
             <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-              <Badge variant="secondary">{roleLabel(invitation.role)}</Badge>
+              <Badge variant="secondary">{labels.role(invitation.role)}</Badge>
               {canManage && (
                 <Button
                   variant="ghost"

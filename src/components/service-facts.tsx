@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
+import { usePriceFormatter } from "@/hooks/use-price-formatter";
 import { formatConfigField, type MyServiceDTO } from "@/lib/catalog";
-import { formatUsageCap } from "@/lib/usage-cap";
 import { formatFrenchPhone } from "@/lib/phone-format";
 
 type FactsLayout = "list" | "grid";
@@ -91,6 +91,7 @@ export function ServiceFacts({
   layout?: FactsLayout;
 }) {
   const t = useTranslations("Dashboard.facts");
+  const price = usePriceFormatter();
   return (
     <dl
       className={
@@ -99,7 +100,7 @@ export function ServiceFacts({
     >
       {item.service.usageCap && showUsageCap && (
         <Fact layout={layout} label={t("usageCap")}>
-          {formatUsageCap(item.service.usageCap)}
+          {price.usageCap(item.service.usageCap)}
         </Fact>
       )}
       {item.externalPhoneNumber && showPhoneNumber && (

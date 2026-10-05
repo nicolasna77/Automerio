@@ -1,3 +1,4 @@
+import { getLabels } from "@/lib/labels-server";
 import { titleMetadata } from "@/i18n/metadata";
 import { UserPlus } from "lucide-react";
 import { getTranslations } from "next-intl/server";
@@ -11,7 +12,7 @@ import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import { requireActiveOrganization } from "@/lib/organization";
 import { formatDate } from "@/lib/catalog";
-import { isOrganizationManager, roleLabel } from "@/lib/organization-roles";
+import { isOrganizationManager } from "@/lib/organization-roles";
 import { TeamMembers } from "./team-members";
 import { PendingInvitations } from "./pending-invitations";
 import { InviteForm } from "./invite-form";
@@ -20,10 +21,11 @@ import { OrganizationPicker } from "./organization-picker";
 export const generateMetadata = titleMetadata("organization");
 
 export default async function OrganisationPage() {
-  const [session, { active: organization, organizations }, t] = await Promise.all([
+  const [session, { active: organization, organizations }, t, labels] = await Promise.all([
     requireUser(),
     requireActiveOrganization(),
     getTranslations("Dashboard.organization"),
+    getLabels(),
   ]);
 
   const [members, invitations] = await Promise.all([
@@ -60,7 +62,7 @@ export default async function OrganisationPage() {
           <>
             <div className="flex flex-wrap items-center gap-2">
               <OrganizationPicker active={organization} organizations={organizations} />
-              {myRole && <Badge variant="secondary">{t("you", { role: roleLabel(myRole) })}</Badge>}
+              {myRole && <Badge variant="secondary">{t("you", { role: labels.role(myRole) })}</Badge>}
             </div>
             <p className="mt-2">{t("description")}</p>
           </>

@@ -391,12 +391,15 @@ export function needsInstagramConnection(item: SetupSubject): boolean {
 
 export const SETUP_ANCHOR = "mise-en-service";
 
-export type SetupAction = { hint: string; cta: string };
+export type SetupActionId = "phoneNumber" | "whatsapp" | "facebook" | "instagram" | "productCatalog";
+
+export type SetupAction = { id: SetupActionId; hint: string; cta: string };
 
 const SETUP_ACTIONS: { needs: (item: SetupSubject) => boolean; action: SetupAction }[] = [
   {
     needs: needsPhoneNumber,
     action: {
+      id: "phoneNumber",
       hint: "Choisissez un numéro pour que l'assistant puisse décrocher",
       cta: "Choisir un numéro",
     },
@@ -404,6 +407,7 @@ const SETUP_ACTIONS: { needs: (item: SetupSubject) => boolean; action: SetupActi
   {
     needs: needsWhatsAppConnection,
     action: {
+      id: "whatsapp",
       hint: "Connectez votre compte WhatsApp pour que l'assistant puisse répondre",
       cta: "Connecter WhatsApp",
     },
@@ -411,6 +415,7 @@ const SETUP_ACTIONS: { needs: (item: SetupSubject) => boolean; action: SetupActi
   {
     needs: needsFacebookConnection,
     action: {
+      id: "facebook",
       hint: "Connectez votre Page Facebook pour que l'assistant puisse répondre",
       cta: "Connecter ma Page",
     },
@@ -418,6 +423,7 @@ const SETUP_ACTIONS: { needs: (item: SetupSubject) => boolean; action: SetupActi
   {
     needs: needsInstagramConnection,
     action: {
+      id: "instagram",
       hint: "Connectez votre compte Instagram pour que l'assistant puisse répondre",
       cta: "Connecter Instagram",
     },
@@ -425,6 +431,7 @@ const SETUP_ACTIONS: { needs: (item: SetupSubject) => boolean; action: SetupActi
   {
     needs: needsProductCatalog,
     action: {
+      id: "productCatalog",
       hint: "Ajoutez votre carte pour que l'assistant prenne les commandes",
       cta: "Ajouter ma carte",
     },

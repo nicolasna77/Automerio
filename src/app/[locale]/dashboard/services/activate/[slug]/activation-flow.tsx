@@ -33,12 +33,10 @@ import {
   type ServiceDTO,
 } from "@/lib/catalog";
 import { unwrap } from "@/lib/action-result";
-import { formatUsageCap } from "@/lib/usage-cap";
 import { SubscriptionMinutesSlider } from "@/components/subscription/subscription-minutes-slider";
 import { MonthlyPrice } from "@/components/monthly-price";
 import { usePriceFormatter } from "@/hooks/use-price-formatter";
 import { calculateMonthlyPriceCents } from "@/lib/subscription-pricing";
-import { formatCentsWithVat } from "@/lib/vat";
 import { getErrorMessage } from "@/lib/utils";
 import { activateService, previewPromoCode, type PromoPreview } from "@/app/[locale]/dashboard/actions";
 import { ConfigFieldsForm } from "@/app/[locale]/dashboard/config-fields";
@@ -444,7 +442,7 @@ export function ActivationFlow({
                 )}
                 {service.usageCap && (
                   <p className="text-xs text-muted-foreground">
-                    {formatUsageCap(service.usageCap)}
+                    {price.usageCap(service.usageCap)}
                   </p>
                 )}
               </dl>
@@ -493,7 +491,7 @@ export function ActivationFlow({
                           description: promo.preview.description,
                           discounted: () => (
                             <span className="font-medium tabular-nums">
-                              {formatCentsWithVat(promo.preview.discountedFirstPaymentCents)}
+                              {price.withVat(promo.preview.discountedFirstPaymentCents)}
                             </span>
                           ),
                           original: () => (

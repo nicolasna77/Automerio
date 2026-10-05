@@ -1,5 +1,6 @@
 "use client";
 
+import { useLabels } from "@/hooks/use-labels";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { ChevronDown, FileUp, Loader2, Plus, Trash2 } from "lucide-react";
@@ -19,16 +20,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { unwrap } from "@/lib/action-result";
 import { MENU_IMPORT_MAX_FILES } from "@/lib/menu-import";
-import {
-  countCatalogItems,
-  describeProductCatalog,
-  emptyCatalogItem,
-  emptyCatalogSection,
-  formatPriceInput,
-  parsePriceInput,
-  type CatalogItem,
-  type CatalogSection,
-} from "@/lib/product-catalog";
+import { countCatalogItems, emptyCatalogItem, emptyCatalogSection, formatPriceInput, parsePriceInput, type CatalogItem, type CatalogSection } from "@/lib/product-catalog";
 import { cn, getErrorMessage } from "@/lib/utils";
 import { transcribeMenu } from "./menu-import-actions";
 
@@ -68,6 +60,7 @@ export function ProductCatalogEditor({
 }) {
   const t = useTranslations("Dashboard.catalogEditor");
   const tCommon = useTranslations("Common");
+  const labels = useLabels();
   const inputRef = useRef<HTMLInputElement>(null);
   const valueRef = useRef(value);
   const [isImporting, startImport] = useTransition();
@@ -222,7 +215,7 @@ export function ProductCatalogEditor({
 
       {value.length > 0 && (
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-sm text-muted-foreground">{describeProductCatalog(value)}</p>
+          <p className="text-sm text-muted-foreground">{labels.productCatalog(value)}</p>
           {importButton("outline")}
         </div>
       )}

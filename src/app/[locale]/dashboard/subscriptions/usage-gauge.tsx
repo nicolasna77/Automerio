@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
+import { usePriceFormatter } from "@/hooks/use-price-formatter";
 import { cn } from "@/lib/utils";
-import { formatUsageUnits, overageUnits, usageRatio, type UsageCap, formatPerUnit } from "@/lib/usage-cap";
-import { formatCentsWithVat } from "@/lib/vat";
+import { overageUnits, usageRatio, type UsageCap } from "@/lib/usage-cap";
 import { QUOTA_WARNING_RATIO } from "@/lib/quota";
 
 export function UsageGauge({
@@ -14,10 +14,11 @@ export function UsageGauge({
   overageCents: number;
 }) {
   const t = useTranslations("Dashboard.subscriptions.gauge");
+  const price = usePriceFormatter();
   const over = overageUnits(consumedUnits, cap);
   const ratio = usageRatio(consumedUnits, cap);
-  const consumed = formatUsageUnits(consumedUnits, cap.unit);
-  const included = formatUsageUnits(cap.includedUnits, cap.unit);
+  const consumed = price.usageUnits(consumedUnits, cap.unit);
+  const included = price.usageUnits(cap.includedUnits, cap.unit);
   const nearLimit = over === 0 && consumedUnits >= cap.includedUnits * QUOTA_WARNING_RATIO;
 
   return (
@@ -51,17 +52,17 @@ export function UsageGauge({
       <p className="mt-2 text-xs text-muted-foreground">
         {over > 0
           ? t.rich("over", {
-              units: formatUsageUnits(over, cap.unit),
-              amount: formatCentsWithVat(overageCents),
+              units: price.usageUnits(over, cap.unit),
+              amount: price.withVat(overageCents),
               em: (chunks) => <span className="font-medium text-foreground tabular-nums">{chunks}</span>,
             })
           : nearLimit && cap.overageUnitPriceCents > 0
             ? t.rich("nearLimit", {
-                units: formatUsageUnits(cap.includedUnits - consumedUnits, cap.unit),
-                price: formatPerUnit(cap.overageUnitPriceCents, cap.unit),
+                units: price.usageUnits(cap.includedUnits - consumedUnits, cap.unit),
+                price: price.perUnit(cap.overageUnitPriceCents, cap.unit),
                 strong: (chunks) => <span className="font-medium text-foreground">{chunks}</span>,
               })
-            : t("remaining", { units: formatUsageUnits(cap.includedUnits - consumedUnits, cap.unit) })}
+            : t("remaining", { units: price.usageUnits(cap.includedUnits - consumedUnits, cap.unit) })}
       </p>
     </div>
   );

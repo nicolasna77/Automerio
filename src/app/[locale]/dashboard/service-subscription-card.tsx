@@ -1,14 +1,10 @@
 import { useTranslations } from "next-intl";
+import { useLabels } from "@/hooks/use-labels";
+import { usePriceFormatter } from "@/hooks/use-price-formatter";
 import { Link } from "@/i18n/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MonthlyPrice } from "@/components/monthly-price";
-import { formatUsageCap } from "@/lib/usage-cap";
-import {
-  describeNextCharge,
-  describePeriod,
-  isRunning,
-  type MySubscription,
-} from "@/lib/subscriptions";
+import { isRunning, type MySubscription } from "@/lib/subscriptions";
 import { UsageGauge } from "./subscriptions/usage-gauge";
 import { Settings } from "lucide-react";
 
@@ -22,6 +18,8 @@ export function ServiceSubscriptionCard({
   settingsHref: string | null;
 }) {
   const t = useTranslations("Dashboard.service.subscription");
+  const labels = useLabels();
+  const price = usePriceFormatter();
   const running = isRunning(subscription);
 
   return (
@@ -32,7 +30,7 @@ export function ServiceSubscriptionCard({
       </CardHeader>
       <CardContent className="space-y-4">
         {running && (
-          <p className="text-sm text-muted-foreground">{describePeriod(subscription)}</p>
+          <p className="text-sm text-muted-foreground">{labels.period(subscription.period)}</p>
         )}
 
         {subscription.cap && subscription.usage ? (
@@ -43,7 +41,7 @@ export function ServiceSubscriptionCard({
           />
         ) : subscription.cap ? (
           <p className="text-sm text-muted-foreground">
-            {t("cap", { cap: formatUsageCap(subscription.cap) })}
+            {t("cap", { cap: price.usageCap(subscription.cap) })}
           </p>
         ) : (
           running && (
@@ -55,7 +53,7 @@ export function ServiceSubscriptionCard({
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
           <p className="text-sm text-muted-foreground">
-            {describeNextCharge(subscription)}
+            {labels.nextCharge(subscription, price.withVat(subscription.monthlyPriceCents))}
           </p>
           {settingsHref && running ? (
             <Link

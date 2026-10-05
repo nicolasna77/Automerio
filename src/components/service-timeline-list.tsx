@@ -1,4 +1,5 @@
-import { SERVICE_EVENT_LABELS, type ServiceEventDTO } from "@/lib/catalog";
+import { useLabels } from "@/hooks/use-labels";
+import { type ServiceEventDTO } from "@/lib/catalog";
 
 function formatEventDateTime(date: Date): string {
   return new Intl.DateTimeFormat("fr-FR", {
@@ -11,6 +12,7 @@ function formatEventDateTime(date: Date): string {
 }
 
 export function ServiceTimelineList({ events }: { events: ServiceEventDTO[] }) {
+  const labels = useLabels();
   return (
     <ol>
       {events.map((event, index) => (
@@ -28,7 +30,7 @@ export function ServiceTimelineList({ events }: { events: ServiceEventDTO[] }) {
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
               <p className="text-sm font-medium text-foreground">
-                {SERVICE_EVENT_LABELS[event.type]}
+                {labels.serviceEvent(event.type)}
               </p>
               <time
                 dateTime={event.createdAt.toISOString()}

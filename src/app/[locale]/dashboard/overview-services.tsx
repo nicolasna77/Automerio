@@ -1,11 +1,12 @@
 import { getTranslations } from "next-intl/server";
+import { getLabels } from "@/lib/labels-server";
 import { Link } from "@/i18n/navigation";
 import { ChevronRight, TriangleAlert } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/status-badge";
 import { db } from "@/lib/db";
-import { SETUP_ANCHOR, setupAction } from "@/lib/catalog";
+import { SETUP_ANCHOR } from "@/lib/catalog";
 import { ServiceGlyph } from "@/components/service-glyph";
 import { toMyServiceDTO } from "./get-my-service";
 import { ServiceSettingsButton } from "./service-settings-button";
@@ -15,7 +16,7 @@ export async function OverviewServices({
 }: {
   organizationId: string;
 }) {
-  const t = await getTranslations("Dashboard.overview.services");
+  const [t, labels] = await Promise.all([getTranslations("Dashboard.overview.services"), getLabels()]);
   const rows = await db.clientService.findMany({
     where: { organizationId, status: { not: "CANCELED" } },
     include: { service: true, events: { orderBy: { createdAt: "desc" } } },
@@ -41,7 +42,7 @@ export async function OverviewServices({
       <CardContent>
         <ul className="divide-y divide-border">
           {items.map((item) => {
-            const action = setupAction(item);
+            const action = labels.setupAction(item);
             return (
               <li key={item.clientServiceId} className="relative py-3 first:pt-0 last:pb-0">
                 <div className="flex items-start gap-3">

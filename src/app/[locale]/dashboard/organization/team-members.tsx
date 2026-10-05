@@ -1,5 +1,6 @@
 "use client";
 
+import { useLabels } from "@/hooks/use-labels";
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
@@ -27,12 +28,7 @@ import {
 import { unwrap } from "@/lib/action-result";
 import { initialsOf } from "@/lib/initials";
 import { getErrorMessage } from "@/lib/utils";
-import {
-  INVITABLE_ROLES,
-  INVITABLE_ROLE_ITEMS,
-  ROLE_DESCRIPTIONS,
-  roleLabel,
-} from "@/lib/organization-roles";
+import { INVITABLE_ROLES } from "@/lib/organization-roles";
 import { changeMemberRoleAction, removeMemberAction, transferOwnershipAction } from "./actions";
 
 export type TeamMemberRow = {
@@ -57,6 +53,8 @@ export function TeamMembers({
 }) {
   const router = useRouter();
   const t = useTranslations("Dashboard.organization.members");
+  const labels = useLabels();
+  const roleItems = Object.fromEntries(INVITABLE_ROLES.map((value) => [value, labels.role(value)]));
   const tCommon = useTranslations("Common");
   const [pending, startTransition] = useTransition();
   const [toRemove, setToRemove] = useState<TeamMemberRow | null>(null);
@@ -77,7 +75,7 @@ export function TeamMembers({
     if (role === member.role) return;
     run(async () => {
       unwrap(await changeMemberRoleAction(organizationId, member.id, role));
-      toast.success(t("roleChanged", { name: member.name, role: roleLabel(role).toLowerCase() }));
+      toast.success(t("roleChanged", { name: member.name, role: labels.role(role).toLowerCase() }));
     });
   }
 
@@ -126,7 +124,7 @@ export function TeamMembers({
                     {member.email}
                   </p>
                   <p className="mt-0.5 text-xs text-muted-foreground">
-                    {ROLE_DESCRIPTIONS[member.role] ?? t("since", { date: member.joinedAt })}
+                    {labels.roleDescription(member.role) ?? t("since", { date: member.joinedAt })}
                   </p>
                 </div>
 
@@ -134,7 +132,7 @@ export function TeamMembers({
                   {editable ? (
                     <Select
                       value={member.role}
-                      items={INVITABLE_ROLE_ITEMS}
+                      items={roleItems}
                       onValueChange={(role) => role && handleRoleChange(member, role)}
                       disabled={pending}
                     >
@@ -147,13 +145,13 @@ export function TeamMembers({
                       <SelectContent>
                         {INVITABLE_ROLES.map((role) => (
                           <SelectItem key={role} value={role}>
-                            {roleLabel(role)}
+                            {labels.role(role)}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   ) : (
-                    <Badge variant="secondary">{roleLabel(member.role)}</Badge>
+                    <Badge variant="secondary">{labels.role(member.role)}</Badge>
                   )}
 
                   {canTransfer && !isOwner && !member.isMe && (

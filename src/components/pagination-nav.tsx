@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 
 export function PaginationNav({
@@ -13,6 +14,7 @@ export function PaginationNav({
   params: Record<string, string | undefined>;
   label: string;
 }) {
+  const t = useTranslations("Common");
   if (totalPages <= 1) return null;
 
   function href(targetPage: number) {
@@ -32,20 +34,20 @@ export function PaginationNav({
           href={href(page - 1)}
           className="text-foreground underline-offset-4 hover:underline"
         >
-          ← Précédent
+          {t("previous")}
         </Link>
       ) : (
         <span />
       )}
       <span className="text-muted-foreground">
-        Page {page} sur {totalPages}
+        {t("pageOf", { page, total: totalPages })}
       </span>
       {page < totalPages ? (
         <Link
           href={href(page + 1)}
           className="text-foreground underline-offset-4 hover:underline"
         >
-          Suivant →
+          {t("next")}
         </Link>
       ) : (
         <span />

@@ -1,5 +1,6 @@
 "use client";
 
+import { usePriceFormatter } from "@/hooks/use-price-formatter";
 import { useTranslations } from "next-intl";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import {
@@ -16,7 +17,6 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { formatEuroAmount } from "@/lib/catalog";
-import { excludingVatSuffix, formatCentsWithVat } from "@/lib/vat";
 
 
 export function SpendChartView({
@@ -27,6 +27,7 @@ export function SpendChartView({
   totalCents: number;
 }) {
   const t = useTranslations("Dashboard.overview.spend");
+  const price = usePriceFormatter();
   const chartConfig = {
     totalCents: {
       label: t("series"),
@@ -50,7 +51,7 @@ export function SpendChartView({
               </span>
               <span className="ml-1.5 text-sm text-muted-foreground">{t("unit")}</span>
               <span className="block text-xs font-normal text-muted-foreground">
-                {excludingVatSuffix(totalCents)}
+                {price.excludingVatSuffix(totalCents)}
               </span>
             </p>
           )}
@@ -79,7 +80,7 @@ export function SpendChartView({
             <ChartTooltip
               content={
                 <ChartTooltipContent
-                  formatter={(value) => formatCentsWithVat(Number(value))}
+                  formatter={(value) => price.withVat(Number(value))}
                 />
               }
             />
@@ -96,7 +97,7 @@ export function SpendChartView({
           <ul className="sr-only">
             {data.map((bucket) => (
               <li key={bucket.label}>
-                {bucket.label} : {formatCentsWithVat(bucket.totalCents)}
+                {bucket.label} : {price.withVat(bucket.totalCents)}
               </li>
             ))}
           </ul>

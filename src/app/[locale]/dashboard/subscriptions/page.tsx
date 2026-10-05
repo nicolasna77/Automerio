@@ -1,4 +1,5 @@
 import { titleMetadata } from "@/i18n/metadata";
+import { getPriceFormatter } from "@/lib/price-format-server";
 import { Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 import { CalendarClock, CreditCard, Layers, TriangleAlert, Wallet } from "lucide-react";
@@ -16,7 +17,6 @@ import {
 } from "@/lib/subscriptions";
 import { BillingPortalButton } from "../payments/billing-portal-button";
 import { SubscriptionCard } from "./subscription-card";
-import { excludingVatSuffix } from "@/lib/vat";
 import { PageHeader, PageShell } from "@/components/page-shell";
 
 export const generateMetadata = titleMetadata("subscriptions");
@@ -28,6 +28,7 @@ export default async function AbonnementsPage() {
     organizationCustomerId(organization.id),
     getTranslations("Dashboard.subscriptions"),
   ]);
+  const price = await getPriceFormatter();
 
   const running = subscriptions.filter(isRunning);
   const stopped = subscriptions.filter((subscription) => !isRunning(subscription));
@@ -46,7 +47,7 @@ export default async function AbonnementsPage() {
       label: t("stats.total"),
       value: formatEuroAmount(total),
       unit: t("stats.totalUnit"),
-      note: excludingVatSuffix(total),
+      note: price.excludingVatSuffix(total),
     },
     {
       icon: CalendarClock,
