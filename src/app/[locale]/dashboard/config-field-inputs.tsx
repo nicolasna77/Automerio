@@ -256,11 +256,15 @@ export function WeeklyHoursField({
   id,
   labelledBy,
   value,
+  unset = false,
   onChange,
 }: {
   id: string;
   labelledBy: string;
   value: WeeklyHours;
+  // Rien n'est encore enregistré : l'assistant répond alors à toute heure
+  // (isOpenAt sans horaires). L'écran le dit au lieu d'afficher « Fermé ».
+  unset?: boolean;
   onChange: (value: WeeklyHours) => void;
 }) {
   function updateDay(day: Day, patch: Partial<WeeklyHours[Day]>) {
@@ -306,10 +310,17 @@ export function WeeklyHoursField({
         ))}
       </div>
 
+      {unset && (
+        <p id={`${id}-unset`} className="rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
+          Horaires non précisés : l&apos;assistant répond à toute heure. Choisissez un horaire courant ou
+          ouvrez vos jours pour qu&apos;il annonce vos heures et ce que vous faites en dehors.
+        </p>
+      )}
       <div
         id={id}
         role="group"
         aria-labelledby={labelledBy}
+        aria-describedby={unset ? `${id}-unset` : undefined}
         className="divide-y divide-border rounded-lg border border-border"
       >
         {WEEK_DAYS.map((day) => {
@@ -330,7 +341,7 @@ export function WeeklyHoursField({
                   </label>
                 </div>
                 {hours.closed ? (
-                  <span className="text-sm text-muted-foreground">Fermé</span>
+                  <span className="text-sm text-muted-foreground">{unset ? "Non précisé" : "Fermé"}</span>
                 ) : (
                   <div className="flex items-center gap-2">
                     <TimePicker
