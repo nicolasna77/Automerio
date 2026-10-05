@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition, type ChangeEvent } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { Camera, Loader2 } from "lucide-react";
@@ -20,6 +21,7 @@ export type InitialAccount = {
 const MAX_AVATAR_FILE_SIZE = 5 * 1024 * 1024;
 const AVATAR_DIMENSION = 256;
 
+// Messages d'erreur internes : l'appelant affiche son propre message.
 function resizeImageToDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -35,22 +37,24 @@ function resizeImageToDataUrl(file: File): Promise<string> {
         canvas.height = Math.round(img.height * scale);
         const ctx = canvas.getContext("2d");
         if (!ctx) {
-          reject(new Error("Traitement d'image indisponible"));
+          reject(new Error("canvas-unavailable"));
           return;
         }
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         resolve(canvas.toDataURL("image/jpeg", 0.85));
       };
-      img.onerror = () => reject(new Error("Image invalide"));
+      img.onerror = () => reject(new Error("invalid-image"));
       img.src = reader.result as string;
     };
-    reader.onerror = () => reject(new Error("Lecture du fichier impossible"));
+    reader.onerror = () => reject(new Error("unreadable-file"));
     reader.readAsDataURL(file);
   });
 }
 
 export function AccountForm({ initialAccount }: { initialAccount: InitialAccount }) {
   const router = useRouter();
+  const t = useTranslations("Dashboard.profile.account");
+  const tCommon = useTranslations("Common");
   const [name, setName] = useState(initialAccount.name);
   const [image, setImage] = useState(initialAccount.image);
   const [isPending, startTransition] = useTransition();
@@ -71,11 +75,11 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      toast.error("Merci de choisir un fichier image.");
+      toast.error(t("notAnImage"));
       return;
     }
     if (file.size > MAX_AVATAR_FILE_SIZE) {
-      toast.error("L'image ne doit pas dépasser 5 Mo.");
+      toast.error(t("tooLarge"));
       return;
     }
 
@@ -83,7 +87,7 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
     try {
       setImage(await resizeImageToDataUrl(file));
     } catch {
-      toast.error("Impossible de traiter cette image.");
+      toast.error(t("imageFailed"));
     } finally {
       setIsProcessingImage(false);
     }
@@ -92,7 +96,7 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
   function handleEmailChange() {
     const email = newEmail.trim();
     if (!email || email.toLowerCase() === initialAccount.email.toLowerCase()) {
-      toast.error("Saisissez une adresse différente de l'actuelle.");
+      toast.error(t("sameEmail"));
       return;
     }
     startEmailRequest(async () => {
@@ -101,7 +105,7 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
         callbackURL: "/dashboard/profile",
       });
       if (error) {
-        toast.error(error.message ?? "La demande n'a pas pu être envoyée.");
+        toast.error(error.message ?? t("emailRequestFailed"));
         return;
       }
       setEmailRequestedFor(email);
@@ -117,10 +121,10 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
         image: image || null,
       });
       if (error) {
-        toast.error(error.message ?? "Une erreur est survenue.");
+        toast.error(error.message ?? t("error"));
         return;
       }
-      toast.success("Profil enregistré.");
+      toast.success(t("saved"));
       router.refresh();
     });
   }
@@ -132,7 +136,7 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={isProcessingImage}
-          aria-label="Changer la photo de profil"
+          aria-label={t("changePhoto")}
           className="group relative size-20 shrink-0 overflow-hidden rounded-full border border-border bg-muted outline-none focus-visible:focus-ring"
         >
           {image ? (
@@ -161,7 +165,7 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
 
         <div className="min-w-0">
           <p className="truncate text-xl font-semibold tracking-tight text-foreground">
-            {name || "Votre nom"}
+            {name || t("namePlaceholder")}
           </p>
           <p className="truncate text-sm text-muted-foreground">
             {initialAccount.email}
@@ -174,7 +178,7 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
               className="mt-1 -ml-2"
               onClick={() => setImage("")}
             >
-              Retirer la photo
+              {t("removePhoto")}
             </Button>
           )}
         </div>
@@ -182,12 +186,12 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
 
       <div className="mt-8">
         <ProfileSection
-          title="Vos informations"
-          description="Le nom et la photo qui apparaissent dans vos échanges avec l'équipe Automerio."
+          title={t("sectionTitle")}
+          description={t("sectionDescription")}
         >
           <div className="grid gap-4 sm:max-w-md">
             <div className="space-y-2">
-              <Label htmlFor="name">Nom</Label>
+              <Label htmlFor="name">{t("name")}</Label>
               <div className="flex flex-wrap gap-2">
                 <Input
                   id="name"
@@ -196,17 +200,17 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
                   className="min-w-48 flex-1"
                 />
                 <Button onClick={handleSave} disabled={!isDirty || isPending} aria-busy={isPending}>
-                  {isPending ? "Enregistrement…" : "Enregistrer"}
+                  {isPending ? tCommon("saving") : tCommon("save")}
                 </Button>
               </div>
               {isDirty && image !== initialAccount.image && (
                 <p className="text-xs text-muted-foreground">
-                  Enregistrez pour appliquer la nouvelle photo.
+                  {t("savePhotoHint")}
                 </p>
               )}
             </div>
             <div className="space-y-2">
-              <p className="text-sm font-medium text-foreground">E-mail</p>
+              <p className="text-sm font-medium text-foreground">{t("email")}</p>
               {changingEmail ? (
                 <form
                   className="space-y-2"
@@ -216,7 +220,7 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
                   }}
                 >
                   <Label htmlFor="new-email" className="font-normal text-muted-foreground">
-                    Nouvelle adresse
+                    {t("newEmail")}
                   </Label>
                   <Input
                     id="new-email"
@@ -228,7 +232,7 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
                   />
                   <div className="flex flex-wrap gap-2">
                     <Button type="submit" disabled={isRequestingEmail} aria-busy={isRequestingEmail}>
-                      {isRequestingEmail ? "Envoi…" : "Recevoir le lien de confirmation"}
+                      {isRequestingEmail ? tCommon("sending") : t("sendLink")}
                     </Button>
                     <Button
                       type="button"
@@ -236,7 +240,7 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
                       onClick={() => setChangingEmail(false)}
                       disabled={isRequestingEmail}
                     >
-                      Annuler
+                      {tCommon("cancel")}
                     </Button>
                   </div>
                 </form>
@@ -244,13 +248,13 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                   <p className="text-sm text-foreground">{initialAccount.email}</p>
                   <Button type="button" variant="outline" size="sm" onClick={() => setChangingEmail(true)}>
-                    Changer d&apos;adresse
+                    {t("changeEmail")}
                   </Button>
                 </div>
               )}
               <p role="status" className="text-xs text-muted-foreground empty:hidden">
                 {emailRequestedFor
-                  ? `Un lien de confirmation a été envoyé à ${initialAccount.email}. Une fois confirmé, un second lien vérifiera ${emailRequestedFor}.`
+                  ? t("emailRequested", { current: initialAccount.email, next: emailRequestedFor })
                   : ""}
               </p>
             </div>

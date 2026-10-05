@@ -1,12 +1,18 @@
 import { NextResponse } from "next/server";
+import { hasLocale } from "next-intl";
+import { getTranslations } from "next-intl/server";
+import { routing } from "@/i18n/routing";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(_request: Request, { params }: { params: Promise<{ locale: string }> }) {
+  const requested = (await params).locale;
+  const locale = hasLocale(routing.locales, requested) ? requested : routing.defaultLocale;
+  const t = await getTranslations({ locale, namespace: "Dashboard.profile.export" });
   const session = await getSession();
-  if (!session) return new NextResponse("Non authentifié", { status: 401 });
+  if (!session) return new NextResponse(t("unauthenticated"), { status: 401 });
   const userId = session.user.id;
 
   const [user, memberships, clientServices, helpRequests, sessions] = await Promise.all([
@@ -93,10 +99,11 @@ export async function GET() {
   );
 
   const date = new Date().toISOString().slice(0, 10);
+  const fileName: string = t("fileName", { date });
   return new NextResponse(body, {
     headers: {
       "Content-Type": "application/json; charset=utf-8",
-      "Content-Disposition": `attachment; filename="mes-donnees-automerio-${date}.json"`,
+      "Content-Disposition": `attachment; filename="${fileName}"`,
       "Cache-Control": "no-store",
     },
   });

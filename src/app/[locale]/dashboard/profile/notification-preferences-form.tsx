@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { getErrorMessage } from "@/lib/utils";
@@ -19,13 +20,14 @@ export function NotificationPreferencesForm({
 }: {
   initialPreferences: NotificationPreferences;
 }) {
+  const t = useTranslations("Dashboard.profile.notifications");
   return (
     <ProfileSection
-      title="E-mails que nous vous envoyons"
-      description="Les e-mails liés à votre compte et à vos paiements vous parviennent dans tous les cas."
+      title={t("title")}
+      description={t("description")}
       action={
         <p className="pt-1 text-xs text-muted-foreground">
-          Enregistré automatiquement
+          {t("autosave")}
         </p>
       }
     >
