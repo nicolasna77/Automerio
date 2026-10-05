@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { ChevronRight, TriangleAlert } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
@@ -14,6 +15,7 @@ export async function OverviewServices({
 }: {
   organizationId: string;
 }) {
+  const t = await getTranslations("Dashboard.overview.services");
   const rows = await db.clientService.findMany({
     where: { organizationId, status: { not: "CANCELED" } },
     include: { service: true, events: { orderBy: { createdAt: "desc" } } },
@@ -27,12 +29,12 @@ export async function OverviewServices({
     <Card>
       <CardHeader>
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-          <CardTitle as="h2" className="text-base">Vos solutions</CardTitle>
+          <CardTitle as="h2" className="text-base">{t("title")}</CardTitle>
           <Link
             href="/dashboard/services"
             className="relative touch-hitbox rounded-sm text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:focus-ring"
           >
-            Tout voir
+            {t("seeAll")}
           </Link>
         </div>
       </CardHeader>
@@ -55,7 +57,7 @@ export async function OverviewServices({
                           className="outline-none after:absolute after:inset-0 hover:underline focus-visible:underline"
                         >
                           {item.name}
-                          <span className="sr-only">, voir le détail</span>
+                          <span className="sr-only">{t("seeDetail")}</span>
                         </Link>
                       </p>
                       <div className="flex shrink-0 items-center gap-1.5">

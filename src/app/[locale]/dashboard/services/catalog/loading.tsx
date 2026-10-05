@@ -1,9 +1,11 @@
+import { useTranslations } from "next-intl";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageShell } from "@/components/page-shell";
 
 export default function Loading() {
+  const t = useTranslations("Dashboard.loading");
   return (
-    <PageShell size="wide" role="status" aria-label="Chargement du catalogue…">
+    <PageShell size="wide" role="status" aria-label={t("catalog")}>
       <Skeleton className="h-8 w-44" />
       <Skeleton className="mt-2 h-5 w-72" />
       <div className="mt-6 mb-6 flex gap-6 border-b border-border pb-3">

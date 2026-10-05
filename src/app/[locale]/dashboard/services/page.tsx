@@ -1,4 +1,5 @@
 import { titleMetadata } from "@/i18n/metadata";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { redirect } from "next/navigation";
 import { Plus } from "lucide-react";
@@ -20,9 +21,10 @@ export default async function PrestationsPage({
 }: {
   searchParams: Promise<{ checkout?: string; clientServiceId?: string }>;
 }) {
-  const [{ active: organization }, params] = await Promise.all([
+  const [{ active: organization }, params, t] = await Promise.all([
     requireActiveOrganization(),
     searchParams,
+    getTranslations("Dashboard.services"),
   ]);
 
   const clientServices = await db.clientService.findMany({
@@ -47,12 +49,12 @@ export default async function PrestationsPage({
   return (
     <PageShell size="wide">
       <PageHeader
-        title="Solutions"
-        description="Les automatisations que vous avez activées, et où en est chacune."
+        title={t("title")}
+        description={t("description")}
         actions={
           <Link href={CATALOGUE_PATH} className={buttonVariants({ variant: "outline" })}>
             <Plus aria-hidden="true" data-icon="inline-start" />
-            Ajouter une solution
+            {t("add")}
           </Link>
         }
         className="mb-6"

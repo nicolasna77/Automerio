@@ -1,4 +1,6 @@
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { formatFrenchPhone } from "@/lib/phone-format";
 import { Phone } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,9 +18,10 @@ function formatDateTime(date: Date): string {
 }
 
 export async function PendingCallbacks({ organizationId }: { organizationId: string }) {
-  const [callbacks, total] = await Promise.all([
+  const [callbacks, total, t] = await Promise.all([
     listPendingCallbacks(organizationId),
     countPendingCallbacks(organizationId),
+    getTranslations("Dashboard.overview.callbacks"),
   ]);
   if (callbacks.length === 0) return null;
 
@@ -26,18 +29,15 @@ export async function PendingCallbacks({ organizationId }: { organizationId: str
     <Card>
       <CardHeader>
         <CardTitle as="h2" className="text-base">
-          Appels à rappeler
+          {t("title")}
         </CardTitle>
-        <CardDescription>
-          {total === 1
-            ? "Un appel attend un geste de votre part."
-            : `${total} appels attendent un geste de votre part.`}
-        </CardDescription>
+        <CardDescription>{t("pending", { count: total })}</CardDescription>
       </CardHeader>
       <CardContent>
         <ul className="divide-y divide-border">
           {callbacks.map((callback) => {
-            const who = callback.callerName ?? callback.fromNumber ?? "Numéro masqué";
+            const who =
+              callback.callerName ?? (callback.fromNumber ? formatFrenchPhone(callback.fromNumber) : t("hiddenNumber"));
             return (
               <li key={callback.id} className="flex flex-col gap-3 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center">
                 <div className="min-w-0 flex-1">
@@ -58,7 +58,7 @@ export async function PendingCallbacks({ organizationId }: { organizationId: str
                   {callback.fromNumber && (
                     <a href={`tel:${callback.fromNumber}`} className={buttonVariants({ size: "sm" })}>
                       <Phone aria-hidden="true" data-icon="inline-start" />
-                      Rappeler
+                      {t("callBack")}
                     </a>
                   )}
                   <MarkHandledButton
@@ -73,7 +73,7 @@ export async function PendingCallbacks({ organizationId }: { organizationId: str
         </ul>
         {total > callbacks.length && (
           <p className="mt-3 text-xs text-muted-foreground">
-            Les autres se trouvent sur la page de chaque solution.
+            {t("others")}
           </p>
         )}
       </CardContent>

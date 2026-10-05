@@ -918,6 +918,154 @@
       "profile": "Profil",
       "help": "Aide",
       "admin": "Administration"
+    },
+    "overview": {
+      "gettingStarted": {
+        "title": "Mettez en place votre première automatisation",
+        "description": "Vos appels, vos rendez-vous et vos dépenses s'afficheront ici dès qu'une solution sera active.",
+        "steps": {
+          "choose": {
+            "title": "Choisissez une solution",
+            "description": "Standard téléphonique, prise de rendez-vous ou de commande, assistants WhatsApp, Messenger ou Instagram."
+          },
+          "configure": {
+            "title": "Réglez-la et payez en ligne",
+            "description": "Horaires, consignes, numéro : quelques minutes suffisent. Paiement sécurisé par Stripe."
+          },
+          "install": {
+            "title": "L'équipe l'installe et la vérifie",
+            "description": "La plupart des solutions sont actives en quelques jours. Vous suivez l'avancement ici."
+          }
+        },
+        "cta": "Voir le catalogue"
+      },
+      "stats": {
+        "title": "Ce mois-ci",
+        "activeServices": "Solutions actives",
+        "settingUp": "+ {count} en cours d'installation",
+        "monthlySpend": "Dépense mensuelle",
+        "perMonthUnit": "€ TTC/mois",
+        "excludingSettingUp": "hors solutions en cours d'installation",
+        "callsThisMonth": "Appels ce mois-ci",
+        "loading": "Chargement des chiffres…"
+      },
+      "callbacks": {
+        "title": "Appels à rappeler",
+        "pending": "{count, plural, one {Un appel attend un geste de votre part.} other {# appels attendent un geste de votre part.}}",
+        "hiddenNumber": "Numéro masqué",
+        "callBack": "Rappeler",
+        "others": "Les autres se trouvent sur la page de chaque solution.",
+        "markHandled": "Traité",
+        "markHandledLabel": "Marquer comme traité : {label}",
+        "updateError": "L'appel n'a pas pu être mis à jour."
+      },
+      "services": {
+        "title": "Vos solutions",
+        "seeAll": "Tout voir",
+        "seeDetail": ", voir le détail"
+      },
+      "spend": {
+        "series": "Dépense",
+        "title": "Dépenses des 6 derniers mois",
+        "description": "Basé sur vos factures payées.",
+        "unit": "€ TTC",
+        "empty": "Vos dépenses apparaîtront ici dès le premier prélèvement, mois par mois.",
+        "loading": "Chargement du graphique…"
+      }
+    },
+    "loading": {
+      "calendar": "Chargement du calendrier…",
+      "help": "Chargement de l'aide…",
+      "organization": "Chargement de l'organisation…",
+      "payments": "Chargement des paiements…",
+      "profile": "Chargement du profil…",
+      "catalog": "Chargement du catalogue…",
+      "services": "Chargement des solutions…",
+      "configuration": "Chargement de la configuration…",
+      "service": "Chargement de la solution…",
+      "subscriptions": "Chargement des abonnements…"
+    },
+    "services": {
+      "title": "Solutions",
+      "description": "Les automatisations que vous avez activées, et où en est chacune.",
+      "add": "Ajouter une solution",
+      "tabs": {
+        "label": "Solutions",
+        "mine": "Mes solutions",
+        "catalog": "Catalogue"
+      },
+      "catalog": {
+        "firstDescription": "Choisissez votre première automatisation : l'équipe l'installe pour vous.",
+        "description": "Une même solution peut s'activer plusieurs fois, pour plusieurs boutiques.",
+        "heading": "Catalogue",
+        "vatNote": "Prix TTC, le montant hors taxes est rappelé dessous.",
+        "emptyTitle": "Aucune solution disponible pour l'instant",
+        "emptyDescription": "Repassez bientôt, ou écrivez-nous si vous cherchez une automatisation en particulier.",
+        "noSubscription": "Sans abonnement",
+        "activate": "Activer",
+        "activateAgain": "Activer à nouveau"
+      },
+      "settings": {
+        "label": "Réglages",
+        "labelFor": "Réglages de « {name} »"
+      },
+      "list": {
+        "heading": "Mes solutions",
+        "all": "Toutes",
+        "filterLabel": "Filtrer par statut",
+        "searchPlaceholder": "Rechercher une solution…",
+        "searchLabel": "Rechercher parmi mes solutions",
+        "emptyTitle": "Vous n'avez encore activé aucune solution",
+        "emptyDescription": "Choisissez une automatisation dans le catalogue pour démarrer.",
+        "seeCatalog": "Voir le catalogue",
+        "noMatchTitle": "Aucune solution ne correspond à ces filtres",
+        "noMatchDescription": "Essayez un autre nom ou un autre statut.",
+        "reset": "Réinitialiser",
+        "columns": {
+          "service": "Solution",
+          "status": "Statut",
+          "number": "Numéro",
+          "price": "Tarif"
+        },
+        "seeDetail": ", voir le détail",
+        "noSubscription": "Sans abonnement",
+        "paymentFailed": "Le dernier paiement a été refusé. <link>Mettez à jour votre moyen de paiement</link> pour éviter une interruption.",
+        "todo": "À faire : ",
+        "teamNote": "Note de l'équipe : ",
+        "serviceNamePrefix": "{name}. "
+      }
+    },
+    "checkout": {
+      "canceledTitle": "Paiement annulé",
+      "receivedTitle": "Paiement reçu",
+      "receivedTitleFor": "Paiement reçu pour « {name} »",
+      "confirmedTitle": "Paiement confirmé",
+      "confirmedTitleFor": "Paiement confirmé pour « {name} »",
+      "canceled": "Aucun paiement n'a été effectué. Vous pouvez réessayer quand vous le souhaitez depuis votre solution ci-dessous, ou depuis le catalogue.",
+      "recording": "Nous enregistrons votre paiement, cela ne prend que quelques secondes…",
+      "slow": "L'enregistrement du paiement prend plus de temps que prévu. Actualisez la page dans un instant, ou contactez-nous si le problème persiste.",
+      "nextStep": "Il reste une étape pour que votre assistant puisse répondre.",
+      "configuring": "Notre équipe installe votre solution et vous prévient dès qu'elle est active.",
+      "active": "Votre solution est active. Retrouvez-la dans « Mes solutions » ci-dessous.",
+      "dismiss": "Fermer ce message",
+      "resume": {
+        "redirecting": "Redirection…",
+        "reactivate": "Réactiver",
+        "resume": "Reprendre le paiement",
+        "havePromo": "J'ai un code promo",
+        "promoTitle": "Payer avec un code promo",
+        "promoDescription": "Le code est vérifié, puis appliqué au paiement Stripe.",
+        "promoLabel": "Code promo",
+        "payWithCode": "Payer avec ce code"
+      }
+    },
+    "calendar": {
+      "title": "Calendrier",
+      "description": "Les rendez-vous et commandes pris par téléphone, toutes solutions confondues.",
+      "emptyTitle": "Aucune solution ne prend encore de rendez-vous",
+      "emptyDescription": "Activez la prise de rendez-vous ou de commande par téléphone : chaque rendez-vous et chaque commande s'afficheront ici.",
+      "emptyCta": "Activer la prise de rendez-vous",
+      "subtitle": "{service} · {phone}"
     }
   },
   "Workspace": {
@@ -965,6 +1113,33 @@
     },
     "account": {
       "menuLabel": "{name}, menu du compte"
+    },
+    "calendar": {
+      "views": {
+        "month": "Mois",
+        "week": "Semaine",
+        "day": "Jour"
+      },
+      "weekdays": {
+        "mon": "Lun",
+        "tue": "Mar",
+        "wed": "Mer",
+        "thu": "Jeu",
+        "fri": "Ven",
+        "sat": "Sam",
+        "sun": "Dim"
+      },
+      "weekOf": "Semaine du {date}",
+      "previous": "Période précédente",
+      "today": "Aujourd'hui",
+      "next": "Période suivante",
+      "unscheduledCount": "{count} sans horaire",
+      "empty": "Aucun rendez-vous ni commande pris par téléphone pour l'instant.",
+      "dayLabel": "{date}, {count, plural, =0 {aucun rendez-vous} one {# rendez-vous} other {# rendez-vous}}",
+      "timeRange": "de {start} à {end}",
+      "notSynced": "Non synchronisé à l'agenda",
+      "unscheduledTitle": "Sans horaire",
+      "unscheduledDescription": "Commandes prises par téléphone. Elles n'occupent pas de créneau et n'apparaissent donc pas dans la grille."
     }
   },
   "Common": {
