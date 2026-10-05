@@ -8,6 +8,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { getCatalog } from "@/lib/get-catalog";
 import { HeroSection } from "./home-sections/hero-section";
 import { BeforeAfterSection } from "./home-sections/before-after-section";
+import { DemoCallSection } from "./home-sections/demo-call-section";
 import { AudienceSection } from "./home-sections/audience-section";
 import { TrustSection } from "./home-sections/trust-section";
 import { ServicesSection } from "./home-sections/services-section";
@@ -41,6 +42,7 @@ export default async function HomePage() {
       <main id="content" className="flex-1">
         <HeroSection />
         <BeforeAfterSection />
+        <DemoCallSection />
         <AudienceSection />
         <MethodSection />
         <JsonLd
