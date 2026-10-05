@@ -67,7 +67,9 @@ export function readClientUsageCap(
 ): UsageCap | null {
   const cap = readUsageCap(service);
   if (!cap) return null;
-  if (clientService.includedUsageUnits === null) return cap.unit === "MESSAGE" ? null : cap;
+  // Sans volume enregistré (souscription antérieure au choix du volume) : le
+  // quota du catalogue s'applique, y compris aux messageries.
+  if (clientService.includedUsageUnits === null) return cap;
   return { ...cap, includedUnits: clientService.includedUsageUnits };
 }
 
