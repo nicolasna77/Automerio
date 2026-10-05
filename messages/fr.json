@@ -455,6 +455,10 @@
         "noAccount": "Sans créer de compte",
         "short": "Trois minutes, puis il raccroche"
       }
+    },
+    "testimonials": {
+      "heading": "Ils ont confié leurs appels et leurs messages à Automerio",
+      "role": "{role}, {company}"
     }
   },
   "LlmsTxt": {

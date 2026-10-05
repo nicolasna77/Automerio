@@ -10,6 +10,7 @@ import { HeroSection } from "./home-sections/hero-section";
 import { BeforeAfterSection } from "./home-sections/before-after-section";
 import { DemoCallSection } from "./home-sections/demo-call-section";
 import { AudienceSection } from "./home-sections/audience-section";
+import { TestimonialsSection } from "./home-sections/testimonials-section";
 import { TrustSection } from "./home-sections/trust-section";
 import { ServicesSection } from "./home-sections/services-section";
 import { IntegrationsSection } from "./home-sections/integrations-section";
@@ -44,6 +45,7 @@ export default async function HomePage() {
         <BeforeAfterSection />
         <DemoCallSection />
         <AudienceSection />
+        <TestimonialsSection />
         <MethodSection />
         <JsonLd
           data={serviceListSchema(tHome("heading"), services, (service) => ({
