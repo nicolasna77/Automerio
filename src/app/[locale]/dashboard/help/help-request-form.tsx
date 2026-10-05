@@ -116,11 +116,16 @@ export function HelpRequestForm({
 
           <div className="space-y-2">
             <Label htmlFor="help-message">Message</Label>
+            {/* La consigne reste visible pendant la saisie : un placeholder
+                disparaîtrait à la première lettre. */}
+            <p id="help-message-hint" className="text-sm text-muted-foreground">
+              Que se passe-t-il, et depuis quand ? Plus c&apos;est précis, plus vite nous pourrons vous aider.
+            </p>
             <Textarea
               id="help-message"
               required
               rows={5}
-              placeholder="Que se passe-t-il, et depuis quand ? Plus c'est précis, plus vite nous pourrons vous aider."
+              aria-describedby="help-message-hint"
               value={values.message}
               onChange={(e) =>
                 setValues((prev) => ({ ...prev, message: e.target.value }))

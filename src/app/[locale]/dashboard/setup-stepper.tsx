@@ -31,7 +31,7 @@ export function SetupStepper({ steps }: { steps: SetupStep[] }) {
           <span className="font-medium text-foreground">{current.label}</span>
         </p>
       )}
-    <Stepper value={currentIndex === -1 ? steps.length : currentIndex + 1}>
+    <Stepper role="none" value={currentIndex === -1 ? steps.length : currentIndex + 1}>
       <StepperNav aria-label="Étapes de la mise en service" className="gap-1.5">
         {steps.map((step, index) => (
           <StepperItem

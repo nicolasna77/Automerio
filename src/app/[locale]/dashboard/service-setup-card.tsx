@@ -186,7 +186,7 @@ export function ServiceSetupCard({
               Choisissez le numéro qui recevra vos appels
             </p>
             <p className="mt-1 mb-3 text-sm text-muted-foreground">
-              L&apos;IA ne peut pas encore décrocher tant qu&apos;aucun numéro
+              L&apos;assistant ne peut pas encore décrocher tant qu&apos;aucun numéro
               n&apos;est attribué. Vous pourrez ensuite y renvoyer votre ligne
               actuelle, sans changer de numéro.
             </p>
@@ -200,7 +200,7 @@ export function ServiceSetupCard({
               Connectez votre compte WhatsApp Business
             </p>
             <p className="mt-1 mb-3 text-sm text-muted-foreground">
-              L&apos;IA ne peut pas encore répondre à vos clients tant qu&apos;aucun
+              L&apos;assistant ne peut pas encore répondre à vos clients tant qu&apos;aucun
               compte n&apos;est connecté. Vous gardez votre numéro actuel.
             </p>
             <WhatsAppConnection
@@ -217,7 +217,7 @@ export function ServiceSetupCard({
               Connectez votre Page Facebook
             </p>
             <p className="mt-1 mb-3 text-sm text-muted-foreground">
-              L&apos;IA ne peut pas encore répondre à vos clients tant
+              L&apos;assistant ne peut pas encore répondre à vos clients tant
               qu&apos;aucune Page n&apos;est connectée.
             </p>
             <MessengerConnection
@@ -234,7 +234,7 @@ export function ServiceSetupCard({
               Connectez votre compte Instagram
             </p>
             <p className="mt-1 mb-3 text-sm text-muted-foreground">
-              L&apos;IA ne peut pas encore répondre à vos clients tant
+              L&apos;assistant ne peut pas encore répondre à vos clients tant
               qu&apos;aucun compte n&apos;est connecté.
             </p>
             <InstagramConnection

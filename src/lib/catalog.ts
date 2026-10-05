@@ -397,35 +397,35 @@ const SETUP_ACTIONS: { needs: (item: SetupSubject) => boolean; action: SetupActi
   {
     needs: needsPhoneNumber,
     action: {
-      hint: "Choisissez un numéro pour que l'IA puisse décrocher",
+      hint: "Choisissez un numéro pour que l'assistant puisse décrocher",
       cta: "Choisir un numéro",
     },
   },
   {
     needs: needsWhatsAppConnection,
     action: {
-      hint: "Connectez votre compte WhatsApp pour que l'IA puisse répondre",
+      hint: "Connectez votre compte WhatsApp pour que l'assistant puisse répondre",
       cta: "Connecter WhatsApp",
     },
   },
   {
     needs: needsFacebookConnection,
     action: {
-      hint: "Connectez votre Page Facebook pour que l'IA puisse répondre",
+      hint: "Connectez votre Page Facebook pour que l'assistant puisse répondre",
       cta: "Connecter ma Page",
     },
   },
   {
     needs: needsInstagramConnection,
     action: {
-      hint: "Connectez votre compte Instagram pour que l'IA puisse répondre",
+      hint: "Connectez votre compte Instagram pour que l'assistant puisse répondre",
       cta: "Connecter Instagram",
     },
   },
   {
     needs: needsProductCatalog,
     action: {
-      hint: "Ajoutez votre carte pour que l'IA prenne les commandes",
+      hint: "Ajoutez votre carte pour que l'assistant prenne les commandes",
       cta: "Ajouter ma carte",
     },
   },

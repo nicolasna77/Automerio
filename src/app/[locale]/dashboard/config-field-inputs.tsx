@@ -247,9 +247,9 @@ const WEEKDAYS: Day[] = ["mon", "tue", "wed", "thu", "fri"];
 // Raccourcis pour les horaires les plus courants : on part de là, puis on
 // ajuste un jour si besoin.
 const HOUR_PRESETS: { label: string; days: Day[] }[] = [
-  { label: "Lun–ven, 9 h–18 h", days: WEEKDAYS },
-  { label: "Lun–sam, 9 h–18 h", days: [...WEEKDAYS, "sat"] },
-  { label: "Tous les jours, 9 h–18 h", days: [...WEEK_DAYS] },
+  { label: "Du lundi au vendredi, 9 h à 18 h", days: WEEKDAYS },
+  { label: "Du lundi au samedi, 9 h à 18 h", days: [...WEEKDAYS, "sat"] },
+  { label: "Tous les jours, 9 h à 18 h", days: [...WEEK_DAYS] },
 ];
 
 export function WeeklyHoursField({

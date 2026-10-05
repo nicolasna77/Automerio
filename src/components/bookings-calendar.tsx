@@ -200,7 +200,7 @@ export function BookingsCalendar({
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {unscheduled.length > 0 && (
             <Button
               type="button"
@@ -256,12 +256,18 @@ export function BookingsCalendar({
               <button
                 key={dayKey(day)}
                 type="button"
+                // Le nom dit le jour complet et le nombre de rendez-vous : les
+                // pastilles, tronquées ou masquées sur mobile, ne suffisent pas.
+                aria-label={`${format(day, "EEEE d MMMM", { locale: fr })}, ${
+                  items.length === 0 ? "aucun rendez-vous" : `${items.length} rendez-vous`
+                }`}
+                aria-current={isToday(day) ? "date" : undefined}
                 onClick={() => {
                   setCursor(startOfDay(day));
                   setView("day");
                 }}
                 className={cn(
-                  "flex min-h-0 flex-col items-start gap-1 overflow-hidden bg-card p-1.5 text-left transition-colors hover:bg-muted/60",
+                  "flex min-h-0 flex-col items-start gap-1 overflow-hidden bg-card p-1.5 text-left transition-colors hover:bg-muted/60 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring",
                   !inMonth && "bg-card/50"
                 )}
               >
@@ -272,16 +278,26 @@ export function BookingsCalendar({
                       ? "bg-primary text-primary-foreground"
                       : inMonth
                         ? "text-foreground"
-                        : "text-muted-foreground/50"
+                        : "text-muted-foreground"
                   )}
                 >
                   {format(day, "d")}
                 </span>
-                <div className="flex w-full min-w-0 flex-col gap-0.5">
+                {/* Sur mobile, une case fait 50 px : on affiche le nombre de
+                    rendez-vous, le détail s'ouvre en touchant le jour. */}
+                {items.length > 0 && (
+                  <span
+                    aria-hidden="true"
+                    className="rounded-sm bg-primary/10 px-1.5 py-px text-xs font-medium text-foreground tabular-nums sm:hidden"
+                  >
+                    {items.length}
+                  </span>
+                )}
+                <div aria-hidden="true" className="hidden w-full min-w-0 flex-col gap-0.5 sm:flex">
                   {items.slice(0, MAX_CHIPS_PER_DAY).map((item) => (
                     <span
                       key={item.id}
-                      className="truncate rounded-sm bg-primary/10 px-1 py-px text-xs text-primary"
+                      className="truncate rounded-sm bg-primary/10 px-1 py-px text-xs text-foreground"
                     >
                       {format(item.date, "HH:mm")} {item.title}
                     </span>
@@ -401,7 +417,7 @@ export function BookingsCalendar({
                 <DialogTitle>{detail.title}</DialogTitle>
                 <DialogDescription className="capitalize">
                   {format(detail.date, "EEEE d MMMM", { locale: fr })} ·{" "}
-                  {format(detail.date, "HH:mm")} – {format(bookingEnd(detail), "HH:mm")}
+                  de {format(detail.date, "HH:mm")} à {format(bookingEnd(detail), "HH:mm")}
                 </DialogDescription>
               </DialogHeader>
               {detail.subtitle && (

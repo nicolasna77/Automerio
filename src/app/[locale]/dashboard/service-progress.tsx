@@ -25,6 +25,7 @@ export function ServiceProgress({ status }: { status: ClientServiceStatus }) {
 
   return (
     <Stepper
+      role="none"
       value={currentStep}
       indicators={{ completed: <Check className="size-3" /> }}
       className="mt-3"

@@ -6,7 +6,7 @@ const STEPS = [
   },
   {
     title: "L'équipe Automerio répond",
-    description: "Nous traitons votre demande sous 24h ouvrées.",
+    description: "Nous traitons votre demande sous 24 h ouvrées.",
   },
   {
     title: "Recevez la confirmation",

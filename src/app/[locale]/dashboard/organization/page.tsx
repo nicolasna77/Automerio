@@ -137,7 +137,7 @@ export default async function OrganisationPage() {
 
         {canManage && (
           <section id="invite" aria-labelledby="invite-title" className="scroll-mt-20 space-y-3">
-            <SectionTitle id="invite-title">Inviter quelqu&apos;un</SectionTitle>
+            <SectionTitle id="invite-title">Inviter un membre</SectionTitle>
             <Card>
               <CardContent>
                 <InviteForm organizationId={organization.id} />

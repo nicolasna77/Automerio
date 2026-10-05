@@ -34,7 +34,7 @@ export function SidebarUserMenu({ name, email }: { name: string; email: string }
             render={
               <SidebarMenuButton
                 size="lg"
-                aria-label="Menu utilisateur"
+                aria-label={`${name}, menu du compte`}
                 tooltip={name}
                 className="data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground"
               />

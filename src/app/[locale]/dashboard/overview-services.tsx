@@ -49,7 +49,7 @@ export async function OverviewServices({
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-2">
-                      <p className="line-clamp-2 min-w-0 font-medium text-foreground">
+                      <p className="min-w-0 font-medium text-pretty text-foreground">
                         <Link
                           href={`/dashboard/services/${item.clientServiceId}`}
                           className="outline-none after:absolute after:inset-0 hover:underline focus-visible:underline"

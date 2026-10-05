@@ -196,7 +196,7 @@ describe("carte produits", () => {
 
   it("réclame la carte une fois la solution payée, tant qu'elle ne contient aucun produit", () => {
     expect(needsProductCatalog(ordering)).toBe(true);
-    expect(setupHint(ordering)).toBe("Ajoutez votre carte pour que l'IA prenne les commandes");
+    expect(setupHint(ordering)).toBe("Ajoutez votre carte pour que l'assistant prenne les commandes");
     expect(needsProductCatalog({ ...ordering, configuration: { objectives: ["order"], productCatalog: catalog } })).toBe(false);
     expect(needsProductCatalog({ ...ordering, status: "PENDING_PAYMENT" })).toBe(false);
     expect(needsProductCatalog({ ...ordering, configuration: { objectives: ["appointment"] } })).toBe(false);
@@ -204,7 +204,7 @@ describe("carte produits", () => {
 
   it("accompagne chaque blocage d'un intitulé d'action pour le bouton", () => {
     expect(setupAction(ordering)).toEqual({
-      hint: "Ajoutez votre carte pour que l'IA prenne les commandes",
+      hint: "Ajoutez votre carte pour que l'assistant prenne les commandes",
       cta: "Ajouter ma carte",
     });
     expect(setupAction({ ...ordering, externalPhoneNumber: null })?.cta).toBe(

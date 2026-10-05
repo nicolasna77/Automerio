@@ -1,6 +1,8 @@
 import { titleMetadata } from "@/i18n/metadata";
 import { FileText, TriangleAlert } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Link } from "@/i18n/navigation";
 import { EmptyState } from "@/components/empty-state";
 import {
   Table,
@@ -33,7 +35,7 @@ const STATUS_LABEL: Record<string, string> = {
 function InvoiceStatusBadge({ status }: { status: InvoiceDTO["status"] }) {
   const variant =
     status === "paid" ? "default" : status === "uncollectible" || status === "void" ? "destructive" : "secondary";
-  return <Badge variant={variant}>{status ? (STATUS_LABEL[status] ?? status) : "—"}</Badge>;
+  return <Badge variant={variant}>{status ? (STATUS_LABEL[status] ?? status) : "Inconnu"}</Badge>;
 }
 
 export default async function PaiementsPage() {
@@ -89,6 +91,17 @@ export default async function PaiementsPage() {
               ? "Votre première facture apparaîtra ici après le prochain prélèvement."
               : "Vos factures apparaîtront ici dès l'activation d'une solution."
           }
+          action={
+            activatedCount > 0 ? (
+              <Button variant="outline" nativeButton={false} render={<Link href="/dashboard/subscriptions" />}>
+                Voir mes abonnements
+              </Button>
+            ) : (
+              <Button nativeButton={false} render={<Link href="/dashboard/services/catalog" />}>
+                Voir le catalogue
+              </Button>
+            )
+          }
         />
       ) : (
         <div className="overflow-hidden rounded-lg border border-border bg-card">
@@ -107,7 +120,7 @@ export default async function PaiementsPage() {
               {invoices.map((invoice) => (
                 <TableRow key={invoice.id}>
                   <TableCell className="pl-5 font-medium text-foreground">
-                    {invoice.serviceName ?? "—"}
+                    {invoice.serviceName ?? "Solution non précisée"}
                   </TableCell>
                   <TableCell className="font-mono text-sm tabular-nums text-muted-foreground">
                     {formatDate(invoice.createdAt)}
@@ -136,7 +149,7 @@ export default async function PaiementsPage() {
                         Voir
                       </a>
                     ) : (
-                      <span className="text-sm text-muted-foreground">—</span>
+                      <span className="text-sm text-muted-foreground">Indisponible</span>
                     )}
                   </TableCell>
                 </TableRow>

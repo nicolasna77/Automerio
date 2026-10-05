@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronsUpDown, Plus, Settings2 } from "lucide-react";
+import { Check, ChevronsUpDown, Plus, Settings2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -47,12 +47,16 @@ export function OrganizationSwitcher({
               render={
                 <SidebarMenuButton
                   size="lg"
+                  aria-label={`${active.name}, changer d'entreprise`}
                   tooltip={active.name}
                   className="data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground"
                 />
               }
             >
-              <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-primary/15 text-xs font-semibold text-primary">
+              <span
+                aria-hidden="true"
+                className="flex size-6 shrink-0 items-center justify-center rounded-md bg-primary/15 text-xs font-semibold text-primary"
+              >
                 {orgInitial(active.name)}
               </span>
               <span className="flex min-w-0 flex-1 flex-col items-start group-data-[collapsible=icon]:hidden">
@@ -80,10 +84,20 @@ export function OrganizationSwitcher({
                     className="data-active:bg-accent data-active:text-accent-foreground"
                     onClick={() => handleSwitch(organization.id)}
                   >
-                    <span className="flex size-5 shrink-0 items-center justify-center rounded-sm bg-primary/15 text-xs font-semibold text-primary">
+                    <span
+                      aria-hidden="true"
+                      className="flex size-5 shrink-0 items-center justify-center rounded-sm bg-primary/15 text-xs font-semibold text-primary"
+                    >
                       {orgInitial(organization.name)}
                     </span>
                     <span className="truncate">{organization.name}</span>
+                    {/* L'entreprise active se lit autrement que par la couleur. */}
+                    {organization.id === active.id && (
+                      <>
+                        <Check className="ml-auto size-4 text-primary" aria-hidden="true" />
+                        <span className="sr-only">, entreprise actuelle</span>
+                      </>
+                    )}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuGroup>
