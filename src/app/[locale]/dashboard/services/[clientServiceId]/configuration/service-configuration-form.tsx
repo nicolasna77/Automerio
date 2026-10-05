@@ -370,7 +370,7 @@ export function ServiceConfigurationForm({
                   submitAttempted={submitAttempted}
                   companyName={companyName}
                 />
-                {category.id === "voice" && <VoicePreview clientServiceId={clientServiceId} values={values} />}
+                {category.id === "voice" && <VoicePreview target={{ clientServiceId }} values={values} />}
               </CardContent>
             </Card>
           </div>

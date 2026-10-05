@@ -7,13 +7,14 @@ import { Button } from "@/components/ui/button";
 import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
 import type { Configuration } from "@/lib/catalog";
-import { previewVoice } from "./voice-preview-actions";
+import { previewVoice, type VoicePreviewTarget } from "./voice-preview-actions";
 
 const asText = (value: Configuration[string] | undefined) => (typeof value === "string" ? value : "");
 
-// Onglet « Voix » des réglages : écouter le message d'accueil avec les
-// réglages en cours (même non enregistrés), sans passer d'appel.
-export function VoicePreview({ clientServiceId, values }: { clientServiceId: string; values: Configuration }) {
+// Onglet « Voix » des réglages et étape « Voix » de l'activation : écouter le
+// message d'accueil avec les réglages en cours (même non enregistrés), sans
+// passer d'appel.
+export function VoicePreview({ target, values }: { target: VoicePreviewTarget; values: Configuration }) {
   const [isLoading, startLoading] = useTransition();
   const [playing, setPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -38,7 +39,7 @@ export function VoicePreview({ clientServiceId, values }: { clientServiceId: str
     startLoading(async () => {
       try {
         const source = unwrap(
-          await previewVoice(clientServiceId, {
+          await previewVoice(target, {
             voice: asText(values.voice),
             speakingRate: asText(values.speakingRate),
             tone: asText(values.tone),

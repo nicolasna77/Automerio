@@ -42,6 +42,7 @@ import { formatCentsWithVat } from "@/lib/vat";
 import { getErrorMessage } from "@/lib/utils";
 import { activateService, previewPromoCode, type PromoPreview } from "@/app/[locale]/dashboard/actions";
 import { ConfigFieldsForm } from "@/app/[locale]/dashboard/config-fields";
+import { VoicePreview } from "@/app/[locale]/dashboard/voice-preview";
 import { buildFieldCategories, settingsHiddenKeys, type FieldCategory } from "@/app/[locale]/dashboard/field-categories";
 
 type AppliedPreview = Extract<PromoPreview, { ok: true }>;
@@ -351,6 +352,9 @@ export function ActivationFlow({
                   submitAttempted={submitAttempted}
                   companyName={organizationName}
                 />
+                {step.category.id === "voice" && TELEPHONY_SERVICE_SLUGS.has(service.slug) && (
+                  <VoicePreview target={{ serviceSlug: service.slug }} values={values} />
+                )}
                 {takesOrders && step.category.id === "need" && (
                   <p className="rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
                     Vous ajouterez votre carte après le paiement, depuis la page de la solution : une photo
