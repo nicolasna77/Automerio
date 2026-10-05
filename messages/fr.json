@@ -1343,6 +1343,85 @@
       "andMore": "{count, plural, one {et # autre} other {et # autres}}",
       "usageCap": "Plafond d'usage",
       "phoneNumber": "Numéro de téléphone"
+    },
+    "fields": {
+      "date": {
+        "placeholder": "Choisir une date"
+      },
+      "tags": {
+        "remove": "Retirer « {tag} »",
+        "placeholder": "Ajouter puis Entrée"
+      },
+      "time": {
+        "label": "{label} : {value}"
+      },
+      "hours": {
+        "presetsLabel": "Horaires courants",
+        "presets": {
+          "weekdays": "Du lundi au vendredi, 9 h à 18 h",
+          "weekdaysSaturday": "Du lundi au samedi, 9 h à 18 h",
+          "everyDay": "Tous les jours, 9 h à 18 h"
+        },
+        "opening": "Ouverture {day}",
+        "closing": "Fermeture {day}",
+        "to": "à",
+        "invalid": "L'heure de fermeture doit venir après l'ouverture.",
+        "copyFirst": "Copier le {day} sur tous les jours ouverts"
+      },
+      "duration": {
+        "minutes": "{minutes} min",
+        "hours": "{hours} h",
+        "hoursMinutes": "{hours} h {minutes}",
+        "default": "Durée par défaut"
+      },
+      "rules": {
+        "appointmentTypes": {
+          "trigger": "Prestation",
+          "target": "Durée",
+          "triggerPlaceholder": "Coupe femme",
+          "targetPlaceholder": "Durée",
+          "empty": "Aucune prestation : l'assistant utilise la durée par défaut.",
+          "addLabel": "Ajouter une prestation",
+          "rowLabel": "prestation"
+        },
+        "callRouting": {
+          "trigger": "Motif de l'appel",
+          "target": "Transférer vers",
+          "triggerPlaceholder": "Urgence",
+          "targetPlaceholder": "06 12 34 56 78",
+          "empty": "Aucune redirection : l'assistant prend un message pour chaque appel.",
+          "addLabel": "Ajouter une règle",
+          "rowLabel": "règle"
+        },
+        "sortingRules": {
+          "trigger": "Si l'e-mail parle de",
+          "target": "Alors",
+          "triggerPlaceholder": "facture",
+          "targetPlaceholder": "Transférer à la comptabilité",
+          "empty": "Aucune règle : les e-mails restent dans la boîte de réception.",
+          "addLabel": "Ajouter une règle",
+          "rowLabel": "règle"
+        },
+        "default": {
+          "trigger": "Condition",
+          "target": "Action",
+          "triggerPlaceholder": "",
+          "targetPlaceholder": "",
+          "empty": "Aucune règle pour l'instant.",
+          "addLabel": "Ajouter une règle",
+          "rowLabel": "règle"
+        },
+        "cellLabel": "{column}, {row} {index}",
+        "remove": "Supprimer la {row} {index}",
+        "commonReasons": "Motifs courants :",
+        "addReason": "Ajouter une redirection pour le motif « {reason} »"
+      },
+      "templates": {
+        "applied": "Modèle « {sector} » appliqué. Adaptez-le à votre activité.",
+        "undo": "Annuler",
+        "start": "Partir d'un modèle",
+        "sector": "Votre secteur d'activité"
+      }
     }
   },
   "Workspace": {
