@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useRouter } from "@/i18n/navigation";
 import { ChevronsUpDown, LogOut, UserRound } from "lucide-react";
@@ -25,6 +26,8 @@ import { initialsOf } from "@/lib/initials";
 export function SidebarUserMenu({ name, email }: { name: string; email: string }) {
   const router = useRouter();
   const { isMobile } = useSidebar();
+  const t = useTranslations("UserMenu");
+  const tWorkspace = useTranslations("Workspace.account");
 
   return (
     <SidebarMenu>
@@ -34,7 +37,7 @@ export function SidebarUserMenu({ name, email }: { name: string; email: string }
             render={
               <SidebarMenuButton
                 size="lg"
-                aria-label={`${name}, menu du compte`}
+                aria-label={tWorkspace("menuLabel", { name })}
                 tooltip={name}
                 className="data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground"
               />
@@ -68,7 +71,7 @@ export function SidebarUserMenu({ name, email }: { name: string; email: string }
             <DropdownMenuSeparator />
             <DropdownMenuItem render={<Link href="/dashboard/profile" />}>
               <UserRound aria-hidden="true" />
-              Mon profil
+              {t("profile")}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
@@ -84,7 +87,7 @@ export function SidebarUserMenu({ name, email }: { name: string; email: string }
               }
             >
               <LogOut aria-hidden="true" />
-              Se déconnecter
+              {t("signOut")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

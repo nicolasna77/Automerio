@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   CalendarDays,
   CreditCard,
@@ -44,6 +45,7 @@ export function DashboardSidebar({
   name: string;
   email: string;
 }) {
+  const t = useTranslations("Dashboard.nav");
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
@@ -59,36 +61,36 @@ export function DashboardSidebar({
           root={ROOT}
           groups={[
             {
-              label: "Pilotage",
+              label: t("groups.pilot"),
               items: [
                 {
                   href: ROOT,
-                  label: "Vue d'ensemble",
+                  label: t("overview"),
                   icon: LayoutDashboard,
                   badge: pendingCallbackCount,
-                  badgeLabel: "appels à rappeler",
+                  badgeLabel: t("callbacksBadge"),
                 },
                 {
                   href: "/dashboard/services",
-                  label: "Solutions",
+                  label: t("services"),
                   icon: Layers,
                   matches: ["/dashboard/services"],
                 },
-                { href: "/dashboard/calendar", label: "Calendrier", icon: CalendarDays },
+                { href: "/dashboard/calendar", label: t("calendar"), icon: CalendarDays },
               ],
             },
             {
-              label: "Facturation",
+              label: t("groups.billing"),
               items: [
-                { href: "/dashboard/subscriptions", label: "Abonnements", icon: CreditCard },
-                { href: "/dashboard/payments", label: "Paiements", icon: Receipt },
+                { href: "/dashboard/subscriptions", label: t("subscriptions"), icon: CreditCard },
+                { href: "/dashboard/payments", label: t("payments"), icon: Receipt },
               ],
             },
             {
-              label: "Compte",
+              label: t("groups.account"),
               items: [
-                { href: "/dashboard/organization", label: "Organisation", icon: Users },
-                { href: "/dashboard/profile", label: "Profil", icon: UserRound },
+                { href: "/dashboard/organization", label: t("organization"), icon: Users },
+                { href: "/dashboard/profile", label: t("profile"), icon: UserRound },
               ],
             },
           ]}
@@ -100,12 +102,12 @@ export function DashboardSidebar({
           items={[
             {
               href: "/dashboard/help",
-              label: "Aide",
+              label: t("help"),
               icon: LifeBuoy,
               badge: openHelpRequestCount,
             },
             ...(isAdmin
-              ? [{ href: "/admin", label: "Administration", icon: ShieldCheck }]
+              ? [{ href: "/admin", label: t("admin"), icon: ShieldCheck }]
               : []),
           ]}
         />

@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -36,8 +37,9 @@ export function PageBreadcrumbs({
   items: Breadcrumb[];
   className?: string;
 }) {
+  const t = useTranslations("Workspace");
   return (
-    <nav aria-label="Fil d'Ariane" className={cn("mb-4", className)}>
+    <nav aria-label={t("breadcrumb")} className={cn("mb-4", className)}>
       <ol className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground">
         {items.map((item, index) => {
           const isLast = index === items.length - 1;

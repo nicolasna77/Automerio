@@ -901,6 +901,85 @@
       "nameRequired": "Donnez un nom à cette activation.",
       "fieldRequired": "Le champ « {label} » est requis.",
       "skipToSummary": "Régler plus tard"
+    },
+    "nav": {
+      "groups": {
+        "pilot": "Pilotage",
+        "billing": "Facturation",
+        "account": "Compte"
+      },
+      "overview": "Vue d'ensemble",
+      "callbacksBadge": "appels à rappeler",
+      "services": "Solutions",
+      "calendar": "Calendrier",
+      "subscriptions": "Abonnements",
+      "payments": "Paiements",
+      "organization": "Organisation",
+      "profile": "Profil",
+      "help": "Aide",
+      "admin": "Administration"
     }
+  },
+  "Workspace": {
+    "skipToContent": "Aller au contenu",
+    "breadcrumb": "Fil d'Ariane",
+    "sidebar": {
+      "toggle": "Afficher ou masquer la barre latérale",
+      "mainNav": "Navigation principale",
+      "mobileDescription": "Les pages de votre espace."
+    },
+    "nav": {
+      "pending": "en attente",
+      "badge": ", {count} {label}"
+    },
+    "notifications": {
+      "label": "Notifications",
+      "labelUnread": "Notifications, {count, plural, one {# non lue} other {# non lues}}",
+      "empty": "Rien de neuf. Les changements sur vos solutions et les réponses de l'équipe apparaîtront ici.",
+      "justNow": "à l'instant",
+      "minutesAgo": "il y a {minutes} min",
+      "hoursAgo": "il y a {hours} h"
+    },
+    "organization": {
+      "current": ", entreprise actuelle",
+      "create": "Créer une organisation",
+      "manage": "Gérer « {name} »",
+      "switchLabel": "{name}, changer d'entreprise",
+      "createDescription": "Une organisation regroupe les solutions d'une même entreprise.",
+      "nameLabel": "Nom de l'organisation",
+      "namePlaceholder": "Dupont Coiffure",
+      "createError": "Impossible de créer l'organisation. Rechargez la page puis réessayez.",
+      "created": "« {name} » a été créée.",
+      "manageTitle": "Gérer l'organisation",
+      "manageDescription": "Renommez ou supprimez « {name} ».",
+      "renameLabel": "Nom",
+      "renameError": "Impossible de renommer l'organisation.",
+      "renamed": "Organisation renommée.",
+      "deleteAction": "Supprimer cette organisation",
+      "keepOne": "Vous devez conserver au moins une organisation.",
+      "deleteTitle": "Supprimer « {name} » ?",
+      "deleteDescription": "Cette action est irréversible. Elle n'est possible que si aucune solution de cette organisation n'est en cours (payée, en configuration ou active).",
+      "deleted": "« {name} » a été supprimée.",
+      "deleteError": "Impossible de supprimer l'organisation.",
+      "listLabel": "Organisations"
+    },
+    "account": {
+      "menuLabel": "{name}, menu du compte"
+    }
+  },
+  "Common": {
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "deleting": "Suppression…",
+    "create": "Créer",
+    "creating": "Création…",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…",
+    "rename": "Renommer",
+    "renaming": "…",
+    "close": "Fermer",
+    "back": "Retour",
+    "continue": "Continuer",
+    "sending": "Envoi…"
   }
 }
