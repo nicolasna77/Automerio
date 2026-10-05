@@ -33,7 +33,7 @@ const STATUS_LABEL: Record<string, string> = {
 function InvoiceStatusBadge({ status }: { status: InvoiceDTO["status"] }) {
   const variant =
     status === "paid" ? "default" : status === "uncollectible" || status === "void" ? "destructive" : "secondary";
-  return <Badge variant={variant}>{status ? (STATUS_LABEL[status] ?? status) : "—"}</Badge>;
+  return <Badge variant={variant}>{status ? (STATUS_LABEL[status] ?? status) : "Inconnu"}</Badge>;
 }
 
 export default async function PaiementsPage() {
@@ -107,7 +107,7 @@ export default async function PaiementsPage() {
               {invoices.map((invoice) => (
                 <TableRow key={invoice.id}>
                   <TableCell className="pl-5 font-medium text-foreground">
-                    {invoice.serviceName ?? "—"}
+                    {invoice.serviceName ?? "Solution non précisée"}
                   </TableCell>
                   <TableCell className="font-mono text-sm tabular-nums text-muted-foreground">
                     {formatDate(invoice.createdAt)}
@@ -136,7 +136,7 @@ export default async function PaiementsPage() {
                         Voir
                       </a>
                     ) : (
-                      <span className="text-sm text-muted-foreground">—</span>
+                      <span className="text-sm text-muted-foreground">Indisponible</span>
                     )}
                   </TableCell>
                 </TableRow>

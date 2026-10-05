@@ -200,7 +200,7 @@ export function BookingsCalendar({
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {unscheduled.length > 0 && (
             <Button
               type="button"
@@ -272,7 +272,7 @@ export function BookingsCalendar({
                       ? "bg-primary text-primary-foreground"
                       : inMonth
                         ? "text-foreground"
-                        : "text-muted-foreground/50"
+                        : "text-muted-foreground"
                   )}
                 >
                   {format(day, "d")}
@@ -281,7 +281,7 @@ export function BookingsCalendar({
                   {items.slice(0, MAX_CHIPS_PER_DAY).map((item) => (
                     <span
                       key={item.id}
-                      className="truncate rounded-sm bg-primary/10 px-1 py-px text-xs text-primary"
+                      className="truncate rounded-sm bg-primary/10 px-1 py-px text-xs text-foreground"
                     >
                       {format(item.date, "HH:mm")} {item.title}
                     </span>
@@ -401,7 +401,7 @@ export function BookingsCalendar({
                 <DialogTitle>{detail.title}</DialogTitle>
                 <DialogDescription className="capitalize">
                   {format(detail.date, "EEEE d MMMM", { locale: fr })} ·{" "}
-                  {format(detail.date, "HH:mm")} – {format(bookingEnd(detail), "HH:mm")}
+                  de {format(detail.date, "HH:mm")} à {format(bookingEnd(detail), "HH:mm")}
                 </DialogDescription>
               </DialogHeader>
               {detail.subtitle && (

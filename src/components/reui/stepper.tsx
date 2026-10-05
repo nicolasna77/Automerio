@@ -165,7 +165,9 @@ function Stepper({
     <StepperContext.Provider value={contextValue}>
       <div
         role="tablist"
-        aria-orientation={orientation}
+        // Une frise en lecture seule passe role="none" : l'orientation n'a
+        // alors plus de sens et ferait un attribut ARIA interdit.
+        aria-orientation={props.role && props.role !== "tablist" ? undefined : orientation}
         data-slot="stepper"
         className={cn("w-full", className)}
         data-orientation={orientation}

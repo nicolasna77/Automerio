@@ -146,7 +146,7 @@ export default async function AbonnementsPage() {
             Le détail de chaque prélèvement et vos factures se trouvent dans{" "}
             <Link
               href="/dashboard/payments"
-              className="text-primary underline-offset-4 hover:underline"
+              className="text-primary underline underline-offset-4"
             >
               Paiements
             </Link>

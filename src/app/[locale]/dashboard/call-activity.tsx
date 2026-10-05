@@ -72,7 +72,7 @@ const OUTCOME_LABELS: Record<string, string> = {
 };
 
 function formatDuration(seconds: number | null): string {
-  if (seconds === null) return "—";
+  if (seconds === null) return "durée inconnue";
   if (seconds < 60) return `${seconds}s`;
   return `${Math.floor(seconds / 60)} min ${String(seconds % 60).padStart(2, "0")}`;
 }
