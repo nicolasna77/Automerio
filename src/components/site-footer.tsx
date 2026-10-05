@@ -22,7 +22,7 @@ export async function SiteFooter() {
             {t("tagline")}
           </p>
         </div>
-        <div className="flex gap-16 text-sm text-muted-foreground">
+        <div className="grid grid-cols-2 gap-8 text-sm text-muted-foreground sm:flex sm:gap-16">
           <div>
             <h3 className="font-medium text-foreground">{t("offer")}</h3>
             <ul className="mt-3 space-y-2">

@@ -264,7 +264,7 @@ export function ServiceConfigurationForm({
             onClick={() => selectTab(section.id)}
             onKeyDown={(event) => handleTabKey(event, index)}
             className={cn(
-              "flex shrink-0 items-center gap-2.5 text-sm transition-colors focus-visible:focus-ring focus-visible:outline-none",
+              "flex shrink-0 items-center gap-2.5 text-sm transition-colors focus-visible:focus-ring",
               orientation === "vertical"
                 ? "w-full rounded-lg px-3 py-2 text-left"
                 : "-mb-px h-11 border-b-2 px-2 whitespace-nowrap",

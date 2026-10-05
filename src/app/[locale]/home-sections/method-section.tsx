@@ -1,17 +1,32 @@
 import { getTranslations } from "next-intl/server";
 import { ProductScreenshot } from "@/components/product-screenshot";
 import { cn } from "@/lib/utils";
-import {
-  BriefIllustration,
-  ChooseIllustration,
-  SetupIllustration,
-} from "./method-illustrations";
+import { BriefIllustration, SetupIllustration } from "./method-illustrations";
 
-const METHOD_STEPS = [
-  { step: "01", key: "choose", illustration: <ChooseIllustration /> },
-  { step: "02", key: "brief", illustration: <BriefIllustration /> },
-  { step: "03", key: "setup", illustration: <SetupIllustration /> },
-  { step: "04", key: "follow", illustration: null },
+// Deux colonnes plutôt qu'un zigzag de quatre rangées : ce qui revient au
+// client, puis ce que fait l'équipe. Les numéros d'étape gardent l'ordre.
+const COLUMNS = [
+  {
+    key: "you",
+    steps: [
+      { step: "01", key: "choose" },
+      { step: "02", key: "brief" },
+    ],
+    illustration: <BriefIllustration />,
+  },
+  {
+    key: "us",
+    steps: [
+      { step: "03", key: "setup" },
+      { step: "04", key: "follow" },
+    ],
+    illustration: <SetupIllustration />,
+  },
+] as const;
+
+const SHOTS = [
+  { key: "calendar", name: "dashboard-calendar", width: 768, height: 576, alt: "calendarAlt", url: "automerio.com/dashboard/calendar" },
+  { key: "settings", name: "dashboard-settings", width: 1024, height: 640, alt: "settingsAlt", url: "automerio.com/dashboard/services" },
 ] as const;
 
 export async function MethodSection() {
@@ -19,7 +34,7 @@ export async function MethodSection() {
   return (
     <section id="method" aria-labelledby="method-heading" className="scroll-mt-20 py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="mx-auto max-w-2xl text-center">
+        <div className="max-w-2xl">
           <span className="text-sm font-medium text-muted-foreground">{t("eyebrow")}</span>
           <h2
             id="method-heading"
@@ -27,45 +42,100 @@ export async function MethodSection() {
           >
             {t("heading")}
           </h2>
-          <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-            {t("lead")}
-          </p>
+          <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{t("lead")}</p>
         </div>
 
-        <ol className="mt-16 space-y-16 sm:space-y-24">
-          {METHOD_STEPS.map((step, index) => (
-            <li key={step.step} className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16">
-              <div className={cn("max-w-lg", index % 2 === 1 && "lg:order-2")}>
-                <div className="flex items-center gap-3">
-                  <span
-                    aria-hidden="true"
-                    className={cn(
-                      "flex size-10 items-center justify-center rounded-full font-mono text-sm font-medium",
-                      index >= 2 ? "bg-primary text-primary-foreground" : "border border-border bg-card text-foreground"
-                    )}
-                  >
-                    {step.step}
-                  </span>
-                  <span className="text-sm font-medium text-muted-foreground">{t(`steps.${step.key}.who`)}</span>
-                </div>
-                <h3 className="mt-5 text-2xl font-semibold tracking-tight text-balance text-foreground">
-                  {t(`steps.${step.key}.title`)}
+        <div className="mt-12 grid gap-12 lg:grid-cols-2 lg:gap-10">
+          {COLUMNS.map((column) => {
+            const ours = column.key === "us";
+            return (
+              <div
+                key={column.key}
+                className={cn("flex flex-col border-t pt-6", ours ? "border-primary" : "border-border")}
+              >
+                <h3 className={cn("text-sm font-medium", ours ? "text-primary" : "text-muted-foreground")}>
+                  {t(`columns.${column.key}`)}
                 </h3>
-                <p className="mt-3 text-base leading-relaxed text-muted-foreground sm:text-lg">{t(`steps.${step.key}.description`)}</p>
+                <ol className="mt-6 space-y-8">
+                  {column.steps.map((step) => (
+                    <li key={step.key} className="flex gap-4">
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          "flex size-10 shrink-0 items-center justify-center rounded-full font-mono text-sm font-medium",
+                          ours ? "bg-primary text-primary-foreground" : "border border-border bg-card text-foreground"
+                        )}
+                      >
+                        {step.step}
+                      </span>
+                      <div>
+                        <p className="text-sm text-muted-foreground">{t(`steps.${step.key}.who`)}</p>
+                        <h4 className="mt-1 text-xl font-semibold tracking-tight text-balance text-foreground">
+                          {t(`steps.${step.key}.title`)}
+                        </h4>
+                        <p className="mt-2 leading-relaxed text-muted-foreground">
+                          {t(`steps.${step.key}.description`)}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+                <div className="mt-auto pt-10">{column.illustration}</div>
               </div>
-              <div className={cn(index % 2 === 1 && "lg:order-1")}>{step.illustration ?? (
+            );
+          })}
+        </div>
+
+        {/* Le suivi (étape 04) : les appels sur toute la hauteur à gauche, le
+            calendrier et les réglages l'un sous l'autre à droite. */}
+        <div className="mt-20 sm:mt-28">
+          <div className="max-w-2xl">
+            <h3 className="text-2xl font-semibold tracking-tight text-balance text-foreground sm:text-3xl">
+              {t("dashboard.heading")}
+            </h3>
+            <p className="mt-3 text-lg leading-relaxed text-muted-foreground">{t("dashboard.lead")}</p>
+          </div>
+          <div className="mt-10 grid gap-10 lg:grid-cols-2 lg:gap-8">
+            <div className="min-w-0">
+              <h4 className="text-lg font-semibold tracking-tight text-foreground">
+                {t("dashboard.items.calls.title")}
+              </h4>
+              <p className="mt-1.5 mb-5 leading-relaxed text-muted-foreground">
+                {t("dashboard.items.calls.description")}
+              </p>
+              <ProductScreenshot
+                name="dashboard-calls"
+                width={976}
+                height={646}
+                alt={tShots("callsAlt")}
+                caption={tShots("demoCaption")}
+                sizes="(min-width: 1152px) 548px, 100vw"
+                windowUrl="automerio.com/dashboard/services"
+              />
+            </div>
+            <ul className="grid min-w-0 gap-10 lg:gap-8">
+              {SHOTS.map((shot) => (
+                <li key={shot.key} className="min-w-0">
+                  <h4 className="text-lg font-semibold tracking-tight text-foreground">
+                    {t(`dashboard.items.${shot.key}.title`)}
+                  </h4>
+                  <p className="mt-1.5 mb-5 leading-relaxed text-muted-foreground">
+                    {t(`dashboard.items.${shot.key}.description`)}
+                  </p>
                   <ProductScreenshot
-                    name="dashboard-calls"
-                    width={976}
-                    height={646}
-                    alt={tShots("callsAlt")}
+                    name={shot.name}
+                    width={shot.width}
+                    height={shot.height}
+                    alt={tShots(shot.alt)}
                     caption={tShots("demoCaption")}
-                    sizes="(min-width: 1024px) 560px, 100vw"
+                    sizes="(min-width: 1152px) 548px, 100vw"
+                    windowUrl={shot.url}
                   />
-                )}</div>
-            </li>
-          ))}
-        </ol>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </div>
     </section>
   );

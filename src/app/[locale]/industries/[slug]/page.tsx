@@ -15,6 +15,7 @@ import { getCatalog } from "@/lib/get-catalog";
 import { siteOpenGraph } from "@/lib/site-metadata";
 import { getTrade, getTrades, tradePath } from "@/lib/trades";
 import { isWaitlistMode } from "@/lib/launch-mode";
+import { cn } from "@/lib/utils";
 import { WaitlistSection } from "../../home-sections/waitlist-section";
 
 export async function generateMetadata({
@@ -102,13 +103,12 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
                   </Link>
                   <Link
                     href="#solutions"
-                    className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline focus-visible:focus-ring focus-visible:outline-none"
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline focus-visible:focus-ring"
                   >
                     {t("seeSolutions")}
                     <ArrowRight className="size-4" aria-hidden="true" />
                   </Link>
                 </div>
-                <p className="mt-6 text-sm text-muted-foreground">{t("for", { trades: trade.trades })}</p>
               </div>
               <figure>
                 <Image
@@ -130,14 +130,36 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
 
         <section aria-labelledby="pains-heading" className="bg-muted/40 py-16 sm:py-20">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <h2 id="pains-heading" className="text-center text-3xl font-semibold tracking-tight text-foreground">
-              {t("painsHeading")}
-            </h2>
-            <ul className="mt-10 grid gap-4 md:grid-cols-3">
-              {trade.pains.map((pain) => (
-                <li key={pain.title} className="rounded-lg border border-border bg-card p-6">
-                  <h3 className="text-lg font-semibold text-foreground">{pain.title}</h3>
-                  <p className="mt-2 leading-relaxed text-muted-foreground">{pain.description}</p>
+            <div className="mx-auto max-w-2xl text-center">
+              <h2 id="pains-heading" className="text-3xl font-semibold tracking-tight text-foreground">
+                {t("painsHeading")}
+              </h2>
+              <p className="mt-4 text-lg text-muted-foreground">{t("for", { trades: trade.trades })}</p>
+            </div>
+            {/* Un irritant principal en grand, les deux autres empilés à côté,
+                plutôt que trois cartes identiques. */}
+            <ul className="mt-10 grid gap-4 lg:grid-cols-2">
+              {trade.pains.map((pain, index) => (
+                <li
+                  key={pain.title}
+                  className={cn(
+                    "rounded-lg border p-6",
+                    index === 0
+                      ? "flex flex-col justify-center border-primary/30 bg-primary/5 sm:p-8 lg:row-span-2"
+                      : "border-border bg-card"
+                  )}
+                >
+                  <h3
+                    className={cn(
+                      "font-semibold tracking-tight text-foreground",
+                      index === 0 ? "text-2xl text-balance" : "text-lg"
+                    )}
+                  >
+                    {pain.title}
+                  </h3>
+                  <p className={cn("mt-2 leading-relaxed text-muted-foreground", index === 0 && "sm:text-lg")}>
+                    {pain.description}
+                  </p>
                 </li>
               ))}
             </ul>
@@ -185,19 +207,26 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
             className="scroll-mt-20 border-t border-border bg-muted/40 py-16 sm:py-20"
           >
             <div className="mx-auto max-w-6xl px-4 sm:px-6">
-              <div className="mx-auto max-w-2xl text-center">
+              <div className="max-w-2xl">
                 <h2 id="solutions-heading" className="text-3xl font-semibold tracking-tight text-balance text-foreground">
                   {t("solutionsHeading", { name })}
                 </h2>
                 <p className="mt-4 text-lg text-muted-foreground">{t("solutionsLead")}</p>
               </div>
-              <ul className="mt-10 grid gap-4 md:grid-cols-3">
+              {/* Une ligne par solution, prix aligné à droite comme une fiche
+                  technique (DESIGN.md, Images). */}
+              <ul className="mt-10 divide-y divide-border rounded-lg border border-border bg-card">
                 {solutions.map(({ service, why }) => (
-                  <li key={service.slug} className="flex flex-col rounded-lg border border-border bg-card p-6">
-                    <ServiceGlyphBadge slug={service.slug} size="md" />
-                    <h3 className="mt-4 text-lg font-semibold text-foreground">{service.name}</h3>
-                    <p className="mt-2 mb-6 leading-relaxed text-muted-foreground">{why}</p>
-                    <div className="mt-auto flex items-end justify-between gap-3 border-t border-border pt-4">
+                  <li
+                    key={service.slug}
+                    className="grid gap-4 p-6 sm:grid-cols-[auto_1fr_auto] sm:items-center sm:gap-6"
+                  >
+                    <ServiceGlyphBadge slug={service.slug} size="lg" />
+                    <div>
+                      <h3 className="text-lg font-semibold text-foreground">{service.name}</h3>
+                      <p className="mt-1 max-w-prose leading-relaxed text-muted-foreground">{why}</p>
+                    </div>
+                    <div className="flex items-end justify-between gap-6 border-t border-border pt-4 sm:flex-col sm:items-end sm:border-t-0 sm:pt-0">
                       {service.monthlyPriceCents !== null && <MonthlyPrice cents={service.monthlyPriceCents} />}
                       {!waitlist && (
                         <Link
@@ -225,23 +254,38 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
           </div>
         </section>
 
-        <nav aria-labelledby="other-trades-heading" className="border-t border-border py-12">
+        <nav aria-labelledby="other-trades-heading" className="border-t border-border py-16 sm:py-20">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <h2 id="other-trades-heading" className="text-center text-sm font-medium text-muted-foreground">
+            <h2 id="other-trades-heading" className="text-2xl font-semibold tracking-tight text-foreground">
               {t("otherTrades")}
             </h2>
-            <ul className="mt-4 flex flex-wrap justify-center gap-2">
+            <ul className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
               {otherTrades.map((other) => (
                 <li key={other.slug}>
                   <Link
                     href={tradePath(other.slug)}
-                    className="inline-flex rounded-lg border border-border bg-card px-3 py-1.5 text-sm text-foreground transition-colors hover:bg-muted"
+                    className="group/trade block overflow-hidden rounded-lg border border-border bg-card transition-colors hover:border-primary/40 focus-visible:focus-ring"
                   >
-                    {other.name}
+                    {/* Photo décorative : le nom du métier nomme le lien. */}
+                    <Image
+                      src={`/industries/${other.slug}.webp`}
+                      width={1200}
+                      height={900}
+                      alt=""
+                      sizes="(min-width: 1024px) 264px, 50vw"
+                      className="aspect-[3/2] w-full border-b border-border object-cover"
+                    />
+                    <span className="flex items-center justify-between gap-2 px-4 py-3 text-sm font-medium text-foreground transition-colors group-hover/trade:bg-muted/40">
+                      {other.name}
+                      <ChevronRight className="size-4 text-muted-foreground" aria-hidden="true" />
+                    </span>
                   </Link>
                 </li>
               ))}
             </ul>
+            <p className="mt-4 text-xs text-muted-foreground">
+              {t("photoCredits", { names: otherTrades.map((other) => other.photo.credit).join(", ") })}
+            </p>
           </div>
         </nav>
 

@@ -447,7 +447,7 @@ export function ActivityPreview({ slug }: { slug: string }) {
     <div aria-hidden="true" className="rounded-xl border border-border bg-card">
       <div className="flex items-center justify-between border-b border-border px-3 py-2">
         <Label>{t("today")}</Label>
-        <span className="flex items-center gap-1.5 rounded-lg bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+        <span className="flex items-center gap-1.5 rounded-lg bg-primary/10 px-2 py-0.5 text-xs font-medium text-foreground">
           <span className="size-1.5 rounded-full bg-primary" />
           {t("active")}
         </span>

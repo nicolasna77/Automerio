@@ -166,15 +166,10 @@
       "notHere": "Votre question n'est pas là ? <link>Écrivez-nous</link>, nous vous répondons par e-mail."
     },
     "hero": {
-      "title": "Votre entreprise continue de travailler, même quand vous ne pouvez pas",
-      "lead": "Un assistant décroche à votre place, répond à vos messages et remplit votre agenda, à toute heure. Notre équipe l'installe et le règle pour vous : rien de technique à faire.",
+      "title": "Plus aucun appel manqué, même les mains prises",
+      "lead": "Un assistant décroche à votre place, répond à vos messages et remplit votre agenda. Notre équipe l'installe pour vous.",
       "signup": "Créer mon compte",
       "howItWorks": "Voir comment ça fonctionne",
-      "specs": {
-        "install": "Installé pour vous en quelques jours",
-        "commitment": "Sans engagement",
-        "from": "Dès {price}"
-      },
       "live": {
         "title": "Appel en cours",
         "caller": "Appelant",
@@ -184,11 +179,11 @@
       "badgeWaitlist": "Lancement bientôt : rejoignez la liste d'attente"
     },
     "cta": {
-      "heading": "Votre temps mérite mieux que les tâches répétitives",
+      "heading": "Ne laissez plus vos clients sans réponse",
       "lead": "Choisissez une solution en quelques minutes, ou dites-nous ce qui vous fait perdre du temps : nous vous montrons ce qu'Automerio peut prendre en charge.",
       "signup": "Créer mon compte",
-      "ask": "Parler à Automerio",
-      "note": "Sans engagement · Remboursé pendant 30 jours · Aucun rendez-vous commercial obligatoire"
+      "ask": "Écrivez-nous",
+      "note": "Sans engagement, remboursé pendant 30 jours, sans rendez-vous commercial."
     },
     "services": {
       "heading": "Choisissez ce que vous voulez arrêter de faire vous-même",
@@ -228,40 +223,33 @@
       "lead": "Rien de technique à configurer. Deux étapes vous prennent quelques minutes, notre équipe s'occupe des deux autres.",
       "steps": {
         "choose": {
-          "who": "Vous · 2 minutes",
+          "who": "2 minutes",
           "title": "Vous choisissez ce qui vous fait perdre du temps",
           "description": "Les appels manqués, les rendez-vous à caler, les messages laissés sans réponse : chaque solution a son prix affiché. Pas de devis, pas de rendez-vous commercial, un abonnement mensuel sans engagement."
         },
         "brief": {
-          "who": "Vous · 5 minutes",
+          "who": "5 minutes",
           "title": "Vous nous dites comment vous travaillez",
           "description": "Votre activité, vos horaires, ce qu'il faut faire en cas d'urgence. Quelques champs à remplir depuis votre téléphone, rien à installer ni à paramétrer."
         },
         "setup": {
-          "who": "Nous · quelques jours",
+          "who": "Quelques jours",
           "title": "Nous installons, nous testons, nous activons",
           "description": "Notre équipe connecte la solution à vos outils existants et la teste sur vos cas réels. Vous recevez un e-mail le jour où elle est active."
         },
         "follow": {
-          "who": "Nous · chaque mois",
+          "who": "Chaque mois",
           "title": "Nous surveillons et nous ajustons",
           "description": "Vous suivez chaque appel et chaque message dans votre tableau de bord. Quand votre activité change, nous adaptons les réglages. C'est compris dans l'abonnement."
         }
       },
       "illustrations": {
-        "choose": {
-          "phone": "Standard téléphonique IA",
-          "booking": "Prise de rendez-vous",
-          "email": "Réponses sur WhatsApp",
-          "subscription": "Abonnement mensuel",
-          "noCommitment": "Sans engagement"
-        },
         "brief": {
           "title": "Votre fiche",
           "activity": "Votre activité",
           "activityValue": "Plombier chauffagiste",
           "hours": "Vos horaires",
-          "hoursValue": "Lun – ven · 8 h – 18 h",
+          "hoursValue": "Du lundi au vendredi, 8 h à 18 h",
           "emergency": "En cas d'urgence",
           "emergencyValue": "Me transférer l'appel",
           "send": "Envoyer à l'équipe"
@@ -273,6 +261,28 @@
           "newEmail": "Nouvel e-mail",
           "activeTitle": "Votre standard téléphonique est actif",
           "activeBody": "Il répond dès maintenant à vos appels."
+        }
+      },
+      "columns": {
+        "you": "Ce que vous faites",
+        "us": "Ce que nous faisons"
+      },
+      "dashboard": {
+        "heading": "Vous voyez tout ce que fait votre assistant",
+        "lead": "Chaque appel, chaque rendez-vous et chaque réglage au même endroit, sur ordinateur comme sur téléphone.",
+        "items": {
+          "calls": {
+            "title": "Le résumé de chaque appel",
+            "description": "Le motif, le nom de l'appelant, ce qui a été fait, et les appels qui attendent votre rappel."
+          },
+          "calendar": {
+            "title": "Les rendez-vous pris pour vous",
+            "description": "Ceux que l'assistant a pris au téléphone s'affichent dans votre calendrier, avec le motif et le numéro du client."
+          },
+          "settings": {
+            "title": "Des réglages que vous modifiez seul",
+            "description": "Horaires, message d'accueil, motifs de transfert : vous changez ce que fait l'assistant quand vous voulez."
+          }
         }
       }
     },
@@ -302,29 +312,6 @@
         }
       }
     },
-    "outcomes": {
-      "eyebrow": "Solutions",
-      "heading": "Ce qu'Automerio fait à votre place",
-      "lead": "Les appels, les rendez-vous et les messages vous interrompent toute la journée. Confiez ceux que vous voulez, gardez la main sur le reste.",
-      "channelsLabel": "Par",
-      "items": {
-        "calls": {
-          "title": "Vos appels",
-          "description": "L'assistant décroche à chaque appel, comprend la demande, vous passe les urgences et prend un message clair pour le reste.",
-          "channels": "votre ligne actuelle"
-        },
-        "bookings": {
-          "title": "Vos rendez-vous",
-          "description": "Il vérifie vos disponibilités, propose un créneau libre et l'inscrit directement dans votre agenda.",
-          "channels": "Google Agenda, Cal.com, Calendly"
-        },
-        "messages": {
-          "title": "Vos messages",
-          "description": "Il répond tout de suite aux questions de vos clients, même à 22 h, avec les informations que vous lui donnez.",
-          "channels": "WhatsApp, Messenger, Instagram"
-        }
-      }
-    },
     "beforeAfter": {
       "heading": "Le même appel, sans et avec Automerio",
       "lead": "Vous êtes sur un chantier, en rendez-vous ou en séance. Le téléphone sonne.",
@@ -347,11 +334,10 @@
           "summary": "Vous retrouvez le résumé dans votre tableau de bord."
         }
       },
-      "result": "Chaque appel trouve une réponse, même quand vous avez les mains prises.",
+      "result": "Chaque appel trouve une réponse, pendant que vous travaillez.",
       "seeServices": "Voir les solutions"
     },
     "audience": {
-      "eyebrow": "Pour qui ?",
       "heading": "Pour ceux qui ont les mains prises",
       "lead": "Artisans, beauté, coachs, restaurants, cabinets : vous reconnaîtrez sans doute votre journée.",
       "items": {
@@ -381,33 +367,8 @@
           "answer": "Automerio répond sur chacun et regroupe tout dans un seul tableau de bord."
         }
       },
-      "seePage": "Voir la page"
-    },
-    "why": {
-      "eyebrow": "Pourquoi Automerio",
-      "heading": "Pas un logiciel de plus.",
-      "headingSecond": "Un service qui travaille pour vous.",
-      "lead": "Un logiciel d'automatisation vous laisse tout le travail technique. Avec Automerio, notre équipe s'en charge.",
-      "software": "Un logiciel classique",
-      "us": "Avec Automerio",
-      "rows": {
-        "setup": {
-          "software": "Vous le configurez",
-          "us": "Nous installons"
-        },
-        "connect": {
-          "software": "Vous connectez vos outils",
-          "us": "Nous les connectons"
-        },
-        "monitor": {
-          "software": "Vous surveillez",
-          "us": "Nous surveillons"
-        },
-        "fix": {
-          "software": "Vous dépannez",
-          "us": "Nous ajustons"
-        }
-      }
+      "seePage": "Voir la page",
+      "photoCredits": "Photos : {names}, Unsplash"
     },
     "trust": {
       "heading": "Vos données et celles de vos clients",
@@ -431,21 +392,6 @@
         }
       },
       "privacy": "Lire la politique de confidentialité"
-    },
-    "product": {
-      "eyebrow": "Votre tableau de bord",
-      "heading": "Vous voyez tout ce que fait votre assistant",
-      "lead": "Chaque appel, chaque rendez-vous et chaque réglage au même endroit, sur ordinateur comme sur téléphone. Vous savez toujours ce qui a été fait pour vous.",
-      "items": {
-        "calendar": {
-          "title": "Les rendez-vous pris pour vous",
-          "description": "Ceux que l'assistant a pris au téléphone s'affichent dans votre calendrier, avec le motif et le numéro du client."
-        },
-        "settings": {
-          "title": "Des réglages que vous modifiez seul",
-          "description": "Horaires, message d'accueil, motifs de transfert : vous changez ce que fait l'assistant quand vous voulez."
-        }
-      }
     }
   },
   "LlmsTxt": {
@@ -541,7 +487,6 @@
       "lead": "Un prix affiché, sans devis à attendre. Sans engagement de durée.",
       "perMonthVat": "TTC par mois",
       "included": "Compris",
-      "cancelAnytime": "Sans engagement, résiliable à tout moment.",
       "includedHeading": "Compris dans l'abonnement"
     },
     "benefitsHeading": "Ce que ça change pour vous",
@@ -562,7 +507,7 @@
       "headingSignedOut": "Activez « {name} » depuis votre compte",
       "lead": "Notre équipe l'installe, la connecte à vos outils et la surveille chaque mois.",
       "tryAssistant": "Tester l'assistant",
-      "ask": "Poser une question"
+      "ask": "Écrivez-nous"
     },
     "phoneIncluded": {
       "minutesTitle": "{minutes} d'appel par mois",
@@ -866,10 +811,11 @@
     "seeSolution": "Voir la solution",
     "faqHeading": "Vos questions",
     "otherTrades": "Automerio pour d'autres métiers",
-    "ctaHeading": "Votre temps mérite mieux que les tâches répétitives",
+    "ctaHeading": "Ne laissez plus vos clients sans réponse",
     "ctaLead": "Choisissez une solution, notre équipe l'installe et la règle sur votre activité.",
-    "ctaContact": "Parler à Automerio",
-    "ctaNote": "Sans engagement · Remboursé pendant 30 jours",
-    "photoCredit": "Photo : {name}, Unsplash"
+    "ctaContact": "Écrivez-nous",
+    "ctaNote": "Sans engagement, remboursé pendant 30 jours.",
+    "photoCredit": "Photo : {name}, Unsplash",
+    "photoCredits": "Photos : {names}, Unsplash"
   }
 }

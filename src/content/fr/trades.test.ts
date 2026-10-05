@@ -27,6 +27,13 @@ describe("pages par métier", () => {
     }
   });
 
+  it("garde un hero court : titre sur deux lignes, chapeau de 20 mots au plus", () => {
+    for (const trade of TRADES) {
+      expect(trade.title.length, trade.slug).toBeLessThanOrEqual(45);
+      expect(trade.lead.split(/\s+/).length, trade.slug).toBeLessThanOrEqual(20);
+    }
+  });
+
   it("présente l'assistant comme virtuel dans chaque exemple d'appel", () => {
     for (const trade of TRADES) {
       expect(trade.call.turns[0].speaker).toBe("assistant");

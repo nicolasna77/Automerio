@@ -1,9 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { ArrowRight, Check, ChevronRight, Phone } from "lucide-react";
+import { ArrowRight, ChevronRight, Phone } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import type { ServiceDTO } from "@/lib/catalog";
-import { getPriceFormatter } from "@/lib/price-format-server";
 import { ProductScreenshot } from "@/components/product-screenshot";
 import { isWaitlistMode } from "@/lib/launch-mode";
 
@@ -96,29 +94,13 @@ function HeroGrid() {
   );
 }
 
-export async function HeroSection({ services }: { services: ServiceDTO[] }) {
+export async function HeroSection() {
   const waitlist = isWaitlistMode();
-  const [t, tShots, tWaitlist, price] = await Promise.all([
+  const [t, tShots, tWaitlist] = await Promise.all([
     getTranslations("Home.hero"),
     getTranslations("Screenshots"),
     getTranslations("Waitlist"),
-    getPriceFormatter(),
   ]);
-  const monthlyPrices = services
-    .filter(
-      (s) => s.category === "COMMUNICATION" && s.monthlyPriceCents !== null,
-    )
-    .map((s) => s.monthlyPriceCents as number);
-  const fromPrice =
-    monthlyPrices.length > 0 ? Math.min(...monthlyPrices) : null;
-
-  const specs = [
-    t("specs.install"),
-    t("specs.commitment"),
-    fromPrice !== null
-      ? t("specs.from", { price: price.perMonthWithVat(fromPrice) })
-      : null,
-  ].filter((spec): spec is string => spec !== null);
 
   return (
     <section className="relative isolate overflow-hidden border-b border-border">
@@ -126,12 +108,8 @@ export async function HeroSection({ services }: { services: ServiceDTO[] }) {
       <div className="mx-auto max-w-6xl px-4 pt-16 pb-12 text-center sm:px-6 sm:pt-24 sm:pb-16">
         <Link
           href={waitlist ? "#waitlist" : "#services"}
-          className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-sm text-foreground shadow-sm transition-colors hover:bg-muted focus-visible:focus-ring focus-visible:outline-none"
+          className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-sm text-foreground shadow-sm transition-colors hover:bg-muted focus-visible:focus-ring"
         >
-          <span
-            aria-hidden="true"
-            className="size-1.5 rounded-full bg-primary"
-          />
           {waitlist ? t("badgeWaitlist") : t("badge")}
           <ChevronRight
             className="size-3.5 text-muted-foreground"
@@ -139,7 +117,7 @@ export async function HeroSection({ services }: { services: ServiceDTO[] }) {
           />
         </Link>
 
-        <h1 className="mx-auto mt-8 max-w-4xl text-4xl leading-[1.08] font-semibold tracking-tight text-balance text-foreground sm:text-6xl lg:text-7xl">
+        <h1 className="mx-auto mt-8 max-w-4xl text-4xl leading-[1.08] font-semibold tracking-tight text-balance text-foreground sm:text-5xl lg:text-6xl">
           {t("title")}
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-pretty text-muted-foreground">
@@ -156,21 +134,12 @@ export async function HeroSection({ services }: { services: ServiceDTO[] }) {
           </Link>
           <Link
             href="#method"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline focus-visible:focus-ring focus-visible:outline-none"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline focus-visible:focus-ring"
           >
             {t("howItWorks")}
             <ArrowRight className="size-4" aria-hidden="true" />
           </Link>
         </div>
-
-        <ul className="mx-auto mt-8 flex max-w-2xl flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
-          {specs.map((spec) => (
-            <li key={spec} className="flex items-center gap-1.5">
-              <Check className="size-4 text-primary" aria-hidden="true" />
-              {spec}
-            </li>
-          ))}
-        </ul>
       </div>
 
       <div className="relative mx-auto max-w-6xl px-4 pb-16 sm:px-6 sm:pb-24">

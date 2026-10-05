@@ -11,8 +11,8 @@ export const TRADES: Trade[] = [
     metaTitle: "Standard téléphonique pour artisan : ne ratez plus un appel",
     metaDescription:
       "Plombiers, électriciens, chauffagistes : un assistant répond à vos appels pendant que vous êtes sur un chantier, vous transfère les urgences et prend vos rendez-vous.",
-    title: "Vos appels sont pris pendant que vous êtes sur le chantier",
-    lead: "Un assistant répond à votre place, vous transfère les urgences et note les demandes de devis. Vous rappelez quand vous avez les mains libres.",
+    title: "Vos appels pris, même sur le chantier",
+    lead: "Un assistant répond à votre place, vous transfère les urgences et note les demandes de devis.",
     trades: "Plombiers, électriciens, chauffagistes, menuisiers, couvreurs",
     photo: { alt: "Un électricien en casque de chantier vérifie un tableau électrique.", credit: "Emmanuel Ikwuegbu" },
     pains: [
@@ -71,8 +71,8 @@ export const TRADES: Trade[] = [
     metaTitle: "Prise de rendez-vous pour coiffeur et institut de beauté",
     metaDescription:
       "Un assistant prend les réservations par téléphone pendant vos prestations et répond aux messages Instagram et Messenger. Les rendez-vous arrivent dans votre agenda.",
-    title: "Les réservations sont prises pendant que vous êtes avec une cliente",
-    lead: "Un assistant répond au téléphone, propose un créneau libre et l'inscrit dans votre agenda. Vous ne lâchez plus les ciseaux pour décrocher.",
+    title: "Vos rendez-vous pris en pleine prestation",
+    lead: "Un assistant répond au téléphone, propose un créneau libre et l'inscrit dans votre agenda.",
     trades: "Salons de coiffure, barbiers, instituts de beauté, esthéticiennes, ongleries",
     photo: { alt: "Une coiffeuse fait un brushing à une cliente dans un salon.", credit: "Adam Winger" },
     pains: [
@@ -131,8 +131,8 @@ export const TRADES: Trade[] = [
     metaTitle: "Assistant téléphonique pour coach et thérapeute",
     metaDescription:
       "Pendant vos séances, un assistant répond aux appels, note ce que la personne recherche et répond aux messages Instagram et WhatsApp. Vous rappelez entre deux rendez-vous.",
-    title: "Les demandes sont prises en charge pendant vos séances",
-    lead: "Un assistant répond aux appels et aux messages, note ce que la personne recherche et vous transmet un résumé. Vous restez concentré sur la séance en cours.",
+    title: "Vos demandes traitées pendant vos séances",
+    lead: "Un assistant répond aux appels et aux messages, note ce que la personne recherche et vous envoie un résumé.",
     trades: "Coachs, thérapeutes, sophrologues, praticiens bien-être, formateurs",
     photo: { alt: "Deux femmes échangent face à face lors d'un rendez-vous.", credit: "Christina @ wocintechchat.com" },
     pains: [
@@ -187,8 +187,8 @@ export const TRADES: Trade[] = [
     metaTitle: "Prise de commande par téléphone pour restaurant et pizzeria",
     metaDescription:
       "Pendant le service, un assistant prend les commandes à emporter et les réservations par téléphone, avec votre menu et vos prix. Les commandes arrivent dans votre tableau de bord.",
-    title: "Les commandes sont prises au téléphone, même en plein service",
-    lead: "Un assistant répond aux appels, prend les commandes avec votre menu et vos prix, et note l'heure de retrait. L'équipe reste en cuisine et en salle.",
+    title: "Vos commandes prises en plein service",
+    lead: "Un assistant prend les commandes au téléphone avec votre menu et vos prix. L'équipe reste en cuisine et en salle.",
     trades: "Restaurants, pizzerias, traiteurs, boulangeries, food trucks",
     photo: { alt: "Un pizzaïolo enfourne une pizza dans un four à bois.", credit: "Lee Jiyong" },
     pains: [
@@ -247,8 +247,8 @@ export const TRADES: Trade[] = [
     metaTitle: "Secrétariat téléphonique automatisé pour cabinet et TPE",
     metaDescription:
       "Avocats, experts-comptables, agences : un assistant répond à vos appels, oriente les clients vers la bonne personne et répond aux messages. Sans secrétariat à plein temps.",
-    title: "Un accueil téléphonique professionnel, sans secrétariat à plein temps",
-    lead: "Un assistant répond à chaque appel, oriente les clients vers la bonne personne et prend un message pour les nouvelles demandes. Vos clients ne tombent plus sur la messagerie.",
+    title: "Un accueil téléphonique sans secrétariat",
+    lead: "Un assistant répond à chaque appel, oriente vers la bonne personne et prend un message pour les nouvelles demandes.",
     trades: "Cabinets d'avocats, experts-comptables, agences immobilières, agences, petites entreprises",
     photo: { alt: "Une petite équipe travaille ensemble autour d'un ordinateur portable.", credit: "Jud Mackrill" },
     pains: [
