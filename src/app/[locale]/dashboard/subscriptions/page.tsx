@@ -1,5 +1,6 @@
 import { titleMetadata } from "@/i18n/metadata";
 import { Link } from "@/i18n/navigation";
+import { getTranslations } from "next-intl/server";
 import { CalendarClock, CreditCard, Layers, TriangleAlert, Wallet } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { StatStrip, type Stat } from "@/components/stat-strip";
@@ -22,9 +23,10 @@ export const generateMetadata = titleMetadata("subscriptions");
 
 export default async function AbonnementsPage() {
   const { active: organization } = await requireActiveOrganization();
-  const [subscriptions, customerId] = await Promise.all([
+  const [subscriptions, customerId, t] = await Promise.all([
     getMySubscriptions(organization.id),
     organizationCustomerId(organization.id),
+    getTranslations("Dashboard.subscriptions"),
   ]);
 
   const running = subscriptions.filter(isRunning);
@@ -36,20 +38,20 @@ export default async function AbonnementsPage() {
   const stats: Stat[] = [
     {
       icon: Layers,
-      label: "Abonnements en cours",
+      label: t("stats.running"),
       value: String(running.length),
     },
     {
       icon: Wallet,
-      label: "Total mensuel",
+      label: t("stats.total"),
       value: formatEuroAmount(total),
-      unit: "€ TTC/mois",
+      unit: t("stats.totalUnit"),
       note: excludingVatSuffix(total),
     },
     {
       icon: CalendarClock,
-      label: "Prochain prélèvement",
-      value: renewal ? formatDate(renewal) : "Aucun",
+      label: t("stats.nextCharge"),
+      value: renewal ? formatDate(renewal) : t("stats.none"),
       mono: false,
     },
   ];
@@ -57,8 +59,8 @@ export default async function AbonnementsPage() {
   return (
     <PageShell size="content">
       <PageHeader
-        title="Abonnements"
-        description="Ce qui vous est prélevé chaque mois, et ce que vous avez consommé sur la période en cours."
+        title={t("title")}
+        description={t("description")}
         actions={customerId && <BillingPortalButton organizationId={organization.id} />}
       />
 
@@ -73,10 +75,9 @@ export default async function AbonnementsPage() {
               aria-hidden="true"
             />
             <span>
-              Le dernier paiement de{" "}
-              {failing.map((subscription) => `« ${subscription.name} »`).join(", ")} a
-              été refusé. Mettez à jour votre moyen de paiement pour éviter une
-              interruption.
+              {t("failing", {
+                names: failing.map((subscription) => t("quoted", { name: subscription.name })).join(", "),
+              })}
             </span>
           </p>
           {customerId && (
@@ -88,14 +89,14 @@ export default async function AbonnementsPage() {
       {subscriptions.length === 0 ? (
         <EmptyState
           icon={CreditCard}
-          title="Vous n'avez aucun abonnement"
-          description="Les solutions facturées au mois apparaîtront ici, avec leur quota d'usage."
+          title={t("empty.title")}
+          description={t("empty.description")}
           action={
             <Link
               href="/dashboard/services/catalog"
               className={buttonVariants({ variant: "outline", size: "sm" })}
             >
-              Voir le catalogue
+              {t("empty.cta")}
             </Link>
           }
         />
@@ -109,7 +110,7 @@ export default async function AbonnementsPage() {
                 id="active-subscriptions"
                 className="text-lg font-semibold text-foreground"
               >
-                En cours
+                {t("running")}
               </h2>
               {running.map((subscription) => (
                 <SubscriptionCard
@@ -127,11 +128,9 @@ export default async function AbonnementsPage() {
                   id="inactive-subscriptions"
                   className="text-lg font-semibold text-foreground"
                 >
-                  Inactifs
+                  {t("stopped")}
                 </h2>
-                <p className="text-sm text-muted-foreground">
-                  Résiliés ou jamais démarrés : aucun prélèvement en cours.
-                </p>
+                <p className="text-sm text-muted-foreground">{t("stoppedDescription")}</p>
               </div>
               {stopped.map((subscription) => (
                 <SubscriptionCard
@@ -143,14 +142,13 @@ export default async function AbonnementsPage() {
           )}
 
           <p className="text-sm text-muted-foreground">
-            Le détail de chaque prélèvement et vos factures se trouvent dans{" "}
-            <Link
-              href="/dashboard/payments"
-              className="text-primary underline underline-offset-4"
-            >
-              Paiements
-            </Link>
-            .
+            {t.rich("paymentsLink", {
+              link: (chunks) => (
+                <Link href="/dashboard/payments" className="text-primary underline underline-offset-4">
+                  {chunks}
+                </Link>
+              ),
+            })}
           </p>
         </div>
       )}

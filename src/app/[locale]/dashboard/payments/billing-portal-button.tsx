@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { CreditCard, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ export function BillingPortalButton({
   variant?: "outline" | "default";
   size?: "sm";
 }) {
+  const t = useTranslations("Dashboard.payments.portal");
   const [isPending, startTransition] = useTransition();
 
   function handleClick() {
@@ -25,7 +27,7 @@ export function BillingPortalButton({
         const { url } = unwrap(await openBillingPortal(organizationId));
         window.location.href = url;
       } catch (err) {
-        toast.error(getErrorMessage(err, "Le portail de paiement est indisponible. Réessayez."));
+        toast.error(getErrorMessage(err, t("failed")));
       }
     });
   }
@@ -43,7 +45,7 @@ export function BillingPortalButton({
       ) : (
         <CreditCard aria-hidden="true" data-icon="inline-start" />
       )}
-      Gérer le moyen de paiement
+      {t("open")}
     </Button>
   );
 }

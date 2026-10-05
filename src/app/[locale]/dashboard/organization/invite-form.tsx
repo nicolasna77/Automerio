@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,8 @@ import { inviteMemberAction } from "./actions";
 
 export function InviteForm({ organizationId }: { organizationId: string }) {
   const router = useRouter();
+  const t = useTranslations("Dashboard.organization.inviteForm");
+  const tCommon = useTranslations("Common");
   const [pending, startTransition] = useTransition();
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<string>("member");
@@ -34,11 +37,11 @@ export function InviteForm({ organizationId }: { organizationId: string }) {
     startTransition(async () => {
       try {
         unwrap(await inviteMemberAction(organizationId, email, role));
-        toast.success(`Invitation envoyée à ${email.trim()}.`);
+        toast.success(t("sent", { email: email.trim() }));
         setEmail("");
         router.refresh();
       } catch (err) {
-        toast.error(getErrorMessage(err, "L'invitation n'a pas pu être envoyée."));
+        toast.error(getErrorMessage(err, t("failed")));
       }
     });
   }
@@ -47,20 +50,20 @@ export function InviteForm({ organizationId }: { organizationId: string }) {
     <form onSubmit={handleSubmit} className="max-w-3xl space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <div className="flex flex-1 flex-col gap-1.5">
-          <Label htmlFor="invite-email">Adresse e-mail</Label>
+          <Label htmlFor="invite-email">{t("email")}</Label>
           <Input
             id="invite-email"
             type="email"
             required
             autoComplete="off"
-            placeholder="sophie@exemple.fr"
+            placeholder={t("emailPlaceholder")}
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             disabled={pending}
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="invite-role">Rôle</Label>
+          <Label htmlFor="invite-role">{t("role")}</Label>
           <Select
             value={role}
             items={INVITABLE_ROLE_ITEMS}
@@ -80,13 +83,11 @@ export function InviteForm({ organizationId }: { organizationId: string }) {
           </Select>
         </div>
         <Button type="submit" disabled={pending || email.trim() === ""}>
-          {pending ? "Envoi…" : "Inviter"}
+          {pending ? tCommon("sending") : t("submit")}
         </Button>
       </div>
       <p className="max-w-xl text-xs leading-relaxed text-muted-foreground">
-        {ROLE_DESCRIPTIONS[role]} La personne recevra un lien pour rejoindre
-        l&apos;entreprise ; si elle n&apos;a pas de compte Automerio, elle pourra
-        en créer un.
+        {t("help", { roleDescription: ROLE_DESCRIPTIONS[role] ?? "" })}
       </p>
     </form>
   );

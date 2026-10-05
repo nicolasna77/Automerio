@@ -1657,6 +1657,124 @@
         "title": "Renvoi d'appel",
         "description": "Recevez vos appels sur l'assistant en gardant votre numéro."
       }
+    },
+    "subscriptions": {
+      "stats": {
+        "running": "Abonnements en cours",
+        "total": "Total mensuel",
+        "totalUnit": "€ TTC/mois",
+        "nextCharge": "Prochain prélèvement",
+        "none": "Aucun"
+      },
+      "title": "Abonnements",
+      "description": "Ce qui vous est prélevé chaque mois, et ce que vous avez consommé sur la période en cours.",
+      "failing": "Le dernier paiement de {names} a été refusé. Mettez à jour votre moyen de paiement pour éviter une interruption.",
+      "quoted": "« {name} »",
+      "empty": {
+        "title": "Vous n'avez aucun abonnement",
+        "description": "Les solutions facturées au mois apparaîtront ici, avec leur quota d'usage.",
+        "cta": "Voir le catalogue"
+      },
+      "running": "En cours",
+      "stopped": "Inactifs",
+      "stoppedDescription": "Résiliés ou jamais démarrés : aucun prélèvement en cours.",
+      "paymentsLink": "Le détail de chaque prélèvement et vos factures se trouvent dans <link>Paiements</link>.",
+      "settings": "Réglages",
+      "paymentFailed": "Le dernier paiement a été refusé. Mettez à jour votre moyen de paiement pour éviter une interruption.",
+      "gauge": {
+        "consumed": "Quota consommé",
+        "label": "Quota consommé sur la période",
+        "valueText": "{consumed} sur {included}",
+        "of": " / {included}",
+        "over": "{units} au-delà du forfait : <em>{amount}</em> s'ajouteront à la prochaine facture.",
+        "nearLimit": "<strong>Plus que {units}</strong> sur cette période. Au-delà, la consommation est facturée {price}.",
+        "remaining": "Il vous reste {units} sur cette période."
+      }
+    },
+    "payments": {
+      "status": {
+        "paid": "Payée",
+        "open": "En attente",
+        "draft": "Brouillon",
+        "uncollectible": "Irrécouvrable",
+        "void": "Annulée",
+        "unknown": "Inconnu"
+      },
+      "title": "Paiements",
+      "description": "Vos factures, par solution. Montant prélevé TTC, TVA à {vat} % incluse ; le hors taxes est rappelé sous chaque montant.",
+      "empty": {
+        "title": "Aucune facture pour l'instant",
+        "afterActivation": "Votre première facture apparaîtra ici après le prochain prélèvement.",
+        "beforeActivation": "Vos factures apparaîtront ici dès l'activation d'une solution.",
+        "subscriptions": "Voir mes abonnements",
+        "catalog": "Voir le catalogue"
+      },
+      "table": {
+        "caption": "Historique des factures",
+        "service": "Solution",
+        "date": "Date",
+        "amount": "Montant",
+        "status": "Statut",
+        "invoice": "Facture",
+        "unknownService": "Solution non précisée",
+        "inclVat": " € TTC",
+        "view": "Voir",
+        "unavailable": "Indisponible"
+      },
+      "portal": {
+        "open": "Gérer le moyen de paiement",
+        "failed": "Le portail de paiement est indisponible. Réessayez."
+      }
+    },
+    "organization": {
+      "title": "Organisation",
+      "you": "Vous : {role}",
+      "description": "Les personnes qui ont accès aux solutions de cette entreprise. Un collaborateur consulte et configure ; un responsable peut en plus résilier, payer et gérer l'équipe.",
+      "invite": "Inviter un membre",
+      "team": "Équipe",
+      "alone": {
+        "title": "Vous êtes seul sur cette entreprise",
+        "manager": "Invitez un collègue pour qu'il suive les appels reçus et la configuration des solutions, sans lui donner la main sur les paiements.",
+        "member": "Un responsable peut inviter d'autres personnes à rejoindre cette entreprise."
+      },
+      "pending": "Invitations en attente",
+      "count": "({count})",
+      "members": {
+        "failed": "L'opération a échoué.",
+        "roleChanged": "{name} est maintenant {role}.",
+        "transferred": "{name} est maintenant propriétaire. Vous restez responsable.",
+        "removed": "{name} n'a plus accès à cette entreprise.",
+        "you": "vous",
+        "since": "Membre depuis le {date}",
+        "roleOf": "Rôle de {name}",
+        "transfer": "Transmettre la propriété",
+        "remove": "Retirer",
+        "transferTitle": "Transmettre la propriété à {name} ?",
+        "transferBody": "{name} deviendra propriétaire de l'entreprise, et sera la seule personne à pouvoir la transmettre à nouveau. Vous resterez responsable : vous gardez la gestion de l'équipe, des solutions et des paiements.",
+        "transferring": "Transmission…",
+        "transferConfirm": "Transmettre",
+        "removeTitle": "Retirer {name} ?",
+        "removeBody": "Cette personne perdra l'accès aux solutions de cette entreprise, à leurs journaux d'appels et à leur configuration. Vous pourrez l'inviter à nouveau.",
+        "removing": "Retrait…"
+      },
+      "inviteForm": {
+        "sent": "Invitation envoyée à {email}.",
+        "failed": "L'invitation n'a pas pu être envoyée.",
+        "email": "Adresse e-mail",
+        "emailPlaceholder": "sophie@exemple.fr",
+        "role": "Rôle",
+        "submit": "Inviter",
+        "help": "{roleDescription} La personne recevra un lien pour rejoindre l'entreprise ; si elle n'a pas de compte Automerio, elle pourra en créer un."
+      },
+      "invitations": {
+        "canceled": "Invitation de {email} annulée.",
+        "failed": "L'annulation a échoué.",
+        "waiting": "Invitation envoyée, en attente de réponse. Expire le {date}"
+      },
+      "picker": {
+        "label": "Entreprise affichée",
+        "create": "Nouvelle entreprise"
+      }
     }
   },
   "Workspace": {

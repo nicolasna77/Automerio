@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { MailPlus } from "lucide-react";
@@ -28,16 +29,18 @@ export function PendingInvitations({
   invitations: PendingInvitation[];
 }) {
   const router = useRouter();
+  const t = useTranslations("Dashboard.organization.invitations");
+  const tCommon = useTranslations("Common");
   const [pending, startTransition] = useTransition();
 
   function handleCancel(invitation: PendingInvitation) {
     startTransition(async () => {
       try {
         unwrap(await cancelInvitationAction(organizationId, invitation.id));
-        toast.success(`Invitation de ${invitation.email} annulée.`);
+        toast.success(t("canceled", { email: invitation.email }));
         router.refresh();
       } catch (err) {
-        toast.error(getErrorMessage(err, "L'annulation a échoué."));
+        toast.error(getErrorMessage(err, t("failed")));
       }
     });
   }
@@ -59,8 +62,7 @@ export function PendingInvitations({
                 {invitation.email}
               </p>
               <p className="text-xs text-muted-foreground">
-                Invitation envoyée, en attente de réponse. Expire le{" "}
-                {invitation.expiresAt}
+                {t("waiting", { date: invitation.expiresAt })}
               </p>
             </div>
 
@@ -73,7 +75,7 @@ export function PendingInvitations({
                   disabled={pending}
                   onClick={() => handleCancel(invitation)}
                 >
-                  Annuler
+                  {tCommon("cancel")}
                 </Button>
               )}
             </div>

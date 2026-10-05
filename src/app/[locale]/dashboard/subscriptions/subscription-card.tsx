@@ -1,4 +1,5 @@
 import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { TriangleAlert } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { StatusBadge } from "@/components/status-badge";
@@ -18,6 +19,7 @@ export function SubscriptionCard({
 }: {
   subscription: MySubscription;
 }) {
+  const t = useTranslations("Dashboard");
   const running = isRunning(subscription);
 
   const body = [
@@ -27,8 +29,7 @@ export function SubscriptionCard({
           className="mt-0.5 size-4 shrink-0 text-destructive"
           aria-hidden="true"
         />
-        Le dernier paiement a été refusé. Mettez à jour votre moyen de paiement
-        pour éviter une interruption.
+        {t("subscriptions.paymentFailed")}
       </p>
     ),
     running && (
@@ -47,8 +48,7 @@ export function SubscriptionCard({
       running &&
       !subscription.cap && (
         <p key="no-cap" className="text-sm text-muted-foreground">
-          Cet abonnement n&apos;a pas de quota d&apos;usage : le montant mensuel ne
-          bouge pas.
+          {t("service.subscription.noQuota")}
         </p>
       )
     ),
