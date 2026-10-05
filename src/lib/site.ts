@@ -8,6 +8,7 @@ export const SITE_NAV_LINKS = [
 ] as const;
 
 export const FAQ_KEYS = [
+  "channels",
   "keepNumber",
   "price",
   "setup",

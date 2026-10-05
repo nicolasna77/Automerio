@@ -1,41 +1,41 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { ArrowRight, ChevronRight, Phone } from "lucide-react";
+import { ArrowRight, CalendarCheck, ChevronRight, MessageCircle, PhoneIncoming } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { ProductScreenshot } from "@/components/product-screenshot";
 import { isWaitlistMode } from "@/lib/launch-mode";
 
-async function LiveCallCard() {
-  const [t, tCall] = await Promise.all([
-    getTranslations("Home.hero.live"),
-    getTranslations("Illustrations.call"),
-  ]);
-  const turns = [
-    { speaker: t("caller"), text: tCall("leakThem") },
-    { speaker: t("assistant"), text: tCall("leakUs") },
-  ];
+// Carte superposée à la capture : trois événements d'une matinée, un par
+// canal (appel, message, rendez-vous), pour montrer d'un coup d'œil que
+// l'assistant ne fait pas que décrocher. Illustration, masquée aux lecteurs
+// d'écran : la capture porte déjà son texte alternatif.
+async function ActivityCard() {
+  const t = await getTranslations("Home.hero.activity");
+  const events = [
+    { key: "call", icon: PhoneIncoming },
+    { key: "message", icon: MessageCircle },
+    { key: "booking", icon: CalendarCheck },
+  ] as const;
   return (
     <div
       aria-hidden="true"
       className="absolute right-0 bottom-24 hidden w-72 rounded-lg border border-border bg-card p-4 shadow-lg lg:block xl:-right-6"
     >
-      <div className="flex items-center justify-between">
-        <p className="flex items-center gap-2 text-sm font-medium text-foreground">
-          <Phone className="size-4 text-primary" />
-          {t("title")}
-        </p>
-        <span className="font-mono text-xs tabular-nums text-muted-foreground">
-          00:42
-        </span>
-      </div>
-      <dl className="mt-3 space-y-2 border-t border-border pt-3 text-xs leading-snug">
-        {turns.map((turn) => (
-          <div key={turn.speaker}>
-            <dt className="font-mono text-muted-foreground">{turn.speaker}</dt>
-            <dd className="mt-0.5 text-foreground">{turn.text}</dd>
-          </div>
+      <p className="text-sm font-medium text-foreground">{t("title")}</p>
+      <ul className="mt-3 space-y-3 border-t border-border pt-3 text-xs leading-snug">
+        {events.map(({ key, icon: Icon }) => (
+          <li key={key} className="flex items-start gap-2.5">
+            <Icon className="mt-0.5 size-4 shrink-0 text-primary" />
+            <span className="min-w-0 flex-1">
+              <span className="flex items-baseline justify-between gap-2">
+                <span className="font-medium text-foreground">{t(`${key}.title`)}</span>
+                <span className="font-mono tabular-nums text-muted-foreground">{t(`${key}.time`)}</span>
+              </span>
+              <span className="mt-0.5 block text-muted-foreground">{t(`${key}.detail`)}</span>
+            </span>
+          </li>
         ))}
-      </dl>
+      </ul>
     </div>
   );
 }
@@ -155,7 +155,7 @@ export async function HeroSection() {
           showcase
           priority
         />
-        <LiveCallCard />
+        <ActivityCard />
       </div>
     </section>
   );

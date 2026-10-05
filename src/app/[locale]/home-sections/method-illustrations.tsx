@@ -1,4 +1,4 @@
-import { CalendarCheck, Check, Mail, PhoneForwarded, SlidersHorizontal } from "lucide-react";
+import { CalendarCheck, Check, Mail, MessageCircle, PhoneForwarded, SlidersHorizontal } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { cn } from "@/lib/utils";
 
@@ -57,6 +57,7 @@ export async function SetupIllustration() {
   const t = await getTranslations("Home.method.illustrations.setup");
   const steps = [
     { icon: PhoneForwarded, label: t("number"), done: true },
+    { icon: MessageCircle, label: t("messaging"), done: true },
     { icon: CalendarCheck, label: t("calendar"), done: true },
     { icon: SlidersHorizontal, label: t("tested"), done: true },
   ];
