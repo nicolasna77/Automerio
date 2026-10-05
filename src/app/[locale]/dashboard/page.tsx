@@ -1,18 +1,18 @@
 import { titleMetadata } from "@/i18n/metadata";
 import { Suspense } from "react";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import { requireActiveOrganization } from "@/lib/organization";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatDate } from "@/lib/catalog";
 import { OverviewStats } from "./overview-stats";
 import { OverviewServices } from "./overview-services";
 import { PendingCallbacks } from "./pending-callbacks";
 import { SpendChart } from "./spend-chart";
 import { OverviewStatsSkeleton, SpendChartSkeleton } from "./overview-skeletons";
-import { PageHeader, PageShell } from "@/components/page-shell";
+import { PageShell } from "@/components/page-shell";
 
 export const generateMetadata = titleMetadata("dashboard");
 
@@ -33,19 +33,18 @@ const GETTING_STARTED = [
 ];
 
 export default async function DashboardPage() {
-  const [session, { active: organization }] = await Promise.all([
+  const [, { active: organization }, t] = await Promise.all([
     requireUser(),
     requireActiveOrganization(),
+    getTranslations("PageTitles"),
   ]);
   const hasEverActivated =
     (await db.clientService.count({ where: { organizationId: organization.id } })) > 0;
 
   return (
     <PageShell size="wide">
-      <PageHeader
-        title={`Bonjour ${session.user.name.split(" ")[0]}`}
-        description={formatDate(new Date())}
-      />
+      {/* Pas d'en-tête visible : la page s'ouvre directement sur l'activité. */}
+      <h1 className="sr-only">{t("dashboard")}</h1>
 
       {hasEverActivated ? (
         <div className="space-y-4">
