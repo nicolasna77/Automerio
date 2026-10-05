@@ -14,7 +14,7 @@ import {
   isDemoCallDryRun,
   normalizeFrenchPhone,
 } from "@/lib/demo-call";
-import { ActionError, actionError, runAction } from "@/lib/run-action";
+import { actionError, runAction } from "@/lib/run-action";
 import { placeDemoCall } from "@/lib/twilio";
 
 const TESTABLE_STATUSES = new Set(["CONFIGURING", "ACTIVE"]);

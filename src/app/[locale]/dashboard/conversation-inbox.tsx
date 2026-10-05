@@ -331,7 +331,6 @@ function ConversationThread({
   onUpdate: (conversations: ConversationView[]) => void;
 }) {
   const t = useTranslations("Dashboard.conversations");
-  const labels = useLabels();
   const [draft, setDraft] = useState("");
   const [pendingText, setPendingText] = useState<string | null>(null);
   const [isSending, startSending] = useTransition();
@@ -549,7 +548,6 @@ function MessageBubble({
   pending?: boolean;
 }) {
   const t = useTranslations("Dashboard.conversations");
-  const labels = useLabels();
   const fromContact = author === "CONTACT";
   const label =
     author === "ASSISTANT" ? t("authorAssistant") : author === "HUMAN" ? (authorName ?? t("authorYou")) : t("authorContact");

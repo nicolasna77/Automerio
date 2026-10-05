@@ -2,7 +2,7 @@
 
 import { getSession } from "@/lib/session";
 import { checkRateLimit } from "@/lib/rate-limit";
-import { ActionError, actionError, runAction } from "@/lib/run-action";
+import { actionError, runAction } from "@/lib/run-action";
 import {
   detectMenuFile,
   MENU_IMPORT_MAX_FILES,

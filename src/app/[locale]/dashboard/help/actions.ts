@@ -8,7 +8,7 @@ import {
   sendHelpRequestClientReplyInternalEmail,
   sendNewHelpRequestInternalEmail,
 } from "@/lib/email/notifications";
-import { ActionError, actionError, runAction } from "@/lib/run-action";
+import { actionError, runAction } from "@/lib/run-action";
 
 async function requireSession() {
   const session = await getSession();

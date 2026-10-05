@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { requireUser } from "@/lib/session";
-import { ActionError, actionError, runAction } from "@/lib/run-action";
+import { actionError, runAction } from "@/lib/run-action";
 
 const BLOCKING_STATUSES = ["PENDING_PAYMENT", "CONFIGURING", "ACTIVE"] as const;
 

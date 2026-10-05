@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import { assertCanReadClientService } from "@/lib/client-service-access";
-import { ActionError, actionError, runAction } from "@/lib/run-action";
+import { actionError, runAction } from "@/lib/run-action";
 
 export async function setCallHandledAction(clientServiceId: string, callId: string, handled: boolean) {
   return runAction(async () => {

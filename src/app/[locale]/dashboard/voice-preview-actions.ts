@@ -6,7 +6,7 @@ import { getActiveOrganizationContext } from "@/lib/organization";
 import { canReadClientService, viewerOf } from "@/lib/client-service-access";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { getOpenAIClient } from "@/lib/openai";
-import { ActionError, actionError, runAction } from "@/lib/run-action";
+import { actionError, runAction } from "@/lib/run-action";
 import { TELEPHONY_SERVICE_SLUGS } from "@/lib/catalog";
 import { toneInstructionOf, voiceSettingsOf } from "@/lib/voice-agent/voice";
 
