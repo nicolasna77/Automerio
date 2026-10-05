@@ -823,6 +823,11 @@
       "closed": "Fermé",
       "unsetDay": "Non précisé",
       "unsetNotice": "Horaires non précisés : l'assistant répond à toute heure. Choisissez un horaire courant ou ouvrez vos jours pour qu'il annonce vos heures et ce que vous faites en dehors."
+    },
+    "activation": {
+      "nameRequired": "Donnez un nom à cette activation.",
+      "fieldRequired": "Le champ « {label} » est requis.",
+      "skipToSummary": "Régler plus tard"
     }
   }
 }

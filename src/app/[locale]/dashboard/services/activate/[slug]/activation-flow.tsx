@@ -85,6 +85,7 @@ export function ActivationFlow({
   initialUnits?: number | null;
 }) {
   const tSimulator = useTranslations("PriceSimulator");
+  const t = useTranslations("Dashboard.activation");
   const price = usePriceFormatter();
   const nameFieldId = useId();
   const promoFieldId = useId();
@@ -195,7 +196,7 @@ export function ActivationFlow({
   function handleContinue() {
     if (step.kind === "plan" && !name.trim()) {
       setSubmitAttempted(true);
-      toast.error("Donnez un nom à cette activation.");
+      toast.error(t("nameRequired"));
       document.getElementById(nameFieldId)?.focus();
       return;
     }
@@ -209,12 +210,36 @@ export function ActivationFlow({
       const missing = findMissingRequiredField(step.category.fields, values);
       if (missing) {
         setSubmitAttempted(true);
-        toast.error(`Le champ « ${missing.label} » est requis.`);
+        toast.error(t("fieldRequired", { label: missing.label }));
         document.getElementById(missing.key)?.focus();
         return;
       }
     }
     goToStep(stepIndex + 1);
+  }
+
+  // Aller au récapitulatif sans parcourir les réglages facultatifs : ils
+  // restent modifiables après l'activation, et l'équipe les vérifie à
+  // l'installation. Un champ obligatoire encore vide ramène à son étape.
+  function handleSkipToSummary() {
+    if (!name.trim()) {
+      goToStep(0);
+      setSubmitAttempted(true);
+      toast.error(t("nameRequired"));
+      return;
+    }
+    for (let index = 1; index < steps.length - 1; index++) {
+      const candidate = steps[index];
+      if (candidate.kind !== "fields") continue;
+      const missing = findMissingRequiredField(candidate.category.fields, values);
+      if (missing) {
+        goToStep(index);
+        setSubmitAttempted(true);
+        toast.error(t("fieldRequired", { label: missing.label }));
+        return;
+      }
+    }
+    goToStep(steps.length - 1);
   }
 
   async function checkPromo(): Promise<PromoPreview | null> {
@@ -518,10 +543,17 @@ export function ActivationFlow({
                 : `Payer ${formatPrice(monthlyPriceCents)} TTC`}
             </Button>
           ) : (
-            <Button type="button" onClick={handleContinue}>
-              {isLastBeforeSummary ? "Voir le récapitulatif" : "Continuer"}
-              <ArrowRight aria-hidden="true" data-icon="inline-end" />
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              {!isLastBeforeSummary && (
+                <Button type="button" variant="ghost" onClick={handleSkipToSummary}>
+                  {t("skipToSummary")}
+                </Button>
+              )}
+              <Button type="button" onClick={handleContinue}>
+                {isLastBeforeSummary ? "Voir le récapitulatif" : "Continuer"}
+                <ArrowRight aria-hidden="true" data-icon="inline-end" />
+              </Button>
+            </div>
           )}
         </div>
       </div>
