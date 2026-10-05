@@ -136,25 +136,25 @@ export default async function ServiceDetailPage({
           <CardContent className="space-y-6">
           <header className="flex items-start gap-4">
             <ServiceGlyphBadge slug={item.service.slug} size="lg" />
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="flex min-w-0 flex-1 basis-56 flex-wrap items-center gap-x-3 gap-y-1">
-                  <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-                    {item.name}
-                  </h1>
-                  <StatusBadge status={item.status} />
-                </div>
-                <div className="shrink-0">
-                  <ServiceDetailActions item={item} />
-                </div>
+            {/* Grille : sur ordinateur, les actions à droite du titre ; sur
+                mobile, après la description plutôt qu'entre le titre et elle. */}
+            <div className="grid min-w-0 flex-1 gap-x-3 sm:grid-cols-[minmax(0,1fr)_auto]">
+              <div className="order-1 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 sm:col-start-1">
+                <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+                  {item.name}
+                </h1>
+                <StatusBadge status={item.status} />
+              </div>
+              <div className="order-4 mt-3 sm:order-none sm:col-start-2 sm:row-start-1 sm:mt-0">
+                <ServiceDetailActions item={item} />
               </div>
 
               {item.name !== item.service.name && (
-                <p className="text-sm text-muted-foreground">{item.service.name}</p>
+                <p className="order-2 text-sm text-muted-foreground sm:col-start-1">{item.service.name}</p>
               )}
-              <p className="mt-2 max-w-2xl text-muted-foreground">{item.service.description}</p>
+              <p className="order-3 mt-2 max-w-2xl text-muted-foreground sm:col-start-1">{item.service.description}</p>
 
-              <p className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm">
+              <p className="order-5 mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm sm:col-start-1">
                 <span className="font-medium text-foreground">{describeServiceStatus(item)}</span>
                 {!subscription && (
                   <span className="tabular-nums text-muted-foreground">
@@ -163,7 +163,7 @@ export default async function ServiceDetailPage({
                 )}
               </p>
               {showProgress && (
-                <div className="max-w-2xl">
+                <div className="order-6 max-w-2xl sm:col-start-1">
                   <ServiceProgress status={item.status} />
                 </div>
               )}
@@ -179,25 +179,25 @@ export default async function ServiceDetailPage({
       ) : (
         <header className="flex items-start gap-4">
           <ServiceGlyphBadge slug={item.service.slug} size="lg" />
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div className="flex min-w-0 flex-1 basis-56 flex-wrap items-center gap-x-3 gap-y-1">
-                <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-                  {item.name}
-                </h1>
-                <StatusBadge status={item.status} />
-              </div>
-              <div className="shrink-0">
-                <ServiceDetailActions item={item} />
-              </div>
+          {/* Grille : sur ordinateur, les actions à droite du titre ; sur
+              mobile, après la description plutôt qu'entre le titre et elle. */}
+          <div className="grid min-w-0 flex-1 gap-x-3 sm:grid-cols-[minmax(0,1fr)_auto]">
+            <div className="order-1 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 sm:col-start-1">
+              <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+                {item.name}
+              </h1>
+              <StatusBadge status={item.status} />
+            </div>
+            <div className="order-4 mt-3 sm:order-none sm:col-start-2 sm:row-start-1 sm:mt-0">
+              <ServiceDetailActions item={item} />
             </div>
 
             {item.name !== item.service.name && (
-              <p className="text-sm text-muted-foreground">{item.service.name}</p>
+              <p className="order-2 text-sm text-muted-foreground sm:col-start-1">{item.service.name}</p>
             )}
-            <p className="mt-2 max-w-2xl text-muted-foreground">{item.service.description}</p>
+            <p className="order-3 mt-2 max-w-2xl text-muted-foreground sm:col-start-1">{item.service.description}</p>
 
-            <p className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm">
+            <p className="order-5 mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm sm:col-start-1">
               <span className="font-medium text-foreground">{describeServiceStatus(item)}</span>
               {!subscription && (
                 <span className="tabular-nums text-muted-foreground">
@@ -206,7 +206,7 @@ export default async function ServiceDetailPage({
               )}
             </p>
             {showProgress && (
-              <div className="max-w-2xl">
+              <div className="order-6 max-w-2xl sm:col-start-1">
                 <ServiceProgress status={item.status} />
               </div>
             )}

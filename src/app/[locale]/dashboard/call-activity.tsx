@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useState, useTransition } from "react";
 import { toast } from "sonner";
-import { Check, ChevronDown, ListChecks, Phone, PhoneCall, PhoneOff, RotateCcw } from "lucide-react";
+import { Check, ChevronDown, ListChecks, Phone, PhoneCall, PhoneIncoming, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -13,6 +13,7 @@ import { getErrorMessage } from "@/lib/utils";
 import { setCallHandledAction } from "./call-actions";
 import { pollWhileVisible } from "@/lib/poll-while-visible";
 import { dayLabel, dayPhrase } from "@/lib/day-label";
+import { formatFrenchPhone } from "@/lib/phone-format";
 
 const POLL_INTERVAL_MS = 5_000;
 
@@ -73,7 +74,7 @@ const OUTCOME_LABELS: Record<string, string> = {
 
 function formatDuration(seconds: number | null): string {
   if (seconds === null) return "durée inconnue";
-  if (seconds < 60) return `${seconds}s`;
+  if (seconds < 60) return `${seconds} s`;
   return `${Math.floor(seconds / 60)} min ${String(seconds % 60).padStart(2, "0")}`;
 }
 
@@ -175,7 +176,7 @@ function RecentCallItem({
     setHandledOverride(null);
   }
   const handled = handledOverride ?? call.handled;
-  const caller = call.summary?.callerName ?? call.fromNumber ?? "Numéro masqué";
+  const caller = call.summary?.callerName ?? (call.fromNumber ? formatFrenchPhone(call.fromNumber) : "Numéro masqué");
   const hasDetail = call.summary !== null;
   const needsCallback = Boolean(call.summary?.followUp) && !handled;
 
@@ -194,7 +195,7 @@ function RecentCallItem({
 
   const header = (
     <>
-      <PhoneOff className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+      <PhoneIncoming className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
       <span className="min-w-0 flex-1">
         <span className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
           <span className="font-medium text-foreground">{call.summary?.reason ?? caller}</span>
@@ -254,7 +255,7 @@ function RecentCallItem({
           )}
           {call.summary?.callerName && call.fromNumber && (
             <p className="text-xs text-muted-foreground">
-              Numéro : <span className="tabular-nums">{call.fromNumber}</span>
+              Numéro : <span className="tabular-nums">{formatFrenchPhone(call.fromNumber)}</span>
             </p>
           )}
           <div className="flex flex-wrap gap-2">
@@ -404,7 +405,7 @@ export function CallActivity({ clientServiceId }: { clientServiceId: string }) {
                     className="size-3.5 shrink-0 text-primary"
                     aria-hidden="true"
                   />
-                  {call.fromNumber ?? "Numéro masqué"}
+                  {call.fromNumber ? formatFrenchPhone(call.fromNumber) : "Numéro masqué"}
                 </span>
                 <span className="text-xs tabular-nums text-muted-foreground">
                   {formatElapsed(call.startedAt)}

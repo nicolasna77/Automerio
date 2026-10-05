@@ -256,12 +256,18 @@ export function BookingsCalendar({
               <button
                 key={dayKey(day)}
                 type="button"
+                // Le nom dit le jour complet et le nombre de rendez-vous : les
+                // pastilles, tronquées ou masquées sur mobile, ne suffisent pas.
+                aria-label={`${format(day, "EEEE d MMMM", { locale: fr })}, ${
+                  items.length === 0 ? "aucun rendez-vous" : `${items.length} rendez-vous`
+                }`}
+                aria-current={isToday(day) ? "date" : undefined}
                 onClick={() => {
                   setCursor(startOfDay(day));
                   setView("day");
                 }}
                 className={cn(
-                  "flex min-h-0 flex-col items-start gap-1 overflow-hidden bg-card p-1.5 text-left transition-colors hover:bg-muted/60",
+                  "flex min-h-0 flex-col items-start gap-1 overflow-hidden bg-card p-1.5 text-left transition-colors hover:bg-muted/60 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring",
                   !inMonth && "bg-card/50"
                 )}
               >
@@ -277,7 +283,17 @@ export function BookingsCalendar({
                 >
                   {format(day, "d")}
                 </span>
-                <div className="flex w-full min-w-0 flex-col gap-0.5">
+                {/* Sur mobile, une case fait 50 px : on affiche le nombre de
+                    rendez-vous, le détail s'ouvre en touchant le jour. */}
+                {items.length > 0 && (
+                  <span
+                    aria-hidden="true"
+                    className="rounded-sm bg-primary/10 px-1.5 py-px text-xs font-medium text-foreground tabular-nums sm:hidden"
+                  >
+                    {items.length}
+                  </span>
+                )}
+                <div aria-hidden="true" className="hidden w-full min-w-0 flex-col gap-0.5 sm:flex">
                   {items.slice(0, MAX_CHIPS_PER_DAY).map((item) => (
                     <span
                       key={item.id}

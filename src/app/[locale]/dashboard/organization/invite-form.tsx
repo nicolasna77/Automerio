@@ -46,7 +46,7 @@ export function InviteForm({ organizationId }: { organizationId: string }) {
   return (
     <form onSubmit={handleSubmit} className="max-w-3xl space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-        <div className="flex-1 space-y-1.5">
+        <div className="flex flex-1 flex-col gap-1.5">
           <Label htmlFor="invite-email">Adresse e-mail</Label>
           <Input
             id="invite-email"
@@ -59,7 +59,7 @@ export function InviteForm({ organizationId }: { organizationId: string }) {
             disabled={pending}
           />
         </div>
-        <div className="space-y-1.5">
+        <div className="flex flex-col gap-1.5">
           <Label htmlFor="invite-role">Rôle</Label>
           <Select
             value={role}

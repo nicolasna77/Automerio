@@ -1,6 +1,8 @@
 import { titleMetadata } from "@/i18n/metadata";
 import { FileText, TriangleAlert } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Link } from "@/i18n/navigation";
 import { EmptyState } from "@/components/empty-state";
 import {
   Table,
@@ -88,6 +90,17 @@ export default async function PaiementsPage() {
             activatedCount > 0
               ? "Votre première facture apparaîtra ici après le prochain prélèvement."
               : "Vos factures apparaîtront ici dès l'activation d'une solution."
+          }
+          action={
+            activatedCount > 0 ? (
+              <Button variant="outline" nativeButton={false} render={<Link href="/dashboard/subscriptions" />}>
+                Voir mes abonnements
+              </Button>
+            ) : (
+              <Button nativeButton={false} render={<Link href="/dashboard/services/catalog" />}>
+                Voir le catalogue
+              </Button>
+            )
           }
         />
       ) : (
