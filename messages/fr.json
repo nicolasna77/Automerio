@@ -104,6 +104,10 @@
   },
   "Faq": {
     "items": {
+      "channels": {
+        "question": "Sur quels canaux l'assistant répond-il ?",
+        "answer": "Au téléphone, sur votre ligne actuelle grâce au renvoi d'appel, et par écrit sur WhatsApp Business, Messenger (votre Page Facebook) et Instagram (compte professionnel). Les rendez-vous arrivent dans Google Agenda, Cal.com ou Calendly. Chaque canal est une solution à part : vous activez seulement ceux dont vous avez besoin."
+      },
       "keepNumber": {
         "question": "Est-ce que je garde mon numéro ?",
         "answer": "Oui. Vous activez un renvoi d'appel de votre ligne vers l'assistant. Vos clients composent le même numéro qu'avant, et vous coupez le renvoi quand vous voulez."
@@ -125,12 +129,12 @@
         "answer": "Il prend un message avec les coordonnées de la personne et l'objet de sa demande. Si le motif fait partie de ceux que vous avez choisis, il vous transfère l'appel. Vous retrouvez chaque échange dans votre tableau de bord."
       },
       "takeOver": {
-        "question": "Puis-je reprendre la main pendant un appel ?",
-        "answer": "Pas en cours d'appel. En revanche, vous choisissez à l'avance les motifs pour lesquels l'assistant vous transfère l'appel, une urgence par exemple. Pour le reste, il prend un message."
+        "question": "Puis-je reprendre la main ?",
+        "answer": "Sur les messages, oui : depuis votre tableau de bord, vous répondez vous-même à un contact et l'assistant se met en pause pour lui. Au téléphone, pas en cours d'appel : vous choisissez à l'avance les motifs pour lesquels l'assistant vous transfère l'appel, une urgence par exemple."
       },
       "hours": {
         "question": "Est-ce que ça fonctionne le soir et le week-end ?",
-        "answer": "Oui, l'assistant répond à toute heure. En dehors de vos horaires d'ouverture, il prend un message que vous traitez à votre retour."
+        "answer": "Oui, l'assistant répond à toute heure, au téléphone comme par message. En dehors de vos horaires d'ouverture, il prend un message au téléphone ; par écrit, la conversation vous attend dans votre tableau de bord."
       },
       "editAnswers": {
         "question": "Puis-je modifier ce que dit l'assistant ?",
@@ -166,17 +170,30 @@
       "notHere": "Votre question n'est pas là ? <link>Écrivez-nous</link>, nous vous répondons par e-mail."
     },
     "hero": {
-      "title": "Plus aucun appel manqué, même les mains prises",
-      "lead": "Un assistant décroche à votre place, répond à vos messages et remplit votre agenda. Notre équipe l'installe pour vous.",
+      "title": "Vos appels et vos messages ont une réponse",
+      "lead": "Un assistant décroche, répond sur WhatsApp, Messenger et Instagram, et remplit votre agenda. Notre équipe l'installe.",
       "signup": "Créer mon compte",
       "howItWorks": "Voir comment ça fonctionne",
-      "live": {
-        "title": "Appel en cours",
-        "caller": "Appelant",
-        "assistant": "Assistant"
-      },
       "badge": "Nouveau : vos rendez-vous dans Google Agenda, Cal.com ou Calendly",
-      "badgeWaitlist": "Lancement bientôt : rejoignez la liste d'attente"
+      "badgeWaitlist": "Lancement bientôt : rejoignez la liste d'attente",
+      "activity": {
+        "title": "Ce matin",
+        "call": {
+          "title": "Appel transféré",
+          "time": "08:12",
+          "detail": "Fuite sous l'évier, urgence"
+        },
+        "message": {
+          "title": "Message WhatsApp répondu",
+          "time": "09:40",
+          "detail": "Horaires du samedi"
+        },
+        "booking": {
+          "title": "Rendez-vous ajouté",
+          "time": "10:05",
+          "detail": "Jeudi à 14 h, devis chaudière"
+        }
+      }
     },
     "cta": {
       "heading": "Ne laissez plus vos clients sans réponse",
@@ -235,7 +252,7 @@
         "setup": {
           "who": "Quelques jours",
           "title": "Nous installons, nous testons, nous activons",
-          "description": "Notre équipe connecte la solution à vos outils existants et la teste sur vos cas réels. Vous recevez un e-mail le jour où elle est active."
+          "description": "Notre équipe connecte la solution à votre ligne, à vos messageries et à votre agenda, puis la teste sur vos cas réels. Vous recevez un e-mail le jour où elle est active."
         },
         "follow": {
           "who": "Chaque mois",
@@ -255,12 +272,13 @@
           "send": "Envoyer à l'équipe"
         },
         "setup": {
-          "number": "Numéro relié à l'assistant",
+          "number": "Ligne reliée à l'assistant",
           "calendar": "Agenda connecté",
           "tested": "Scénarios testés sur vos cas",
           "newEmail": "Nouvel e-mail",
-          "activeTitle": "Votre standard téléphonique est actif",
-          "activeBody": "Il répond dès maintenant à vos appels."
+          "activeTitle": "Votre assistant est actif",
+          "activeBody": "Il répond dès maintenant à vos clients.",
+          "messaging": "WhatsApp et Instagram connectés"
         }
       },
       "columns": {
@@ -313,28 +331,60 @@
       }
     },
     "beforeAfter": {
-      "heading": "Le même appel, sans et avec Automerio",
-      "lead": "Vous êtes sur un chantier, en rendez-vous ou en séance. Le téléphone sonne.",
-      "before": {
-        "title": "Sans Automerio",
-        "steps": {
-          "call": "Un client appelle.",
-          "busy": "Vous êtes occupé, personne ne décroche.",
-          "later": "Vous rappelez le soir.",
-          "lost": "Il a déjà trouvé quelqu'un d'autre."
+      "heading": "La même demande, sans et avec Automerio",
+      "lead": "Vous êtes sur un chantier, en rendez-vous ou en séance. Un client vous contacte.",
+      "tabsLabel": "Choisir un exemple",
+      "before": "Sans Automerio",
+      "after": "Avec Automerio",
+      "cases": {
+        "call": {
+          "tab": "Un appel",
+          "before": {
+            "contact": "Un client appelle.",
+            "busy": "Vous êtes occupé, personne ne décroche.",
+            "later": "Vous rappelez le soir.",
+            "lost": "Il a déjà trouvé quelqu'un d'autre."
+          },
+          "after": {
+            "contact": "Un client appelle.",
+            "answer": "L'assistant décroche.",
+            "understand": "Il comprend la demande et note les coordonnées.",
+            "act": "Il vous transfère l'appel si c'est urgent, sinon il prend un message.",
+            "summary": "Vous retrouvez le résumé dans votre tableau de bord."
+          }
+        },
+        "message": {
+          "tab": "Un message WhatsApp",
+          "before": {
+            "contact": "Un client écrit sur WhatsApp à 21 h.",
+            "busy": "Vous voyez le message le lendemain.",
+            "later": "Vous répondez en fin de matinée.",
+            "lost": "Il a déjà réservé ailleurs."
+          },
+          "after": {
+            "contact": "Un client écrit sur WhatsApp à 21 h.",
+            "answer": "L'assistant répond tout de suite.",
+            "inform": "Il répond avec vos informations : horaires, tarifs, zone d'intervention.",
+            "takeOver": "Vous suivez la conversation et reprenez la main quand vous voulez."
+          }
+        },
+        "booking": {
+          "tab": "Une réservation",
+          "before": {
+            "contact": "Une cliente appelle pour un rendez-vous.",
+            "busy": "Vous êtes en prestation, personne ne répond.",
+            "later": "Vous la rappelez entre deux clientes.",
+            "lost": "Le créneau qu'elle voulait est déjà pris."
+          },
+          "after": {
+            "contact": "Une cliente appelle pour un rendez-vous.",
+            "answer": "L'assistant lui propose vos créneaux libres.",
+            "slots": "Elle choisit, il confirme le rendez-vous.",
+            "agenda": "Le rendez-vous s'inscrit dans votre agenda."
+          }
         }
       },
-      "after": {
-        "title": "Avec Automerio",
-        "steps": {
-          "call": "Un client appelle.",
-          "answer": "L'assistant décroche.",
-          "understand": "Il comprend la demande et note les coordonnées.",
-          "act": "Il prend le rendez-vous, ou vous transfère l'appel si c'est urgent.",
-          "summary": "Vous retrouvez le résumé dans votre tableau de bord."
-        }
-      },
-      "result": "Chaque appel trouve une réponse, pendant que vous travaillez.",
+      "result": "Chaque demande trouve une réponse, pendant que vous travaillez.",
       "seeServices": "Voir les solutions"
     },
     "audience": {
@@ -349,22 +399,22 @@
         "beauty": {
           "who": "Coiffure et beauté",
           "quote": "Je ne veux plus décrocher en pleine prestation.",
-          "answer": "Automerio répond et inscrit les réservations dans votre agenda."
+          "answer": "Automerio prend les réservations par téléphone et les inscrit dans votre agenda."
         },
         "coach": {
           "who": "Coach",
           "quote": "Je reçois des demandes pendant mes séances.",
-          "answer": "Automerio répond aux messages et note ce que la personne recherche."
+          "answer": "Automerio répond sur Instagram et WhatsApp, et note ce que la personne recherche."
         },
         "restaurant": {
           "who": "Restaurant",
           "quote": "Le téléphone sonne en plein service.",
-          "answer": "Automerio prend les commandes avec votre menu et vos prix."
+          "answer": "Automerio prend les commandes au téléphone, avec votre menu et vos prix."
         },
         "tpe": {
           "who": "Cabinet et TPE",
           "quote": "Les demandes arrivent par tous les canaux.",
-          "answer": "Automerio répond sur chacun et regroupe tout dans un seul tableau de bord."
+          "answer": "Automerio répond au téléphone, sur WhatsApp, Messenger et Instagram, et regroupe tout au même endroit."
         }
       },
       "seePage": "Voir la page",
