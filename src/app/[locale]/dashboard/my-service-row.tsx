@@ -63,7 +63,7 @@ export function MyServiceRow({ item }: { item: MyServiceDTO }) {
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pl-9 md:contents">
           <div>
-            <StatusBadge status={status} />
+            <StatusBadge status={status} setupPending={hint !== null} />
           </div>
 
           <div className="font-mono text-sm tabular-nums text-foreground">
