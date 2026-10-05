@@ -901,7 +901,62 @@
     "activation": {
       "nameRequired": "Donnez un nom à cette activation.",
       "fieldRequired": "Le champ « {label} » est requis.",
-      "skipToSummary": "Régler plus tard"
+      "skipToSummary": "Régler plus tard",
+      "steps": {
+        "label": "Étapes de l'activation",
+        "plan": {
+          "title": "Formule",
+          "description": "Le volume et le nom qui distingue cette activation."
+        },
+        "summary": {
+          "title": "Récapitulatif",
+          "description": "Vérifiez vos réponses avant de payer."
+        },
+        "payment": {
+          "title": "Paiement",
+          "description": "Sécurisé par Stripe"
+        }
+      },
+      "draftRestored": "Vos réponses précédentes ont été reprises.",
+      "restart": "Recommencer",
+      "invalidHours": "« {label} » : une heure de fermeture vient avant l'ouverture.",
+      "promoCheckFailed": "La vérification du code a échoué. Réessayez.",
+      "keepNumber": {
+        "title": "Vous gardez votre numéro actuel.",
+        "body": "Un numéro dédié à l'IA vous est attribué, et un simple renvoi d'appel, gratuit et réversible, y dirige vos clients une fois la solution active."
+      },
+      "overage": "Au-delà de ce quota, la consommation est facturée au tarif de dépassement. L'acheter à l'avance revient moins cher.",
+      "nameLabel": "Nom de cette activation",
+      "nameHelp": "Utile si vous activez la même solution plusieurs fois, pour plusieurs boutiques par exemple.",
+      "editableLater": "Tous ces réglages restent modifiables une fois la solution activée.",
+      "catalogLater": "Vous ajouterez votre carte après le paiement, depuis la page de la solution : une photo ou un PDF suffit.",
+      "summary": {
+        "solution": "Solution",
+        "name": "Nom de l'activation",
+        "volume": "Volume",
+        "perMonth": "<volume>{units}</volume> par mois",
+        "edit": "Modifier",
+        "editSection": " : {title}"
+      },
+      "payment": {
+        "title": "Paiement",
+        "description": "Paiement sécurisé par Stripe. Prélèvement au montant TTC, sans engagement.",
+        "subscription": "Abonnement",
+        "promoLabel": "Code promo",
+        "optional": "(facultatif)",
+        "checking": "Vérification…",
+        "apply": "Appliquer",
+        "promoApplied": "{description}. Premier paiement : <discounted></discounted> au lieu de <original></original>.",
+        "terms": "En payant, vous acceptez nos <link>conditions générales de vente</link>.",
+        "redirecting": "Redirection vers le paiement…",
+        "pay": "Payer {amount} TTC"
+      },
+      "toSummary": "Voir le récapitulatif",
+      "page": {
+        "breadcrumb": "Catalogue",
+        "title": "Activer {name}",
+        "description": "Pour {organization}. Vous réglez l'automatisation, puis vous payez en ligne."
+      }
     },
     "nav": {
       "groups": {
@@ -1421,6 +1476,186 @@
         "undo": "Annuler",
         "start": "Partir d'un modèle",
         "sector": "Votre secteur d'activité"
+      }
+    },
+    "fieldCategories": {
+      "need": {
+        "title": "Votre besoin",
+        "description": "Ce que l'assistant doit faire pour vous."
+      },
+      "hours": {
+        "title": "Horaires",
+        "description": "Les jours et heures d'ouverture de votre activité."
+      },
+      "preferences": {
+        "title": "Préférences",
+        "description": "Les réglages de fonctionnement de la solution."
+      },
+      "messages": {
+        "title": "Instructions",
+        "description": "Ce que l'assistant dit à vos clients et les consignes qu'il suit."
+      },
+      "rules": {
+        "title": "Règles",
+        "description": "Qui reçoit quoi, selon la demande du client."
+      },
+      "voice": {
+        "title": "Voix",
+        "description": "Comment l'assistant parle au téléphone."
+      }
+    },
+    "quota": {
+      "raisedWithCharge": "Volume porté à {volume}. {amount} prélevés pour la fin du mois en cours.",
+      "changed": "Volume porté à {volume}.",
+      "failed": "Le changement n'a pas pu être appliqué.",
+      "open": "Modifier le volume",
+      "title": "Modifier le volume de l'abonnement",
+      "description": "Le changement prend effet immédiatement. La différence est calculée au prorata des jours restants du mois en cours.",
+      "unchanged": "C'est votre volume actuel.",
+      "increase": "Votre abonnement passe de {from} à {to} par mois. Une facture de régularisation, calculée sur les jours restants, sera prélevée aujourd'hui.",
+      "decrease": "Votre abonnement passe de {from} à {to} par mois. Le trop-perçu des jours restants vous est recrédité.",
+      "applying": "Application…",
+      "confirm": "Confirmer"
+    },
+    "forwardingGuide": {
+      "operators": {
+        "orange": "Orange (Livebox)",
+        "sfr": "SFR",
+        "bouygues": "Bouygues Telecom (Bbox)",
+        "free": "Free (Freebox)",
+        "autre": "Autre opérateur"
+      },
+      "boxInstructions": {
+        "orange": "Espace client Orange (orange.fr ou l'application Orange et moi), rubrique Assistance > Téléphone fixe > Renvoi d'appel.",
+        "sfr": "Espace client SFR (sfr.fr ou l'application SFR et moi), rubrique Mes services > Ligne fixe > Renvoi d'appel.",
+        "bouygues": "Espace client Bouygues Telecom (bouyguestelecom.fr), rubrique Assistance > Bbox et Internet > Téléphone.",
+        "free": "Interface Freebox OS (mafreebox.freebox.fr), rubrique Téléphonie.",
+        "autre": "Espace client en ligne de votre opérateur, généralement dans une rubrique « Téléphone fixe » ou « Ligne fixe »."
+      },
+      "mobileIntro": "Ces codes fonctionnent à l'identique chez tous les opérateurs mobiles français (Orange, SFR, Bouygues Telecom, Free Mobile) : composez-les comme un numéro de téléphone, puis appuyez sur la touche d'appel.",
+      "enableAll": "Activer le renvoi de tous les appels",
+      "disable": "Désactiver le renvoi",
+      "conditional": "Vous préférez garder la main quand vous êtes disponible ? Utilisez un renvoi conditionnel à la place : <code>**61*{number}#</code> (pas de réponse), <code>**62*{number}#</code> (hors réseau) ou <code>**67*{number}#</code> (occupé). Si un code ne fonctionne pas depuis votre téléphone, l'application ou l'espace client de votre opérateur propose la même option sous « Renvoi d'appel ».",
+      "boxShortcut": "Certaines box acceptent aussi un raccourci direct depuis le combiné fixe : composez <code>*21*{number}#</code> puis décrochez. Si ça ne fonctionne pas, passez par l'interface ci-dessus, ou demandez à votre opérateur un « renvoi permanent (inconditionnel) » vers ce numéro.",
+      "title": "Gardez votre numéro actuel",
+      "intro": "Pas besoin de changer de numéro ni de portabilité : vos clients continuent d'appeler celui qu'ils connaissent déjà. Activez simplement un renvoi d'appel depuis votre ligne vers le numéro ci-dessous, et l'IA prend le relais.",
+      "copied": "Copié",
+      "copy": "Copier",
+      "mobile": "Ligne mobile",
+      "fixed": "Ligne fixe / box"
+    },
+    "catalogEditor": {
+      "products": "{count, plural, one {# produit} other {# produits}}",
+      "imported": "{count, plural, one {# produit importé} other {# produits importés}}. Relisez les noms et les prix, puis enregistrez.",
+      "tooManyFiles": "{max} fichiers maximum par import.",
+      "reading": "Lecture de votre carte en cours, cela prend en général moins d'une minute.",
+      "import": "Importer une photo ou un PDF",
+      "emptyTitle": "Ajoutez les produits que l'assistant peut vendre",
+      "emptyBody": "Envoyez une photo ou un PDF de votre carte : les produits, leur composition et leurs prix sont recopiés ici, prêts à être relus.",
+      "manual": "Saisir à la main",
+      "untitled": "sans titre",
+      "expand": "Déplier la rubrique {name}",
+      "collapse": "Replier la rubrique {name}",
+      "sectionPlaceholder": "Nom de la rubrique, par exemple Pizzas",
+      "sectionLabel": "Nom de la rubrique",
+      "removeSectionLabel": "Supprimer la rubrique {name}",
+      "addProduct": "Ajouter un produit",
+      "addSection": "Ajouter une rubrique",
+      "found": "{count, plural, one {# produit trouvé} other {# produits trouvés}} dans votre document",
+      "alreadyHas": "Votre carte contient déjà {count, plural, one {# produit} other {# produits}}. Remplacez-la par la carte importée, ou ajoutez ces produits à la suite.",
+      "append": "Ajouter à la suite",
+      "replace": "Remplacer la carte",
+      "removeSectionTitle": "Supprimer la rubrique {name} ?",
+      "removeSectionBody": "Ses {count, plural, one {# produit sera retiré} other {# produits seront retirés}} de la carte. Rien n'est définitif tant que vous n'avez pas enregistré.",
+      "removeSection": "Supprimer la rubrique",
+      "unnamed": "sans nom",
+      "productName": "Nom du produit",
+      "price": "Prix",
+      "priceLabel": "Prix de {name}, en euros",
+      "removeProduct": "Retirer {name}",
+      "details": "Composition ou description",
+      "detailsLabel": "Composition de {name}",
+      "note": "Précision",
+      "noteLabel": "Précision sur {name}",
+      "priceInvalid": "Prix non reconnu : saisissez un montant comme 9,90."
+    },
+    "configuration": {
+      "requiredToSave": "Renseignez « {label} » pour enregistrer.",
+      "invalidHours": "« {label} » : une heure de fermeture vient avant l'ouverture.",
+      "unnamedProduct": "Un produit de la carte n'a pas de nom.",
+      "saved": "Modifications enregistrées.",
+      "tabs": {
+        "label": "Catégories de réglages",
+        "identity": "Vos informations",
+        "catalog": "Carte et produits",
+        "connectors": "Connecteurs",
+        "forwarding": "Renvoi d'appel",
+        "billing": "Abonnement",
+        "modified": "modifié"
+      },
+      "identity": {
+        "description": "Le nom de cette solution dans votre tableau de bord.",
+        "nameLabel": "Nom de la solution",
+        "nameError": "Donnez un nom à cette solution, par exemple « Standard de la boutique ».",
+        "nameHelp": "Utile si vous activez la même solution plusieurs fois, pour plusieurs boutiques par exemple."
+      },
+      "catalogDescription": "Les produits et les prix que l'assistant propose quand il prend une commande.",
+      "unsaved": "Modifications non enregistrées",
+      "savedAt": "Enregistré à {time}",
+      "backToService": "Retour à la solution",
+      "leave": {
+        "title": "Abandonner vos modifications ?",
+        "description": "Les changements faits depuis le dernier enregistrement seront perdus.",
+        "stay": "Continuer à modifier",
+        "confirm": "Abandonner"
+      },
+      "page": {
+        "breadcrumb": "Solutions",
+        "title": "Réglages",
+        "description": "{name}, {service}"
+      }
+    },
+    "configFields": {
+      "defaultSection": "Détail de la solution",
+      "chooseOne": "Choisissez au moins une option pour continuer.",
+      "required": "Renseignez « {label} » pour continuer.",
+      "checkToContinue": "Cochez cette case pour continuer.",
+      "optional": " (facultatif)"
+    },
+    "addressField": {
+      "placeholder": "Commencez à taper l'adresse",
+      "suggestions": "Adresses suggérées"
+    },
+    "voicePreview": {
+      "stop": "Arrêter",
+      "listen": "Écouter un exemple",
+      "hint": "L'assistant lit votre message d'accueil avec ces réglages, sans passer d'appel. Au téléphone, le son sera un peu moins net."
+    },
+    "settingsCards": {
+      "billing": {
+        "title": "Abonnement",
+        "description": "Ces changements s'appliquent tout de suite, sans passer par « Enregistrer ».",
+        "plan": "Formule",
+        "included": "Volume inclus",
+        "perMonth": "<volume>{units}</volume> par mois",
+        "paymentMethod": "Moyen de paiement",
+        "paymentMethodValue": "Carte ou prélèvement, géré de façon sécurisée par Stripe.",
+        "invoicing": "Facturation",
+        "invoices": "Voir mes factures"
+      },
+      "connectors": {
+        "title": "Connecteurs",
+        "description": "Les outils reliés à votre assistant. Ces changements s'appliquent tout de suite.",
+        "errorTitle": "Connexion à l'agenda impossible",
+        "errorBody": "La connexion à Google Agenda n'a pas abouti. Réessayez avec le bouton Google Agenda ci-dessous, ou écrivez-nous depuis la rubrique Aide si le problème persiste.",
+        "calendar": "Agenda",
+        "connected": "L'assistant vérifie vos disponibilités et inscrit les rendez-vous dans cet agenda. Pour en changer, déconnectez-le puis choisissez-en un autre.",
+        "notConnected": "Choisissez l'agenda où l'assistant vérifie vos disponibilités et inscrit les rendez-vous : Google Agenda, Cal.com ou Calendly.",
+        "appointmentsOnly": "L'agenda ne sert qu'aux rendez-vous : cochez « Rendez-vous » dans l'onglet « Votre besoin » pour que l'assistant en prenne."
+      },
+      "forwarding": {
+        "title": "Renvoi d'appel",
+        "description": "Recevez vos appels sur l'assistant en gardant votre numéro."
       }
     }
   },

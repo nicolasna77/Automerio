@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useMemo, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
@@ -31,7 +32,7 @@ import { cn, getErrorMessage } from "@/lib/utils";
 import { updateServiceConfiguration } from "@/app/[locale]/dashboard/actions";
 import { ConfigFieldsForm } from "@/app/[locale]/dashboard/config-fields";
 import { VoicePreview } from "@/app/[locale]/dashboard/voice-preview";
-import { buildFieldCategories } from "@/app/[locale]/dashboard/field-categories";
+import { buildFieldCategories, useDescribeCategory } from "@/app/[locale]/dashboard/field-categories";
 import {
   BILLING_SECTION_ID,
   CONNECTORS_SECTION_ID,
@@ -75,6 +76,8 @@ export function ServiceConfigurationForm({
 }) {
   const configFields = allConfigFields.filter((field) => !hiddenKeys.includes(field.key));
   const router = useRouter();
+  const t = useTranslations("Dashboard.configuration");
+  const tCommon = useTranslations("Common");
   const [isSaving, startSaving] = useTransition();
   const [values, setValues] = useState<Configuration>(() =>
     configFields.some((field) => field.key === PRODUCT_CATALOG_FIELD_KEY)
@@ -100,7 +103,8 @@ export function ServiceConfigurationForm({
 
   const catalogField = configFields.find((field) => field.key === PRODUCT_CATALOG_FIELD_KEY);
   const showCatalog = catalogField !== undefined && isFieldVisible(catalogField, values);
-  const categories = buildFieldCategories(configFields, values, [PRODUCT_CATALOG_FIELD_KEY]);
+  const describeCategory = useDescribeCategory();
+  const categories = buildFieldCategories(configFields, values, [PRODUCT_CATALOG_FIELD_KEY], describeCategory);
 
   // Lien direct vers un onglet (« Ajuster l'abonnement » depuis la page de la
   // solution) : l'ancre de l'adresse choisit l'onglet ouvert.
@@ -132,14 +136,14 @@ export function ServiceConfigurationForm({
   function handleSave() {
     if (!name.trim()) {
       setSubmitAttempted(true);
-      toast.error("Renseignez « Nom de la solution » pour enregistrer.");
+      toast.error(t("requiredToSave", { label: t("identity.nameLabel") }));
       selectTab(IDENTITY_SECTION_ID);
       requestAnimationFrame(() => document.getElementById(nameFieldId)?.focus());
       return;
     }
     const badHours = findInvalidWeeklyHours(configFields, values);
     if (badHours) {
-      toast.error(`« ${badHours.label} » : une heure de fermeture vient avant l'ouverture.`);
+      toast.error(t("invalidHours", { label: badHours.label }));
       revealField(badHours.key, () =>
         document.getElementById(badHours.key)?.scrollIntoView({ block: "center" })
       );
@@ -148,7 +152,7 @@ export function ServiceConfigurationForm({
     const missing = findMissingRequiredField(configFields, values);
     if (missing) {
       setSubmitAttempted(true);
-      toast.error(`Renseignez « ${missing.label} » pour enregistrer.`);
+      toast.error(t("requiredToSave", { label: missing.label }));
       revealField(missing.key, () => document.getElementById(missing.key)?.focus());
       return;
     }
@@ -156,7 +160,7 @@ export function ServiceConfigurationForm({
       .flatMap((section) => section.items)
       .find((item) => !item.name.trim() && (item.details.trim() || item.note.trim() || item.priceCents !== null));
     if (unnamedItem) {
-      toast.error("Un produit de la carte n'a pas de nom.");
+      toast.error(t("unnamedProduct"));
       document.getElementById(`catalog-${unnamedItem.id}-name`)?.focus();
       return;
     }
@@ -175,7 +179,7 @@ export function ServiceConfigurationForm({
         setSavedAt(
           new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit" }).format(new Date())
         );
-        toast.success("Modifications enregistrées.");
+        toast.success(t("saved"));
         router.refresh();
       } catch (err) {
         toast.error(getErrorMessage(err));
@@ -184,7 +188,7 @@ export function ServiceConfigurationForm({
   }
 
   const sections: Section[] = [
-    { id: IDENTITY_SECTION_ID, title: "Vos informations", icon: BadgeInfo, keys: [] },
+    { id: IDENTITY_SECTION_ID, title: t("tabs.identity"), icon: BadgeInfo, keys: [] },
     ...categories.map((category) => ({
       id: `reglages-${category.id}`,
       title: category.title,
@@ -192,13 +196,13 @@ export function ServiceConfigurationForm({
       keys: category.fields.map((field) => field.key),
     })),
     ...(showCatalog
-      ? [{ id: "reglages-carte", title: "Carte et produits", icon: UtensilsCrossed, keys: [PRODUCT_CATALOG_FIELD_KEY] }]
+      ? [{ id: "reglages-carte", title: t("tabs.catalog"), icon: UtensilsCrossed, keys: [PRODUCT_CATALOG_FIELD_KEY] }]
       : []),
-    ...(connectorsSection ? [{ id: CONNECTORS_SECTION_ID, title: "Connecteurs", icon: Plug, keys: [] }] : []),
+    ...(connectorsSection ? [{ id: CONNECTORS_SECTION_ID, title: t("tabs.connectors"), icon: Plug, keys: [] }] : []),
     ...(forwardingSection
-      ? [{ id: FORWARDING_SECTION_ID, title: "Renvoi d'appel", icon: PhoneForwarded, keys: [] }]
+      ? [{ id: FORWARDING_SECTION_ID, title: t("tabs.forwarding"), icon: PhoneForwarded, keys: [] }]
       : []),
-    ...(billingSection ? [{ id: BILLING_SECTION_ID, title: "Abonnement", icon: CreditCard, keys: [] }] : []),
+    ...(billingSection ? [{ id: BILLING_SECTION_ID, title: t("tabs.billing"), icon: CreditCard, keys: [] }] : []),
   ];
   const current = sections.find((section) => section.id === activeId) ?? sections[0];
 
@@ -241,7 +245,7 @@ export function ServiceConfigurationForm({
   const tabs = (orientation: "vertical" | "horizontal") => (
     <div
       role="tablist"
-      aria-label="Catégories de réglages"
+      aria-label={t("tabs.label")}
       aria-orientation={orientation}
       className={cn(
         orientation === "vertical"
@@ -281,7 +285,7 @@ export function ServiceConfigurationForm({
             <section.icon className="size-4 shrink-0" aria-hidden="true" />
             <span className="min-w-0 flex-1">{section.title}</span>
             {dirty && (
-              <span className="size-1.5 shrink-0 rounded-full bg-attention" aria-label="modifié" role="img" />
+              <span className="size-1.5 shrink-0 rounded-full bg-attention" aria-label={t("tabs.modified")} role="img" />
             )}
           </button>
         );
@@ -311,13 +315,13 @@ export function ServiceConfigurationForm({
                   <BadgeInfo className="size-5" aria-hidden="true" />
                 </span>
                 <div className="min-w-0">
-                  <CardTitle as="h2" className="text-base">Vos informations</CardTitle>
-                  <CardDescription>Le nom de cette solution dans votre tableau de bord.</CardDescription>
+                  <CardTitle as="h2" className="text-base">{t("tabs.identity")}</CardTitle>
+                  <CardDescription>{t("identity.description")}</CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Label htmlFor={nameFieldId}>Nom de la solution</Label>
+              <Label htmlFor={nameFieldId}>{t("identity.nameLabel")}</Label>
               <Input
                 id={nameFieldId}
                 value={name}
@@ -330,11 +334,11 @@ export function ServiceConfigurationForm({
               />
               {submitAttempted && !name.trim() && (
                 <p id={`${nameFieldId}-error`} className="text-sm text-destructive">
-                  Donnez un nom à cette solution, par exemple « Standard de la boutique ».
+                  {t("identity.nameError")}
                 </p>
               )}
               <p id={`${nameFieldId}-help`} className="text-xs text-muted-foreground">
-                Utile si vous activez la même solution plusieurs fois, pour plusieurs boutiques par exemple.
+                {t("identity.nameHelp")}
               </p>
             </CardContent>
           </Card>
@@ -385,10 +389,8 @@ export function ServiceConfigurationForm({
           >
             <Card>
               <CardHeader>
-                <CardTitle as="h2" className="text-base">Carte et produits</CardTitle>
-                <CardDescription>
-                  Les produits et les prix que l&apos;assistant propose quand il prend une commande.
-                </CardDescription>
+                <CardTitle as="h2" className="text-base">{t("tabs.catalog")}</CardTitle>
+                <CardDescription>{t("catalogDescription")}</CardDescription>
               </CardHeader>
               <CardContent>
                 <ProductCatalogEditor
@@ -444,27 +446,27 @@ export function ServiceConfigurationForm({
                 {isDirty ? (
                   <>
                     <span aria-hidden="true" className="size-2 rounded-full bg-attention" />
-                    Modifications non enregistrées
+                    {t("unsaved")}
                   </>
                 ) : savedAt ? (
                   <>
                     <Check className="size-4 text-primary" aria-hidden="true" />
-                    Enregistré à {savedAt}
+                    {t("savedAt", { time: savedAt })}
                   </>
                 ) : null}
               </p>
               {isDirty ? (
                 <Button type="button" variant="outline" onClick={() => setConfirmLeave(true)} disabled={isSaving}>
-                  Annuler
+                  {tCommon("cancel")}
                 </Button>
               ) : (
                 <Button variant="outline" nativeButton={false} render={<Link href={backHref} />}>
-                  Retour à la solution
+                  {t("backToService")}
                 </Button>
               )}
               <Button type="button" onClick={handleSave} disabled={!isDirty || isSaving} aria-busy={isSaving}>
                 {isSaving && <Loader2 className="animate-spin" aria-hidden="true" data-icon="inline-start" />}
-                {isSaving ? "Enregistrement…" : "Enregistrer"}
+                {isSaving ? tCommon("saving") : tCommon("save")}
               </Button>
             </div>
           </div>
@@ -474,15 +476,13 @@ export function ServiceConfigurationForm({
       <AlertDialog open={confirmLeave} onOpenChange={setConfirmLeave}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Abandonner vos modifications ?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Les changements faits depuis le dernier enregistrement seront perdus.
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t("leave.title")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("leave.description")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Continuer à modifier</AlertDialogCancel>
+            <AlertDialogCancel>{t("leave.stay")}</AlertDialogCancel>
             <Button variant="destructive" nativeButton={false} render={<Link href={backHref} />}>
-              Abandonner
+              {t("leave.confirm")}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

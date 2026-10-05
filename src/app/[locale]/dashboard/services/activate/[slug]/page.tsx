@@ -1,5 +1,6 @@
 import { titleMetadata } from "@/i18n/metadata";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { requireActiveOrganization } from "@/lib/organization";
 import { getServiceBySlug } from "@/lib/get-catalog";
 import { clampToStep } from "@/lib/subscription-pricing";
@@ -15,10 +16,11 @@ export default async function ActivateServicePage({
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ minutes?: string | string[] }>;
 }) {
-  const [{ slug }, { minutes }, { active: organization }] = await Promise.all([
+  const [{ slug }, { minutes }, { active: organization }, t] = await Promise.all([
     params,
     searchParams,
     requireActiveOrganization(),
+    getTranslations("Dashboard.activation.page"),
   ]);
   const service = await getServiceBySlug(slug);
   if (!service) notFound();
@@ -31,11 +33,11 @@ export default async function ActivateServicePage({
     <PageShell size="form">
       <PageHeader
         breadcrumbs={[
-          { label: "Catalogue", href: "/dashboard/services/catalog" },
-          { label: `Activer ${service.name}` },
+          { label: t("breadcrumb"), href: "/dashboard/services/catalog" },
+          { label: t("title", { name: service.name }) },
         ]}
-        title={`Activer ${service.name}`}
-        description={`Pour ${organization.name}. Vous réglez l'automatisation, puis vous payez en ligne.`}
+        title={t("title", { name: service.name })}
+        description={t("description", { organization: organization.name })}
         className="mb-0"
       />
 

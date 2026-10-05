@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { MapPin } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -32,6 +33,7 @@ export function AddressField({
   onChange: (value: string) => void;
   onBlur?: () => void;
 }) {
+  const t = useTranslations("Dashboard.addressField");
   const listId = useId();
   const [query, setQuery] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
@@ -101,7 +103,7 @@ export function AddressField({
           aria-invalid={hasError}
           aria-describedby={describedBy}
           autoComplete="street-address"
-          placeholder={placeholder ?? "Commencez à taper l'adresse"}
+          placeholder={placeholder ?? t("placeholder")}
           className="pl-9"
           value={value}
           onChange={(e) => {
@@ -135,7 +137,7 @@ export function AddressField({
       <ul
         id={listId}
         role="listbox"
-        aria-label="Adresses suggérées"
+        aria-label={t("suggestions")}
         hidden={!expanded}
         className="mt-1 rounded-lg border border-border bg-popover p-1 shadow-sm"
       >

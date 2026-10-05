@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { ChevronDown, FileUp, Loader2, Plus, Trash2 } from "lucide-react";
 import {
   AlertDialog,
@@ -56,10 +57,6 @@ async function shrinkImage(file: File): Promise<File> {
   }
 }
 
-function productCount(count: number): string {
-  return `${count} produit${count > 1 ? "s" : ""}`;
-}
-
 type Status = { tone: "info" | "error"; message: string } | null;
 
 export function ProductCatalogEditor({
@@ -69,6 +66,8 @@ export function ProductCatalogEditor({
   value: CatalogSection[];
   onChange: (sections: CatalogSection[]) => void;
 }) {
+  const t = useTranslations("Dashboard.catalogEditor");
+  const tCommon = useTranslations("Common");
   const inputRef = useRef<HTMLInputElement>(null);
   const valueRef = useRef(value);
   const [isImporting, startImport] = useTransition();
@@ -97,7 +96,7 @@ export function ProductCatalogEditor({
     setImported(null);
     setStatus({
       tone: "info",
-      message: `${productCount(countCatalogItems(sections))} importés. Relisez les noms et les prix, puis enregistrez.`,
+      message: t("imported", { count: countCatalogItems(sections) }),
     });
   }
 
@@ -106,11 +105,11 @@ export function ProductCatalogEditor({
     if (inputRef.current) inputRef.current.value = "";
     if (files.length === 0) return;
     if (files.length > MENU_IMPORT_MAX_FILES) {
-      setStatus({ tone: "error", message: `${MENU_IMPORT_MAX_FILES} fichiers maximum par import.` });
+      setStatus({ tone: "error", message: t("tooManyFiles", { max: MENU_IMPORT_MAX_FILES }) });
       return;
     }
 
-    setStatus({ tone: "info", message: "Lecture de votre carte en cours, cela prend en général moins d'une minute." });
+    setStatus({ tone: "info", message: t("reading") });
     startImport(async () => {
       try {
         const formData = new FormData();
@@ -204,7 +203,7 @@ export function ProductCatalogEditor({
       ) : (
         <FileUp aria-hidden="true" data-icon="inline-start" />
       )}
-      Importer une photo ou un PDF
+      {t("import")}
     </Button>
   );
 
@@ -254,15 +253,12 @@ export function ProductCatalogEditor({
 
       {value.length === 0 && !isImporting && (
         <div className="rounded-3xl border border-dashed border-border px-6 py-8 text-center">
-          <p className="font-medium text-foreground">Ajoutez les produits que l&apos;assistant peut vendre</p>
-          <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
-            Envoyez une photo ou un PDF de votre carte : les produits, leur composition et leurs
-            prix sont recopiés ici, prêts à être relus.
-          </p>
+          <p className="font-medium text-foreground">{t("emptyTitle")}</p>
+          <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">{t("emptyBody")}</p>
           <div className="mt-5 flex flex-wrap justify-center gap-2">
             {importButton("default")}
             <Button type="button" variant="outline" onClick={addSection} disabled={isImporting}>
-              Saisir à la main
+              {t("manual")}
             </Button>
           </div>
         </div>
@@ -271,7 +267,7 @@ export function ProductCatalogEditor({
       {value.map((section) => {
         const isCollapsed = collapsed.has(section.id);
         const listId = `catalog-${section.id}-items`;
-        const sectionName = section.title.trim() || "sans titre";
+        const sectionName = section.title.trim() || t("untitled");
         return (
           <section key={section.id} className="rounded-3xl border border-border">
             <div className="flex items-center gap-1 py-2 pr-2 pl-2">
@@ -281,7 +277,7 @@ export function ProductCatalogEditor({
                 size="icon-sm"
                 aria-expanded={!isCollapsed}
                 aria-controls={listId}
-                aria-label={`${isCollapsed ? "Déplier" : "Replier"} la rubrique ${sectionName}`}
+                aria-label={t(isCollapsed ? "expand" : "collapse", { name: sectionName })}
                 onClick={() => toggleSection(section.id)}
               >
                 <ChevronDown
@@ -293,18 +289,18 @@ export function ProductCatalogEditor({
                 id={`catalog-${section.id}-title`}
                 value={section.title}
                 onChange={(e) => updateSection(section.id, { title: e.target.value })}
-                placeholder="Nom de la rubrique, par exemple Pizzas"
-                aria-label="Nom de la rubrique"
+                placeholder={t("sectionPlaceholder")}
+                aria-label={t("sectionLabel")}
                 className={cn(QUIET_FIELD, "min-w-0 flex-1 px-2 text-base font-semibold")}
               />
               <span className="shrink-0 px-1 text-sm text-muted-foreground tabular-nums">
-                {productCount(section.items.length)}
+                {t("products", { count: section.items.length })}
               </span>
               <Button
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                aria-label={`Supprimer la rubrique ${sectionName}`}
+                aria-label={t("removeSectionLabel", { name: sectionName })}
                 onClick={() => requestRemoveSection(section)}
               >
                 <Trash2 aria-hidden="true" />
@@ -325,7 +321,7 @@ export function ProductCatalogEditor({
               <div className="border-t border-border px-2 py-2">
                 <Button type="button" variant="ghost" size="sm" onClick={() => addItem(section.id)}>
                   <Plus aria-hidden="true" data-icon="inline-start" />
-                  Ajouter un produit
+                  {t("addProduct")}
                 </Button>
               </div>
             </div>
@@ -336,28 +332,23 @@ export function ProductCatalogEditor({
       {value.length > 0 && (
         <Button type="button" variant="outline" size="sm" onClick={addSection}>
           <Plus aria-hidden="true" data-icon="inline-start" />
-          Ajouter une rubrique
+          {t("addSection")}
         </Button>
       )}
 
       <AlertDialog open={imported !== null} onOpenChange={(open) => !open && setImported(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              {productCount(countCatalogItems(imported ?? []))} trouvés dans votre document
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              Votre carte contient déjà {productCount(itemCount)}. Remplacez-la par la carte
-              importée, ou ajoutez ces produits à la suite.
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t("found", { count: countCatalogItems(imported ?? []) })}</AlertDialogTitle>
+            <AlertDialogDescription>{t("alreadyHas", { count: itemCount })}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogCancel>{tCommon("cancel")}</AlertDialogCancel>
             <AlertDialogAction variant="outline" onClick={() => imported && applyImport(imported, "append")}>
-              Ajouter à la suite
+              {t("append")}
             </AlertDialogAction>
             <AlertDialogAction onClick={() => imported && applyImport(imported, "replace")}>
-              Remplacer la carte
+              {t("replace")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -370,15 +361,14 @@ export function ProductCatalogEditor({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Supprimer la rubrique {sectionToDelete?.title.trim() || "sans titre"} ?
+              {t("removeSectionTitle", { name: sectionToDelete?.title.trim() || t("untitled") })}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Ses {productCount(sectionToDelete?.items.length ?? 0)} seront retirés de la carte. Rien
-              n&apos;est définitif tant que vous n&apos;avez pas enregistré.
+              {t("removeSectionBody", { count: sectionToDelete?.items.length ?? 0 })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogCancel>{tCommon("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               onClick={() => {
@@ -386,7 +376,7 @@ export function ProductCatalogEditor({
                 setSectionToDelete(null);
               }}
             >
-              Supprimer la rubrique
+              {t("removeSection")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -404,9 +394,10 @@ function CatalogItemRow({
   onChange: (patch: Partial<CatalogItem>) => void;
   onRemove: () => void;
 }) {
+  const t = useTranslations("Dashboard.catalogEditor");
   const [priceText, setPriceText] = useState(() => formatPriceInput(item.priceCents));
   const priceInvalid = priceText.trim() !== "" && parsePriceInput(priceText) === null;
-  const productName = item.name.trim() || "sans nom";
+  const productName = item.name.trim() || t("unnamed");
 
   return (
     <li className="space-y-1 px-2 py-2.5">
@@ -415,8 +406,8 @@ function CatalogItemRow({
           id={`catalog-${item.id}-name`}
           value={item.name}
           onChange={(e) => onChange({ name: e.target.value })}
-          placeholder="Nom du produit"
-          aria-label="Nom du produit"
+          placeholder={t("productName")}
+          aria-label={t("productName")}
           className={cn(QUIET_FIELD, "min-w-0 flex-1 px-2 font-medium")}
         />
         <div className="relative w-22 shrink-0 sm:w-28">
@@ -434,8 +425,8 @@ function CatalogItemRow({
               if (!priceInvalid) setPriceText(formatPriceInput(parsePriceInput(priceText)));
             }}
             inputMode="decimal"
-            placeholder="Prix"
-            aria-label={`Prix de ${productName}, en euros`}
+            placeholder={t("price")}
+            aria-label={t("priceLabel", { name: productName })}
             aria-invalid={priceInvalid}
             className={cn(QUIET_FIELD, "pr-7 text-right font-medium tabular-nums")}
           />
@@ -451,7 +442,7 @@ function CatalogItemRow({
           variant="ghost"
           size="icon-sm"
           className="mt-0.5 text-muted-foreground"
-          aria-label={`Retirer ${productName}`}
+          aria-label={t("removeProduct", { name: productName })}
           onClick={onRemove}
         >
           <Trash2 aria-hidden="true" />
@@ -461,22 +452,22 @@ function CatalogItemRow({
         <Textarea
           value={item.details}
           onChange={(e) => onChange({ details: e.target.value })}
-          placeholder="Composition ou description"
-          aria-label={`Composition de ${productName}`}
+          placeholder={t("details")}
+          aria-label={t("detailsLabel", { name: productName })}
           rows={1}
           className={cn(QUIET_FIELD, "min-h-9 flex-1 px-2 py-2 text-sm text-muted-foreground")}
         />
         <Input
           value={item.note}
           onChange={(e) => onChange({ note: e.target.value })}
-          placeholder="Précision"
-          aria-label={`Précision sur ${productName}`}
+          placeholder={t("note")}
+          aria-label={t("noteLabel", { name: productName })}
           className={cn(QUIET_FIELD, "px-2 text-sm sm:w-44")}
         />
       </div>
       {priceInvalid && (
         <p className="px-2 text-xs text-destructive">
-          Prix non reconnu : saisissez un montant comme 9,90.
+          {t("priceInvalid")}
         </p>
       )}
     </li>

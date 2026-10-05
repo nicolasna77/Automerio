@@ -43,7 +43,12 @@ import { getErrorMessage } from "@/lib/utils";
 import { activateService, previewPromoCode, type PromoPreview } from "@/app/[locale]/dashboard/actions";
 import { ConfigFieldsForm } from "@/app/[locale]/dashboard/config-fields";
 import { VoicePreview } from "@/app/[locale]/dashboard/voice-preview";
-import { buildFieldCategories, settingsHiddenKeys, type FieldCategory } from "@/app/[locale]/dashboard/field-categories";
+import {
+  buildFieldCategories,
+  settingsHiddenKeys,
+  useDescribeCategory,
+  type FieldCategory,
+} from "@/app/[locale]/dashboard/field-categories";
 
 type AppliedPreview = Extract<PromoPreview, { ok: true }>;
 
@@ -60,18 +65,6 @@ type FlowStep =
   | { kind: "fields"; category: FieldCategory }
   | { kind: "summary" };
 
-const PLAN_STEP = {
-  title: "Formule",
-  description: "Le volume et le nom qui distingue cette activation.",
-  icon: Package,
-};
-const SUMMARY_STEP = {
-  title: "Récapitulatif",
-  description: "Vérifiez vos réponses avant de payer.",
-  icon: ClipboardCheck,
-};
-// Montrée pour que le client sache ce qui l'attend ; elle se passe sur Stripe.
-const PAYMENT_STEP: StepperStep = { title: "Paiement", description: "Sécurisé par Stripe", icon: CreditCard };
 
 export function ActivationFlow({
   service,
@@ -86,7 +79,13 @@ export function ActivationFlow({
 }) {
   const tSimulator = useTranslations("PriceSimulator");
   const t = useTranslations("Dashboard.activation");
+  const tCommon = useTranslations("Common");
+  const describeCategory = useDescribeCategory();
   const price = usePriceFormatter();
+  const PLAN_STEP = { title: t("steps.plan.title"), description: t("steps.plan.description"), icon: Package };
+  const SUMMARY_STEP = { title: t("steps.summary.title"), description: t("steps.summary.description"), icon: ClipboardCheck };
+  // Montrée pour que le client sache ce qui l'attend ; elle se passe sur Stripe.
+  const PAYMENT_STEP: StepperStep = { title: t("steps.payment.title"), description: t("steps.payment.description"), icon: CreditCard };
   const nameFieldId = useId();
   const promoFieldId = useId();
   const promoMessageId = useId();
@@ -116,9 +115,9 @@ export function ActivationFlow({
     if (initialUnits === null && draft.chosenUnits !== null) setChosenUnits(draft.chosenUnits);
     setStepIndex(draft.stepIndex);
     /* eslint-enable react-hooks/set-state-in-effect */
-    toast("Vos réponses précédentes ont été reprises.", {
+    toast(t("draftRestored"), {
       action: {
-        label: "Recommencer",
+        label: t("restart"),
         onClick: () => {
           clearDraft(draftKey);
           setName(service.name);
@@ -128,7 +127,7 @@ export function ActivationFlow({
         },
       },
     });
-  }, [draftKey, initialUnits, service.name, service.tier?.minUnits]);
+  }, [draftKey, initialUnits, service.name, service.tier?.minUnits, t]);
 
   // Rien n'est gardé tant que le formulaire est dans son état initial : sans
   // cela, une simple visite laisserait un brouillon vide, repris à tort au
@@ -160,10 +159,12 @@ export function ActivationFlow({
     ? calculateMonthlyPriceCents(service.tier, chosenUnits)
     : service.monthlyPriceCents;
 
-  const categories = buildFieldCategories(service.configFields, values, [
-    PRODUCT_CATALOG_FIELD_KEY,
-    ...settingsHiddenKeys(service.slug),
-  ]);
+  const categories = buildFieldCategories(
+    service.configFields,
+    values,
+    [PRODUCT_CATALOG_FIELD_KEY, ...settingsHiddenKeys(service.slug)],
+    describeCategory
+  );
   const steps: FlowStep[] = [
     { kind: "plan" },
     ...categories.map((category) => ({ kind: "fields" as const, category })),
@@ -203,7 +204,7 @@ export function ActivationFlow({
     if (step.kind === "fields") {
       const badHours = findInvalidWeeklyHours(step.category.fields, values);
       if (badHours) {
-        toast.error(`« ${badHours.label} » : une heure de fermeture vient avant l'ouverture.`);
+        toast.error(t("invalidHours", { label: badHours.label }));
         document.getElementById(badHours.key)?.scrollIntoView({ block: "center" });
         return;
       }
@@ -251,7 +252,7 @@ export function ActivationFlow({
       setPromo(result.ok ? { status: "applied", preview: result } : { status: "error", reason: result.reason });
       return result;
     } catch {
-      const reason = "La vérification du code a échoué. Réessayez.";
+      const reason = t("promoCheckFailed");
       setPromo({ status: "error", reason });
       return { ok: false, reason };
     }
@@ -291,7 +292,7 @@ export function ActivationFlow({
     <div className="mt-8 space-y-6">
       <div className="rounded-lg border border-border bg-card px-2 py-6 sm:px-6">
         <Stepper
-          label="Étapes de l'activation"
+          label={t("steps.label")}
           steps={stepperSteps}
           current={stepIndex}
           onStepClick={goToStep}
@@ -303,9 +304,8 @@ export function ActivationFlow({
           <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/40 p-4 text-sm">
             <PhoneForwarded className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
             <p className="text-muted-foreground">
-              <span className="font-medium text-foreground">Vous gardez votre numéro actuel.</span>{" "}
-              Un numéro dédié à l&apos;IA vous est attribué, et un simple renvoi d&apos;appel, gratuit
-              et réversible, y dirige vos clients une fois la solution active.
+              <span className="font-medium text-foreground">{t("keepNumber.title")}</span>{" "}
+              {t("keepNumber.body")}
             </p>
           </div>
         )}
@@ -342,14 +342,13 @@ export function ActivationFlow({
                       disabled={isPending}
                     />
                     <p className="text-sm text-muted-foreground">
-                      Au-delà de ce quota, la consommation est facturée au tarif de
-                      dépassement. L&apos;acheter à l&apos;avance revient moins cher.
+                      {t("overage")}
                     </p>
                   </div>
                 )}
 
                 <div className="space-y-2">
-                  <Label htmlFor={nameFieldId}>Nom de cette activation</Label>
+                  <Label htmlFor={nameFieldId}>{t("nameLabel")}</Label>
                   <Input
                     id={nameFieldId}
                     value={name}
@@ -358,12 +357,12 @@ export function ActivationFlow({
                     aria-describedby={`${nameFieldId}-help`}
                   />
                   <p id={`${nameFieldId}-help`} className="text-xs text-muted-foreground">
-                    Utile si vous activez la même solution plusieurs fois, pour plusieurs boutiques par exemple.
+                    {t("nameHelp")}
                   </p>
                 </div>
 
                 <p className="text-xs text-muted-foreground">
-                  Tous ces réglages restent modifiables une fois la solution activée.
+                  {t("editableLater")}
                 </p>
               </>
             )}
@@ -382,8 +381,7 @@ export function ActivationFlow({
                 )}
                 {takesOrders && step.category.id === "need" && (
                   <p className="rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
-                    Vous ajouterez votre carte après le paiement, depuis la page de la solution : une photo
-                    ou un PDF suffit.
+                    {t("catalogLater")}
                   </p>
                 )}
               </>
@@ -391,15 +389,15 @@ export function ActivationFlow({
 
             {step.kind === "summary" && (
               <div className="divide-y divide-border">
-                <SummarySection title="Formule" onEdit={() => goToStep(0)}>
-                  <SummaryRow label="Solution">{service.name}</SummaryRow>
-                  <SummaryRow label="Nom de l'activation">{name.trim()}</SummaryRow>
+                <SummarySection title={PLAN_STEP.title} onEdit={() => goToStep(0)}>
+                  <SummaryRow label={t("summary.solution")}>{service.name}</SummaryRow>
+                  <SummaryRow label={t("summary.name")}>{name.trim()}</SummaryRow>
                   {service.tier && (
-                    <SummaryRow label="Volume">
-                      <span className="font-mono tabular-nums">
-                        {price.usageUnits(chosenUnits, service.tier.unit)}
-                      </span>{" "}
-                      par mois
+                    <SummaryRow label={t("summary.volume")}>
+                      {t.rich("summary.perMonth", {
+                        units: price.usageUnits(chosenUnits, service.tier.unit),
+                        volume: (chunks) => <span className="font-mono tabular-nums">{chunks}</span>,
+                      })}
                     </SummaryRow>
                   )}
                 </SummarySection>
@@ -431,16 +429,14 @@ export function ActivationFlow({
         {step.kind === "summary" && (
           <Card>
             <CardHeader>
-              <h2 className="text-base font-semibold text-foreground">Paiement</h2>
-              <CardDescription>
-                Paiement sécurisé par Stripe. Prélèvement au montant TTC, sans engagement.
-              </CardDescription>
+              <h2 className="text-base font-semibold text-foreground">{t("payment.title")}</h2>
+              <CardDescription>{t("payment.description")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-5">
               <dl className="space-y-2 text-sm">
                 {monthlyPriceCents !== null && (
                   <div className="flex justify-between gap-4">
-                    <dt className="text-muted-foreground">Abonnement</dt>
+                    <dt className="text-muted-foreground">{t("payment.subscription")}</dt>
                     <dd>
                       <MonthlyPrice cents={monthlyPriceCents} className="text-right" />
                     </dd>
@@ -455,7 +451,8 @@ export function ActivationFlow({
 
               <div className="space-y-2 border-t border-border pt-5">
                 <Label htmlFor={promoFieldId}>
-                  Code promo <span className="font-normal text-muted-foreground">(facultatif)</span>
+                  {t("payment.promoLabel")}{" "}
+                  <span className="font-normal text-muted-foreground">{t("payment.optional")}</span>
                 </Label>
                 <div className="flex gap-2">
                   <Input
@@ -484,7 +481,7 @@ export function ActivationFlow({
                     onClick={() => void checkPromo()}
                     disabled={!promoInput.trim() || promo.status === "checking" || isPending}
                   >
-                    {promo.status === "checking" ? "Vérification…" : "Appliquer"}
+                    {promo.status === "checking" ? t("payment.checking") : t("payment.apply")}
                   </Button>
                 </div>
                 <div id={promoMessageId} aria-live="polite">
@@ -492,15 +489,19 @@ export function ActivationFlow({
                     <p className="flex items-start gap-1.5 text-sm text-foreground">
                       <Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
                       <span>
-                        {promo.preview.description}. Premier paiement :{" "}
-                        <span className="font-medium tabular-nums">
-                          {formatCentsWithVat(promo.preview.discountedFirstPaymentCents)}
-                        </span>{" "}
-                        au lieu de{" "}
-                        <span className="text-muted-foreground tabular-nums line-through">
-                          {formatCents(promo.preview.firstPaymentCents)}
-                        </span>
-                        .
+                        {t.rich("payment.promoApplied", {
+                          description: promo.preview.description,
+                          discounted: () => (
+                            <span className="font-medium tabular-nums">
+                              {formatCentsWithVat(promo.preview.discountedFirstPaymentCents)}
+                            </span>
+                          ),
+                          original: () => (
+                            <span className="text-muted-foreground tabular-nums line-through">
+                              {formatCents(promo.preview.firstPaymentCents)}
+                            </span>
+                          ),
+                        })}
                       </span>
                     </p>
                   )}
@@ -509,11 +510,13 @@ export function ActivationFlow({
               </div>
 
               <p className="text-xs text-muted-foreground">
-                En payant, vous acceptez nos{" "}
-                <Link href="/terms" target="_blank" className="underline underline-offset-4 hover:text-foreground">
-                  conditions générales de vente
-                </Link>
-                .
+                {t.rich("payment.terms", {
+                  link: (chunks) => (
+                    <Link href="/terms" target="_blank" className="underline underline-offset-4 hover:text-foreground">
+                      {chunks}
+                    </Link>
+                  ),
+                })}
               </p>
             </CardContent>
           </Card>
@@ -522,7 +525,7 @@ export function ActivationFlow({
         <div className="flex flex-wrap items-center justify-between gap-2">
           {stepIndex === 0 ? (
             <Link href="/dashboard/services/catalog" className={buttonVariants({ variant: "outline" })}>
-              Annuler
+              {tCommon("cancel")}
             </Link>
           ) : (
             <Button
@@ -532,15 +535,15 @@ export function ActivationFlow({
               disabled={isPending}
             >
               <ArrowLeft aria-hidden="true" data-icon="inline-start" />
-              Retour
+              {tCommon("back")}
             </Button>
           )}
 
           {step.kind === "summary" ? (
             <Button type="button" onClick={handlePay} disabled={isPending} aria-busy={isPending}>
               {isPending
-                ? "Redirection vers le paiement…"
-                : `Payer ${formatPrice(monthlyPriceCents)} TTC`}
+                ? t("payment.redirecting")
+                : t("payment.pay", { amount: formatPrice(monthlyPriceCents) })}
             </Button>
           ) : (
             <div className="flex flex-wrap items-center gap-2">
@@ -550,7 +553,7 @@ export function ActivationFlow({
                 </Button>
               )}
               <Button type="button" onClick={handleContinue}>
-                {isLastBeforeSummary ? "Voir le récapitulatif" : "Continuer"}
+                {isLastBeforeSummary ? t("toSummary") : tCommon("continue")}
                 <ArrowRight aria-hidden="true" data-icon="inline-end" />
               </Button>
             </div>
@@ -617,13 +620,15 @@ function SummarySection({
   onEdit: () => void;
   children: React.ReactNode;
 }) {
+  const t = useTranslations("Dashboard.activation.summary");
   return (
     <section className="py-4 first:pt-0 last:pb-0">
       <div className="mb-1 flex items-center justify-between gap-3">
         <h3 className="text-sm font-semibold text-foreground">{title}</h3>
         <Button type="button" variant="ghost" size="sm" onClick={onEdit}>
           <Pencil aria-hidden="true" data-icon="inline-start" />
-          Modifier<span className="sr-only"> : {title}</span>
+          {t("edit")}
+          <span className="sr-only">{t("editSection", { title })}</span>
         </Button>
       </div>
       <dl className="text-sm">{children}</dl>

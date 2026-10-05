@@ -1,4 +1,5 @@
 import { PhoneForwarded } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CallForwardingGuide } from "./call-forwarding-guide";
 import { FORWARDING_SECTION_ID } from "./billing-section";
@@ -6,6 +7,7 @@ import { FORWARDING_SECTION_ID } from "./billing-section";
 // Onglet « Renvoi d'appel » des réglages : comment faire arriver ses appels
 // sur l'assistant en gardant son numéro.
 export function ServiceForwardingCard({ targetNumber }: { targetNumber: string }) {
+  const t = useTranslations("Dashboard.settingsCards.forwarding");
   return (
     <Card id={FORWARDING_SECTION_ID} className="scroll-mt-24">
       <CardHeader>
@@ -15,9 +17,9 @@ export function ServiceForwardingCard({ targetNumber }: { targetNumber: string }
           </span>
           <div className="min-w-0">
             <CardTitle as="h2" className="text-base">
-              Renvoi d&apos;appel
+              {t("title")}
             </CardTitle>
-            <CardDescription>Recevez vos appels sur l&apos;assistant en gardant votre numéro.</CardDescription>
+            <CardDescription>{t("description")}</CardDescription>
           </div>
         </div>
       </CardHeader>

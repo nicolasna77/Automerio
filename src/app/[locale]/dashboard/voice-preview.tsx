@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Loader2, Play, Square } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ const asText = (value: Configuration[string] | undefined) => (typeof value === "
 // message d'accueil avec les réglages en cours (même non enregistrés), sans
 // passer d'appel.
 export function VoicePreview({ target, values }: { target: VoicePreviewTarget; values: Configuration }) {
+  const t = useTranslations("Dashboard.voicePreview");
   const [isLoading, startLoading] = useTransition();
   const [playing, setPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -61,7 +63,7 @@ export function VoicePreview({ target, values }: { target: VoicePreviewTarget; v
 
   // Un seul bouton dont le libellé change : le focus clavier reste dessus
   // pendant la génération et la lecture (better-accessibility).
-  const label = playing ? "Arrêter" : "Écouter un exemple";
+  const label = playing ? t("stop") : t("listen");
   return (
     <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border border-border bg-muted/40 p-4">
       <Button
@@ -86,8 +88,7 @@ export function VoicePreview({ target, values }: { target: VoicePreviewTarget; v
         {label}
       </Button>
       <p className="min-w-0 flex-1 text-sm text-pretty text-muted-foreground">
-        L&apos;assistant lit votre message d&apos;accueil avec ces réglages, sans passer d&apos;appel. Au
-        téléphone, le son sera un peu moins net.
+        {t("hint")}
       </p>
     </div>
   );
