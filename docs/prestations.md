@@ -1,8 +1,8 @@
 # Prestations Automerio
 
-État au 5 octobre 2026. Les prix sont ceux de la production
-(`https://automerio.com/pricing.md`, lus dans la table `Service`), TVA 20 %
-incluse, hors taxes entre parenthèses.
+État au 5 octobre 2026. Les prix de référence sont ceux du dépôt
+(`src/lib/catalog-data.ts`), TVA 20 % incluse, hors taxes entre parenthèses.
+La production doit être alignée sur eux (voir la dernière section).
 
 Conditions communes à toutes les prestations :
 
@@ -18,11 +18,11 @@ Conditions communes à toutes les prestations :
 
 | Prestation | Prix mensuel | Inclus | Connecteurs |
 |---|---|---|---|
-| Standard téléphonique automatisé | 79 € TTC (65,83 € HT) | 150 min d'appel | Numéro Twilio, renvoi d'appel, agent vocal OpenAI |
-| Prise de rendez-vous / commande par téléphone | 49 € TTC (40,83 € HT) | 150 min d'appel | Numéro Twilio, renvoi d'appel, agent vocal OpenAI, Google Agenda, Cal.com ou Calendly |
-| Réponses automatiques sur WhatsApp | 59 € TTC (49,17 € HT) | Pas de quota affiché | WhatsApp Business (Meta) |
-| Réponses automatiques sur Messenger | 59 € TTC (49,17 € HT) | Pas de quota affiché | Page Facebook (Meta) |
-| Réponses automatiques sur Instagram | 59 € TTC (49,17 € HT) | Pas de quota affiché | Compte Instagram professionnel |
+| Standard téléphonique automatisé | 25 € TTC (20,83 € HT) | 150 min d'appel | Numéro Twilio, renvoi d'appel, agent vocal OpenAI |
+| Prise de rendez-vous / commande par téléphone | 25 € TTC (20,83 € HT) | 150 min d'appel | Numéro Twilio, renvoi d'appel, agent vocal OpenAI, Google Agenda, Cal.com ou Calendly |
+| Réponses automatiques sur WhatsApp | 8 € TTC (6,67 € HT) | 3 000 réponses | WhatsApp Business (Meta) |
+| Réponses automatiques sur Messenger | 8 € TTC (6,67 € HT) | 3 000 réponses | Page Facebook (Meta) |
+| Réponses automatiques sur Instagram | 8 € TTC (6,67 € HT) | 3 000 réponses | Compte Instagram professionnel |
 
 ## Communication client automatisée
 
@@ -34,11 +34,11 @@ reste. Chaque appel est résumé dans le tableau de bord et par e-mail.
 
 **Prix**
 
-- Abonnement : 79 € TTC (65,83 € HT) par mois
+- Abonnement : 25 € TTC (20,83 € HT) par mois
 - Inclus : 150 minutes d'appel par mois
-- Au-delà : 0,30 € TTC (0,25 € HT) la minute
-- Volume ajustable à l'avance jusqu'à 500 min par mois, à 0,20 € TTC
-  (0,17 € HT) la minute ajoutée
+- Au-delà : 0,14 € TTC (0,12 € HT) la minute
+- Volume ajustable à l'avance, par paliers de 50 min, jusqu'à 6 000 min par
+  mois, à 0,13 € TTC (0,11 € HT) la minute ajoutée
 
 **Connecteurs**
 
@@ -68,11 +68,11 @@ produits, adresse de retrait, zone de livraison).
 
 **Prix**
 
-- Abonnement : 49 € TTC (40,83 € HT) par mois
+- Abonnement : 25 € TTC (20,83 € HT) par mois
 - Inclus : 150 minutes d'appel par mois
-- Au-delà : 0,30 € TTC (0,25 € HT) la minute
-- Volume ajustable à l'avance jusqu'à 500 min par mois, à 0,20 € TTC
-  (0,17 € HT) la minute ajoutée
+- Au-delà : 0,14 € TTC (0,12 € HT) la minute
+- Volume ajustable à l'avance, par paliers de 50 min, jusqu'à 6 000 min par
+  mois, à 0,13 € TTC (0,11 € HT) la minute ajoutée
 
 **Connecteurs**
 
@@ -100,8 +100,11 @@ questions fréquentes, devis, disponibilités.
 
 **Prix**
 
-- Abonnement : 59 € TTC (49,17 € HT) par mois
-- Pas de quota de réponses affiché en production
+- Abonnement : 8 € TTC (6,67 € HT) par mois
+- Inclus : 3 000 réponses par mois
+- Au-delà : 0,25 € TTC (0,21 € HT) les 100 réponses
+- Volume ajustable à l'avance, par paliers de 1 000 réponses, jusqu'à 30 000
+  par mois, à 0,24 € TTC (0,20 € HT) les 100 réponses ajoutées
 
 **Connecteurs**
 
@@ -120,8 +123,11 @@ Réponses instantanées aux messages envoyés à la Page Facebook.
 
 **Prix**
 
-- Abonnement : 59 € TTC (49,17 € HT) par mois
-- Pas de quota de réponses affiché en production
+- Abonnement : 8 € TTC (6,67 € HT) par mois
+- Inclus : 3 000 réponses par mois
+- Au-delà : 0,25 € TTC (0,21 € HT) les 100 réponses
+- Volume ajustable à l'avance, par paliers de 1 000 réponses, jusqu'à 30 000
+  par mois, à 0,24 € TTC (0,20 € HT) les 100 réponses ajoutées
 
 **Connecteurs**
 
@@ -138,8 +144,11 @@ Réponses instantanées aux messages privés du compte Instagram professionnel.
 
 **Prix**
 
-- Abonnement : 59 € TTC (49,17 € HT) par mois
-- Pas de quota de réponses affiché en production
+- Abonnement : 8 € TTC (6,67 € HT) par mois
+- Inclus : 3 000 réponses par mois
+- Au-delà : 0,25 € TTC (0,21 € HT) les 100 réponses
+- Volume ajustable à l'avance, par paliers de 1 000 réponses, jusqu'à 30 000
+  par mois, à 0,24 € TTC (0,20 € HT) les 100 réponses ajoutées
 
 **Connecteurs**
 
@@ -153,10 +162,9 @@ questions fréquentes.
 ## Au catalogue, non proposées
 
 Présentes dans `src/lib/catalog-data.ts` mais inactives : elles n'apparaissent
-ni sur le site ni dans le tableau de bord. Les prix ci-dessous sont les prix
-par défaut du dépôt, pas ceux de la production, qui ne les affiche pas.
+ni sur le site ni dans le tableau de bord.
 
-| Prestation | Prix par défaut (dépôt) | Connecteur prévu |
+| Prestation | Prix mensuel | Connecteur prévu |
 |---|---|---|
 | Réponses automatiques aux e-mails | 49 € TTC | Boîte mail |
 | Prise de rendez-vous automatique (en ligne) | 29 € TTC | Agenda (obligatoire) |
@@ -165,23 +173,28 @@ par défaut du dépôt, pas ceux de la production, qui ne les affiche pas.
 | OCR : lecture automatique de documents scannés | 39 € TTC | Dossier de scans, outil de gestion cible |
 | Support prioritaire | 99 € TTC | Aucun |
 
-## Écarts entre le dépôt et la production
+## Aligner la production sur ces prix
 
-`npm run db:sync-catalog` ne met jamais à jour les prix (ils se gèrent dans
-l'admin), seulement les réglages et le volume ajustable. Constaté le
-5 octobre 2026 :
+Les prix se gèrent dans l'admin (table `Service`) : `npm run db:sync-catalog`
+ne les modifie jamais, il ne synchronise que les réglages et le volume
+ajustable. Constaté le 5 octobre 2026, la production affiche encore :
 
-| Point | Production | Dépôt (`catalog-data.ts`) |
+| Point | Production | Prix de référence |
 |---|---|---|
 | Standard téléphonique | 79 € TTC | 25 € TTC |
 | Prise de rendez-vous par téléphone | 49 € TTC | 25 € TTC |
-| WhatsApp, Messenger, Instagram | 59 € TTC, sans quota | 8 € TTC, 3 000 réponses incluses, puis 0,25 € TTC les 100 |
+| WhatsApp, Messenger, Instagram | 59 € TTC, sans quota | 8 € TTC, 3 000 réponses incluses |
 | Dépassement téléphonie | 0,30 € TTC la minute | 0,14 € TTC la minute |
 | Volume ajustable téléphonie | jusqu'à 500 min, 0,20 € TTC la minute | jusqu'à 6 000 min, 0,13 € TTC la minute |
-| Dernière mise à jour du catalogue | 22 septembre 2026 | 29 septembre 2026 (#120) |
 
-Le volume maximal de 500 min montre que la synchronisation n'a pas été jouée
-en production depuis #120. Si les prix du dépôt sont les bons, il faut les
-reporter dans l'admin ; s'ils ne le sont pas, c'est `catalog-data.ts` qu'il
-faut corriger, pour que les nouvelles bases (préversions, développement)
-partent des vrais tarifs.
+Pour aligner :
+
+1. Dans l'admin de production (`/admin/services`), saisir pour chaque
+   prestation active le prix mensuel, le volume inclus et le prix de
+   dépassement du tableau ci-dessus.
+2. Lancer `npm run db:sync-catalog` contre la base de production, pour le
+   volume ajustable (plafond, palier, prix du volume ajouté).
+3. Vérifier `https://automerio.com/pricing.md`, qui lit la même table.
+
+Les abonnements déjà souscrits gardent leur prix Stripe : un changement de
+tarif ne s'applique qu'aux nouvelles activations.
