@@ -38,6 +38,7 @@ export function ServiceSubscriptionCard({
             cap={subscription.cap}
             consumedUnits={subscription.usage.consumedUnits}
             overageCents={subscription.usage.overageCents}
+            pausesAtLimit={!subscription.overageAllowed}
           />
         ) : subscription.cap ? (
           <p className="text-sm text-muted-foreground">

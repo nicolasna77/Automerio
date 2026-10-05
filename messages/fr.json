@@ -901,6 +901,19 @@
       "nameRequired": "Donnez un nom à cette activation.",
       "fieldRequired": "Le champ « {label} » est requis.",
       "skipToSummary": "Régler plus tard"
+    },
+    "overage": {
+      "label": "Dépassement",
+      "switch": "Accepter le dépassement du forfait",
+      "accepted": "Accepté : au-delà de {included} par mois, l'assistant continue et la consommation en plus est facturée {price}, sur votre prochaine facture.",
+      "acceptedFree": "Accepté : au-delà de {included} par mois, l'assistant continue.",
+      "refused": "Refusé : une fois {included} atteints, l'assistant se met en pause jusqu'au renouvellement du forfait. Rien n'est facturé en plus.",
+      "paused": "Forfait atteint : l'assistant est en pause jusqu'au renouvellement. Acceptez le dépassement ou augmentez le volume pour le relancer.",
+      "acceptedToast": "Dépassement accepté : l'assistant continuera au-delà du forfait.",
+      "refusedToast": "Dépassement refusé : l'assistant se mettra en pause une fois le forfait atteint.",
+      "error": "Le changement n'a pas pu être appliqué.",
+      "remaining": "Plus que {remaining}",
+      "pausesSoon": "sur cette période. Au-delà, l'assistant se met en pause : vous avez refusé le dépassement."
     }
   }
 }

@@ -18,6 +18,7 @@ import {
   PRICE_BLOCK_UNITS,
   readClientUsageCap,
   type UsageCap,
+  type UsageUnit,
 } from "@/lib/usage-cap";
 import { formatCentsWithVat } from "@/lib/vat";
 import { QUOTA_WARNING_RATIO } from "@/lib/quota";
@@ -105,7 +106,9 @@ async function overageFor(subscriptionId: string, period: BillingPeriod): Promis
     where: { stripeSubscriptionId: subscriptionId },
     include: { service: true },
   });
-  if (!clientService) return null;
+  // Dépassement refusé : rien n'est facturé au-delà du forfait, y compris la
+  // fin d'un appel commencé avant que le quota soit atteint.
+  if (!clientService || !clientService.overageAllowed) return null;
 
   const cap = readClientUsageCap(clientService, clientService.service);
   if (!cap || cap.overageUnitPriceCents <= 0) return null;
@@ -137,6 +140,28 @@ async function currentPeriod(stripeSubscriptionId: string | null): Promise<Billi
     console.error("[quota] période Stripe illisible, repli sur le mois calendaire :", err);
     return calendarMonth();
   }
+}
+
+type QuotaPauseColumns = {
+  id: string;
+  overageAllowed: boolean;
+  includedUsageUnits: number | null;
+  stripeSubscriptionId: string | null;
+  service: {
+    includedUsageUnits: number | null;
+    usageUnit: UsageUnit | null;
+    overageUnitPriceCents: number | null;
+  };
+};
+
+// Dépassement refusé et quota atteint : l'assistant ne décroche plus et ne
+// répond plus jusqu'à la période suivante.
+export async function isPausedByQuota(clientService: QuotaPauseColumns): Promise<boolean> {
+  if (clientService.overageAllowed) return false;
+  const cap = readClientUsageCap(clientService, clientService.service);
+  if (!cap) return false;
+  const period = await currentPeriod(clientService.stripeSubscriptionId);
+  return (await consumedUnits(clientService.id, cap, period)) >= cap.includedUnits;
 }
 
 export function unitsOfCall(unit: UsageCap["unit"], durationSec: number | null): number {
@@ -184,7 +209,10 @@ export async function checkQuotaAlerts(
         consumed: formatUsageUnits(after, cap.unit),
         included: formatUsageUnits(cap.includedUnits, cap.unit),
         overagePrice:
-          cap.overageUnitPriceCents > 0 ? formatPerUnit(cap.overageUnitPriceCents, cap.unit) : null,
+          clientService.overageAllowed && cap.overageUnitPriceCents > 0
+            ? formatPerUnit(cap.overageUnitPriceCents, cap.unit)
+            : null,
+        pausesAtLimit: !clientService.overageAllowed,
       })
     )
   );

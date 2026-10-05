@@ -42,6 +42,7 @@ export function SubscriptionCard({
         cap={subscription.cap}
         consumedUnits={subscription.usage.consumedUnits}
         overageCents={subscription.usage.overageCents}
+        pausesAtLimit={!subscription.overageAllowed}
       />
     ) : (
       running &&

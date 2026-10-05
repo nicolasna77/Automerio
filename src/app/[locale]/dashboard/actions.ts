@@ -794,6 +794,32 @@ export async function openBillingPortal(organizationId: string) {
   });
 }
 
+// Le client accepte ou refuse que l'assistant continue au-delà de son forfait.
+// Refusé, l'assistant se met en pause une fois le forfait atteint.
+export async function setOverageAllowed(clientServiceId: string, allowed: boolean) {
+  return runAction(async () => {
+    const userId = await requireUserId();
+    if (!(await checkRateLimit("overage-change", userId, "10 m", 10))) {
+      throw new ActionError(TOO_MANY_ATTEMPTS);
+    }
+
+    const clientService = await db.clientService.findUniqueOrThrow({
+      where: { id: clientServiceId },
+    });
+    await requireBillingRoleOn(clientService, userId);
+    if (clientService.overageAllowed === allowed) return;
+
+    await db.clientService.update({
+      where: { id: clientServiceId },
+      data: { overageAllowed: allowed },
+    });
+    await logServiceEvent(clientServiceId, allowed ? "OVERAGE_ACCEPTED" : "OVERAGE_REFUSED");
+
+    revalidateDashboard(clientServiceId);
+    revalidatePath("/dashboard/subscriptions");
+  });
+}
+
 export async function changeSubscriptionQuota(
   clientServiceId: string,
   units: number

@@ -43,6 +43,7 @@ import {
   billFinalOverage,
   billOverageOnInvoice,
   checkQuotaAlerts,
+  isPausedByQuota,
   unitsOfCall,
   overageLineDescription,
   quotaThresholdCrossed,
@@ -92,7 +93,9 @@ const clientService = {
   id: "cs_1",
   name: "Standard téléphonique",
   includedUsageUnits: 150,
-  service: { includedUsageUnits: 150, usageUnit: "MINUTE", overageUnitPriceCents: 30 },
+  overageAllowed: true,
+  stripeSubscriptionId: null,
+  service: { includedUsageUnits: 150, usageUnit: "MINUTE" as const, overageUnitPriceCents: 30 },
 };
 
 describe("billOverageOnInvoice", () => {
@@ -136,6 +139,14 @@ describe("billOverageOnInvoice", () => {
     await billOverageOnInvoice(invoice());
     expect(invoiceItemsCreate).not.toHaveBeenCalled();
   });
+
+  it("ne facture rien quand le client a refuse le depassement", async () => {
+    findFirst.mockResolvedValue({ ...clientService, overageAllowed: false });
+    consumedUnits.mockResolvedValue(160);
+    await billOverageOnInvoice(invoice());
+    expect(consumedUnits).not.toHaveBeenCalled();
+    expect(invoiceItemsCreate).not.toHaveBeenCalled();
+  });
 });
 
 describe("checkQuotaAlerts", () => {
@@ -163,7 +174,24 @@ describe("checkQuotaAlerts", () => {
     expect(mocks.logServiceEvent).toHaveBeenCalledWith("cs_1", "QUOTA_WARNING", "121 min sur 150 min");
     expect(mocks.sendQuotaAlertEmail).toHaveBeenCalledWith(
       expect.objectContaining({ email: "a@exemple.fr" }),
-      expect.objectContaining({ alert: "WARNING", consumed: "121 min", included: "150 min" })
+      expect.objectContaining({ alert: "WARNING", consumed: "121 min", included: "150 min", pausesAtLimit: false })
+    );
+  });
+
+  it("annonce la pause, sans prix de depassement, quand le client l'a refuse", async () => {
+    mocks.findUnique.mockResolvedValue({
+      ...clientService,
+      overageAllowed: false,
+      status: "ACTIVE",
+      organizationId: "org_1",
+    });
+    mocks.consumedUnits.mockResolvedValue(150);
+    mocks.eventCount.mockResolvedValue(0);
+    await checkQuotaAlerts("cs_1", (cap) => unitsOfCall(cap.unit, 120));
+
+    expect(mocks.sendQuotaAlertEmail).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ alert: "EXCEEDED", overagePrice: null, pausesAtLimit: true })
     );
   });
 
@@ -230,5 +258,35 @@ describe("billFinalOverage", () => {
     await billFinalOverage(subscription);
     expect(mocks.invoicesCreate).not.toHaveBeenCalled();
     expect(mocks.invoiceItemsCreate).not.toHaveBeenCalled();
+  });
+});
+
+describe("isPausedByQuota", () => {
+  const period = { start: new Date("2026-09-01"), end: new Date("2026-10-01") };
+
+  beforeEach(() => {
+    for (const mock of Object.values(mocks)) mock.mockReset();
+    mocks.calendarMonth.mockReturnValue(period);
+  });
+
+  it("met en pause une fois le quota atteint si le depassement est refuse", async () => {
+    mocks.consumedUnits.mockResolvedValue(150);
+    expect(await isPausedByQuota({ ...clientService, overageAllowed: false })).toBe(true);
+    mocks.consumedUnits.mockResolvedValue(149);
+    expect(await isPausedByQuota({ ...clientService, overageAllowed: false })).toBe(false);
+  });
+
+  it("ne met jamais en pause si le depassement est accepte, ou sans quota", async () => {
+    mocks.consumedUnits.mockResolvedValue(500);
+    expect(await isPausedByQuota(clientService)).toBe(false);
+    expect(
+      await isPausedByQuota({
+        ...clientService,
+        overageAllowed: false,
+        includedUsageUnits: null,
+        service: { includedUsageUnits: null, usageUnit: null, overageUnitPriceCents: null },
+      })
+    ).toBe(false);
+    expect(mocks.consumedUnits).not.toHaveBeenCalled();
   });
 });

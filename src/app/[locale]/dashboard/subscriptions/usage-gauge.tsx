@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { formatUsageUnits, overageUnits, usageRatio, type UsageCap, formatPerUnit } from "@/lib/usage-cap";
 import { formatCentsWithVat } from "@/lib/vat";
@@ -7,11 +8,15 @@ export function UsageGauge({
   cap,
   consumedUnits,
   overageCents,
+  pausesAtLimit,
 }: {
   cap: UsageCap;
   consumedUnits: number;
   overageCents: number;
+  // Dépassement refusé : l'assistant se met en pause au lieu de facturer.
+  pausesAtLimit: boolean;
 }) {
+  const t = useTranslations("Dashboard.overage");
   const over = overageUnits(consumedUnits, cap);
   const ratio = usageRatio(consumedUnits, cap);
   const consumed = formatUsageUnits(consumedUnits, cap.unit);
@@ -47,7 +52,16 @@ export function UsageGauge({
       </div>
 
       <p className="mt-2 text-xs text-muted-foreground">
-        {over > 0 ? (
+        {pausesAtLimit && consumedUnits >= cap.includedUnits ? (
+          <span className="font-medium text-destructive">{t("paused")}</span>
+        ) : pausesAtLimit && nearLimit ? (
+          <>
+            <span className="font-medium text-foreground">
+              {t("remaining", { remaining: formatUsageUnits(cap.includedUnits - consumedUnits, cap.unit) })}
+            </span>{" "}
+            {t("pausesSoon")}
+          </>
+        ) : over > 0 ? (
           <>
             {formatUsageUnits(over, cap.unit)} au-delà du forfait :{" "}
             <span className="font-medium text-foreground tabular-nums">

@@ -1,25 +1,32 @@
 import { CreditCard } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { MonthlyPrice } from "@/components/monthly-price";
-import { formatUsageCap, formatUsageUnits } from "@/lib/usage-cap";
+import { formatPerUnit, formatUsageCap, formatUsageUnits } from "@/lib/usage-cap";
 import { describeNextCharge, describePeriod, isRunning, type MySubscription } from "@/lib/subscriptions";
 import { ChangeQuotaDialog } from "./change-quota-dialog";
+import { OverageSwitch } from "./overage-switch";
 import { BillingPortalButton } from "./payments/billing-portal-button";
 import { BILLING_SECTION_ID } from "./billing-section";
 
 // Section « Abonnement » des réglages d'une solution : ajuster le volume et
 // gérer le moyen de paiement. Ces actions s'appliquent tout de suite, à la
 // différence des autres réglages qui attendent « Enregistrer ».
-export function ServiceBillingCard({
+export async function ServiceBillingCard({
   subscription,
   organizationId,
 }: {
   subscription: MySubscription;
   organizationId: string;
 }) {
+  const t = await getTranslations("Dashboard.overage");
   const running = isRunning(subscription);
   const adjustable = running && subscription.tier !== null && subscription.cap !== null;
+  const { cap, usage, overageAllowed } = subscription;
+  const pausedByQuota =
+    cap !== null && !overageAllowed && usage !== null && usage.consumedUnits >= cap.includedUnits;
+  const overageDescriptionId = `${BILLING_SECTION_ID}-depassement`;
 
   return (
     <Card id={BILLING_SECTION_ID} className="scroll-mt-24">
@@ -69,6 +76,37 @@ export function ServiceBillingCard({
               <span className="mt-0.5 block text-xs text-muted-foreground">
                 {formatUsageCap(subscription.cap)}
               </span>
+            </BillingRow>
+          )}
+
+          {cap && (
+            <BillingRow
+              label={t("label")}
+              action={
+                running && (
+                  <OverageSwitch
+                    clientServiceId={subscription.clientServiceId}
+                    allowed={overageAllowed}
+                    describedBy={overageDescriptionId}
+                  />
+                )
+              }
+            >
+              <span id={overageDescriptionId}>
+                {overageAllowed
+                  ? cap.overageUnitPriceCents > 0
+                    ? t("accepted", {
+                        included: formatUsageUnits(cap.includedUnits, cap.unit),
+                        price: formatPerUnit(cap.overageUnitPriceCents, cap.unit),
+                      })
+                    : t("acceptedFree", { included: formatUsageUnits(cap.includedUnits, cap.unit) })
+                  : t("refused", { included: formatUsageUnits(cap.includedUnits, cap.unit) })}
+              </span>
+              {pausedByQuota && (
+                <span role="status" className="mt-1 block font-medium text-destructive">
+                  {t("paused")}
+                </span>
+              )}
             </BillingRow>
           )}
 

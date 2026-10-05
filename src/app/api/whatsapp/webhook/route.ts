@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { generateMessagingReply } from "@/lib/messaging-agent";
 import { recordUsageEvent } from "@/lib/usage-events";
 import { claimInboundMessage, recordReply } from "@/lib/conversations";
+import { isPausedByQuota } from "@/lib/overage-billing";
 import { sendWhatsAppMessage } from "@/lib/whatsapp";
 import { validateMetaSignature, verifyMetaWebhookChallenge } from "@/lib/meta";
 
@@ -74,8 +75,13 @@ export async function POST(request: Request) {
   }
 
   let sentReply: string | null = null;
+  // Dépassement refusé et forfait atteint : l'assistant se tait aussi.
+  const paused = await isPausedByQuota(clientService).catch((err) => {
+    console.error(`[whatsapp] lecture du quota impossible :`, err);
+    return false;
+  });
   // Le client a repris la main : le message est enregistré, l'assistant se tait.
-  if (!conversation?.humanTakeover) {
+  if (!conversation?.humanTakeover && !paused) {
     try {
       const replyText = await generateMessagingReply(clientService, message.text.body);
       if (replyText) {

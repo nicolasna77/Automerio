@@ -32,6 +32,7 @@ export type MySubscription = {
   period: BillingPeriod;
   renews: boolean;
   cap: UsageCap | null;
+  overageAllowed: boolean;
   usage: SubscriptionUsage | null;
   tier: SubscriptionTier | null;
 };
@@ -103,7 +104,10 @@ async function toMySubscription(
     ? subscriptions.get(cs.stripeSubscriptionId)
     : undefined;
   const period = (subscription && periodOf(subscription)) ?? fallback;
-  const cap = readClientUsageCap(cs, cs.service);
+  const catalogCap = readClientUsageCap(cs, cs.service);
+  // Dépassement refusé : rien n'est facturé au-delà du forfait.
+  const cap =
+    catalogCap && !cs.overageAllowed ? { ...catalogCap, overageUnitPriceCents: 0 } : catalogCap;
   const tracksUsage = cs.status === "ACTIVE" || cs.status === "CONFIGURING";
 
   const usage =
@@ -131,6 +135,7 @@ async function toMySubscription(
         ? !subscription.cancel_at_period_end && subscription.status !== "canceled"
         : true),
     cap,
+    overageAllowed: cs.overageAllowed,
     usage,
   };
 }

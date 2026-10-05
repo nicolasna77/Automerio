@@ -199,6 +199,8 @@ export type ServiceEventType =
   | "QUOTA_CHANGED"
   | "QUOTA_WARNING"
   | "QUOTA_EXCEEDED"
+  | "OVERAGE_ACCEPTED"
+  | "OVERAGE_REFUSED"
   | "CANCELED";
 
 export const SERVICE_EVENT_LABELS: Record<ServiceEventType, string> = {
@@ -219,6 +221,8 @@ export const SERVICE_EVENT_LABELS: Record<ServiceEventType, string> = {
   QUOTA_CHANGED: "Volume de l'abonnement modifié",
   QUOTA_WARNING: "80 % du forfait consommé",
   QUOTA_EXCEEDED: "Forfait dépassé",
+  OVERAGE_ACCEPTED: "Dépassement du forfait accepté",
+  OVERAGE_REFUSED: "Dépassement du forfait refusé",
   CONFIGURATION_UPDATED: "Configuration mise à jour",
   CANCELED: "Solution résiliée",
 };
