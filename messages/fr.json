@@ -1066,6 +1066,213 @@
       "emptyDescription": "Activez la prise de rendez-vous ou de commande par téléphone : chaque rendez-vous et chaque commande s'afficheront ici.",
       "emptyCta": "Activer la prise de rendez-vous",
       "subtitle": "{service} · {phone}"
+    },
+    "calls": {
+      "filters": {
+        "label": "Filtrer par état",
+        "all": "Tous",
+        "todo": "À traiter",
+        "done": "Traités"
+      },
+      "outcomes": {
+        "appointment_booked": "Rendez-vous pris",
+        "order_taken": "Commande enregistrée",
+        "transferred": "Appel transféré",
+        "message_taken": "Message pris",
+        "no_action": "Sans suite"
+      },
+      "duration": {
+        "unknown": "durée inconnue",
+        "seconds": "{seconds} s",
+        "minutes": "{minutes} min {seconds}"
+      },
+      "transcript": {
+        "loading": "Chargement de la transcription…",
+        "error": "La transcription n'a pas pu être chargée.",
+        "empty": "Aucune parole n'a été transcrite pour cet appel.",
+        "label": "Transcription de l'appel",
+        "assistant": "Assistant : ",
+        "caller": "Appelant : ",
+        "show": "Voir la transcription",
+        "hide": "Masquer la transcription"
+      },
+      "hiddenNumber": "Numéro masqué",
+      "updateError": "L'appel n'a pas pu être mis à jour.",
+      "toCallBack": "À rappeler",
+      "handled": "Traité",
+      "showDetail": "Afficher le détail",
+      "hideDetail": "Masquer le détail",
+      "todo": "À faire : ",
+      "number": "Numéro : ",
+      "callBack": "Rappeler",
+      "reopen": "Rouvrir",
+      "markHandled": "Marquer comme traité",
+      "loading": "Chargement de l'activité des appels…",
+      "inProgress": "{count, plural, one {Appel en cours} other {Appels en cours}}",
+      "allDays": "Tous les jours",
+      "dayFilterLabel": "Filtrer par jour",
+      "callCount": "{count, plural, one {# appel} other {# appels}}",
+      "updating": "Mise à jour de la liste…",
+      "mostRecent": "Les {count} appels les plus récents",
+      "inList": "{count, plural, one {# appel} other {# appels}} dans la liste",
+      "truncatedHint": "Les {count} appels les plus récents. Choisissez un jour pour voir les plus anciens.",
+      "emptyTodo": "Aucun appel à traiter",
+      "emptyDone": "Aucun appel traité",
+      "emptyAll": "Aucun appel terminé",
+      "emptyForDay": "{empty} {day}.",
+      "emptyNow": "{empty} pour l'instant.",
+      "seeAll": "Voir tous les appels"
+    },
+    "conversations": {
+      "title": "Conversations",
+      "description": "L'assistant répond à vos clients. Reprenez la main sur une conversation pour répondre vous-même.",
+      "today": "Aujourd'hui",
+      "yesterday": "Hier",
+      "prefixAssistant": "Assistant : ",
+      "prefixHuman": "Vous : ",
+      "emptyTitle": "Aucune conversation pour l'instant",
+      "emptyDescription": "Les échanges de l'assistant avec vos clients apparaîtront ici. Vous pourrez reprendre la main sur chacun et répondre vous-même.",
+      "updating": "Mise à jour de la liste…",
+      "truncatedAll": "Les {limit} conversations les plus récentes. Choisissez un jour pour voir les autres.",
+      "truncatedDay": "Les {limit} conversations les plus récentes {day}.",
+      "count": "{count, plural, one {# conversation} other {# conversations}}",
+      "countDay": "{count, plural, one {# conversation} other {# conversations}} {day}",
+      "allDays": "Tous les jours",
+      "dayFilterLabel": "Filtrer par jour",
+      "emptyForDay": "Aucune conversation {day}.",
+      "seeAll": "Voir toutes les conversations",
+      "listLabel": "Liste des conversations",
+      "youHaveControl": "Vous avez la main",
+      "assistantActive": "Assistant actif",
+      "toAnswer": "À répondre",
+      "threadLabel": "Conversation avec {contact}",
+      "threadLabelEmpty": "Conversation",
+      "chooseOne": "Choisissez une conversation.",
+      "toggleError": "La conversation n'a pas pu être mise à jour. Réessayez dans un instant.",
+      "sendError": "Le message n'a pas pu être envoyé. Réessayez dans un instant.",
+      "back": "Retour aux conversations",
+      "assistantPaused": "Assistant en pause",
+      "handBack": "Rendre la main à l'assistant",
+      "takeOver": "Reprendre la main",
+      "messagesWith": "Messages avec {contact}",
+      "exchangesWith": "Échanges avec {contact}",
+      "sending": "Envoi…",
+      "replyLabel": "Votre réponse à {contact}",
+      "replyPlaceholder": "Écrire une réponse…",
+      "send": "Envoyer la réponse",
+      "replyUntil": "Réponse possible jusqu'à {deadline}.",
+      "replyPauses": "En répondant, vous mettez l'assistant en pause pour ce contact.",
+      "windowClosed": "Ce contact ne vous a pas écrit depuis plus de 24 heures. {channel} vous permettra de répondre dès son prochain message.",
+      "authorAssistant": "Assistant",
+      "authorYou": "Vous",
+      "authorContact": "Client",
+      "authorPrefix": "{author} : "
+    },
+    "setup": {
+      "title": "Mise en service",
+      "steps": {
+        "payment": "Paiement",
+        "phone": "Numéro de téléphone attribué",
+        "whatsapp": "Compte WhatsApp connecté",
+        "facebook": "Page Facebook connectée",
+        "instagram": "Compte Instagram connecté",
+        "catalog": "Carte ajoutée",
+        "calendar": "Agenda connecté",
+        "verification": "Vérification par l'équipe Automerio"
+      },
+      "optional": " (facultatif)",
+      "optionalTag": "(facultatif)",
+      "payFirst": "Finalisez le paiement pour lancer la mise en service. Le bouton se trouve en haut de cette page.",
+      "phone": {
+        "title": "Choisissez le numéro qui recevra vos appels",
+        "description": "L'assistant ne peut pas encore décrocher tant qu'aucun numéro n'est attribué. Vous pourrez ensuite y renvoyer votre ligne actuelle, sans changer de numéro."
+      },
+      "whatsapp": {
+        "title": "Connectez votre compte WhatsApp Business",
+        "description": "L'assistant ne peut pas encore répondre à vos clients tant qu'aucun compte n'est connecté. Vous gardez votre numéro actuel."
+      },
+      "facebook": {
+        "title": "Connectez votre Page Facebook",
+        "description": "L'assistant ne peut pas encore répondre à vos clients tant qu'aucune Page n'est connectée."
+      },
+      "instagram": {
+        "title": "Connectez votre compte Instagram",
+        "description": "L'assistant ne peut pas encore répondre à vos clients tant qu'aucun compte n'est connecté."
+      },
+      "catalog": {
+        "title": "Ajoutez votre carte",
+        "description": "Sans carte, l'assistant note les coordonnées de vos clients mais ne prend pas leurs commandes. Une photo ou un PDF suffit.",
+        "cta": "Ajouter ma carte"
+      },
+      "calendar": {
+        "title": "Connectez votre agenda",
+        "description": "Les rendez-vous pris par téléphone s'ajouteront directement dans votre agenda : Google Agenda, Cal.com ou Calendly."
+      },
+      "waiting": "Rien à faire de votre côté : l'équipe Automerio termine la mise en service et vous prévient dès que votre solution est active."
+    },
+    "connectors": {
+      "disconnect": "Déconnecter",
+      "calendar": {
+        "disconnected": "Agenda déconnecté.",
+        "connected": "{provider} connecté",
+        "connectedToast": "{provider} connecté.",
+        "eventType": ": {name}",
+        "google": "Google Agenda",
+        "dialogTitle": "Connecter {provider}",
+        "dialogDescription": "L'assistant vérifie vos créneaux et réserve directement dans {provider}. Votre clé est chiffrée avant d'être enregistrée.",
+        "open": "Ouvrir {provider}",
+        "chooseEventType": "Quel rendez-vous l'assistant doit-il réserver ?",
+        "account": "Compte : {account}",
+        "minutes": "{minutes} min",
+        "check": "Vérifier la clé",
+        "changeKey": "Changer de clé",
+        "connect": "Connecter",
+        "providers": {
+          "calcom": {
+            "keyLabel": "Clé API Cal.com",
+            "where": "Dans Cal.com : Paramètres, Développeur, Clés API. Créez une clé sans date d'expiration."
+          },
+          "calendly": {
+            "keyLabel": "Jeton d'accès personnel Calendly",
+            "where": "Dans Calendly : Intégrations et applications, API et webhooks, Jetons d'accès personnels.",
+            "note": "La réservation par un assistant demande une offre Calendly payante (Standard ou plus)."
+          }
+        }
+      },
+      "whatsapp": {
+        "unavailable": "Connexion WhatsApp indisponible pour l'instant. Contactez l'équipe Automerio.",
+        "connected": "Compte WhatsApp connecté.",
+        "disconnected": "Compte WhatsApp déconnecté.",
+        "connect": "Connecter mon compte WhatsApp",
+        "status": "WhatsApp connecté",
+        "statusWithNumber": "WhatsApp connecté ({number})"
+      },
+      "messenger": {
+        "unavailable": "Connexion Facebook indisponible pour l'instant. Contactez l'équipe Automerio.",
+        "connected": "Page Facebook connectée.",
+        "disconnected": "Page Facebook déconnectée.",
+        "connect": "Connecter ma Page Facebook",
+        "status": "Page connectée",
+        "statusWithName": "Page connectée ({name})"
+      },
+      "instagram": {
+        "disconnected": "Compte Instagram déconnecté.",
+        "connect": "Connecter mon compte Instagram",
+        "status": "Compte connecté",
+        "statusWithName": "Compte connecté (@{username})"
+      },
+      "phone": {
+        "activated": "Numéro {number} activé.",
+        "search": "Rechercher un numéro",
+        "none": "Aucun numéro disponible pour l'instant. Réessayez plus tard.",
+        "choose": "Choisir",
+        "searching": "Recherche…",
+        "refresh": "Actualiser la recherche",
+        "confirmTitle": "Activer le {number} ?",
+        "confirmDescription": "Ce numéro sera acheté immédiatement et rattaché à votre solution. Le coût est couvert par votre abonnement.",
+        "activating": "Activation…",
+        "confirm": "Confirmer"
+      }
     }
   },
   "Workspace": {

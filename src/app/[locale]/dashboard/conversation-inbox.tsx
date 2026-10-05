@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useEffect, useLayoutEffect, useRef, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { ArrowLeft, Bot, Hand, Loader2, MessageSquare, SendHorizontal } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,9 @@ const TIME_ZONE = "Europe/Paris";
 // Le compteur n'apparaît qu'à l'approche de la limite.
 const COUNTER_THRESHOLD = MAX_REPLY_LENGTH - 200;
 
+type ConversationsT = ReturnType<typeof useTranslations<"Dashboard.conversations">>;
+
+// Noms de marque : ils ne se traduisent pas.
 const CHANNEL_LABELS: Record<ConversationView["channel"], string> = {
   WHATSAPP: "WhatsApp",
   MESSENGER: "Messenger",
@@ -52,24 +56,22 @@ function formatListTime(iso: string): string {
   return parisDayKey(date) === parisDayKey(new Date()) ? timeFormat.format(date) : shortDayFormat.format(date);
 }
 
-function formatDaySeparator(dayKey: string, sample: Date): string {
+function formatDaySeparator(dayKey: string, sample: Date, t: ConversationsT): string {
   const today = parisDayKey(new Date());
-  if (dayKey === today) return "Aujourd'hui";
-  if (dayKey === previousDayKey(today)) return "Hier";
+  if (dayKey === today) return t("today");
+  if (dayKey === previousDayKey(today)) return t("yesterday");
   return longDayFormat.format(sample);
 }
 
-function authorPrefix(author: MessageAuthor): string {
-  if (author === "ASSISTANT") return "Assistant : ";
-  if (author === "HUMAN") return "Vous : ";
+function authorPrefix(author: MessageAuthor, t: ConversationsT): string {
+  if (author === "ASSISTANT") return t("prefixAssistant");
+  if (author === "HUMAN") return t("prefixHuman");
   return "";
 }
 
 function needsReply(conversation: ConversationView): boolean {
   return conversation.humanTakeover && conversation.messages.at(-1)?.author === "CONTACT";
 }
-
-const plural = (count: number, word: string) => `${count} ${word}${count > 1 ? "s" : ""}`;
 
 function isWindowOpen(conversation: ConversationView): boolean {
   return (
@@ -86,6 +88,7 @@ export function ConversationInbox({
   initialConversations: ConversationView[];
   initialDays: ConversationDay[];
 }) {
+  const t = useTranslations("Dashboard.conversations");
   const [conversations, setConversations] = useState(initialConversations);
   const [days, setDays] = useState(initialDays);
   const [day, setDay] = useState<string>(ALL_DAYS);
@@ -151,11 +154,8 @@ export function ConversationInbox({
     return (
       <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border px-6 py-12 text-center">
         <MessageSquare className="size-5 text-muted-foreground" aria-hidden="true" />
-        <p className="font-medium text-foreground">Aucune conversation pour l&apos;instant</p>
-        <p className="max-w-sm text-sm text-muted-foreground">
-          Les échanges de l&apos;assistant avec vos clients apparaîtront ici. Vous pourrez reprendre la main sur
-          chacun et répondre vous-même.
-        </p>
+        <p className="font-medium text-foreground">{t("emptyTitle")}</p>
+        <p className="max-w-sm text-sm text-muted-foreground">{t("emptyDescription")}</p>
       </div>
     );
   }
@@ -165,32 +165,34 @@ export function ConversationInbox({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p role="status" className="text-sm text-muted-foreground">
           {filtering
-            ? "Mise à jour de la liste…"
+            ? t("updating")
             : truncated
               ? day === ALL_DAYS
-                ? `Les ${limit} conversations les plus récentes. Choisissez un jour pour voir les autres.`
-                : `Les ${limit} conversations les plus récentes ${dayPhrase(day)}.`
-              : `${plural(conversations.length, "conversation")}${day === ALL_DAYS ? "" : ` ${dayPhrase(day)}`}`}
+                ? t("truncatedAll", { limit })
+                : t("truncatedDay", { limit, day: dayPhrase(day) })
+              : day === ALL_DAYS
+                ? t("count", { count: conversations.length })
+                : t("countDay", { count: conversations.length, day: dayPhrase(day) })}
         </p>
         <Select
           value={day}
           items={[
-            { value: ALL_DAYS, label: "Tous les jours" },
+            { value: ALL_DAYS, label: t("allDays") },
             ...days.map((entry) => ({ value: entry.day, label: dayLabel(entry.day) })),
           ]}
           onValueChange={(next) => changeDay(next ?? ALL_DAYS)}
         >
-          <SelectTrigger aria-label="Filtrer par jour" size="sm" className="min-w-44">
+          <SelectTrigger aria-label={t("dayFilterLabel")} size="sm" className="min-w-44">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL_DAYS}>Tous les jours</SelectItem>
+            <SelectItem value={ALL_DAYS}>{t("allDays")}</SelectItem>
             {days.map((entry) => (
               <SelectItem key={entry.day} value={entry.day}>
                 {dayLabel(entry.day)}
                 <span className="sr-only">, </span>
                 <span className="ml-auto pl-3 text-xs tabular-nums text-muted-foreground">
-                  {plural(entry.count, "conversation")}
+                  {t("count", { count: entry.count })}
                 </span>
               </SelectItem>
             ))}
@@ -201,11 +203,11 @@ export function ConversationInbox({
       {conversations.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border px-4 py-10 text-center text-sm">
           <p className="text-muted-foreground">
-            {filtering ? "Mise à jour de la liste…" : `Aucune conversation ${dayPhrase(day)}.`}
+            {filtering ? t("updating") : t("emptyForDay", { day: dayPhrase(day) })}
           </p>
           {!filtering && (
             <Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => changeDay(ALL_DAYS)}>
-              Voir toutes les conversations
+              {t("seeAll")}
             </Button>
           )}
         </div>
@@ -218,7 +220,7 @@ export function ConversationInbox({
           )}
         >
           <nav
-            aria-label="Liste des conversations"
+            aria-label={t("listLabel")}
             className={cn(
               "min-h-0 overflow-y-auto border-border md:block md:border-r",
               mobileView === "thread" && "hidden"
@@ -269,16 +271,16 @@ export function ConversationInbox({
                               unanswered ? "font-medium text-foreground" : "text-muted-foreground"
                             )}
                           >
-                            {authorPrefix(last.author)}
+                            {authorPrefix(last.author, t)}
                             {last.text}
                           </span>
                         )}
                         <span className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-                          {conversation.humanTakeover ? "Vous avez la main" : "Assistant actif"}
+                          {conversation.humanTakeover ? t("youHaveControl") : t("assistantActive")}
                           {unanswered && (
                             <>
                               <span aria-hidden="true">·</span>
-                              <span className="font-medium text-attention">À répondre</span>
+                              <span className="font-medium text-attention">{t("toAnswer")}</span>
                             </>
                           )}
                         </span>
@@ -291,7 +293,7 @@ export function ConversationInbox({
           </nav>
 
           <section
-            aria-label={selected ? `Conversation avec ${selected.contact}` : "Conversation"}
+            aria-label={selected ? t("threadLabel", { contact: selected.contact }) : t("threadLabelEmpty")}
             className={cn("min-h-0 min-w-0 flex-col md:flex", mobileView === "list" ? "hidden" : "flex")}
           >
             {selected ? (
@@ -304,7 +306,7 @@ export function ConversationInbox({
                 onUpdate={applyActionResult}
               />
             ) : (
-              <p className="m-auto p-6 text-sm text-muted-foreground">Choisissez une conversation.</p>
+              <p className="m-auto p-6 text-sm text-muted-foreground">{t("chooseOne")}</p>
             )}
           </section>
         </div>
@@ -326,6 +328,7 @@ function ConversationThread({
   onBack: () => void;
   onUpdate: (conversations: ConversationView[]) => void;
 }) {
+  const t = useTranslations("Dashboard.conversations");
   const [draft, setDraft] = useState("");
   const [pendingText, setPendingText] = useState<string | null>(null);
   const [isSending, startSending] = useTransition();
@@ -349,7 +352,7 @@ function ConversationThread({
         onUpdate(unwrap(await action(conversation.id, day)));
         if (!conversation.humanTakeover) textareaRef.current?.focus();
       } catch (err) {
-        toast.error(getErrorMessage(err, "La conversation n'a pas pu être mise à jour. Réessayez dans un instant."));
+        toast.error(getErrorMessage(err, t("toggleError")));
       }
     });
   }
@@ -368,7 +371,7 @@ function ConversationThread({
         onUpdate(unwrap(await sendConversationReply(conversation.id, text, day)));
       } catch (err) {
         setDraft(text);
-        toast.error(getErrorMessage(err, "Le message n'a pas pu être envoyé. Réessayez dans un instant."));
+        toast.error(getErrorMessage(err, t("sendError")));
       } finally {
         setPendingText(null);
       }
@@ -387,7 +390,7 @@ function ConversationThread({
   return (
     <>
       <header className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-border px-3 py-2.5 sm:px-4">
-        <Button variant="ghost" size="icon-sm" className="-ml-1 md:hidden" onClick={onBack} aria-label="Retour aux conversations">
+        <Button variant="ghost" size="icon-sm" className="-ml-1 md:hidden" onClick={onBack} aria-label={t("back")}>
           <ArrowLeft />
         </Button>
         <div className="min-w-0 flex-1">
@@ -396,12 +399,12 @@ function ConversationThread({
             {conversation.humanTakeover ? (
               <>
                 <Hand className="size-3.5 shrink-0 text-attention" aria-hidden="true" />
-                Assistant en pause
+                {t("assistantPaused")}
               </>
             ) : (
               <>
                 <Bot className="size-3.5 shrink-0 text-primary" aria-hidden="true" />
-                Assistant actif
+                {t("assistantActive")}
               </>
             )}
           </p>
@@ -420,7 +423,7 @@ function ConversationThread({
           ) : (
             <Hand aria-hidden="true" />
           )}
-          {conversation.humanTakeover ? "Rendre la main à l'assistant" : "Reprendre la main"}
+          {conversation.humanTakeover ? t("handBack") : t("takeOver")}
         </Button>
       </header>
 
@@ -428,15 +431,15 @@ function ConversationThread({
       <div
         ref={scrollRef}
         role="log"
-        aria-label={`Messages avec ${conversation.contact}`}
+        aria-label={t("messagesWith", { contact: conversation.contact })}
         className="min-h-0 flex-1 overflow-y-auto bg-background/60 px-3 py-4 sm:px-4"
       >
-        <ol aria-label={`Échanges avec ${conversation.contact}`} className="space-y-1">
+        <ol aria-label={t("exchangesWith", { contact: conversation.contact })} className="space-y-1">
           {days.map((day) => (
             <Fragment key={day.key}>
               <li aria-hidden="true" className="flex justify-center py-2">
                 <span className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground first-letter:uppercase">
-                  {formatDaySeparator(day.key, new Date(day.messages[0].createdAt))}
+                  {formatDaySeparator(day.key, new Date(day.messages[0].createdAt), t)}
                 </span>
               </li>
               {day.messages.map((message, index) => {
@@ -458,7 +461,7 @@ function ConversationThread({
             </Fragment>
           ))}
           {pendingText && (
-            <MessageBubble author="HUMAN" authorName={null} text={pendingText} time="Envoi…" showAuthor={false} spaced pending />
+            <MessageBubble author="HUMAN" authorName={null} text={pendingText} time={t("sending")} showAuthor={false} spaced pending />
           )}
         </ol>
       </div>
@@ -472,7 +475,7 @@ function ConversationThread({
             }}
           >
             <label htmlFor={`reply-${conversation.id}`} className="sr-only">
-              Votre réponse à {conversation.contact}
+              {t("replyLabel", { contact: conversation.contact })}
             </label>
             <div className="flex items-end gap-2">
               <Textarea
@@ -489,14 +492,14 @@ function ConversationThread({
                 }}
                 maxLength={MAX_REPLY_LENGTH}
                 rows={1}
-                placeholder="Écrire une réponse…"
+                placeholder={t("replyPlaceholder")}
                 className="max-h-36 min-h-10 rounded-lg py-2.5"
               />
               <Button
                 type="submit"
                 size="icon-lg"
                 disabled={isSending}
-                aria-label="Envoyer la réponse"
+                aria-label={t("send")}
                 className="rounded-lg"
               >
                 {isSending ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : <SendHorizontal />}
@@ -505,8 +508,8 @@ function ConversationThread({
             <p className="mt-2 flex flex-wrap justify-between gap-x-3 gap-y-1 text-xs text-muted-foreground">
               <span>
                 {conversation.humanTakeover
-                  ? `Réponse possible jusqu'à ${deadlineFormat.format(new Date(conversation.replyWindowClosesAt!))}.`
-                  : "En répondant, vous mettez l'assistant en pause pour ce contact."}
+                  ? t("replyUntil", { deadline: deadlineFormat.format(new Date(conversation.replyWindowClosesAt!)) })
+                  : t("replyPauses")}
               </span>
               {draft.length > COUNTER_THRESHOLD && (
                 <span className="tabular-nums" aria-live="polite">
@@ -517,8 +520,7 @@ function ConversationThread({
           </form>
         ) : (
           <p className="rounded-lg bg-muted px-3 py-2.5 text-sm text-muted-foreground">
-            Ce contact ne vous a pas écrit depuis plus de 24 heures. {CHANNEL_LABELS[conversation.channel]} vous
-            permettra de répondre dès son prochain message.
+            {t("windowClosed", { channel: CHANNEL_LABELS[conversation.channel] })}
           </p>
         )}
       </footer>
@@ -543,8 +545,10 @@ function MessageBubble({
   spaced: boolean;
   pending?: boolean;
 }) {
+  const t = useTranslations("Dashboard.conversations");
   const fromContact = author === "CONTACT";
-  const label = author === "ASSISTANT" ? "Assistant" : author === "HUMAN" ? (authorName ?? "Vous") : "Client";
+  const label =
+    author === "ASSISTANT" ? t("authorAssistant") : author === "HUMAN" ? (authorName ?? t("authorYou")) : t("authorContact");
   return (
     <li className={cn("flex flex-col", fromContact ? "items-start" : "items-end", spaced && "pt-2")}>
       {showAuthor && (
@@ -562,7 +566,7 @@ function MessageBubble({
           pending && "opacity-70"
         )}
       >
-        <span className="sr-only">{label} : </span>
+        <span className="sr-only">{t("authorPrefix", { author: label })}</span>
         {text}
         <span
           className={cn(

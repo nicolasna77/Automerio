@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { CalendarCheck2, ExternalLink, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,22 +25,10 @@ import {
 } from "@/lib/scheduling/types";
 import { connectSchedulingTool, disconnectCalendar, previewSchedulingAccount } from "./actions";
 
-// Où trouver la clé dans chaque outil, et ce qu'il faut savoir avant.
-const PROVIDER_HELP: Record<
-  SchedulingProvider,
-  { keyLabel: string; where: string; url: string; note?: string }
-> = {
-  calcom: {
-    keyLabel: "Clé API Cal.com",
-    where: "Dans Cal.com : Paramètres, Développeur, Clés API. Créez une clé sans date d'expiration.",
-    url: "https://app.cal.com/settings/developer/api-keys",
-  },
-  calendly: {
-    keyLabel: "Jeton d'accès personnel Calendly",
-    where: "Dans Calendly : Intégrations et applications, API et webhooks, Jetons d'accès personnels.",
-    url: "https://calendly.com/integrations/api_webhooks",
-    note: "La réservation par un assistant demande une offre Calendly payante (Standard ou plus).",
-  },
+// Où trouver la clé dans chaque outil (textes dans Dashboard.connectors).
+const PROVIDER_URLS: Record<SchedulingProvider, string> = {
+  calcom: "https://app.cal.com/settings/developer/api-keys",
+  calendly: "https://calendly.com/integrations/api_webhooks",
 };
 
 export function CalendarConnection({
@@ -52,6 +41,7 @@ export function CalendarConnection({
   // Après Google, revenir sur l'onglet Connecteurs des réglages.
   fromSettings?: boolean;
 }) {
+  const t = useTranslations("Dashboard.connectors");
   const [isPending, startTransition] = useTransition();
   const [dialogFor, setDialogFor] = useState<SchedulingProvider | null>(null);
 
@@ -60,7 +50,7 @@ export function CalendarConnection({
       startTransition(async () => {
         try {
           unwrap(await disconnectCalendar(clientServiceId));
-          toast.success("Agenda déconnecté.");
+          toast.success(t("calendar.disconnected"));
         } catch (err) {
           toast.error(getErrorMessage(err));
         }
@@ -71,9 +61,9 @@ export function CalendarConnection({
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
         <span className="inline-flex items-center gap-1.5 text-foreground">
           <CalendarCheck2 className="size-4 text-primary" aria-hidden="true" />
-          {PROVIDER_LABELS[calendar.provider]} connecté
+          {t("calendar.connected", { provider: PROVIDER_LABELS[calendar.provider] })}
           {calendar.eventTypeName && (
-            <span className="text-muted-foreground">: {calendar.eventTypeName}</span>
+            <span className="text-muted-foreground">{t("calendar.eventType", { name: calendar.eventTypeName })}</span>
           )}
         </span>
         <span className="text-muted-foreground">{calendar.account}</span>
@@ -84,7 +74,7 @@ export function CalendarConnection({
           disabled={isPending}
           aria-busy={isPending}
         >
-          {isPending ? <Loader2 className="animate-spin" aria-hidden="true" /> : "Déconnecter"}
+          {isPending ? <Loader2 className="animate-spin" aria-hidden="true" /> : t("disconnect")}
         </Button>
       </div>
     );
@@ -104,7 +94,7 @@ export function CalendarConnection({
           }
         >
           <CalendarCheck2 aria-hidden="true" data-icon="inline-start" />
-          Google Agenda
+          {t("calendar.google")}
         </Button>
         <Button variant="outline" size="sm" onClick={() => setDialogFor("calcom")}>
           Cal.com
@@ -141,8 +131,9 @@ function SchedulingDialog({
   provider: SchedulingProvider;
   onDone: () => void;
 }) {
+  const t = useTranslations("Dashboard.connectors.calendar");
   const id = useId();
-  const help = PROVIDER_HELP[provider];
+  const providerName = PROVIDER_LABELS[provider];
   const [token, setToken] = useState("");
   const [account, setAccount] = useState<ProviderAccount | null>(null);
   const [eventTypeId, setEventTypeId] = useState<string | null>(null);
@@ -168,7 +159,7 @@ function SchedulingDialog({
     startTransition(async () => {
       try {
         unwrap(await connectSchedulingTool(clientServiceId, provider, token, eventTypeId));
-        toast.success(`${PROVIDER_LABELS[provider]} connecté.`);
+        toast.success(t("connectedToast", { provider: providerName }));
         onDone();
       } catch (err) {
         setError(getErrorMessage(err));
@@ -179,16 +170,13 @@ function SchedulingDialog({
   return (
     <>
       <DialogHeader>
-        <DialogTitle>Connecter {PROVIDER_LABELS[provider]}</DialogTitle>
-        <DialogDescription>
-          L&apos;assistant vérifie vos créneaux et réserve directement dans{" "}
-          {PROVIDER_LABELS[provider]}. Votre clé est chiffrée avant d&apos;être enregistrée.
-        </DialogDescription>
+        <DialogTitle>{t("dialogTitle", { provider: providerName })}</DialogTitle>
+        <DialogDescription>{t("dialogDescription", { provider: providerName })}</DialogDescription>
       </DialogHeader>
 
       {account === null ? (
         <div className="space-y-2">
-          <Label htmlFor={`${id}-token`}>{help.keyLabel}</Label>
+          <Label htmlFor={`${id}-token`}>{t(`providers.${provider}.keyLabel`)}</Label>
           <Input
             id={`${id}-token`}
             type="password"
@@ -204,25 +192,27 @@ function SchedulingDialog({
             disabled={isPending}
           />
           <p id={`${id}-help`} className="text-xs text-muted-foreground">
-            {help.where}{" "}
+            {t(`providers.${provider}.where`)}{" "}
             <a
-              href={help.url}
+              href={PROVIDER_URLS[provider]}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-0.5 underline underline-offset-4 hover:text-foreground"
             >
-              Ouvrir {PROVIDER_LABELS[provider]}
+              {t("open", { provider: providerName })}
               <ExternalLink className="size-3" aria-hidden="true" />
             </a>
           </p>
-          {help.note && <p className="text-xs text-muted-foreground">{help.note}</p>}
+          {provider === "calendly" && (
+            <p className="text-xs text-muted-foreground">{t("providers.calendly.note")}</p>
+          )}
         </div>
       ) : (
         <fieldset className="space-y-2">
           <legend className="mb-2 text-sm font-medium text-foreground">
-            Quel rendez-vous l&apos;assistant doit-il réserver ?
+            {t("chooseEventType")}
           </legend>
-          <p className="text-xs text-muted-foreground">Compte : {account.accountLabel}</p>
+          <p className="text-xs text-muted-foreground">{t("account", { account: account.accountLabel })}</p>
           <div className="max-h-64 space-y-1.5 overflow-y-auto">
             {account.eventTypes.map((eventType) => (
               <label
@@ -246,7 +236,7 @@ function SchedulingDialog({
                   {eventType.name}
                 </span>
                 <span className="font-mono text-xs tabular-nums text-muted-foreground">
-                  {eventType.durationMinutes} min
+                  {t("minutes", { minutes: eventType.durationMinutes })}
                 </span>
               </label>
             ))}
@@ -264,16 +254,16 @@ function SchedulingDialog({
         {account === null ? (
           <Button onClick={handleCheck} disabled={!token.trim() || isPending} aria-busy={isPending}>
             {isPending && <Loader2 className="animate-spin" aria-hidden="true" data-icon="inline-start" />}
-            Vérifier la clé
+            {t("check")}
           </Button>
         ) : (
           <>
             <Button variant="outline" onClick={() => setAccount(null)} disabled={isPending}>
-              Changer de clé
+              {t("changeKey")}
             </Button>
             <Button onClick={handleConnect} disabled={!eventTypeId || isPending} aria-busy={isPending}>
               {isPending && <Loader2 className="animate-spin" aria-hidden="true" data-icon="inline-start" />}
-              Connecter
+              {t("connect")}
             </Button>
           </>
         )}
