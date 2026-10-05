@@ -80,8 +80,8 @@ export default async function ServiceDetailPage({
   const showBookings =
     isLive && (objectives.includes("appointment") || objectives.includes("order"));
   const isMessaging = MESSAGING_SERVICE_SLUGS.has(item.service.slug);
-  // Téléphonie : les informations du service passent en haut de la page et
-  // l'historique n'est pas affiché ; l'activité (appels, rendez-vous) prime.
+  // Téléphonie : l'historique n'est pas affiché ; l'activité (appels,
+  // rendez-vous) prime.
   const isTelephony = TELEPHONY_SERVICE_SLUGS.has(item.service.slug);
   const showSetup = !isSetupComplete(item);
   // Agenda facultatif : une fois la solution en service sans agenda, une
@@ -89,11 +89,8 @@ export default async function ServiceDetailPage({
   const suggestsCalendar =
     isTelephony && isLive && !showSetup && objectives.includes("appointment") && !item.calendarConnected;
   const hasMainColumn =
-    (showSetup && !isTelephony) || (isLive && Boolean(item.externalPhoneNumber)) || showBookings || isMessaging;
-  // Avec la mise en service intégrée à l'en-tête (téléphonie), sa liste
-  // d'étapes suffit : pas de seconde barre de progression.
-  const showProgress =
-    item.status !== "ACTIVE" && item.status !== "CANCELED" && !(isTelephony && showSetup);
+    showSetup || (isLive && Boolean(item.externalPhoneNumber)) || showBookings || isMessaging;
+  const showProgress = item.status !== "ACTIVE" && item.status !== "CANCELED";
 
   const { scheduled: scheduledBookings, unscheduled: unscheduledBookings } =
     toCalendarBookings(item.bookings, {
@@ -129,90 +126,41 @@ export default async function ServiceDetailPage({
         ]}
       />
 
-      {isTelephony ? (
-        // Téléphonie : présentation de la solution et informations du service
-        // réunies dans une seule carte.
-        <Card>
-          <CardContent className="space-y-6">
-          <header className="flex items-start gap-4">
-            <ServiceGlyphBadge slug={item.service.slug} size="lg" />
-            {/* Grille : sur ordinateur, les actions à droite du titre ; sur
-                mobile, après la description plutôt qu'entre le titre et elle. */}
-            <div className="grid min-w-0 flex-1 gap-x-3 sm:grid-cols-[minmax(0,1fr)_auto]">
-              <div className="order-1 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 sm:col-start-1">
-                <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-                  {item.name}
-                </h1>
-                <StatusBadge status={item.status} />
-              </div>
-              <div className="order-4 mt-3 sm:order-none sm:col-start-2 sm:row-start-1 sm:mt-0">
-                <ServiceDetailActions item={item} />
-              </div>
-
-              {item.name !== item.service.name && (
-                <p className="order-2 text-sm text-muted-foreground sm:col-start-1">{item.service.name}</p>
-              )}
-              <p className="order-3 mt-2 max-w-2xl text-muted-foreground sm:col-start-1">{item.service.description}</p>
-
-              <p className="order-5 mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm sm:col-start-1">
-                <span className="font-medium text-foreground">{describeServiceStatus(item)}</span>
-                {!subscription && (
-                  <span className="tabular-nums text-muted-foreground">
-                    {formatPriceWithVat(item.service.monthlyPriceCents)}
-                  </span>
-                )}
-              </p>
-              {showProgress && (
-                <div className="order-6 max-w-2xl sm:col-start-1">
-                  <ServiceProgress status={item.status} />
-                </div>
-              )}
-            </div>
-          </header>
-            {showSetup && (
-              <div className="border-t border-border pt-6">
-                <ServiceSetupCard item={item} embedded />
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      ) : (
-        <header className="flex items-start gap-4">
-          <ServiceGlyphBadge slug={item.service.slug} size="lg" />
-          {/* Grille : sur ordinateur, les actions à droite du titre ; sur
-              mobile, après la description plutôt qu'entre le titre et elle. */}
-          <div className="grid min-w-0 flex-1 gap-x-3 sm:grid-cols-[minmax(0,1fr)_auto]">
-            <div className="order-1 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 sm:col-start-1">
-              <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-                {item.name}
-              </h1>
-              <StatusBadge status={item.status} />
-            </div>
-            <div className="order-4 mt-3 sm:order-none sm:col-start-2 sm:row-start-1 sm:mt-0">
-              <ServiceDetailActions item={item} />
-            </div>
-
-            {item.name !== item.service.name && (
-              <p className="order-2 text-sm text-muted-foreground sm:col-start-1">{item.service.name}</p>
-            )}
-            <p className="order-3 mt-2 max-w-2xl text-muted-foreground sm:col-start-1">{item.service.description}</p>
-
-            <p className="order-5 mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm sm:col-start-1">
-              <span className="font-medium text-foreground">{describeServiceStatus(item)}</span>
-              {!subscription && (
-                <span className="tabular-nums text-muted-foreground">
-                  {formatPriceWithVat(item.service.monthlyPriceCents)}
-                </span>
-              )}
-            </p>
-            {showProgress && (
-              <div className="order-6 max-w-2xl sm:col-start-1">
-                <ServiceProgress status={item.status} />
-              </div>
-            )}
+      <header className="flex items-start gap-4">
+        <ServiceGlyphBadge slug={item.service.slug} size="lg" />
+        {/* Grille : sur ordinateur, les actions à droite du titre ; sur
+            mobile, après la description plutôt qu'entre le titre et elle. */}
+        <div className="grid min-w-0 flex-1 gap-x-3 sm:grid-cols-[minmax(0,1fr)_auto]">
+          <div className="order-1 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 sm:col-start-1">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+              {item.name}
+            </h1>
+            <StatusBadge status={item.status} />
           </div>
-        </header>
-      )}
+          <div className="order-4 mt-3 sm:order-none sm:col-start-2 sm:row-start-1 sm:mt-0">
+            <ServiceDetailActions item={item} />
+          </div>
+
+          {item.name !== item.service.name && (
+            <p className="order-2 text-sm text-muted-foreground sm:col-start-1">{item.service.name}</p>
+          )}
+          <p className="order-3 mt-2 max-w-2xl text-muted-foreground sm:col-start-1">{item.service.description}</p>
+
+          <p className="order-5 mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm sm:col-start-1">
+            <span className="font-medium text-foreground">{describeServiceStatus(item)}</span>
+            {!subscription && (
+              <span className="tabular-nums text-muted-foreground">
+                {formatPriceWithVat(item.service.monthlyPriceCents)}
+              </span>
+            )}
+          </p>
+          {showProgress && (
+            <div className="order-6 max-w-2xl sm:col-start-1">
+              <ServiceProgress status={item.status} />
+            </div>
+          )}
+        </div>
+      </header>
 
       {suggestsCalendar && (
         <Alert className="mt-6">
@@ -258,7 +206,7 @@ export default async function ServiceDetailPage({
       {hasMainColumn ? (
         <div className="mt-8 grid items-start gap-6 lg:grid-cols-3">
           <div className="min-w-0 space-y-6 lg:col-span-2">
-            {showSetup && !isTelephony && <ServiceSetupCard item={item} />}
+            {showSetup && <ServiceSetupCard item={item} />}
             {/* Appels et calendrier ensemble : deux onglets d'une même carte. */}
             {showBookings && hasLiveCalls(item) ? (
               <ServiceActivityTabs
