@@ -158,6 +158,9 @@ export function ServiceSetupCard({
                 )}
               >
                 {step.label}
+                {step.optional && !step.done && (
+                  <span className="font-normal text-muted-foreground"> (facultatif)</span>
+                )}
               </span>
             </li>
           ))}
