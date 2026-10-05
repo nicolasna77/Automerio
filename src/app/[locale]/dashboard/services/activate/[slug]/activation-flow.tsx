@@ -85,6 +85,7 @@ export function ActivationFlow({
   initialUnits?: number | null;
 }) {
   const tSimulator = useTranslations("PriceSimulator");
+  const t = useTranslations("Dashboard.activation");
   const price = usePriceFormatter();
   const nameFieldId = useId();
   const promoFieldId = useId();
@@ -195,7 +196,7 @@ export function ActivationFlow({
   function handleContinue() {
     if (step.kind === "plan" && !name.trim()) {
       setSubmitAttempted(true);
-      toast.error("Donnez un nom à cette activation.");
+      toast.error(t("nameRequired"));
       document.getElementById(nameFieldId)?.focus();
       return;
     }
@@ -209,7 +210,7 @@ export function ActivationFlow({
       const missing = findMissingRequiredField(step.category.fields, values);
       if (missing) {
         setSubmitAttempted(true);
-        toast.error(`Le champ « ${missing.label} » est requis.`);
+        toast.error(t("fieldRequired", { label: missing.label }));
         document.getElementById(missing.key)?.focus();
         return;
       }
@@ -224,7 +225,7 @@ export function ActivationFlow({
     if (!name.trim()) {
       goToStep(0);
       setSubmitAttempted(true);
-      toast.error("Donnez un nom à cette activation.");
+      toast.error(t("nameRequired"));
       return;
     }
     for (let index = 1; index < steps.length - 1; index++) {
@@ -234,7 +235,7 @@ export function ActivationFlow({
       if (missing) {
         goToStep(index);
         setSubmitAttempted(true);
-        toast.error(`Le champ « ${missing.label} » est requis.`);
+        toast.error(t("fieldRequired", { label: missing.label }));
         return;
       }
     }
@@ -545,7 +546,7 @@ export function ActivationFlow({
             <div className="flex flex-wrap items-center gap-2">
               {!isLastBeforeSummary && (
                 <Button type="button" variant="ghost" onClick={handleSkipToSummary}>
-                  Régler plus tard
+                  {t("skipToSummary")}
                 </Button>
               )}
               <Button type="button" onClick={handleContinue}>
