@@ -25,6 +25,7 @@ export function InstagramConnection({
         variant="outline"
         size="sm"
         render={<a href={`/api/instagram/connect?clientServiceId=${clientServiceId}`} />}
+        nativeButton={false}
       >
         <Camera aria-hidden="true" data-icon="inline-start" />
         Connecter mon compte Instagram
