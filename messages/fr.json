@@ -493,7 +493,8 @@
     "overage": "{included}, puis {price}/{unit, select, MINUTE {min} other {appel}}",
     "amountWithVat": "{amount} TTC",
     "overageBlock": "{included}, puis {price} les {block} réponses",
-    "perUnit": "{unit, select, MINUTE {{price} la minute} MESSAGE {{price} les {block} réponses} other {{price} l'appel}}"
+    "perUnit": "{unit, select, MINUTE {{price} la minute} MESSAGE {{price} les {block} réponses} other {{price} l'appel}}",
+    "perMonthUnit": " € TTC/mois"
   },
   "ServicePage": {
     "priceSummary": "{price} TTC par mois, sans frais d'installation.",
@@ -1273,6 +1274,75 @@
         "activating": "Activation…",
         "confirm": "Confirmer"
       }
+    },
+    "service": {
+      "testCall": {
+        "title": "Tester votre assistant",
+        "description": "L'assistant vous appelle avec vos réglages actuels. Rien n'est enregistré : ni rendez-vous, ni commande, et l'appel ne compte pas dans votre forfait.",
+        "ringing": "Votre téléphone va sonner.",
+        "calling": "Nous appelons le {number}. Faites comme un client : demandez vos horaires, un rendez-vous, un transfert.",
+        "remaining": "{count, plural, one {Il vous reste # test aujourd'hui.} other {Il vous reste # tests aujourd'hui.}}",
+        "lastOne": "C'était votre dernier test aujourd'hui.",
+        "again": "Refaire un test",
+        "phoneLabel": "Votre numéro de téléphone",
+        "phonePlaceholder": "06 12 34 56 78",
+        "callMe": "M'appeler"
+      },
+      "actions": {
+        "canceled": "« {name} » a été résiliée.",
+        "more": "Plus d'actions pour « {name} »",
+        "unsubscribe": "Se désabonner",
+        "confirmTitle": "Résilier « {name} » ?",
+        "confirmDescription": "L'abonnement mensuel sera annulé immédiatement. Dans les 30 jours suivant votre premier paiement, il vous est remboursé sur simple demande depuis la rubrique Aide.",
+        "canceling": "Résiliation…"
+      },
+      "subscription": {
+        "title": "Abonnement",
+        "cap": "Plafond d'usage : {cap}",
+        "noQuota": "Cet abonnement n'a pas de quota d'usage : le montant mensuel ne bouge pas.",
+        "adjust": "Ajuster l'abonnement",
+        "manage": "Gérer mes abonnements"
+      },
+      "progress": {
+        "label": "Étapes de la solution",
+        "paid": "Payé",
+        "configuring": "En configuration",
+        "active": "Actif"
+      },
+      "usage": {
+        "loading": "Chargement de l'usage…",
+        "callsThisMonth": "{count, plural, one {appel reçu ce mois-ci} other {appels reçus ce mois-ci}}"
+      },
+      "activity": {
+        "label": "Activité de la solution",
+        "calls": "Appels reçus",
+        "calendar": "Calendrier"
+      },
+      "history": "Historique",
+      "breadcrumb": "Solutions",
+      "calendarSuggestion": {
+        "title": "Connectez un agenda pour que l'assistant réserve",
+        "description": "Facultatif. Sans agenda, l'assistant prend les demandes de rendez-vous en message. Avec Google Agenda, Cal.com ou Calendly, il réserve directement.",
+        "cta": "Connecter un agenda"
+      },
+      "calendarError": {
+        "title": "Connexion à l'agenda impossible",
+        "description": "Réessayez depuis la carte Mise en service, ou contactez-nous si le problème persiste."
+      },
+      "teamNote": "Note de l'équipe Automerio",
+      "bookings": "Rendez-vous et commandes reçus",
+      "aside": "Abonnement et réglages",
+      "calls": "Appels reçus",
+      "forwarding": "Recevoir vos appels",
+      "noSettings": "Aucun réglage renseigné pour l'instant.",
+      "information": "Informations du service",
+      "settings": "Réglages",
+      "edit": "Modifier"
+    },
+    "facts": {
+      "andMore": "{count, plural, one {et # autre} other {et # autres}}",
+      "usageCap": "Plafond d'usage",
+      "phoneNumber": "Numéro de téléphone"
     }
   },
   "Workspace": {

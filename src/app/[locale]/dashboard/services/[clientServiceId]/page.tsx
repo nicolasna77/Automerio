@@ -1,4 +1,6 @@
 import { titleMetadata } from "@/i18n/metadata";
+import { getTranslations } from "next-intl/server";
+import { formatFrenchPhone } from "@/lib/phone-format";
 import { notFound } from "next/navigation";
 import { AlertTriangle, MessageSquareText, Plug } from "lucide-react";
 import { Link } from "@/i18n/navigation";
@@ -61,11 +63,12 @@ export default async function ServiceDetailPage({
   params: Promise<{ clientServiceId: string }>;
   searchParams: Promise<{ calendar?: string }>;
 }) {
-  const [{ clientServiceId }, { calendar }, session] = await Promise.all([
+  const [{ clientServiceId }, { calendar }, session, , t] = await Promise.all([
     params,
     searchParams,
     requireUser(),
     requireActiveOrganization(),
+    getTranslations("Dashboard.service"),
   ]);
   // L'abonnement est lu en parallèle, mais rien n'est affiché avant que
   // getMyService ait vérifié que la solution appartient bien au client.
@@ -94,7 +97,7 @@ export default async function ServiceDetailPage({
 
   const { scheduled: scheduledBookings, unscheduled: unscheduledBookings } =
     toCalendarBookings(item.bookings, {
-      subtitle: (b) => b.customerPhone,
+      subtitle: (b) => formatFrenchPhone(b.customerPhone),
       isSynced: (b) =>
         !item.calendarConnected || Boolean(b.googleEventId || b.externalBookingId),
     });
@@ -121,7 +124,7 @@ export default async function ServiceDetailPage({
     <PageShell size="wide">
       <PageBreadcrumbs
         items={[
-          { label: "Solutions", href: "/dashboard/services" },
+          { label: t("breadcrumb"), href: "/dashboard/services" },
           { label: item.name },
         ]}
       />
@@ -165,17 +168,14 @@ export default async function ServiceDetailPage({
       {suggestsCalendar && (
         <Alert className="mt-6">
           <Plug aria-hidden="true" />
-          <AlertTitle>Connectez un agenda pour que l&apos;assistant réserve</AlertTitle>
+          <AlertTitle>{t("calendarSuggestion.title")}</AlertTitle>
           <AlertDescription>
-            <p>
-              Facultatif. Sans agenda, l&apos;assistant prend les demandes de rendez-vous en message.
-              Avec Google Agenda, Cal.com ou Calendly, il réserve directement.
-            </p>
+            <p>{t("calendarSuggestion.description")}</p>
             <Link
               href={`/dashboard/services/${item.clientServiceId}/configuration#${CONNECTORS_SECTION_ID}`}
               className={buttonVariants({ variant: "outline", size: "sm", className: "mt-3" })}
             >
-              Connecter un agenda
+              {t("calendarSuggestion.cta")}
             </Link>
           </AlertDescription>
         </Alert>
@@ -186,17 +186,14 @@ export default async function ServiceDetailPage({
           {calendar === "error" && (
             <Alert variant="destructive">
               <AlertTriangle aria-hidden="true" />
-              <AlertTitle>Connexion à l&apos;agenda impossible</AlertTitle>
-              <AlertDescription>
-                Réessayez depuis la carte Mise en service, ou contactez-nous si
-                le problème persiste.
-              </AlertDescription>
+              <AlertTitle>{t("calendarError.title")}</AlertTitle>
+              <AlertDescription>{t("calendarError.description")}</AlertDescription>
             </Alert>
           )}
           {item.adminNote && (
             <Alert role="note" className="border-primary/25 bg-primary/5">
               <MessageSquareText aria-hidden="true" className="text-primary" />
-              <AlertTitle>Note de l&apos;équipe Automerio</AlertTitle>
+              <AlertTitle>{t("teamNote")}</AlertTitle>
               <AlertDescription className="text-foreground">{item.adminNote}</AlertDescription>
             </Alert>
           )}
@@ -220,7 +217,7 @@ export default async function ServiceDetailPage({
               <Card>
                 <CardHeader>
                   <CardTitle as="h2" className="text-base">
-                    Rendez-vous et commandes reçus
+                    {t("bookings")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="h-[30rem] sm:h-[34rem]">
@@ -233,7 +230,7 @@ export default async function ServiceDetailPage({
             )}
             {isMessaging && <ConversationHistory clientServiceId={item.clientServiceId} />}
           </div>
-          <aside aria-label="Abonnement et réglages" className="min-w-0 space-y-6">
+          <aside aria-label={t("aside")} className="min-w-0 space-y-6">
             {sideCards}
           </aside>
         </div>

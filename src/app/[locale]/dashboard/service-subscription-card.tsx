@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MonthlyPrice } from "@/components/monthly-price";
@@ -20,12 +21,13 @@ export function ServiceSubscriptionCard({
   subscription: MySubscription;
   settingsHref: string | null;
 }) {
+  const t = useTranslations("Dashboard.service.subscription");
   const running = isRunning(subscription);
 
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
-        <CardTitle as="h2" className="text-base">Abonnement</CardTitle>
+        <CardTitle as="h2" className="text-base">{t("title")}</CardTitle>
         <MonthlyPrice cents={subscription.monthlyPriceCents} className="shrink-0 text-right" />
       </CardHeader>
       <CardContent className="space-y-4">
@@ -41,13 +43,12 @@ export function ServiceSubscriptionCard({
           />
         ) : subscription.cap ? (
           <p className="text-sm text-muted-foreground">
-            Plafond d&apos;usage : {formatUsageCap(subscription.cap)}
+            {t("cap", { cap: formatUsageCap(subscription.cap) })}
           </p>
         ) : (
           running && (
             <p className="text-sm text-muted-foreground">
-              Cet abonnement n&apos;a pas de quota d&apos;usage : le montant mensuel
-              ne bouge pas.
+              {t("noQuota")}
             </p>
           )
         )}
@@ -62,14 +63,14 @@ export function ServiceSubscriptionCard({
               className="inline-flex shrink-0 items-center gap-1.5 text-sm text-primary underline-offset-4 hover:underline"
             >
               <Settings className="size-3.5" aria-hidden="true" />
-              Ajuster l&apos;abonnement
+              {t("adjust")}
             </Link>
           ) : (
             <Link
               href="/dashboard/subscriptions"
               className="shrink-0 text-sm text-primary underline-offset-4 hover:underline"
             >
-              Gérer mes abonnements
+              {t("manage")}
             </Link>
           )}
         </div>

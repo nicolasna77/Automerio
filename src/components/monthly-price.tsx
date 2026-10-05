@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { formatEuroAmount } from "@/lib/catalog";
 import { excludingVatSuffix } from "@/lib/vat";
 import { cn } from "@/lib/utils";
@@ -13,10 +14,11 @@ export function MonthlyPrice({
   showExcludingVat?: boolean;
   className?: string;
 }) {
+  const t = useTranslations("Price");
   return (
     <p className={cn("text-sm", className)}>
       <span className="font-mono tabular-nums text-foreground">{formatEuroAmount(cents)}</span>
-      <span className="text-muted-foreground"> € TTC/mois</span>
+      <span className="text-muted-foreground">{t("perMonthUnit")}</span>
       {showExcludingVat && (
         <span className="block text-xs text-muted-foreground">{excludingVatSuffix(cents)}</span>
       )}
