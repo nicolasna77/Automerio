@@ -135,6 +135,9 @@ Le réglage système « réduire les animations » coupe tout mouvement.
   virgule ou point.
 - Aucun chiffre, avis, client ou logo qui ne soit réel et vérifiable. Les
   maquettes d'interface ne montrent pas de performance chiffrée.
+- Les avis clients vivent dans `src/content/fr/testimonials.ts`, avec la date
+  et la trace de l'accord écrit du client. Sans avis, la section de l'accueil
+  ne s'affiche pas.
 
 Mots et formules à ne jamais utiliser : transformer, révolutionner, booster,
 libérer (votre potentiel), tout-en-un, clé en main, sans effort, puissant,
