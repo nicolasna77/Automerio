@@ -13,6 +13,7 @@ import {
   describeServiceStatus,
   FACEBOOK_SERVICE_SLUG,
   INSTAGRAM_SERVICE_SLUG,
+  setupAction,
   TELEPHONY_SERVICE_SLUGS,
   WHATSAPP_SERVICE_SLUG,
 } from "@/lib/catalog";
@@ -142,7 +143,7 @@ export default async function ServiceDetailPage({
                   <h1 className="text-2xl font-semibold tracking-tight text-foreground">
                     {item.name}
                   </h1>
-                  <StatusBadge status={item.status} />
+                  <StatusBadge status={item.status} setupPending={setupAction(item) !== null} />
                 </div>
                 <div className="shrink-0">
                   <ServiceDetailActions item={item} />
@@ -185,7 +186,7 @@ export default async function ServiceDetailPage({
                 <h1 className="text-2xl font-semibold tracking-tight text-foreground">
                   {item.name}
                 </h1>
-                <StatusBadge status={item.status} />
+                <StatusBadge status={item.status} setupPending={setupAction(item) !== null} />
               </div>
               <div className="shrink-0">
                 <ServiceDetailActions item={item} />

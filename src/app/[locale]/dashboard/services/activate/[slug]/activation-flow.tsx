@@ -155,6 +155,13 @@ export function ActivationFlow({
     return () => clearTimeout(timer);
   }, [draftKey, name, values, chosenUnits, stepIndex, service.tier, pristine]);
 
+  // Le volume inclus est celui choisi à l'étape « Formule », pas le minimum
+  // du catalogue : c'est lui qui sera facturé (includedUsageUnits).
+  const usageCap =
+    service.usageCap && service.tier
+      ? { ...service.usageCap, includedUnits: chosenUnits }
+      : service.usageCap;
+
   const monthlyPriceCents = service.tier
     ? calculateMonthlyPriceCents(service.tier, chosenUnits)
     : service.monthlyPriceCents;
@@ -412,21 +419,17 @@ export function ActivationFlow({
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-5">
-              <dl className="space-y-2 text-sm">
+              <div className="space-y-2 text-sm">
                 {monthlyPriceCents !== null && (
-                  <div className="flex justify-between gap-4">
+                  <dl className="flex justify-between gap-4">
                     <dt className="text-muted-foreground">Abonnement</dt>
                     <dd>
                       <MonthlyPrice cents={monthlyPriceCents} className="text-right" />
                     </dd>
-                  </div>
+                  </dl>
                 )}
-                {service.usageCap && (
-                  <p className="text-xs text-muted-foreground">
-                    {formatUsageCap(service.usageCap)}
-                  </p>
-                )}
-              </dl>
+                {usageCap && <p className="text-xs text-muted-foreground">{formatUsageCap(usageCap)}</p>}
+              </div>
 
               <div className="space-y-2 border-t border-border pt-5">
                 <Label htmlFor={promoFieldId}>

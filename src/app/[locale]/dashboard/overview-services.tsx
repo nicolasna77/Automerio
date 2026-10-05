@@ -59,7 +59,7 @@ export async function OverviewServices({
                         </Link>
                       </p>
                       <div className="flex shrink-0 items-center gap-1.5">
-                        <StatusBadge status={item.status} />
+                        <StatusBadge status={item.status} setupPending={action !== null} />
                         <ServiceSettingsButton item={item} className="relative z-10 -my-1.5" />
                         <ChevronRight
                           className="size-4 text-muted-foreground"
