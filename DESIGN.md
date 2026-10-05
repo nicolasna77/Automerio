@@ -58,7 +58,7 @@ Les chiffres de données sont tabulaires (`tabular-nums`). Pas de petites
 | Usage | Taille | Graisse |
 |---|---|---|
 | Titre de page (`h1`) | 36 px, 48 px dès `sm` | 600 |
-| Titre du hero de l'accueil | 40 px, 60 px dès `sm`, 72 px dès `lg` | 600 |
+| Titre du hero de l'accueil | 36 px, 48 px dès `sm`, 60 px dès `lg`, deux lignes au plus | 600 |
 | Titre de section (`h2`) | 30 px, 36 px dès `sm` | 600 |
 | Sous-titre (`h3`) | 18 à 20 px | 600 |
 | Texte courant | 16 px, 18 px pour les chapeaux | 400 |
@@ -95,10 +95,12 @@ tiers (WhatsApp, Messenger, Instagram, Google) restent leurs logos officiels.
   (`scripts/capture-screenshots.ts`), qui remplit le compte de démonstration
   local puis capture le tableau de bord en clair et en sombre (WebP, dans
   `public/screenshots/`).
-- Seule exception : les pages par métier (`/industries/…`) montrent une
+- Exception : les pages par métier (`/industries/…`) montrent une
   photo du métier, issue d'Unsplash (licence libre, usage commercial
   autorisé), recadrée en 4:3 et enregistrée en WebP dans
   `public/industries/`. Elle porte le nom du photographe en légende.
+  Les cartes « Pour qui » de l'accueil reprennent ces mêmes photos, recadrées
+  dans la carte, avec les noms des photographes réunis sous la grille.
 - Toute capture porte la légende « Exemple avec des données de
   démonstration ». Les numéros affichés viennent des plages réservées à la
   fiction par l'ARCEP (01 99 00, 06 39 98) : personne ne peut être joint.

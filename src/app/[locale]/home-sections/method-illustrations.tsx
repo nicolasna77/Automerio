@@ -1,4 +1,4 @@
-import { CalendarCheck, Check, Headset, Mail, PhoneForwarded, SlidersHorizontal } from "lucide-react";
+import { CalendarCheck, Check, Mail, PhoneForwarded, SlidersHorizontal } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { cn } from "@/lib/utils";
 
@@ -18,52 +18,6 @@ function Tag({ children, className }: { children: React.ReactNode; className?: s
     <span className={cn("text-xs font-medium text-muted-foreground", className)}>
       {children}
     </span>
-  );
-}
-
-export async function ChooseIllustration() {
-  const t = await getTranslations("Home.method.illustrations.choose");
-  const options = [
-    { icon: Headset, name: t("phone"), selected: true },
-    { icon: CalendarCheck, name: t("booking"), selected: false },
-    { icon: Mail, name: t("email"), selected: false },
-  ];
-  return (
-    <Stage>
-      <div className="space-y-2.5">
-        {options.map((option) => (
-          <div
-            key={option.name}
-            className={cn(
-              "flex items-center gap-3 rounded-2xl border bg-card px-4 py-3 shadow-sm",
-              option.selected ? "border-primary ring-3 ring-primary/15" : "border-border opacity-70"
-            )}
-          >
-            <span
-              className={cn(
-                "flex size-9 shrink-0 items-center justify-center rounded-xl",
-                option.selected ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
-              )}
-            >
-              <option.icon className="size-4" />
-            </span>
-            <span className="flex-1 text-sm font-medium text-foreground">{option.name}</span>
-            <span
-              className={cn(
-                "flex size-5 items-center justify-center rounded-full border",
-                option.selected ? "border-primary bg-primary text-primary-foreground" : "border-border"
-              )}
-            >
-              {option.selected && <Check className="size-3" />}
-            </span>
-          </div>
-        ))}
-        <div className="flex items-center justify-between px-1 pt-2">
-          <Tag>{t("subscription")}</Tag>
-          <Tag className="text-primary">{t("noCommitment")}</Tag>
-        </div>
-      </div>
-    </Stage>
   );
 }
 

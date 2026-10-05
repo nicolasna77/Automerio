@@ -24,6 +24,7 @@ import { ServiceGlyph, ServiceGlyphBadge } from "@/components/service-glyph";
 import { ServicePriceSimulator } from "@/components/subscription/service-price-simulator";
 import { activationPath, authPathWithNext } from "@/lib/safe-redirect";
 import { isDemoCallAvailable } from "@/lib/demo-call";
+import { cn } from "@/lib/utils";
 import { DemoCallForm } from "./demo-call-form";
 import {
   ActivityPreview,
@@ -184,7 +185,6 @@ export default async function PrestationDetailPage({
       <SiteHeader />
       <main id="content" className="flex-1">
         <section className="relative isolate overflow-hidden">
-
           <div className="mx-auto max-w-3xl px-4 pt-12 text-center sm:px-6 sm:pt-16">
             <nav aria-label={t("breadcrumb")} className="flex justify-center">
               <ol className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground shadow-sm">
@@ -226,9 +226,6 @@ export default async function PrestationDetailPage({
                   id="demo-heading"
                   className="flex items-center gap-2 font-sans text-base font-semibold text-foreground"
                 >
-                  <span className="relative flex size-2" aria-hidden="true">
-                    <span className="relative inline-flex size-2 rounded-full bg-primary" />
-                  </span>
                   {t("demo.heading")}
                 </h2>
                 <p className="mt-1.5 mb-5 text-sm leading-relaxed text-muted-foreground">
@@ -276,15 +273,6 @@ export default async function PrestationDetailPage({
                 })}
               </p>
             )}
-
-            <ul className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
-              {TRUST_POINTS.map((point) => (
-                <li key={point} className="flex items-center gap-2">
-                  <Check className="size-4 text-primary" aria-hidden="true" />
-                  {t(`trust.${point}`)}
-                </li>
-              ))}
-            </ul>
           </div>
 
           <div className="mx-auto mt-14 max-w-3xl px-4 pb-16 sm:px-6 sm:pb-24">
@@ -299,7 +287,7 @@ export default async function PrestationDetailPage({
           className="border-t border-border"
         >
           <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
-            <div className="mx-auto max-w-2xl text-center">
+            <div className="max-w-2xl">
               <h2
                 id="steps-heading"
                 className="text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"
@@ -310,28 +298,32 @@ export default async function PrestationDetailPage({
                 {t("steps.lead")}
               </p>
             </div>
-            <ol className="mt-12 grid gap-4 md:grid-cols-3">
+            {/* Une rangée par étape, le texte à gauche et l'aperçu à droite,
+                toujours dans le même sens : on lit les étapes de haut en bas. */}
+            <ol className="mt-12 divide-y divide-border border-y border-border">
               {steps.map((step, index) => (
                 <li
                   key={step.title}
-                  className="flex flex-col overflow-hidden rounded-3xl border border-border bg-card"
+                  className="grid gap-6 py-10 lg:grid-cols-12 lg:items-center lg:gap-12"
                 >
-                  <div className="p-6">
+                  <div className="flex gap-4 lg:col-span-5">
                     <span
-                      className="inline-flex size-8 items-center justify-center rounded-full bg-muted font-mono text-xs font-medium text-foreground tabular-nums"
+                      className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-primary font-mono text-sm font-medium text-primary-foreground tabular-nums"
                       aria-hidden="true"
                     >
                       {String(index + 1).padStart(2, "0")}
                     </span>
-                    <h3 className="mt-4 font-sans text-lg font-semibold text-foreground">
-                      {step.title}
-                    </h3>
-                    <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-                      {step.description}
-                    </p>
+                    <div>
+                      <h3 className="font-sans text-xl font-semibold tracking-tight text-foreground">
+                        {step.title}
+                      </h3>
+                      <p className="mt-2 leading-relaxed text-muted-foreground">
+                        {step.description}
+                      </p>
+                    </div>
                   </div>
-                  <div className="mt-auto border-t border-border bg-muted/40 p-6">
-                    {step.preview}
+                  <div className="rounded-lg border border-border bg-muted/40 p-6 sm:p-8 lg:col-span-7">
+                    <div className="mx-auto max-w-md">{step.preview}</div>
                   </div>
                 </li>
               ))}
@@ -382,41 +374,44 @@ export default async function PrestationDetailPage({
                 <p className="text-sm font-medium text-muted-foreground">
                   {service.name}
                 </p>
-                <dl className="mt-4 divide-y divide-border">
-                  {service.monthlyPriceCents !== null && !service.tier && (
-                    <div className="py-4 first:pt-0">
-                      <dd className="font-mono text-3xl font-medium tabular-nums text-foreground">
-                        {price.cents(service.monthlyPriceCents)}
-                      </dd>
-                      <dt className="mt-0.5 text-sm text-muted-foreground">
-                        {t("pricing.perMonthVat")}
-                        <span className="block text-xs">
-                          {price.excludingVatSuffix(service.monthlyPriceCents)}
-                        </span>
-                      </dt>
-                    </div>
-                  )}
-                  {service.usageCap && !service.tier && (
-                    <div className="py-4">
-                      <dt className="text-sm text-muted-foreground">{t("pricing.included")}</dt>
-                      <dd className="mt-1 text-sm text-foreground">
-                        {price.usageCap(service.usageCap)}
-                      </dd>
-                    </div>
-                  )}
-                  {service.tier && service.usageCap && (
-                    <div className="py-4 first:pt-0">
-                      <ServicePriceSimulator
-                        tier={service.tier}
-                        overageUnitPriceCents={
-                          service.usageCap.overageUnitPriceCents
-                        }
-                        slug={service.slug}
-                        signedIn={Boolean(session)}
-                      />
-                    </div>
-                  )}
-                </dl>
+                {/* Le prix s'affiche au-dessus de son libellé, mais le terme
+                    (dt) précède sa valeur (dd) dans le code. Le simulateur,
+                    qui n'est ni l'un ni l'autre, reste hors de la liste. */}
+                {!service.tier && (
+                  <dl className="mt-4 divide-y divide-border">
+                    {service.monthlyPriceCents !== null && (
+                      <div className="flex flex-col-reverse py-4 first:pt-0">
+                        <dt className="mt-0.5 text-sm text-muted-foreground">
+                          {t("pricing.perMonthVat")}
+                          <span className="block text-xs">
+                            {price.excludingVatSuffix(service.monthlyPriceCents)}
+                          </span>
+                        </dt>
+                        <dd className="font-mono text-3xl font-medium tabular-nums text-foreground">
+                          {price.cents(service.monthlyPriceCents)}
+                        </dd>
+                      </div>
+                    )}
+                    {service.usageCap && (
+                      <div className="py-4">
+                        <dt className="text-sm text-muted-foreground">{t("pricing.included")}</dt>
+                        <dd className="mt-1 text-sm text-foreground">
+                          {price.usageCap(service.usageCap)}
+                        </dd>
+                      </div>
+                    )}
+                  </dl>
+                )}
+                {service.tier && service.usageCap && (
+                  <div className="mt-4 py-4 pt-0">
+                    <ServicePriceSimulator
+                      tier={service.tier}
+                      overageUnitPriceCents={service.usageCap.overageUnitPriceCents}
+                      slug={service.slug}
+                      signedIn={Boolean(session)}
+                    />
+                  </div>
+                )}
                 {!service.tier && (
                   <Link
                     href={primaryHref}
@@ -429,9 +424,14 @@ export default async function PrestationDetailPage({
                     <ArrowRight data-icon="inline-end" />
                   </Link>
                 )}
-                <p className="mt-4 border-t border-border pt-4 text-sm text-muted-foreground">
-                  {t("pricing.cancelAnytime")}
-                </p>
+                <ul className="mt-4 space-y-2 border-t border-border pt-4 text-sm text-muted-foreground">
+                  {TRUST_POINTS.map((point) => (
+                    <li key={point} className="flex items-center gap-2">
+                      <Check className="size-4 text-primary" aria-hidden="true" />
+                      {t(`trust.${point}`)}
+                    </li>
+                  ))}
+                </ul>
               </Card>
             </div>
           </div>
@@ -443,47 +443,53 @@ export default async function PrestationDetailPage({
             className="border-t border-border bg-muted/40"
           >
             <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
-              <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-                <div className="max-w-2xl">
-                  <h2
-                    id="benefits-heading"
-                    className="text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"
-                  >
-                    {t("benefitsHeading")}
-                  </h2>
-                  <p className="mt-4 leading-relaxed text-pretty text-muted-foreground">
-                    {copy.intro}
-                  </p>
-                </div>
-                <Link
-                  href={primaryHref}
-                  className={buttonVariants({
-                    size: "lg",
-                    className: "shrink-0 self-start md:self-end",
-                  })}
+              <div className="max-w-2xl">
+                <h2
+                  id="benefits-heading"
+                  className="text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"
                 >
-                  {t("activate")}
-                </Link>
+                  {t("benefitsHeading")}
+                </h2>
+                <p className="mt-4 leading-relaxed text-pretty text-muted-foreground">
+                  {copy.intro}
+                </p>
               </div>
-              <ul className="mt-12 grid gap-10 md:grid-cols-3 md:gap-8">
+              {/* Le premier bénéfice en grand, les deux autres empilés à côté,
+                  plutôt que trois colonnes identiques. */}
+              <ul className="mt-12 grid gap-4 lg:grid-cols-2">
                 {copy.benefits.map((benefit, index) => {
                   const Icon = BENEFIT_ICONS[index % BENEFIT_ICONS.length];
+                  const lead = index === 0;
                   return (
-                    <li key={benefit.title}>
-                      <Icon
-                        className="size-5 text-primary"
-                        aria-hidden="true"
-                      />
-                      <h3 className="mt-3 font-sans text-lg font-semibold text-foreground">
+                    <li
+                      key={benefit.title}
+                      className={cn(
+                        "rounded-lg border p-6",
+                        lead
+                          ? "flex flex-col justify-center border-primary/30 bg-primary/5 sm:p-8 lg:row-span-2"
+                          : "border-border bg-card"
+                      )}
+                    >
+                      <Icon className="size-5 text-primary" aria-hidden="true" />
+                      <h3
+                        className={cn(
+                          "mt-3 font-sans font-semibold tracking-tight text-foreground",
+                          lead ? "text-2xl text-balance" : "text-lg"
+                        )}
+                      >
                         {benefit.title}
                       </h3>
-                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                      <p className={cn("mt-2 leading-relaxed text-muted-foreground", lead ? "sm:text-lg" : "text-sm")}>
                         {benefit.description}
                       </p>
                     </li>
                   );
                 })}
               </ul>
+              <Link href={primaryHref} className={buttonVariants({ size: "lg", className: "mt-10" })}>
+                {t("activate")}
+                <ArrowRight data-icon="inline-end" />
+              </Link>
             </div>
           </section>
         )}
@@ -494,7 +500,7 @@ export default async function PrestationDetailPage({
             className="border-t border-border"
           >
             <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
-              <div className="mx-auto max-w-2xl text-center">
+              <div className="max-w-2xl">
                 <h2
                   id="situations-heading"
                   className="text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"
@@ -505,18 +511,14 @@ export default async function PrestationDetailPage({
                   {t("useCases.lead")}
                 </p>
               </div>
-              <dl className="mt-12 grid gap-4 md:grid-cols-3">
+              <dl className="mt-12 divide-y divide-border border-y border-border">
                 {copy.useCases.map((useCase) => (
                   <div
                     key={useCase.audience}
-                    className="flex flex-col rounded-3xl border border-border bg-card p-6"
+                    className="grid gap-2 py-6 sm:grid-cols-[14rem_1fr] sm:gap-8"
                   >
-                    <dt className="self-end">
-                      <span className="inline-flex rounded-lg bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
-                        {useCase.audience}
-                      </span>
-                    </dt>
-                    <dd className="mt-6 leading-relaxed text-foreground">
+                    <dt className="font-semibold text-foreground">{useCase.audience}</dt>
+                    <dd className="max-w-prose leading-relaxed text-muted-foreground">
                       {useCase.scenario}
                     </dd>
                   </div>
@@ -567,27 +569,27 @@ export default async function PrestationDetailPage({
               >
                 {t("related.heading", { category: categoryLabel.toLocaleLowerCase(locale) })}
               </h2>
-              <ul className="mt-8 grid gap-4 md:grid-cols-3">
+              <ul className="mt-8 divide-y divide-border rounded-lg border border-border bg-card">
                 {related.map((relatedService) => (
                   <li key={relatedService.slug}>
                     <Link
                       href={`/services/${relatedService.slug}`}
-                      className="group flex h-full flex-col rounded-3xl border border-border bg-card p-6 transition-colors hover:border-primary/40 focus-visible:focus-ring"
+                      className="group flex items-center gap-4 p-5 transition-colors hover:bg-muted/40 focus-visible:focus-ring sm:gap-6 sm:p-6"
                     >
                       <ServiceGlyphBadge slug={relatedService.slug} />
-                      <h3 className="mt-4 font-sans font-semibold text-foreground">
-                        {relatedService.name}
-                      </h3>
-                      <p className="mt-1.5 line-clamp-2 text-sm text-muted-foreground">
-                        {relatedService.description}
-                      </p>
-                      <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-foreground">
-                        {t("related.discover")}
-                        <ArrowRight
-                          className="size-4"
-                          aria-hidden="true"
-                        />
+                      <span className="min-w-0 flex-1">
+                        <span className="block font-sans font-semibold text-foreground">
+                          {relatedService.name}
+                        </span>
+                        <span className="mt-1 line-clamp-2 block text-sm text-muted-foreground">
+                          {relatedService.description}
+                        </span>
                       </span>
+                      <span className="hidden shrink-0 items-center gap-1 text-sm font-medium text-primary sm:inline-flex">
+                        {t("related.discover")}
+                        <ArrowRight className="size-4" aria-hidden="true" />
+                      </span>
+                      <ArrowRight className="size-4 shrink-0 text-primary sm:hidden" aria-hidden="true" />
                     </Link>
                   </li>
                 ))}

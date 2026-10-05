@@ -38,7 +38,7 @@ function PriceList({
             <dt className="text-muted-foreground">{subscriptionLabel}</dt>
             <dd className="text-right font-mono tabular-nums text-foreground">
               {price.perMonthWithVat(service.monthlyPriceCents)}
-              <span className="block text-[0.6875rem] font-normal text-muted-foreground">
+              <span className="block text-xs font-normal text-muted-foreground">
                 {price.excludingVatSuffix(service.monthlyPriceCents)}
               </span>
             </dd>

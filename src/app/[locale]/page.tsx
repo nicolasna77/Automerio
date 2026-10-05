@@ -7,11 +7,8 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { getCatalog } from "@/lib/get-catalog";
 import { HeroSection } from "./home-sections/hero-section";
-import { OutcomesSection } from "./home-sections/outcomes-section";
 import { BeforeAfterSection } from "./home-sections/before-after-section";
 import { AudienceSection } from "./home-sections/audience-section";
-import { WhySection } from "./home-sections/why-section";
-import { ProductSection } from "./home-sections/product-section";
 import { TrustSection } from "./home-sections/trust-section";
 import { ServicesSection } from "./home-sections/services-section";
 import { IntegrationsSection } from "./home-sections/integrations-section";
@@ -42,13 +39,10 @@ export default async function HomePage() {
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
       <main id="content" className="flex-1">
-        <HeroSection services={services} />
-        <OutcomesSection />
+        <HeroSection />
         <BeforeAfterSection />
         <AudienceSection />
         <MethodSection />
-        <ProductSection />
-        <WhySection />
         <JsonLd
           data={serviceListSchema(tHome("heading"), services, (service) => ({
             offerName: tService("offerName"),

@@ -30,7 +30,7 @@ export async function MaintenanceSection({ services }: { services: ServiceDTO[] 
               {support.monthlyPriceCents !== null && (
                 <div className="text-right">
                   <Badge>{price.perMonthWithVat(support.monthlyPriceCents)}</Badge>
-                  <span className="mt-1 block text-[0.6875rem] text-muted-foreground">
+                  <span className="mt-1 block text-xs text-muted-foreground">
                     {price.excludingVatSuffix(support.monthlyPriceCents)}
                   </span>
                 </div>

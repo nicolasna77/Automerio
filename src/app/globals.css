@@ -2,6 +2,13 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Indicateur de focus clavier commun (focus-visible:focus-ring) : les boutons
+   et les liens-cartes retirent l'outline du navigateur et comptent sur lui. */
+@utility focus-ring {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
 :root {
   --background: oklch(0.9819 0.0029 264.5421);
   --foreground: oklch(0.1898 0.0094 255.6333);

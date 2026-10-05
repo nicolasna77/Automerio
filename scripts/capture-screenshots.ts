@@ -206,8 +206,17 @@ async function capture(
   page: Page,
   path: string,
   name: string,
-  target: { cardHeading?: string; clip?: Clip; prepare?: (page: Page) => Promise<void> }
+  target: {
+    cardHeading?: string;
+    clip?: Clip;
+    // Fenêtre plus étroite que 1280 px : l'écran se met en page à cette
+    // largeur, et le texte reste lisible une fois la capture réduite sur
+    // l'accueil.
+    viewport?: { width: number; height: number };
+    prepare?: (page: Page) => Promise<void>;
+  }
 ) {
+  if (target.viewport) await page.setViewportSize(target.viewport);
   for (const theme of ["light", "dark"] as const) {
     await page.emulateMedia({ colorScheme: theme });
     await page.evaluate((value) => localStorage.setItem("theme", value), theme);
@@ -230,6 +239,7 @@ async function capture(
     await sharp(png).webp({ quality: 82 }).toFile(`${OUT_DIR}/${name}-${theme}.webp`);
     console.info(`capture : ${OUT_DIR}/${name}-${theme}.webp`);
   }
+  if (target.viewport) await page.setViewportSize({ width: 1280, height: 800 });
 }
 
 async function main() {
@@ -252,7 +262,8 @@ async function main() {
   await capture(page, "/dashboard", "dashboard-overview", { clip: { x: 0, y: 0, width: 1280, height: 800 } });
   await capture(page, `/dashboard/services/${clientServiceId}`, "dashboard-calls", { cardHeading: "Appels reçus" });
   await capture(page, "/dashboard/calendar", "dashboard-calendar", {
-    clip: { x: 256, y: 64, width: 1024, height: 640 },
+    viewport: { width: 1024, height: 800 },
+    clip: { x: 256, y: 64, width: 768, height: 576 },
     prepare: (page) => page.getByRole("button", { name: "Semaine" }).click(),
   });
   await capture(page, `/dashboard/services/${clientServiceId}/configuration`, "dashboard-settings", {
