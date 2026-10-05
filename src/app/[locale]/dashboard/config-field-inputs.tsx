@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Check, CalendarDays, Clock, Copy, FileText, Plus, Trash2, X } from "lucide-react";
@@ -256,13 +257,19 @@ export function WeeklyHoursField({
   id,
   labelledBy,
   value,
+  unset = false,
   onChange,
 }: {
   id: string;
   labelledBy: string;
   value: WeeklyHours;
+  // Rien n'est encore enregistré : l'assistant répond alors à toute heure
+  // (isOpenAt sans horaires). L'écran le dit au lieu d'afficher « Fermé ».
+  unset?: boolean;
   onChange: (value: WeeklyHours) => void;
 }) {
+  const t = useTranslations("Dashboard.weeklyHours");
+
   function updateDay(day: Day, patch: Partial<WeeklyHours[Day]>) {
     onChange({ ...value, [day]: { ...value[day], ...patch } });
   }
@@ -306,10 +313,16 @@ export function WeeklyHoursField({
         ))}
       </div>
 
+      {unset && (
+        <p id={`${id}-unset`} className="rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
+          {t("unsetNotice")}
+        </p>
+      )}
       <div
         id={id}
         role="group"
         aria-labelledby={labelledBy}
+        aria-describedby={unset ? `${id}-unset` : undefined}
         className="divide-y divide-border rounded-lg border border-border"
       >
         {WEEK_DAYS.map((day) => {
@@ -330,7 +343,7 @@ export function WeeklyHoursField({
                   </label>
                 </div>
                 {hours.closed ? (
-                  <span className="text-sm text-muted-foreground">Fermé</span>
+                  <span className="text-sm text-muted-foreground">{unset ? t("unsetDay") : t("closed")}</span>
                 ) : (
                   <div className="flex items-center gap-2">
                     <TimePicker

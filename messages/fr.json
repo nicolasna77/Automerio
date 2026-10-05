@@ -817,5 +817,12 @@
     "ctaNote": "Sans engagement, remboursé pendant 30 jours.",
     "photoCredit": "Photo : {name}, Unsplash",
     "photoCredits": "Photos : {names}, Unsplash"
+  },
+  "Dashboard": {
+    "weeklyHours": {
+      "closed": "Fermé",
+      "unsetDay": "Non précisé",
+      "unsetNotice": "Horaires non précisés : l'assistant répond à toute heure. Choisissez un horaire courant ou ouvrez vos jours pour qu'il annonce vos heures et ce que vous faites en dehors."
+    }
   }
 }

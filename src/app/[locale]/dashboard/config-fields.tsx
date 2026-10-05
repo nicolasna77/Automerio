@@ -152,6 +152,7 @@ function renderFieldInput({
         <WeeklyHoursField
           id={field.key}
           labelledBy={`${field.key}-label`}
+          unset={!(value && typeof value === "object" && !Array.isArray(value))}
           value={
             value && typeof value === "object" && !Array.isArray(value)
               ? (value as WeeklyHours)
