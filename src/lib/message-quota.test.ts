@@ -35,8 +35,8 @@ describe("quota des messageries", () => {
     expect(calculateMonthlyPriceCents(tier, 30000)).toBe(800 + 270 * 24);
   });
 
-  it("ne plafonne pas un abonnement souscrit avant le quota", () => {
-    expect(readClientUsageCap({ includedUsageUnits: null }, messaging)).toBeNull();
+  it("applique le quota du catalogue à un abonnement souscrit avant le quota", () => {
+    expect(readClientUsageCap({ includedUsageUnits: null }, messaging)?.includedUnits).toBe(3000);
     expect(readClientUsageCap({ includedUsageUnits: 5000 }, messaging)?.includedUnits).toBe(5000);
   });
 
