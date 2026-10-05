@@ -442,6 +442,15 @@
         }
       },
       "privacy": "Lire la politique de confidentialité"
+    },
+    "demo": {
+      "heading": "Écoutez l'assistant avant de vous décider",
+      "lead": "Laissez votre numéro : il vous appelle, se présente et répond à vos questions, comme il le ferait avec vos clients.",
+      "points": {
+        "free": "Gratuit, un essai par numéro",
+        "noAccount": "Sans créer de compte",
+        "short": "Trois minutes, puis il raccroche"
+      }
     }
   },
   "LlmsTxt": {
