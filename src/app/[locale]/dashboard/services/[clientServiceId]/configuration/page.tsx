@@ -5,12 +5,20 @@ import { requireUser } from "@/lib/session";
 import { requireActiveOrganization } from "@/lib/organization";
 import { getSubscriptionFor, isRunning } from "@/lib/subscriptions";
 import { ServiceBillingCard } from "@/app/[locale]/dashboard/service-billing-card";
-import { ServiceConnectorsCard } from "@/app/[locale]/dashboard/service-connectors-card";
+import {
+  MessagingConnectorsCard,
+  ServiceConnectorsCard,
+} from "@/app/[locale]/dashboard/service-connectors-card";
 import { ServiceForwardingCard } from "@/app/[locale]/dashboard/service-forwarding-card";
 import { settingsHiddenKeys } from "@/app/[locale]/dashboard/field-categories";
 import { isLiveTelephony } from "@/app/[locale]/dashboard/service-detail-table";
 import { getMyService } from "@/app/[locale]/dashboard/get-my-service";
-import { asStringArray, canEditConfiguration, withCleanProductCatalog } from "@/lib/catalog";
+import {
+  asStringArray,
+  canEditConfiguration,
+  MESSAGING_SERVICE_SLUGS,
+  withCleanProductCatalog,
+} from "@/lib/catalog";
 import { ServiceConfigurationForm } from "./service-configuration-form";
 import { PageHeader, PageShell } from "@/components/page-shell";
 
@@ -75,14 +83,16 @@ export default async function ServiceConfigurationPage({
           ) : null
         }
         connectorsSection={
-          // Seule la prise de rendez-vous se relie à un agenda.
-          item.service.slug === "prise-rdv-telephone" && canEditConfiguration(item) ? (
+          !canEditConfiguration(item) ? null : item.service.slug === "prise-rdv-telephone" ? (
+            // Seule la prise de rendez-vous se relie à un agenda.
             <ServiceConnectorsCard
               clientServiceId={item.clientServiceId}
               calendar={item.calendar}
               takesAppointments={asStringArray(item.configuration.objectives).includes("appointment")}
               connectionFailed={calendarStatus === "error"}
             />
+          ) : MESSAGING_SERVICE_SLUGS.has(item.service.slug) ? (
+            <MessagingConnectorsCard item={item} />
           ) : null
         }
         billingSection={

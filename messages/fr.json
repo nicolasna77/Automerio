@@ -1080,15 +1080,17 @@
         "columns": {
           "service": "Solution",
           "status": "Statut",
-          "number": "Numéro",
           "price": "Tarif"
         },
+        "numberLabel": "Numéro : ",
         "seeDetail": ", voir le détail",
         "noSubscription": "Sans abonnement",
         "paymentFailed": "Le dernier paiement a été refusé. <link>Mettez à jour votre moyen de paiement</link> pour éviter une interruption.",
         "todo": "À faire : ",
         "teamNote": "Note de l'équipe : ",
-        "serviceNamePrefix": "{name}. "
+        "serviceNamePrefix": "{name}. ",
+        "quotaUsage": "<em>{consumed}</em> / {included}",
+        "quotaOver": "+{units} hors forfait"
       }
     },
     "checkout": {
@@ -1373,7 +1375,6 @@
         "calls": "Appels reçus",
         "calendar": "Calendrier"
       },
-      "history": "Historique",
       "breadcrumb": "Solutions",
       "calendarSuggestion": {
         "title": "Connectez un agenda pour que l'assistant réserve",
@@ -1386,16 +1387,11 @@
       },
       "teamNote": "Note de l'équipe Automerio",
       "bookings": "Rendez-vous et commandes reçus",
-      "aside": "Abonnement et réglages",
+      "aside": "Abonnement",
       "calls": "Appels reçus",
-      "forwarding": "Recevoir vos appels",
-      "noSettings": "Aucun réglage renseigné pour l'instant.",
-      "information": "Informations du service",
-      "settings": "Réglages",
-      "edit": "Modifier"
+      "forwarding": "Recevoir vos appels"
     },
     "facts": {
-      "andMore": "{count, plural, one {et # autre} other {et # autres}}",
       "usageCap": "Plafond d'usage",
       "phoneNumber": "Numéro de téléphone"
     },
@@ -1651,7 +1647,9 @@
         "calendar": "Agenda",
         "connected": "L'assistant vérifie vos disponibilités et inscrit les rendez-vous dans cet agenda. Pour en changer, déconnectez-le puis choisissez-en un autre.",
         "notConnected": "Choisissez l'agenda où l'assistant vérifie vos disponibilités et inscrit les rendez-vous : Google Agenda, Cal.com ou Calendly.",
-        "appointmentsOnly": "L'agenda ne sert qu'aux rendez-vous : cochez « Rendez-vous » dans l'onglet « Votre besoin » pour que l'assistant en prenne."
+        "appointmentsOnly": "L'agenda ne sert qu'aux rendez-vous : cochez « Rendez-vous » dans l'onglet « Votre besoin » pour que l'assistant en prenne.",
+        "messagingAccount": "Compte de messagerie",
+        "messagingDescription": "Le compte sur lequel l'assistant répond à vos clients. Pour en changer, déconnectez-le puis connectez-en un autre."
       },
       "forwarding": {
         "title": "Renvoi d'appel",

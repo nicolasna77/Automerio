@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { type ClientServiceStatus, type MyServiceDTO } from "@/lib/catalog";
 import { MyServiceRow, SOLUTION_COLUMNS } from "./my-service-row";
 import { CATALOGUE_PATH } from "./services/paths";
+import type { QuotaState } from "./quota-meter";
 
 const STATUS_ORDER: ClientServiceStatus[] = [
   "PENDING_PAYMENT",
@@ -25,7 +26,13 @@ const SEARCH_THRESHOLD = 6;
 
 type StatusFilter = ClientServiceStatus | "all";
 
-export function MyServices({ items }: { items: MyServiceDTO[] }) {
+export function MyServices({
+  items,
+  quotas,
+}: {
+  items: MyServiceDTO[];
+  quotas: Record<string, QuotaState>;
+}) {
   const t = useTranslations("Dashboard.services.list");
   const labels = useLabels();
   const [search, setSearch] = useState("");
@@ -163,13 +170,16 @@ export function MyServices({ items }: { items: MyServiceDTO[] }) {
           >
             <span className="pl-9">{t("columns.service")}</span>
             <span>{t("columns.status")}</span>
-            <span>{t("columns.number")}</span>
             <span className="text-right">{t("columns.price")}</span>
             <span />
           </div>
           <ul className="divide-y divide-border">
             {filtered.map((item) => (
-              <MyServiceRow key={item.clientServiceId} item={item} />
+              <MyServiceRow
+                key={item.clientServiceId}
+                item={item}
+                quota={quotas[item.clientServiceId] ?? null}
+              />
             ))}
           </ul>
         </div>
