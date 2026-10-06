@@ -8,3 +8,6 @@ export const CONNECTORS_SECTION_ID = "reglages-connecteurs";
 
 // Ancre de l'onglet « Renvoi d'appel » (téléphonie) des réglages.
 export const FORWARDING_SECTION_ID = "reglages-renvoi";
+
+// Ancre de l'onglet « Historique » des réglages.
+export const HISTORY_SECTION_ID = "reglages-historique";

@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useRouter } from "@/i18n/navigation";
 import { toast } from "sonner";
-import { BadgeInfo, Check, CreditCard, Loader2, PhoneForwarded, Plug, UtensilsCrossed, type LucideIcon } from "lucide-react";
+import { BadgeInfo, Check, CreditCard, History, Loader2, PhoneForwarded, Plug, UtensilsCrossed, type LucideIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -37,6 +37,7 @@ import {
   BILLING_SECTION_ID,
   CONNECTORS_SECTION_ID,
   FORWARDING_SECTION_ID,
+  HISTORY_SECTION_ID,
 } from "@/app/[locale]/dashboard/billing-section";
 import { ProductCatalogEditor } from "@/app/[locale]/dashboard/product-catalog-editor";
 import { readProductCatalog, type CatalogSection } from "@/lib/product-catalog";
@@ -58,6 +59,7 @@ export function ServiceConfigurationForm({
   billingSection = null,
   connectorsSection = null,
   forwardingSection = null,
+  historySection = null,
 }: {
   clientServiceId: string;
   initialName: string;
@@ -73,6 +75,8 @@ export function ServiceConfigurationForm({
   connectorsSection?: React.ReactNode;
   // Section « Renvoi d'appel » (téléphonie) : un guide, rien à enregistrer.
   forwardingSection?: React.ReactNode;
+  // Section « Historique » : les étapes de la solution, en lecture seule.
+  historySection?: React.ReactNode;
 }) {
   const configFields = allConfigFields.filter((field) => !hiddenKeys.includes(field.key));
   const router = useRouter();
@@ -203,6 +207,7 @@ export function ServiceConfigurationForm({
       ? [{ id: FORWARDING_SECTION_ID, title: t("tabs.forwarding"), icon: PhoneForwarded, keys: [] }]
       : []),
     ...(billingSection ? [{ id: BILLING_SECTION_ID, title: t("tabs.billing"), icon: CreditCard, keys: [] }] : []),
+    ...(historySection ? [{ id: HISTORY_SECTION_ID, title: t("tabs.history"), icon: History, keys: [] }] : []),
   ];
   const current = sections.find((section) => section.id === activeId) ?? sections[0];
 
@@ -435,10 +440,23 @@ export function ServiceConfigurationForm({
           </div>
         )}
 
+        {historySection && (
+          <div
+            id={`${HISTORY_SECTION_ID}-panel`}
+            role="tabpanel"
+            aria-labelledby={`${HISTORY_SECTION_ID}-tab`}
+            className={panelClass(HISTORY_SECTION_ID)}
+          >
+            {historySection}
+          </div>
+        )}
+
         {/* Sur les onglets Abonnement et Connecteurs, dont les actions
-            s'appliquent tout de suite, la barre n'apparaît que s'il reste des
-            changements ailleurs. */}
-        {(![BILLING_SECTION_ID, CONNECTORS_SECTION_ID, FORWARDING_SECTION_ID].includes(current?.id ?? "") ||
+            s'appliquent tout de suite, et sur ceux en lecture seule, la barre
+            n'apparaît que s'il reste des changements ailleurs. */}
+        {(![BILLING_SECTION_ID, CONNECTORS_SECTION_ID, FORWARDING_SECTION_ID, HISTORY_SECTION_ID].includes(
+          current?.id ?? ""
+        ) ||
           isDirty) && (
           <div className="sticky bottom-0 z-20 -mx-4 mt-6 border-t border-border bg-background/95 px-4 py-3 backdrop-blur-sm sm:-mx-6 sm:px-6 lg:bottom-4 lg:mx-0 lg:rounded-lg lg:border lg:shadow-sm">
             <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2">

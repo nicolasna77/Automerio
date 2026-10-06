@@ -30,7 +30,7 @@ export default async function ActivateServicePage({
     service.tier && Number.isFinite(requested) ? clampToStep(service.tier, requested) : null;
 
   return (
-    <PageShell size="form">
+    <PageShell size="content">
       <PageHeader
         breadcrumbs={[
           { label: t("breadcrumb"), href: "/dashboard/services/catalog" },

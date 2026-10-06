@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Card } from "@/components/ui/card";
 import { PageShell } from "@/components/page-shell";
 
 // Reprend la disposition de la page : en-tête, onglets soulignés, tableau.
@@ -14,7 +15,7 @@ export default function Loading() {
         <Skeleton className="h-5 w-20" />
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-border bg-card">
+      <Card className="gap-0 py-0">
         <Skeleton className="h-10 w-full rounded-none" />
         <div className="divide-y divide-border">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -29,7 +30,7 @@ export default function Loading() {
             </div>
           ))}
         </div>
-      </div>
+      </Card>
     </PageShell>
   );
 }

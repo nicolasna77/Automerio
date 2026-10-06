@@ -2,10 +2,11 @@ import { useFormatter, useTranslations } from "next-intl";
 import { TriangleAlert } from "lucide-react";
 import { usePriceFormatter } from "@/hooks/use-price-formatter";
 import { cn } from "@/lib/utils";
-import { overageUnits, usageRatio, type UsageCap } from "@/lib/usage-cap";
-import { QUOTA_WARNING_RATIO } from "@/lib/quota";
+import { overageUnits, usageRatio } from "@/lib/usage-cap";
+import { isNearQuota } from "@/lib/quota";
+import type { QuotaUsage } from "@/lib/subscriptions";
 
-export type QuotaState = { cap: UsageCap; consumedUnits: number };
+export type QuotaState = QuotaUsage;
 
 // Version compacte de la jauge des abonnements, pour une ligne de la liste
 // des solutions : consommé sur inclus en tête, la barre dessous. Elle prend
@@ -17,8 +18,7 @@ export function QuotaMeter({ cap, consumedUnits }: QuotaState) {
   const format = useFormatter();
   const over = overageUnits(consumedUnits, cap);
   const ratio = usageRatio(consumedUnits, cap);
-  const nearLimit =
-    over === 0 && consumedUnits > 0 && consumedUnits >= cap.includedUnits * QUOTA_WARNING_RATIO;
+  const nearLimit = isNearQuota(consumedUnits, cap.includedUnits);
   const consumed = price.usageUnits(consumedUnits, cap.unit);
   const included = price.usageUnits(cap.includedUnits, cap.unit);
 

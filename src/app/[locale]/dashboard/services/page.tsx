@@ -8,9 +8,8 @@ import { buttonVariants } from "@/components/ui/button";
 import { db } from "@/lib/db";
 import { requireActiveOrganization } from "@/lib/organization";
 import { SETUP_ANCHOR, type MyServiceDTO } from "@/lib/catalog";
-import { getMySubscriptions } from "@/lib/subscriptions";
+import { getMySubscriptions, quotasByService } from "@/lib/subscriptions";
 import { toMyServiceDTO } from "../get-my-service";
-import type { QuotaState } from "../quota-meter";
 import { CheckoutNotice } from "../checkout-notice";
 import { MyServices } from "../my-services";
 import { PageHeader, PageShell } from "@/components/page-shell";
@@ -40,11 +39,7 @@ export default async function PrestationsPage({
     getMySubscriptions(organization.id),
   ]);
   const myServices: MyServiceDTO[] = clientServices.map(toMyServiceDTO);
-  // Consommation de la période en cours, pour les solutions qui ont un quota.
-  const quotas: Record<string, QuotaState> = {};
-  for (const { clientServiceId, cap, usage } of subscriptions) {
-    if (cap && usage) quotas[clientServiceId] = { cap, consumedUnits: usage.consumedUnits };
-  }
+  const quotas = quotasByService(subscriptions);
 
   const checkoutStatus =
     params.checkout === "success" || params.checkout === "canceled"

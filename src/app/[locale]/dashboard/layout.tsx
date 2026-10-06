@@ -5,6 +5,7 @@ import { isAdmin, requireUser } from "@/lib/session";
 import { requireActiveOrganization } from "@/lib/organization";
 import { getClientNotifications } from "@/lib/notifications";
 import { countPendingCallbacks } from "@/lib/call-callbacks";
+import { TELEPHONY_SERVICE_SLUGS } from "@/lib/catalog";
 
 export default async function DashboardLayout({
   children,
@@ -15,7 +16,7 @@ export default async function DashboardLayout({
     requireUser(),
     requireActiveOrganization(),
   ]);
-  const [openHelpRequestCount, pendingCallbackCount, notifications] = await Promise.all([
+  const [openHelpRequestCount, pendingCallbackCount, notifications, telephonyCount, bookingCount] = await Promise.all([
     db.helpRequest.count({
       where: { organizationId: active.id, status: "OPEN" },
     }),
@@ -26,6 +27,16 @@ export default async function DashboardLayout({
         select: { notificationsSeenAt: true },
       })
       .then((user) => getClientNotifications(active.id, user?.notificationsSeenAt ?? null)),
+    // Même condition que la page Calendrier : une téléphonie en cours, ou
+    // des rendez-vous déjà pris (après une résiliation, ils restent visibles).
+    db.clientService.count({
+      where: {
+        organizationId: active.id,
+        status: { not: "CANCELED" },
+        service: { slug: { in: [...TELEPHONY_SERVICE_SLUGS] } },
+      },
+    }),
+    db.booking.count({ where: { clientService: { organizationId: active.id } }, take: 1 }),
   ]);
 
   return (
@@ -37,6 +48,7 @@ export default async function DashboardLayout({
           organizations={organizations}
           openHelpRequestCount={openHelpRequestCount}
           pendingCallbackCount={pendingCallbackCount}
+          showCalendar={telephonyCount > 0 || bookingCount > 0}
           name={session.user.name}
           email={session.user.email}
         />

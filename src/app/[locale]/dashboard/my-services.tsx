@@ -10,7 +10,7 @@ import { EmptyState } from "@/components/empty-state";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { type ClientServiceStatus, type MyServiceDTO } from "@/lib/catalog";
-import { MyServiceRow, SOLUTION_COLUMNS } from "./my-service-row";
+import { SolutionsTable } from "./solutions-table";
 import { CATALOGUE_PATH } from "./services/paths";
 import type { QuotaState } from "./quota-meter";
 
@@ -162,27 +162,7 @@ export function MyServices({
           }
         />
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border bg-card">
-          <div
-            aria-hidden="true"
-            className="hidden border-b border-border bg-muted/40 px-5 py-2.5 text-xs font-medium text-muted-foreground md:grid md:grid-cols-(--solution-cols) md:gap-6"
-            style={{ "--solution-cols": SOLUTION_COLUMNS } as React.CSSProperties}
-          >
-            <span className="pl-9">{t("columns.service")}</span>
-            <span>{t("columns.status")}</span>
-            <span className="text-right">{t("columns.price")}</span>
-            <span />
-          </div>
-          <ul className="divide-y divide-border">
-            {filtered.map((item) => (
-              <MyServiceRow
-                key={item.clientServiceId}
-                item={item}
-                quota={quotas[item.clientServiceId] ?? null}
-              />
-            ))}
-          </ul>
-        </div>
+        <SolutionsTable items={filtered} quotas={quotas} />
       )}
     </section>
   );

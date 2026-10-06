@@ -10,13 +10,14 @@ import {
   Check,
   ClipboardCheck,
   CreditCard,
+  Lock,
   Package,
   PhoneForwarded,
   Pencil,
 } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Stepper, type StepperStep } from "@/components/stepper";
-import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -286,28 +287,21 @@ export function ActivationFlow({
     });
   }
 
+  // Disposition d'une page de paiement : les étapes à gauche, la commande à
+  // droite, visible à chaque étape (sous le parcours sur mobile).
   return (
     <div className="mt-8 space-y-6">
-      <div className="rounded-lg border border-border bg-card px-2 py-6 sm:px-6">
+      <Card className="px-2 py-6 sm:px-6">
         <Stepper
           label={t("steps.label")}
           steps={stepperSteps}
           current={stepIndex}
           onStepClick={goToStep}
         />
-      </div>
+      </Card>
 
-      <div key={stepIndex} className="space-y-6 animate-in fade-in duration-150 motion-reduce:animate-none">
-        {step.kind === "plan" && TELEPHONY_SERVICE_SLUGS.has(service.slug) && (
-          <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/40 p-4 text-sm">
-            <PhoneForwarded className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-            <p className="text-muted-foreground">
-              <span className="font-medium text-foreground">{t("keepNumber.title")}</span>{" "}
-              {t("keepNumber.body")}
-            </p>
-          </div>
-        )}
-
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <div key={stepIndex} className="min-w-0 space-y-6 animate-in fade-in duration-150 motion-reduce:animate-none">
         <Card>
           <CardHeader>
             <div className="flex items-start gap-3">
@@ -331,13 +325,14 @@ export function ActivationFlow({
             {step.kind === "plan" && (
               <>
                 {service.tier && (
-                  <div className="space-y-3 rounded-lg border border-border p-4">
+                  <div className="space-y-3 border-b border-border pb-6">
                     <SubscriptionMinutesSlider
                       tier={service.tier}
                       value={chosenUnits}
                       onChange={setChosenUnits}
                       label={tSimulator("question", { unit: service.tier.unit })}
                       disabled={isPending}
+                      showPrice={false}
                     />
                     <p className="text-sm text-muted-foreground">
                       {t("overage")}
@@ -428,26 +423,9 @@ export function ActivationFlow({
           <Card>
             <CardHeader>
               <h2 className="text-base font-semibold text-foreground">{t("payment.title")}</h2>
-              <CardDescription>{t("payment.description")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-5">
-              <dl className="space-y-2 text-sm">
-                {monthlyPriceCents !== null && (
-                  <div className="flex justify-between gap-4">
-                    <dt className="text-muted-foreground">{t("payment.subscription")}</dt>
-                    <dd>
-                      <MonthlyPrice cents={monthlyPriceCents} className="text-right" />
-                    </dd>
-                  </div>
-                )}
-                {service.usageCap && (
-                  <p className="text-xs text-muted-foreground">
-                    {price.usageCap(service.usageCap)}
-                  </p>
-                )}
-              </dl>
-
-              <div className="space-y-2 border-t border-border pt-5">
+              <div className="space-y-2">
                 <Label htmlFor={promoFieldId}>
                   {t("payment.promoLabel")}{" "}
                   <span className="font-normal text-muted-foreground">{t("payment.optional")}</span>
@@ -520,7 +498,7 @@ export function ActivationFlow({
           </Card>
         )}
 
-        <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="sticky bottom-0 z-20 -mx-4 flex flex-wrap items-center justify-between gap-2 border-t border-border bg-background/95 px-4 py-3 backdrop-blur-sm sm:-mx-6 sm:px-6 lg:bottom-4 lg:mx-0 lg:rounded-lg lg:border lg:px-4 lg:shadow-sm">
           {stepIndex === 0 ? (
             <Link href="/dashboard/services/catalog" className={buttonVariants({ variant: "outline" })}>
               {tCommon("cancel")}
@@ -558,7 +536,111 @@ export function ActivationFlow({
           )}
         </div>
       </div>
+
+      <OrderSummary
+        serviceName={service.name}
+        units={service.tier ? price.usageUnits(chosenUnits, service.tier.unit) : null}
+        monthlyPriceCents={monthlyPriceCents}
+        usageCap={
+          service.usageCap
+            ? // Le volume inclus est celui choisi au curseur, pas celui du catalogue.
+              price.usageCap({ ...service.usageCap, includedUnits: service.tier ? chosenUnits : service.usageCap.includedUnits })
+            : null
+        }
+        keepsNumber={TELEPHONY_SERVICE_SLUGS.has(service.slug)}
+        discountedFirstPaymentCents={
+          promo.status === "applied" ? promo.preview.discountedFirstPaymentCents : null
+        }
+      />
+      </div>
     </div>
+  );
+}
+
+// La commande, toujours visible : ce que le client achète et ce qu'il
+// paiera, mis à jour à chaque changement de volume.
+function OrderSummary({
+  serviceName,
+  units,
+  monthlyPriceCents,
+  usageCap,
+  keepsNumber,
+  discountedFirstPaymentCents,
+}: {
+  serviceName: string;
+  units: string | null;
+  monthlyPriceCents: number | null;
+  usageCap: string | null;
+  keepsNumber: boolean;
+  // Code promo appliqué : le premier prélèvement, réduit.
+  discountedFirstPaymentCents: number | null;
+}) {
+  const t = useTranslations("Dashboard.activation");
+  const price = usePriceFormatter();
+  return (
+    <aside aria-labelledby="order-summary-title" className="lg:sticky lg:top-20">
+      <Card size="sm">
+        <CardHeader>
+          <CardTitle as="h2" id="order-summary-title" className="text-base">
+            {t("order.title")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <dl className="space-y-3 text-sm">
+            <div className="flex justify-between gap-4">
+              <dt className="text-muted-foreground">{t("summary.solution")}</dt>
+              <dd className="text-right text-foreground">{serviceName}</dd>
+            </div>
+            {units && (
+              <div className="flex justify-between gap-4">
+                <dt className="text-muted-foreground">{t("summary.volume")}</dt>
+                <dd className="text-right text-foreground">
+                  {t.rich("summary.perMonth", {
+                    units,
+                    volume: (chunks) => <span className="font-mono tabular-nums">{chunks}</span>,
+                  })}
+                </dd>
+              </div>
+            )}
+            {monthlyPriceCents !== null && (
+              <div className="flex items-baseline justify-between gap-4 border-t border-border pt-3">
+                <dt className="font-medium text-foreground">{t("payment.subscription")}</dt>
+                <dd>
+                  <span role="status" aria-atomic="true">
+                    <MonthlyPrice cents={monthlyPriceCents} className="text-right" />
+                  </span>
+                </dd>
+              </div>
+            )}
+            {discountedFirstPaymentCents !== null && (
+              <div className="flex items-baseline justify-between gap-4">
+                <dt className="text-muted-foreground">{t("order.firstPayment")}</dt>
+                <dd className="text-right font-medium text-primary tabular-nums">
+                  {price.amountWithVat(discountedFirstPaymentCents)}
+                </dd>
+              </div>
+            )}
+          </dl>
+          {usageCap && <p className="text-xs text-muted-foreground">{usageCap}</p>}
+
+          <ul className="space-y-2.5 border-t border-border pt-4 text-xs text-muted-foreground">
+            {keepsNumber && (
+              <li className="flex items-start gap-2">
+                <PhoneForwarded className="mt-px size-3.5 shrink-0" aria-hidden="true" />
+                <span>
+                  <span className="font-medium text-foreground">{t("keepNumber.title")}</span>{" "}
+                  {t("keepNumber.body")}
+                </span>
+              </li>
+            )}
+            <li className="flex items-start gap-2">
+              <Lock className="mt-px size-3.5 shrink-0" aria-hidden="true" />
+              <span>{t("payment.description")}</span>
+            </li>
+          </ul>
+        </CardContent>
+      </Card>
+    </aside>
   );
 }
 

@@ -2,7 +2,7 @@ import { useTranslations } from "next-intl";
 import { usePriceFormatter } from "@/hooks/use-price-formatter";
 import { cn } from "@/lib/utils";
 import { overageUnits, usageRatio, type UsageCap } from "@/lib/usage-cap";
-import { QUOTA_WARNING_RATIO } from "@/lib/quota";
+import { isNearQuota } from "@/lib/quota";
 
 export function UsageGauge({
   cap,
@@ -19,7 +19,7 @@ export function UsageGauge({
   const ratio = usageRatio(consumedUnits, cap);
   const consumed = price.usageUnits(consumedUnits, cap.unit);
   const included = price.usageUnits(cap.includedUnits, cap.unit);
-  const nearLimit = over === 0 && consumedUnits >= cap.includedUnits * QUOTA_WARNING_RATIO;
+  const nearLimit = isNearQuota(consumedUnits, cap.includedUnits);
 
   return (
     <div>

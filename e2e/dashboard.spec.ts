@@ -15,10 +15,13 @@ test("le panneau de notifications s'ouvre", async ({ page }) => {
 
 test("le client suit le quota de ses abonnements en cours", async ({ page }) => {
   await page.goto("/dashboard");
-  await page.getByRole("link", { name: "Abonnements", exact: true }).click();
+  await page.getByRole("link", { name: "Facturation", exact: true }).click();
   await page.waitForURL("**/dashboard/subscriptions");
 
-  await expect(page.getByRole("heading", { name: "Abonnements", level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Facturation", level: 1 })).toBeVisible();
+  const billingTabs = page.getByRole("navigation", { name: "Facturation" });
+  await expect(billingTabs.getByRole("link", { name: "Abonnements" })).toHaveAttribute("aria-current", "page");
+  await expect(billingTabs.getByRole("link", { name: "Factures" })).toHaveAttribute("href", /\/dashboard\/payments$/);
 
   const running = page.getByRole("region", { name: "En cours" });
   await expect(running.getByRole("link", { name: "Standard téléphonique automatisé" })).toBeVisible();

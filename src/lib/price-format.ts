@@ -23,6 +23,7 @@ export function createPriceFormatter(t: PriceTranslator, locale: string) {
     perMonthWithVat: (inclusive: number) => t("perMonthWithVat", { amount: cents(inclusive) }),
     amountWithVat: (inclusive: number) => t("amountWithVat", { amount: cents(inclusive) }),
     usageUnits: (count: number, unit: UsageUnit) => t("units", { count, unit }),
+    included: (cap: UsageCap) => t("included", { count: cap.includedUnits, unit: cap.unit }),
     perUnit: (cents: number, unit: UsageUnit) =>
       t("perUnit", { price: withVat(cents), unit, block: PRICE_BLOCK_UNITS[unit] }),
     usageCap: (cap: UsageCap) => {

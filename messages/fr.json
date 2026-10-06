@@ -956,24 +956,26 @@
         "breadcrumb": "Catalogue",
         "title": "Activer {name}",
         "description": "Pour {organization}. Vous réglez l'automatisation, puis vous payez en ligne."
+      },
+      "order": {
+        "title": "Votre commande",
+        "firstPayment": "Premier paiement"
       }
     },
     "nav": {
       "groups": {
         "pilot": "Pilotage",
-        "billing": "Facturation",
         "account": "Compte"
       },
       "overview": "Vue d'ensemble",
       "callbacksBadge": "appels à rappeler",
       "services": "Solutions",
       "calendar": "Calendrier",
-      "subscriptions": "Abonnements",
-      "payments": "Paiements",
       "organization": "Organisation",
       "profile": "Profil",
       "help": "Aide",
-      "admin": "Administration"
+      "admin": "Administration",
+      "billing": "Facturation"
     },
     "overview": {
       "gettingStarted": {
@@ -1003,7 +1005,8 @@
         "perMonthUnit": "€ TTC/mois",
         "excludingSettingUp": "hors solutions en cours d'installation",
         "callsThisMonth": "Appels ce mois-ci",
-        "loading": "Chargement des chiffres…"
+        "loading": "Chargement des chiffres…",
+        "repliesThisMonth": "Réponses envoyées ce mois-ci"
       },
       "callbacks": {
         "title": "Appels à rappeler",
@@ -1027,6 +1030,14 @@
         "unit": "€ TTC",
         "empty": "Vos dépenses apparaîtront ici dès le premier prélèvement, mois par mois.",
         "loading": "Chargement du graphique…"
+      },
+      "attention": {
+        "quotaTitle": "Forfait presque consommé",
+        "quotaNear": "« {name} » : {consumed} sur {included} ce mois-ci.",
+        "quotaOver": "« {name} » : {units} au-delà du forfait, facturées en plus.",
+        "adjust": "Ajuster le volume",
+        "adjustFor": "de « {name} »",
+        "quotaOverTitle": "Forfait dépassé"
       }
     },
     "loading": {
@@ -1054,12 +1065,18 @@
         "firstDescription": "Choisissez votre première automatisation : l'équipe l'installe pour vous.",
         "description": "Une même solution peut s'activer plusieurs fois, pour plusieurs boutiques.",
         "heading": "Catalogue",
-        "vatNote": "Prix TTC, le montant hors taxes est rappelé dessous.",
+        "vatNote": "Prix TTC. Le hors taxes et le tarif au-delà du volume inclus sont détaillés à l'activation.",
         "emptyTitle": "Aucune solution disponible pour l'instant",
         "emptyDescription": "Repassez bientôt, ou écrivez-nous si vous cherchez une automatisation en particulier.",
         "noSubscription": "Sans abonnement",
         "activate": "Activer",
-        "activateAgain": "Activer à nouveau"
+        "groups": {
+          "phone": "Au téléphone",
+          "messaging": "Sur les messageries",
+          "other": "Autres automatisations"
+        },
+        "each": ", pour chacune",
+        "details": "Voir"
       },
       "settings": {
         "label": "Réglages",
@@ -1587,6 +1604,7 @@
         "connectors": "Connecteurs",
         "forwarding": "Renvoi d'appel",
         "billing": "Abonnement",
+        "history": "Historique",
         "modified": "modifié"
       },
       "identity": {
@@ -1654,6 +1672,10 @@
       "forwarding": {
         "title": "Renvoi d'appel",
         "description": "Recevez vos appels sur l'assistant en gardant votre numéro."
+      },
+      "history": {
+        "title": "Historique",
+        "description": "Les étapes de votre solution : paiement, mise en service, changements de réglages et notes de l'équipe."
       }
     },
     "subscriptions": {
@@ -1676,7 +1698,6 @@
       "running": "En cours",
       "stopped": "Inactifs",
       "stoppedDescription": "Résiliés ou jamais démarrés : aucun prélèvement en cours.",
-      "paymentsLink": "Le détail de chaque prélèvement et vos factures se trouvent dans <link>Paiements</link>.",
       "settings": "Réglages",
       "paymentFailed": "Le dernier paiement a été refusé. Mettez à jour votre moyen de paiement pour éviter une interruption.",
       "gauge": {
@@ -1687,7 +1708,8 @@
         "over": "{units} au-delà du forfait : <em>{amount}</em> s'ajouteront à la prochaine facture.",
         "nearLimit": "<strong>Plus que {units}</strong> sur cette période. Au-delà, la consommation est facturée {price}.",
         "remaining": "Il vous reste {units} sur cette période."
-      }
+      },
+      "failingTitle": "Paiement refusé"
     },
     "payments": {
       "status": {
@@ -1924,6 +1946,15 @@
         "reopenPlaceholder": "Une question de plus ? Écrivez ici pour rouvrir la demande…",
         "placeholder": "Ajouter une précision, relancer…",
         "send": "Envoyer"
+      }
+    },
+    "billing": {
+      "title": "Facturation",
+      "description": "Vos abonnements, ce qui vous est prélevé et vos factures.",
+      "tabs": {
+        "label": "Facturation",
+        "subscriptions": "Abonnements",
+        "invoices": "Factures"
       }
     }
   },

@@ -10,6 +10,7 @@ import {
   ServiceConnectorsCard,
 } from "@/app/[locale]/dashboard/service-connectors-card";
 import { ServiceForwardingCard } from "@/app/[locale]/dashboard/service-forwarding-card";
+import { ServiceHistoryCard } from "@/app/[locale]/dashboard/service-history-card";
 import { settingsHiddenKeys } from "@/app/[locale]/dashboard/field-categories";
 import { isLiveTelephony } from "@/app/[locale]/dashboard/service-detail-table";
 import { getMyService } from "@/app/[locale]/dashboard/get-my-service";
@@ -41,7 +42,7 @@ export default async function ServiceConfigurationPage({
   // L'abonnement est lu en parallèle ; rien ne s'affiche avant que
   // getMyService ait vérifié l'appartenance de la solution.
   const [item, subscription] = await Promise.all([
-    getMyService(clientServiceId, session.user.id),
+    getMyService(clientServiceId, session.user.id, { withEvents: true }),
     getSubscriptionFor(clientServiceId),
   ]);
   if (!item) notFound();
@@ -94,6 +95,9 @@ export default async function ServiceConfigurationPage({
           ) : MESSAGING_SERVICE_SLUGS.has(item.service.slug) ? (
             <MessagingConnectorsCard item={item} />
           ) : null
+        }
+        historySection={
+          item.events.length > 0 ? <ServiceHistoryCard events={item.events} /> : null
         }
         billingSection={
           subscription ? (
