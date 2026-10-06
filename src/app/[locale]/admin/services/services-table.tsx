@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Pencil } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,6 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -28,7 +29,7 @@ import {
 import { CATEGORY_LABELS, formatPrice } from "@/lib/catalog";
 import { formatPriceExcludingVat } from "@/lib/vat";
 import { unwrap } from "@/lib/action-result";
-import { cn, getErrorMessage } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import { usageCapLabelOf } from "@/lib/usage-cap";
 import { setServiceActiveAction } from "./actions";
 import { ServiceEditDialog, type EditableService } from "./service-edit-dialog";
@@ -57,12 +58,12 @@ export function ServicesTable({ services }: { services: EditableService[] }) {
             </TableHeader>
             <TableBody>
               {services.map((service) => (
-                <TableRow
-                  key={service.id}
-                  className={cn(!service.isActive && "opacity-60")}
-                >
+                <TableRow key={service.id}>
                   <TableCell className="font-medium text-foreground">
                     {service.name}
+                    {!service.isActive && (
+                      <Badge variant="secondary" className="ml-2">Inactive</Badge>
+                    )}
                     <p className="text-xs font-normal text-muted-foreground">
                       {service.slug}
                     </p>

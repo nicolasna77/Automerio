@@ -825,6 +825,13 @@
       "lead": "Quelque chose s'est mal passé de notre côté. Vous pouvez réessayer, ou revenir à l'accueil.",
       "retry": "Réessayer",
       "home": "Retour à l'accueil"
+    },
+    "workspace": {
+      "heading": "Cette page n'a pas pu s'afficher",
+      "lead": "Un problème est survenu en la chargeant. Réessayez : si l'erreur persiste, écrivez-nous.",
+      "reference": "Référence de l'erreur : {digest}",
+      "retry": "Réessayer",
+      "help": "Contacter l'équipe"
     }
   },
   "Legal": {
@@ -2043,6 +2050,7 @@
     "rename": "Renommer",
     "renaming": "…",
     "close": "Fermer",
+    "closeNotification": "Fermer la notification",
     "back": "Retour",
     "continue": "Continuer",
     "sending": "Envoi…",

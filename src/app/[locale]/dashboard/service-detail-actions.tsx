@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Ellipsis, XCircle } from "lucide-react";
 import {
   AlertDialog,

@@ -3,7 +3,7 @@
 import { useLabels } from "@/hooks/use-labels";
 import { useEffect, useId, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Check, ChevronDown, ListChecks, Phone, PhoneCall, PhoneIncoming, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";

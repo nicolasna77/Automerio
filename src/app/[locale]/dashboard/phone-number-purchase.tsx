@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { formatFrenchPhone } from "@/lib/phone-format";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Loader2, Phone, Search } from "lucide-react";
 import {
   AlertDialog,

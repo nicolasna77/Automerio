@@ -3,7 +3,7 @@
 import { Link } from "@/i18n/navigation";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Check, CircleAlert, MailCheck } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

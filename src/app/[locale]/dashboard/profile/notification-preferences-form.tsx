@@ -3,9 +3,10 @@
 import { useLabels } from "@/hooks/use-labels";
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Switch } from "@/components/ui/switch";
 import { getErrorMessage } from "@/lib/utils";
+import { unwrap } from "@/lib/action-result";
 import { NOTIFICATION_TYPES, type NotificationType } from "@/lib/email/types";
 import type { NotificationPreferences } from "@/lib/email/preferences";
 import { setNotificationPreference } from "./actions";
@@ -56,7 +57,7 @@ function NotificationToggleRow({
     setEnabled(checked);
     startTransition(async () => {
       try {
-        await setNotificationPreference(type, checked);
+        unwrap(await setNotificationPreference(type, checked));
       } catch (err) {
         setEnabled(previous);
         toast.error(getErrorMessage(err));

@@ -43,7 +43,7 @@ export function AdminSidebar({
             href={ROOT}
             className="[&>span:last-child]:group-data-[collapsible=icon]:hidden"
           />
-          <span className="ml-auto rounded-md bg-primary/10 px-1.5 py-0.5 text-xs font-medium text-primary group-data-[collapsible=icon]:hidden">
+          <span className="ml-auto rounded-md bg-primary/10 px-1.5 py-0.5 text-xs font-medium text-foreground group-data-[collapsible=icon]:hidden">
             Admin
           </span>
         </div>

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Sparkles } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import type { MarketingChannel } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

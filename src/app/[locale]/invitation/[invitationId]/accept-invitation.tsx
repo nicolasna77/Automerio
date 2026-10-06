@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "@/i18n/navigation";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";

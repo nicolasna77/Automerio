@@ -7,7 +7,7 @@ import {
   useTransition,
   type FormEvent,
 } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { useTranslations } from "next-intl";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";

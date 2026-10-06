@@ -3,7 +3,7 @@
 import { useRef, useState, useTransition, type ChangeEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Camera, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
