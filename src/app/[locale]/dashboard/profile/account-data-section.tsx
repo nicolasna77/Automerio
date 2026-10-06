@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Download } from "lucide-react";
 import { toast } from "sonner";
@@ -20,19 +21,20 @@ import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { ProfileSection } from "./profile-section";
 
-const CONFIRMATION_WORD = "SUPPRIMER";
+type DataT = ReturnType<typeof useTranslations<"Dashboard.profile.data">>;
 
-function describeDeletionError(error: { status: number; code?: string; message?: string }): string {
-  if (error.code === "INVALID_PASSWORD" || error.status === 400) return "Mot de passe incorrect.";
-  if (error.code === "SESSION_EXPIRED" || error.status === 401) {
-    return "Par sécurité, reconnectez-vous puis recommencez.";
-  }
+function describeDeletionError(error: { status: number; code?: string; message?: string }, t: DataT): string {
+  if (error.code === "INVALID_PASSWORD" || error.status === 400) return t("wrongPassword");
+  if (error.code === "SESSION_EXPIRED" || error.status === 401) return t("reconnect");
   if (error.status === 403 && error.message) return error.message;
-  return "La suppression a échoué. Réessayez, ou écrivez-nous depuis la rubrique Aide.";
+  return t("deleteFailed");
 }
 
 export function AccountDataSection({ requiresPassword }: { requiresPassword: boolean }) {
   const router = useRouter();
+  const t = useTranslations("Dashboard.profile.data");
+  const tCommon = useTranslations("Common");
+  const CONFIRMATION_WORD = t("confirmWord");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
@@ -50,10 +52,10 @@ export function AccountDataSection({ requiresPassword }: { requiresPassword: boo
     startTransition(async () => {
       const { error } = await authClient.deleteUser(requiresPassword ? { password } : {});
       if (error) {
-        toast.error(describeDeletionError(error));
+        toast.error(describeDeletionError(error, t));
         return;
       }
-      toast.success("Votre compte a été supprimé.");
+      toast.success(t("deleted"));
       router.replace("/");
       router.refresh();
     });
@@ -62,8 +64,8 @@ export function AccountDataSection({ requiresPassword }: { requiresPassword: boo
   return (
     <>
       <ProfileSection
-        title="Vos données"
-        description="Téléchargez tout ce qu'Automerio conserve sur vous, dans un fichier lisible."
+        title={t("title")}
+        description={t("description")}
       >
         <Button
           variant="outline"
@@ -71,16 +73,16 @@ export function AccountDataSection({ requiresPassword }: { requiresPassword: boo
           render={<a href="/dashboard/profile/export" download />}
         >
           <Download aria-hidden="true" data-icon="inline-start" />
-          Exporter mes données
+          {t("export")}
         </Button>
       </ProfileSection>
 
       <ProfileSection
-        title="Supprimer le compte"
-        description="Résilie vos abonnements et efface vos organisations, solutions et échanges. Cette action est définitive."
+        title={t("deleteTitle")}
+        description={t("deleteDescription")}
       >
         <Button variant="destructive" onClick={() => setConfirmOpen(true)}>
-          Supprimer mon compte
+          {t("deleteAccount")}
         </Button>
 
         <AlertDialog
@@ -92,13 +94,13 @@ export function AccountDataSection({ requiresPassword }: { requiresPassword: boo
         >
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Supprimer définitivement votre compte ?</AlertDialogTitle>
+              <AlertDialogTitle>{t("confirmTitle")}</AlertDialogTitle>
               <AlertDialogDescription render={<div />}>
                 <ul className="list-disc space-y-1 pl-5 text-left">
-                  <li>Vos abonnements en cours sont résiliés immédiatement.</li>
-                  <li>Les numéros de téléphone attribués à l&apos;IA sont libérés.</li>
-                  <li>Vos organisations, solutions et échanges sont effacés.</li>
-                  <li>Les factures restent conservées par Stripe, comme l&apos;exige la loi.</li>
+                  <li>{t("consequences.subscriptions")}</li>
+                  <li>{t("consequences.numbers")}</li>
+                  <li>{t("consequences.data")}</li>
+                  <li>{t("consequences.invoices")}</li>
                 </ul>
               </AlertDialogDescription>
             </AlertDialogHeader>
@@ -106,7 +108,7 @@ export function AccountDataSection({ requiresPassword }: { requiresPassword: boo
             <div className="grid gap-4">
               {requiresPassword && (
                 <div className="space-y-2">
-                  <Label htmlFor="delete-password">Mot de passe</Label>
+                  <Label htmlFor="delete-password">{t("password")}</Label>
                   <Input
                     id="delete-password"
                     type="password"
@@ -118,7 +120,7 @@ export function AccountDataSection({ requiresPassword }: { requiresPassword: boo
               )}
               <div className="space-y-2">
                 <Label htmlFor="delete-confirmation">
-                  Tapez {CONFIRMATION_WORD} pour confirmer
+                  {t("typeToConfirm", { word: CONFIRMATION_WORD })}
                 </Label>
                 <Input
                   id="delete-confirmation"
@@ -130,14 +132,14 @@ export function AccountDataSection({ requiresPassword }: { requiresPassword: boo
             </div>
 
             <AlertDialogFooter>
-              <AlertDialogCancel disabled={isPending}>Annuler</AlertDialogCancel>
+              <AlertDialogCancel disabled={isPending}>{tCommon("cancel")}</AlertDialogCancel>
               <AlertDialogAction
                 variant="destructive"
                 onClick={handleDelete}
                 disabled={isPending || !canDelete}
                 aria-busy={isPending}
               >
-                {isPending ? "Suppression…" : "Supprimer mon compte"}
+                {isPending ? tCommon("deleting") : t("deleteAccount")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

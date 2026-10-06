@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Check } from "lucide-react";
 import {
   Stepper,
@@ -12,12 +13,13 @@ import { cn } from "@/lib/utils";
 import type { ClientServiceStatus } from "@/lib/catalog";
 
 const PROGRESS_STEPS = [
-  { status: "PENDING_PAYMENT", label: "Payé" },
-  { status: "CONFIGURING", label: "En configuration" },
-  { status: "ACTIVE", label: "Actif" },
+  { status: "PENDING_PAYMENT", key: "paid" },
+  { status: "CONFIGURING", key: "configuring" },
+  { status: "ACTIVE", key: "active" },
 ] as const;
 
 export function ServiceProgress({ status }: { status: ClientServiceStatus }) {
+  const t = useTranslations("Dashboard.service.progress");
   if (status === "CANCELED") return null;
 
   const currentIndex = PROGRESS_STEPS.findIndex((s) => s.status === status);
@@ -30,7 +32,7 @@ export function ServiceProgress({ status }: { status: ClientServiceStatus }) {
       indicators={{ completed: <Check className="size-3" /> }}
       className="mt-3"
     >
-      <StepperNav aria-label="Étapes de la solution" className="gap-1.5">
+      <StepperNav aria-label={t("label")} className="gap-1.5">
         {PROGRESS_STEPS.map((step, index) => (
           <StepperItem
             key={step.status}
@@ -50,7 +52,7 @@ export function ServiceProgress({ status }: { status: ClientServiceStatus }) {
                       : "text-muted-foreground"
                 )}
               >
-                {step.label}
+                {t(step.key)}
               </span>
             </div>
             {index < PROGRESS_STEPS.length - 1 && (

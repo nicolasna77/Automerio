@@ -1,5 +1,7 @@
 "use client";
 
+import { usePriceFormatter } from "@/hooks/use-price-formatter";
+import { useTranslations } from "next-intl";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import {
   Card,
@@ -15,14 +17,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { formatEuroAmount } from "@/lib/catalog";
-import { excludingVatSuffix, formatCentsWithVat } from "@/lib/vat";
 
-const chartConfig = {
-  totalCents: {
-    label: "Dépense",
-    color: "var(--chart-1)",
-  },
-} satisfies ChartConfig;
 
 export function SpendChartView({
   data,
@@ -31,24 +26,32 @@ export function SpendChartView({
   data: { label: string; totalCents: number }[];
   totalCents: number;
 }) {
+  const t = useTranslations("Dashboard.overview.spend");
+  const price = usePriceFormatter();
+  const chartConfig = {
+    totalCents: {
+      label: t("series"),
+      color: "var(--chart-1)",
+    },
+  } satisfies ChartConfig;
   return (
     <Card>
       <CardHeader>
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
           <div>
             <CardTitle as="h2" className="text-base">
-              Dépenses des 6 derniers mois
+              {t("title")}
             </CardTitle>
-            <CardDescription>Basé sur vos factures payées.</CardDescription>
+            <CardDescription>{t("description")}</CardDescription>
           </div>
           {totalCents > 0 && (
             <p className="text-right">
               <span className="font-mono text-2xl font-medium tabular-nums text-foreground">
                 {formatEuroAmount(totalCents)}
               </span>
-              <span className="ml-1.5 text-sm text-muted-foreground">€ TTC</span>
+              <span className="ml-1.5 text-sm text-muted-foreground">{t("unit")}</span>
               <span className="block text-xs font-normal text-muted-foreground">
-                {excludingVatSuffix(totalCents)}
+                {price.excludingVatSuffix(totalCents)}
               </span>
             </p>
           )}
@@ -57,8 +60,7 @@ export function SpendChartView({
       <CardContent>
         {totalCents === 0 ? (
           <p className="text-sm text-muted-foreground">
-            Vos dépenses apparaîtront ici dès le premier prélèvement, mois par
-            mois.
+            {t("empty")}
           </p>
         ) : (
         <ChartContainer
@@ -78,7 +80,7 @@ export function SpendChartView({
             <ChartTooltip
               content={
                 <ChartTooltipContent
-                  formatter={(value) => formatCentsWithVat(Number(value))}
+                  formatter={(value) => price.withVat(Number(value))}
                 />
               }
             />
@@ -95,7 +97,7 @@ export function SpendChartView({
           <ul className="sr-only">
             {data.map((bucket) => (
               <li key={bucket.label}>
-                {bucket.label} : {formatCentsWithVat(bucket.totalCents)}
+                {bucket.label} : {price.withVat(bucket.totalCents)}
               </li>
             ))}
           </ul>

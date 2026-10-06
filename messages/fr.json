@@ -493,7 +493,8 @@
     "overage": "{included}, puis {price}/{unit, select, MINUTE {min} other {appel}}",
     "amountWithVat": "{amount} TTC",
     "overageBlock": "{included}, puis {price} les {block} réponses",
-    "perUnit": "{unit, select, MINUTE {{price} la minute} MESSAGE {{price} les {block} réponses} other {{price} l'appel}}"
+    "perUnit": "{unit, select, MINUTE {{price} la minute} MESSAGE {{price} les {block} réponses} other {{price} l'appel}}",
+    "perMonthUnit": " € TTC/mois"
   },
   "ServicePage": {
     "priceSummary": "{price} TTC par mois, sans frais d'installation.",
@@ -900,7 +901,1346 @@
     "activation": {
       "nameRequired": "Donnez un nom à cette activation.",
       "fieldRequired": "Le champ « {label} » est requis.",
-      "skipToSummary": "Régler plus tard"
+      "skipToSummary": "Régler plus tard",
+      "steps": {
+        "label": "Étapes de l'activation",
+        "plan": {
+          "title": "Formule",
+          "description": "Le volume et le nom qui distingue cette activation."
+        },
+        "summary": {
+          "title": "Récapitulatif",
+          "description": "Vérifiez vos réponses avant de payer."
+        },
+        "payment": {
+          "title": "Paiement",
+          "description": "Sécurisé par Stripe"
+        }
+      },
+      "draftRestored": "Vos réponses précédentes ont été reprises.",
+      "restart": "Recommencer",
+      "invalidHours": "« {label} » : une heure de fermeture vient avant l'ouverture.",
+      "promoCheckFailed": "La vérification du code a échoué. Réessayez.",
+      "keepNumber": {
+        "title": "Vous gardez votre numéro actuel.",
+        "body": "Un numéro dédié à l'IA vous est attribué, et un simple renvoi d'appel, gratuit et réversible, y dirige vos clients une fois la solution active."
+      },
+      "overage": "Au-delà de ce quota, la consommation est facturée au tarif de dépassement. L'acheter à l'avance revient moins cher.",
+      "nameLabel": "Nom de cette activation",
+      "nameHelp": "Utile si vous activez la même solution plusieurs fois, pour plusieurs boutiques par exemple.",
+      "editableLater": "Tous ces réglages restent modifiables une fois la solution activée.",
+      "catalogLater": "Vous ajouterez votre carte après le paiement, depuis la page de la solution : une photo ou un PDF suffit.",
+      "summary": {
+        "solution": "Solution",
+        "name": "Nom de l'activation",
+        "volume": "Volume",
+        "perMonth": "<volume>{units}</volume> par mois",
+        "edit": "Modifier",
+        "editSection": " : {title}"
+      },
+      "payment": {
+        "title": "Paiement",
+        "description": "Paiement sécurisé par Stripe. Prélèvement au montant TTC, sans engagement.",
+        "subscription": "Abonnement",
+        "promoLabel": "Code promo",
+        "optional": "(facultatif)",
+        "checking": "Vérification…",
+        "apply": "Appliquer",
+        "promoApplied": "{description}. Premier paiement : <discounted></discounted> au lieu de <original></original>.",
+        "terms": "En payant, vous acceptez nos <link>conditions générales de vente</link>.",
+        "redirecting": "Redirection vers le paiement…",
+        "pay": "Payer {amount} TTC"
+      },
+      "toSummary": "Voir le récapitulatif",
+      "page": {
+        "breadcrumb": "Catalogue",
+        "title": "Activer {name}",
+        "description": "Pour {organization}. Vous réglez l'automatisation, puis vous payez en ligne."
+      }
+    },
+    "nav": {
+      "groups": {
+        "pilot": "Pilotage",
+        "billing": "Facturation",
+        "account": "Compte"
+      },
+      "overview": "Vue d'ensemble",
+      "callbacksBadge": "appels à rappeler",
+      "services": "Solutions",
+      "calendar": "Calendrier",
+      "subscriptions": "Abonnements",
+      "payments": "Paiements",
+      "organization": "Organisation",
+      "profile": "Profil",
+      "help": "Aide",
+      "admin": "Administration"
+    },
+    "overview": {
+      "gettingStarted": {
+        "title": "Mettez en place votre première automatisation",
+        "description": "Vos appels, vos rendez-vous et vos dépenses s'afficheront ici dès qu'une solution sera active.",
+        "steps": {
+          "choose": {
+            "title": "Choisissez une solution",
+            "description": "Standard téléphonique, prise de rendez-vous ou de commande, assistants WhatsApp, Messenger ou Instagram."
+          },
+          "configure": {
+            "title": "Réglez-la et payez en ligne",
+            "description": "Horaires, consignes, numéro : quelques minutes suffisent. Paiement sécurisé par Stripe."
+          },
+          "install": {
+            "title": "L'équipe l'installe et la vérifie",
+            "description": "La plupart des solutions sont actives en quelques jours. Vous suivez l'avancement ici."
+          }
+        },
+        "cta": "Voir le catalogue"
+      },
+      "stats": {
+        "title": "Ce mois-ci",
+        "activeServices": "Solutions actives",
+        "settingUp": "+ {count} en cours d'installation",
+        "monthlySpend": "Dépense mensuelle",
+        "perMonthUnit": "€ TTC/mois",
+        "excludingSettingUp": "hors solutions en cours d'installation",
+        "callsThisMonth": "Appels ce mois-ci",
+        "loading": "Chargement des chiffres…"
+      },
+      "callbacks": {
+        "title": "Appels à rappeler",
+        "pending": "{count, plural, one {Un appel attend un geste de votre part.} other {# appels attendent un geste de votre part.}}",
+        "hiddenNumber": "Numéro masqué",
+        "callBack": "Rappeler",
+        "others": "Les autres se trouvent sur la page de chaque solution.",
+        "markHandled": "Traité",
+        "markHandledLabel": "Marquer comme traité : {label}",
+        "updateError": "L'appel n'a pas pu être mis à jour."
+      },
+      "services": {
+        "title": "Vos solutions",
+        "seeAll": "Tout voir",
+        "seeDetail": ", voir le détail"
+      },
+      "spend": {
+        "series": "Dépense",
+        "title": "Dépenses des 6 derniers mois",
+        "description": "Basé sur vos factures payées.",
+        "unit": "€ TTC",
+        "empty": "Vos dépenses apparaîtront ici dès le premier prélèvement, mois par mois.",
+        "loading": "Chargement du graphique…"
+      }
+    },
+    "loading": {
+      "calendar": "Chargement du calendrier…",
+      "help": "Chargement de l'aide…",
+      "organization": "Chargement de l'organisation…",
+      "payments": "Chargement des paiements…",
+      "profile": "Chargement du profil…",
+      "catalog": "Chargement du catalogue…",
+      "services": "Chargement des solutions…",
+      "configuration": "Chargement de la configuration…",
+      "service": "Chargement de la solution…",
+      "subscriptions": "Chargement des abonnements…"
+    },
+    "services": {
+      "title": "Solutions",
+      "description": "Les automatisations que vous avez activées, et où en est chacune.",
+      "add": "Ajouter une solution",
+      "tabs": {
+        "label": "Solutions",
+        "mine": "Mes solutions",
+        "catalog": "Catalogue"
+      },
+      "catalog": {
+        "firstDescription": "Choisissez votre première automatisation : l'équipe l'installe pour vous.",
+        "description": "Une même solution peut s'activer plusieurs fois, pour plusieurs boutiques.",
+        "heading": "Catalogue",
+        "vatNote": "Prix TTC, le montant hors taxes est rappelé dessous.",
+        "emptyTitle": "Aucune solution disponible pour l'instant",
+        "emptyDescription": "Repassez bientôt, ou écrivez-nous si vous cherchez une automatisation en particulier.",
+        "noSubscription": "Sans abonnement",
+        "activate": "Activer",
+        "activateAgain": "Activer à nouveau"
+      },
+      "settings": {
+        "label": "Réglages",
+        "labelFor": "Réglages de « {name} »"
+      },
+      "list": {
+        "heading": "Mes solutions",
+        "all": "Toutes",
+        "filterLabel": "Filtrer par statut",
+        "searchPlaceholder": "Rechercher une solution…",
+        "searchLabel": "Rechercher parmi mes solutions",
+        "emptyTitle": "Vous n'avez encore activé aucune solution",
+        "emptyDescription": "Choisissez une automatisation dans le catalogue pour démarrer.",
+        "seeCatalog": "Voir le catalogue",
+        "noMatchTitle": "Aucune solution ne correspond à ces filtres",
+        "noMatchDescription": "Essayez un autre nom ou un autre statut.",
+        "reset": "Réinitialiser",
+        "columns": {
+          "service": "Solution",
+          "status": "Statut",
+          "number": "Numéro",
+          "price": "Tarif"
+        },
+        "seeDetail": ", voir le détail",
+        "noSubscription": "Sans abonnement",
+        "paymentFailed": "Le dernier paiement a été refusé. <link>Mettez à jour votre moyen de paiement</link> pour éviter une interruption.",
+        "todo": "À faire : ",
+        "teamNote": "Note de l'équipe : ",
+        "serviceNamePrefix": "{name}. "
+      }
+    },
+    "checkout": {
+      "canceledTitle": "Paiement annulé",
+      "receivedTitle": "Paiement reçu",
+      "receivedTitleFor": "Paiement reçu pour « {name} »",
+      "confirmedTitle": "Paiement confirmé",
+      "confirmedTitleFor": "Paiement confirmé pour « {name} »",
+      "canceled": "Aucun paiement n'a été effectué. Vous pouvez réessayer quand vous le souhaitez depuis votre solution ci-dessous, ou depuis le catalogue.",
+      "recording": "Nous enregistrons votre paiement, cela ne prend que quelques secondes…",
+      "slow": "L'enregistrement du paiement prend plus de temps que prévu. Actualisez la page dans un instant, ou contactez-nous si le problème persiste.",
+      "nextStep": "Il reste une étape pour que votre assistant puisse répondre.",
+      "configuring": "Notre équipe installe votre solution et vous prévient dès qu'elle est active.",
+      "active": "Votre solution est active. Retrouvez-la dans « Mes solutions » ci-dessous.",
+      "dismiss": "Fermer ce message",
+      "resume": {
+        "redirecting": "Redirection…",
+        "reactivate": "Réactiver",
+        "resume": "Reprendre le paiement",
+        "havePromo": "J'ai un code promo",
+        "promoTitle": "Payer avec un code promo",
+        "promoDescription": "Le code est vérifié, puis appliqué au paiement Stripe.",
+        "promoLabel": "Code promo",
+        "payWithCode": "Payer avec ce code"
+      }
+    },
+    "calendar": {
+      "title": "Calendrier",
+      "description": "Les rendez-vous et commandes pris par téléphone, toutes solutions confondues.",
+      "emptyTitle": "Aucune solution ne prend encore de rendez-vous",
+      "emptyDescription": "Activez la prise de rendez-vous ou de commande par téléphone : chaque rendez-vous et chaque commande s'afficheront ici.",
+      "emptyCta": "Activer la prise de rendez-vous",
+      "subtitle": "{service} · {phone}"
+    },
+    "calls": {
+      "filters": {
+        "label": "Filtrer par état",
+        "all": "Tous",
+        "todo": "À traiter",
+        "done": "Traités"
+      },
+      "outcomes": {
+        "appointment_booked": "Rendez-vous pris",
+        "order_taken": "Commande enregistrée",
+        "transferred": "Appel transféré",
+        "message_taken": "Message pris",
+        "no_action": "Sans suite"
+      },
+      "duration": {
+        "unknown": "durée inconnue",
+        "seconds": "{seconds} s",
+        "minutes": "{minutes} min {seconds}"
+      },
+      "transcript": {
+        "loading": "Chargement de la transcription…",
+        "error": "La transcription n'a pas pu être chargée.",
+        "empty": "Aucune parole n'a été transcrite pour cet appel.",
+        "label": "Transcription de l'appel",
+        "assistant": "Assistant : ",
+        "caller": "Appelant : ",
+        "show": "Voir la transcription",
+        "hide": "Masquer la transcription"
+      },
+      "hiddenNumber": "Numéro masqué",
+      "updateError": "L'appel n'a pas pu être mis à jour.",
+      "toCallBack": "À rappeler",
+      "handled": "Traité",
+      "showDetail": "Afficher le détail",
+      "hideDetail": "Masquer le détail",
+      "todo": "À faire : ",
+      "number": "Numéro : ",
+      "callBack": "Rappeler",
+      "reopen": "Rouvrir",
+      "markHandled": "Marquer comme traité",
+      "loading": "Chargement de l'activité des appels…",
+      "inProgress": "{count, plural, one {Appel en cours} other {Appels en cours}}",
+      "allDays": "Tous les jours",
+      "dayFilterLabel": "Filtrer par jour",
+      "callCount": "{count, plural, one {# appel} other {# appels}}",
+      "updating": "Mise à jour de la liste…",
+      "mostRecent": "Les {count} appels les plus récents",
+      "inList": "{count, plural, one {# appel} other {# appels}} dans la liste",
+      "truncatedHint": "Les {count} appels les plus récents. Choisissez un jour pour voir les plus anciens.",
+      "emptyTodo": "Aucun appel à traiter",
+      "emptyDone": "Aucun appel traité",
+      "emptyAll": "Aucun appel terminé",
+      "emptyForDay": "{empty} {day}.",
+      "emptyNow": "{empty} pour l'instant.",
+      "seeAll": "Voir tous les appels"
+    },
+    "conversations": {
+      "title": "Conversations",
+      "description": "L'assistant répond à vos clients. Reprenez la main sur une conversation pour répondre vous-même.",
+      "today": "Aujourd'hui",
+      "yesterday": "Hier",
+      "prefixAssistant": "Assistant : ",
+      "prefixHuman": "Vous : ",
+      "emptyTitle": "Aucune conversation pour l'instant",
+      "emptyDescription": "Les échanges de l'assistant avec vos clients apparaîtront ici. Vous pourrez reprendre la main sur chacun et répondre vous-même.",
+      "updating": "Mise à jour de la liste…",
+      "truncatedAll": "Les {limit} conversations les plus récentes. Choisissez un jour pour voir les autres.",
+      "truncatedDay": "Les {limit} conversations les plus récentes {day}.",
+      "count": "{count, plural, one {# conversation} other {# conversations}}",
+      "countDay": "{count, plural, one {# conversation} other {# conversations}} {day}",
+      "allDays": "Tous les jours",
+      "dayFilterLabel": "Filtrer par jour",
+      "emptyForDay": "Aucune conversation {day}.",
+      "seeAll": "Voir toutes les conversations",
+      "listLabel": "Liste des conversations",
+      "youHaveControl": "Vous avez la main",
+      "assistantActive": "Assistant actif",
+      "toAnswer": "À répondre",
+      "threadLabel": "Conversation avec {contact}",
+      "threadLabelEmpty": "Conversation",
+      "chooseOne": "Choisissez une conversation.",
+      "toggleError": "La conversation n'a pas pu être mise à jour. Réessayez dans un instant.",
+      "sendError": "Le message n'a pas pu être envoyé. Réessayez dans un instant.",
+      "back": "Retour aux conversations",
+      "assistantPaused": "Assistant en pause",
+      "handBack": "Rendre la main à l'assistant",
+      "takeOver": "Reprendre la main",
+      "messagesWith": "Messages avec {contact}",
+      "exchangesWith": "Échanges avec {contact}",
+      "sending": "Envoi…",
+      "replyLabel": "Votre réponse à {contact}",
+      "replyPlaceholder": "Écrire une réponse…",
+      "send": "Envoyer la réponse",
+      "replyUntil": "Réponse possible jusqu'à {deadline}.",
+      "replyPauses": "En répondant, vous mettez l'assistant en pause pour ce contact.",
+      "windowClosed": "Ce contact ne vous a pas écrit depuis plus de 24 heures. {channel} vous permettra de répondre dès son prochain message.",
+      "authorAssistant": "Assistant",
+      "authorYou": "Vous",
+      "authorContact": "Client",
+      "authorPrefix": "{author} : "
+    },
+    "setup": {
+      "title": "Mise en service",
+      "steps": {
+        "payment": "Paiement",
+        "phone": "Numéro de téléphone attribué",
+        "whatsapp": "Compte WhatsApp connecté",
+        "facebook": "Page Facebook connectée",
+        "instagram": "Compte Instagram connecté",
+        "catalog": "Carte ajoutée",
+        "calendar": "Agenda connecté",
+        "verification": "Vérification par l'équipe Automerio"
+      },
+      "optional": " (facultatif)",
+      "optionalTag": "(facultatif)",
+      "payFirst": "Finalisez le paiement pour lancer la mise en service. Le bouton se trouve en haut de cette page.",
+      "phone": {
+        "title": "Choisissez le numéro qui recevra vos appels",
+        "description": "L'assistant ne peut pas encore décrocher tant qu'aucun numéro n'est attribué. Vous pourrez ensuite y renvoyer votre ligne actuelle, sans changer de numéro."
+      },
+      "whatsapp": {
+        "title": "Connectez votre compte WhatsApp Business",
+        "description": "L'assistant ne peut pas encore répondre à vos clients tant qu'aucun compte n'est connecté. Vous gardez votre numéro actuel."
+      },
+      "facebook": {
+        "title": "Connectez votre Page Facebook",
+        "description": "L'assistant ne peut pas encore répondre à vos clients tant qu'aucune Page n'est connectée."
+      },
+      "instagram": {
+        "title": "Connectez votre compte Instagram",
+        "description": "L'assistant ne peut pas encore répondre à vos clients tant qu'aucun compte n'est connecté."
+      },
+      "catalog": {
+        "title": "Ajoutez votre carte",
+        "description": "Sans carte, l'assistant note les coordonnées de vos clients mais ne prend pas leurs commandes. Une photo ou un PDF suffit.",
+        "cta": "Ajouter ma carte"
+      },
+      "calendar": {
+        "title": "Connectez votre agenda",
+        "description": "Les rendez-vous pris par téléphone s'ajouteront directement dans votre agenda : Google Agenda, Cal.com ou Calendly."
+      },
+      "waiting": "Rien à faire de votre côté : l'équipe Automerio termine la mise en service et vous prévient dès que votre solution est active."
+    },
+    "connectors": {
+      "disconnect": "Déconnecter",
+      "calendar": {
+        "disconnected": "Agenda déconnecté.",
+        "connected": "{provider} connecté",
+        "connectedToast": "{provider} connecté.",
+        "eventType": ": {name}",
+        "google": "Google Agenda",
+        "dialogTitle": "Connecter {provider}",
+        "dialogDescription": "L'assistant vérifie vos créneaux et réserve directement dans {provider}. Votre clé est chiffrée avant d'être enregistrée.",
+        "open": "Ouvrir {provider}",
+        "chooseEventType": "Quel rendez-vous l'assistant doit-il réserver ?",
+        "account": "Compte : {account}",
+        "minutes": "{minutes} min",
+        "check": "Vérifier la clé",
+        "changeKey": "Changer de clé",
+        "connect": "Connecter",
+        "providers": {
+          "calcom": {
+            "keyLabel": "Clé API Cal.com",
+            "where": "Dans Cal.com : Paramètres, Développeur, Clés API. Créez une clé sans date d'expiration."
+          },
+          "calendly": {
+            "keyLabel": "Jeton d'accès personnel Calendly",
+            "where": "Dans Calendly : Intégrations et applications, API et webhooks, Jetons d'accès personnels.",
+            "note": "La réservation par un assistant demande une offre Calendly payante (Standard ou plus)."
+          }
+        }
+      },
+      "whatsapp": {
+        "unavailable": "Connexion WhatsApp indisponible pour l'instant. Contactez l'équipe Automerio.",
+        "connected": "Compte WhatsApp connecté.",
+        "disconnected": "Compte WhatsApp déconnecté.",
+        "connect": "Connecter mon compte WhatsApp",
+        "status": "WhatsApp connecté",
+        "statusWithNumber": "WhatsApp connecté ({number})"
+      },
+      "messenger": {
+        "unavailable": "Connexion Facebook indisponible pour l'instant. Contactez l'équipe Automerio.",
+        "connected": "Page Facebook connectée.",
+        "disconnected": "Page Facebook déconnectée.",
+        "connect": "Connecter ma Page Facebook",
+        "status": "Page connectée",
+        "statusWithName": "Page connectée ({name})"
+      },
+      "instagram": {
+        "disconnected": "Compte Instagram déconnecté.",
+        "connect": "Connecter mon compte Instagram",
+        "status": "Compte connecté",
+        "statusWithName": "Compte connecté (@{username})"
+      },
+      "phone": {
+        "activated": "Numéro {number} activé.",
+        "search": "Rechercher un numéro",
+        "none": "Aucun numéro disponible pour l'instant. Réessayez plus tard.",
+        "choose": "Choisir",
+        "searching": "Recherche…",
+        "refresh": "Actualiser la recherche",
+        "confirmTitle": "Activer le {number} ?",
+        "confirmDescription": "Ce numéro sera acheté immédiatement et rattaché à votre solution. Le coût est couvert par votre abonnement.",
+        "activating": "Activation…",
+        "confirm": "Confirmer"
+      }
+    },
+    "service": {
+      "testCall": {
+        "title": "Tester votre assistant",
+        "description": "L'assistant vous appelle avec vos réglages actuels. Rien n'est enregistré : ni rendez-vous, ni commande, et l'appel ne compte pas dans votre forfait.",
+        "ringing": "Votre téléphone va sonner.",
+        "calling": "Nous appelons le {number}. Faites comme un client : demandez vos horaires, un rendez-vous, un transfert.",
+        "remaining": "{count, plural, one {Il vous reste # test aujourd'hui.} other {Il vous reste # tests aujourd'hui.}}",
+        "lastOne": "C'était votre dernier test aujourd'hui.",
+        "again": "Refaire un test",
+        "phoneLabel": "Votre numéro de téléphone",
+        "phonePlaceholder": "06 12 34 56 78",
+        "callMe": "M'appeler"
+      },
+      "actions": {
+        "canceled": "« {name} » a été résiliée.",
+        "more": "Plus d'actions pour « {name} »",
+        "unsubscribe": "Se désabonner",
+        "confirmTitle": "Résilier « {name} » ?",
+        "confirmDescription": "L'abonnement mensuel sera annulé immédiatement. Dans les 30 jours suivant votre premier paiement, il vous est remboursé sur simple demande depuis la rubrique Aide.",
+        "canceling": "Résiliation…"
+      },
+      "subscription": {
+        "title": "Abonnement",
+        "cap": "Plafond d'usage : {cap}",
+        "noQuota": "Cet abonnement n'a pas de quota d'usage : le montant mensuel ne bouge pas.",
+        "adjust": "Ajuster l'abonnement",
+        "manage": "Gérer mes abonnements"
+      },
+      "progress": {
+        "label": "Étapes de la solution",
+        "paid": "Payé",
+        "configuring": "En configuration",
+        "active": "Actif"
+      },
+      "usage": {
+        "loading": "Chargement de l'usage…",
+        "callsThisMonth": "{count, plural, one {appel reçu ce mois-ci} other {appels reçus ce mois-ci}}"
+      },
+      "activity": {
+        "label": "Activité de la solution",
+        "calls": "Appels reçus",
+        "calendar": "Calendrier"
+      },
+      "history": "Historique",
+      "breadcrumb": "Solutions",
+      "calendarSuggestion": {
+        "title": "Connectez un agenda pour que l'assistant réserve",
+        "description": "Facultatif. Sans agenda, l'assistant prend les demandes de rendez-vous en message. Avec Google Agenda, Cal.com ou Calendly, il réserve directement.",
+        "cta": "Connecter un agenda"
+      },
+      "calendarError": {
+        "title": "Connexion à l'agenda impossible",
+        "description": "Réessayez depuis la carte Mise en service, ou contactez-nous si le problème persiste."
+      },
+      "teamNote": "Note de l'équipe Automerio",
+      "bookings": "Rendez-vous et commandes reçus",
+      "aside": "Abonnement et réglages",
+      "calls": "Appels reçus",
+      "forwarding": "Recevoir vos appels",
+      "noSettings": "Aucun réglage renseigné pour l'instant.",
+      "information": "Informations du service",
+      "settings": "Réglages",
+      "edit": "Modifier"
+    },
+    "facts": {
+      "andMore": "{count, plural, one {et # autre} other {et # autres}}",
+      "usageCap": "Plafond d'usage",
+      "phoneNumber": "Numéro de téléphone"
+    },
+    "fields": {
+      "date": {
+        "placeholder": "Choisir une date"
+      },
+      "tags": {
+        "remove": "Retirer « {tag} »",
+        "placeholder": "Ajouter puis Entrée"
+      },
+      "time": {
+        "label": "{label} : {value}"
+      },
+      "hours": {
+        "presetsLabel": "Horaires courants",
+        "presets": {
+          "weekdays": "Du lundi au vendredi, 9 h à 18 h",
+          "weekdaysSaturday": "Du lundi au samedi, 9 h à 18 h",
+          "everyDay": "Tous les jours, 9 h à 18 h"
+        },
+        "opening": "Ouverture {day}",
+        "closing": "Fermeture {day}",
+        "to": "à",
+        "invalid": "L'heure de fermeture doit venir après l'ouverture.",
+        "copyFirst": "Copier le {day} sur tous les jours ouverts"
+      },
+      "duration": {
+        "minutes": "{minutes} min",
+        "hours": "{hours} h",
+        "hoursMinutes": "{hours} h {minutes}",
+        "default": "Durée par défaut"
+      },
+      "rules": {
+        "appointmentTypes": {
+          "trigger": "Prestation",
+          "target": "Durée",
+          "triggerPlaceholder": "Coupe femme",
+          "targetPlaceholder": "Durée",
+          "empty": "Aucune prestation : l'assistant utilise la durée par défaut.",
+          "addLabel": "Ajouter une prestation",
+          "rowLabel": "prestation"
+        },
+        "callRouting": {
+          "trigger": "Motif de l'appel",
+          "target": "Transférer vers",
+          "triggerPlaceholder": "Urgence",
+          "targetPlaceholder": "06 12 34 56 78",
+          "empty": "Aucune redirection : l'assistant prend un message pour chaque appel.",
+          "addLabel": "Ajouter une règle",
+          "rowLabel": "règle"
+        },
+        "sortingRules": {
+          "trigger": "Si l'e-mail parle de",
+          "target": "Alors",
+          "triggerPlaceholder": "facture",
+          "targetPlaceholder": "Transférer à la comptabilité",
+          "empty": "Aucune règle : les e-mails restent dans la boîte de réception.",
+          "addLabel": "Ajouter une règle",
+          "rowLabel": "règle"
+        },
+        "default": {
+          "trigger": "Condition",
+          "target": "Action",
+          "triggerPlaceholder": "",
+          "targetPlaceholder": "",
+          "empty": "Aucune règle pour l'instant.",
+          "addLabel": "Ajouter une règle",
+          "rowLabel": "règle"
+        },
+        "cellLabel": "{column}, {row} {index}",
+        "remove": "Supprimer la {row} {index}",
+        "commonReasons": "Motifs courants :",
+        "addReason": "Ajouter une redirection pour le motif « {reason} »"
+      },
+      "templates": {
+        "applied": "Modèle « {sector} » appliqué. Adaptez-le à votre activité.",
+        "undo": "Annuler",
+        "start": "Partir d'un modèle",
+        "sector": "Votre secteur d'activité"
+      }
+    },
+    "fieldCategories": {
+      "need": {
+        "title": "Votre besoin",
+        "description": "Ce que l'assistant doit faire pour vous."
+      },
+      "hours": {
+        "title": "Horaires",
+        "description": "Les jours et heures d'ouverture de votre activité."
+      },
+      "preferences": {
+        "title": "Préférences",
+        "description": "Les réglages de fonctionnement de la solution."
+      },
+      "messages": {
+        "title": "Instructions",
+        "description": "Ce que l'assistant dit à vos clients et les consignes qu'il suit."
+      },
+      "rules": {
+        "title": "Règles",
+        "description": "Qui reçoit quoi, selon la demande du client."
+      },
+      "voice": {
+        "title": "Voix",
+        "description": "Comment l'assistant parle au téléphone."
+      }
+    },
+    "quota": {
+      "raisedWithCharge": "Volume porté à {volume}. {amount} prélevés pour la fin du mois en cours.",
+      "changed": "Volume porté à {volume}.",
+      "failed": "Le changement n'a pas pu être appliqué.",
+      "open": "Modifier le volume",
+      "title": "Modifier le volume de l'abonnement",
+      "description": "Le changement prend effet immédiatement. La différence est calculée au prorata des jours restants du mois en cours.",
+      "unchanged": "C'est votre volume actuel.",
+      "increase": "Votre abonnement passe de {from} à {to} par mois. Une facture de régularisation, calculée sur les jours restants, sera prélevée aujourd'hui.",
+      "decrease": "Votre abonnement passe de {from} à {to} par mois. Le trop-perçu des jours restants vous est recrédité.",
+      "applying": "Application…",
+      "confirm": "Confirmer"
+    },
+    "forwardingGuide": {
+      "operators": {
+        "orange": "Orange (Livebox)",
+        "sfr": "SFR",
+        "bouygues": "Bouygues Telecom (Bbox)",
+        "free": "Free (Freebox)",
+        "autre": "Autre opérateur"
+      },
+      "boxInstructions": {
+        "orange": "Espace client Orange (orange.fr ou l'application Orange et moi), rubrique Assistance > Téléphone fixe > Renvoi d'appel.",
+        "sfr": "Espace client SFR (sfr.fr ou l'application SFR et moi), rubrique Mes services > Ligne fixe > Renvoi d'appel.",
+        "bouygues": "Espace client Bouygues Telecom (bouyguestelecom.fr), rubrique Assistance > Bbox et Internet > Téléphone.",
+        "free": "Interface Freebox OS (mafreebox.freebox.fr), rubrique Téléphonie.",
+        "autre": "Espace client en ligne de votre opérateur, généralement dans une rubrique « Téléphone fixe » ou « Ligne fixe »."
+      },
+      "mobileIntro": "Ces codes fonctionnent à l'identique chez tous les opérateurs mobiles français (Orange, SFR, Bouygues Telecom, Free Mobile) : composez-les comme un numéro de téléphone, puis appuyez sur la touche d'appel.",
+      "enableAll": "Activer le renvoi de tous les appels",
+      "disable": "Désactiver le renvoi",
+      "conditional": "Vous préférez garder la main quand vous êtes disponible ? Utilisez un renvoi conditionnel à la place : <code>**61*{number}#</code> (pas de réponse), <code>**62*{number}#</code> (hors réseau) ou <code>**67*{number}#</code> (occupé). Si un code ne fonctionne pas depuis votre téléphone, l'application ou l'espace client de votre opérateur propose la même option sous « Renvoi d'appel ».",
+      "boxShortcut": "Certaines box acceptent aussi un raccourci direct depuis le combiné fixe : composez <code>*21*{number}#</code> puis décrochez. Si ça ne fonctionne pas, passez par l'interface ci-dessus, ou demandez à votre opérateur un « renvoi permanent (inconditionnel) » vers ce numéro.",
+      "title": "Gardez votre numéro actuel",
+      "intro": "Pas besoin de changer de numéro ni de portabilité : vos clients continuent d'appeler celui qu'ils connaissent déjà. Activez simplement un renvoi d'appel depuis votre ligne vers le numéro ci-dessous, et l'IA prend le relais.",
+      "copied": "Copié",
+      "copy": "Copier",
+      "mobile": "Ligne mobile",
+      "fixed": "Ligne fixe / box"
+    },
+    "catalogEditor": {
+      "products": "{count, plural, one {# produit} other {# produits}}",
+      "imported": "{count, plural, one {# produit importé} other {# produits importés}}. Relisez les noms et les prix, puis enregistrez.",
+      "tooManyFiles": "{max} fichiers maximum par import.",
+      "reading": "Lecture de votre carte en cours, cela prend en général moins d'une minute.",
+      "import": "Importer une photo ou un PDF",
+      "emptyTitle": "Ajoutez les produits que l'assistant peut vendre",
+      "emptyBody": "Envoyez une photo ou un PDF de votre carte : les produits, leur composition et leurs prix sont recopiés ici, prêts à être relus.",
+      "manual": "Saisir à la main",
+      "untitled": "sans titre",
+      "expand": "Déplier la rubrique {name}",
+      "collapse": "Replier la rubrique {name}",
+      "sectionPlaceholder": "Nom de la rubrique, par exemple Pizzas",
+      "sectionLabel": "Nom de la rubrique",
+      "removeSectionLabel": "Supprimer la rubrique {name}",
+      "addProduct": "Ajouter un produit",
+      "addSection": "Ajouter une rubrique",
+      "found": "{count, plural, one {# produit trouvé} other {# produits trouvés}} dans votre document",
+      "alreadyHas": "Votre carte contient déjà {count, plural, one {# produit} other {# produits}}. Remplacez-la par la carte importée, ou ajoutez ces produits à la suite.",
+      "append": "Ajouter à la suite",
+      "replace": "Remplacer la carte",
+      "removeSectionTitle": "Supprimer la rubrique {name} ?",
+      "removeSectionBody": "Ses {count, plural, one {# produit sera retiré} other {# produits seront retirés}} de la carte. Rien n'est définitif tant que vous n'avez pas enregistré.",
+      "removeSection": "Supprimer la rubrique",
+      "unnamed": "sans nom",
+      "productName": "Nom du produit",
+      "price": "Prix",
+      "priceLabel": "Prix de {name}, en euros",
+      "removeProduct": "Retirer {name}",
+      "details": "Composition ou description",
+      "detailsLabel": "Composition de {name}",
+      "note": "Précision",
+      "noteLabel": "Précision sur {name}",
+      "priceInvalid": "Prix non reconnu : saisissez un montant comme 9,90."
+    },
+    "configuration": {
+      "requiredToSave": "Renseignez « {label} » pour enregistrer.",
+      "invalidHours": "« {label} » : une heure de fermeture vient avant l'ouverture.",
+      "unnamedProduct": "Un produit de la carte n'a pas de nom.",
+      "saved": "Modifications enregistrées.",
+      "tabs": {
+        "label": "Catégories de réglages",
+        "identity": "Vos informations",
+        "catalog": "Carte et produits",
+        "connectors": "Connecteurs",
+        "forwarding": "Renvoi d'appel",
+        "billing": "Abonnement",
+        "modified": "modifié"
+      },
+      "identity": {
+        "description": "Le nom de cette solution dans votre tableau de bord.",
+        "nameLabel": "Nom de la solution",
+        "nameError": "Donnez un nom à cette solution, par exemple « Standard de la boutique ».",
+        "nameHelp": "Utile si vous activez la même solution plusieurs fois, pour plusieurs boutiques par exemple."
+      },
+      "catalogDescription": "Les produits et les prix que l'assistant propose quand il prend une commande.",
+      "unsaved": "Modifications non enregistrées",
+      "savedAt": "Enregistré à {time}",
+      "backToService": "Retour à la solution",
+      "leave": {
+        "title": "Abandonner vos modifications ?",
+        "description": "Les changements faits depuis le dernier enregistrement seront perdus.",
+        "stay": "Continuer à modifier",
+        "confirm": "Abandonner"
+      },
+      "page": {
+        "breadcrumb": "Solutions",
+        "title": "Réglages",
+        "description": "{name}, {service}"
+      }
+    },
+    "configFields": {
+      "defaultSection": "Détail de la solution",
+      "chooseOne": "Choisissez au moins une option pour continuer.",
+      "required": "Renseignez « {label} » pour continuer.",
+      "checkToContinue": "Cochez cette case pour continuer.",
+      "optional": " (facultatif)"
+    },
+    "addressField": {
+      "placeholder": "Commencez à taper l'adresse",
+      "suggestions": "Adresses suggérées"
+    },
+    "voicePreview": {
+      "stop": "Arrêter",
+      "listen": "Écouter un exemple",
+      "hint": "L'assistant lit votre message d'accueil avec ces réglages, sans passer d'appel. Au téléphone, le son sera un peu moins net."
+    },
+    "settingsCards": {
+      "billing": {
+        "title": "Abonnement",
+        "description": "Ces changements s'appliquent tout de suite, sans passer par « Enregistrer ».",
+        "plan": "Formule",
+        "included": "Volume inclus",
+        "perMonth": "<volume>{units}</volume> par mois",
+        "paymentMethod": "Moyen de paiement",
+        "paymentMethodValue": "Carte ou prélèvement, géré de façon sécurisée par Stripe.",
+        "invoicing": "Facturation",
+        "invoices": "Voir mes factures"
+      },
+      "connectors": {
+        "title": "Connecteurs",
+        "description": "Les outils reliés à votre assistant. Ces changements s'appliquent tout de suite.",
+        "errorTitle": "Connexion à l'agenda impossible",
+        "errorBody": "La connexion à Google Agenda n'a pas abouti. Réessayez avec le bouton Google Agenda ci-dessous, ou écrivez-nous depuis la rubrique Aide si le problème persiste.",
+        "calendar": "Agenda",
+        "connected": "L'assistant vérifie vos disponibilités et inscrit les rendez-vous dans cet agenda. Pour en changer, déconnectez-le puis choisissez-en un autre.",
+        "notConnected": "Choisissez l'agenda où l'assistant vérifie vos disponibilités et inscrit les rendez-vous : Google Agenda, Cal.com ou Calendly.",
+        "appointmentsOnly": "L'agenda ne sert qu'aux rendez-vous : cochez « Rendez-vous » dans l'onglet « Votre besoin » pour que l'assistant en prenne."
+      },
+      "forwarding": {
+        "title": "Renvoi d'appel",
+        "description": "Recevez vos appels sur l'assistant en gardant votre numéro."
+      }
+    },
+    "subscriptions": {
+      "stats": {
+        "running": "Abonnements en cours",
+        "total": "Total mensuel",
+        "totalUnit": "€ TTC/mois",
+        "nextCharge": "Prochain prélèvement",
+        "none": "Aucun"
+      },
+      "title": "Abonnements",
+      "description": "Ce qui vous est prélevé chaque mois, et ce que vous avez consommé sur la période en cours.",
+      "failing": "Le dernier paiement de {names} a été refusé. Mettez à jour votre moyen de paiement pour éviter une interruption.",
+      "quoted": "« {name} »",
+      "empty": {
+        "title": "Vous n'avez aucun abonnement",
+        "description": "Les solutions facturées au mois apparaîtront ici, avec leur quota d'usage.",
+        "cta": "Voir le catalogue"
+      },
+      "running": "En cours",
+      "stopped": "Inactifs",
+      "stoppedDescription": "Résiliés ou jamais démarrés : aucun prélèvement en cours.",
+      "paymentsLink": "Le détail de chaque prélèvement et vos factures se trouvent dans <link>Paiements</link>.",
+      "settings": "Réglages",
+      "paymentFailed": "Le dernier paiement a été refusé. Mettez à jour votre moyen de paiement pour éviter une interruption.",
+      "gauge": {
+        "consumed": "Quota consommé",
+        "label": "Quota consommé sur la période",
+        "valueText": "{consumed} sur {included}",
+        "of": " / {included}",
+        "over": "{units} au-delà du forfait : <em>{amount}</em> s'ajouteront à la prochaine facture.",
+        "nearLimit": "<strong>Plus que {units}</strong> sur cette période. Au-delà, la consommation est facturée {price}.",
+        "remaining": "Il vous reste {units} sur cette période."
+      }
+    },
+    "payments": {
+      "status": {
+        "paid": "Payée",
+        "open": "En attente",
+        "draft": "Brouillon",
+        "uncollectible": "Irrécouvrable",
+        "void": "Annulée",
+        "unknown": "Inconnu"
+      },
+      "title": "Paiements",
+      "description": "Vos factures, par solution. Montant prélevé TTC, TVA à {vat} % incluse ; le hors taxes est rappelé sous chaque montant.",
+      "empty": {
+        "title": "Aucune facture pour l'instant",
+        "afterActivation": "Votre première facture apparaîtra ici après le prochain prélèvement.",
+        "beforeActivation": "Vos factures apparaîtront ici dès l'activation d'une solution.",
+        "subscriptions": "Voir mes abonnements",
+        "catalog": "Voir le catalogue"
+      },
+      "table": {
+        "caption": "Historique des factures",
+        "service": "Solution",
+        "date": "Date",
+        "amount": "Montant",
+        "status": "Statut",
+        "invoice": "Facture",
+        "unknownService": "Solution non précisée",
+        "inclVat": " € TTC",
+        "view": "Voir",
+        "unavailable": "Indisponible"
+      },
+      "portal": {
+        "open": "Gérer le moyen de paiement",
+        "failed": "Le portail de paiement est indisponible. Réessayez."
+      }
+    },
+    "organization": {
+      "title": "Organisation",
+      "you": "Vous : {role}",
+      "description": "Les personnes qui ont accès aux solutions de cette entreprise. Un collaborateur consulte et configure ; un responsable peut en plus résilier, payer et gérer l'équipe.",
+      "invite": "Inviter un membre",
+      "team": "Équipe",
+      "alone": {
+        "title": "Vous êtes seul sur cette entreprise",
+        "manager": "Invitez un collègue pour qu'il suive les appels reçus et la configuration des solutions, sans lui donner la main sur les paiements.",
+        "member": "Un responsable peut inviter d'autres personnes à rejoindre cette entreprise."
+      },
+      "pending": "Invitations en attente",
+      "count": "({count})",
+      "members": {
+        "failed": "L'opération a échoué.",
+        "roleChanged": "{name} est maintenant {role}.",
+        "transferred": "{name} est maintenant propriétaire. Vous restez responsable.",
+        "removed": "{name} n'a plus accès à cette entreprise.",
+        "you": "vous",
+        "since": "Membre depuis le {date}",
+        "roleOf": "Rôle de {name}",
+        "transfer": "Transmettre la propriété",
+        "remove": "Retirer",
+        "transferTitle": "Transmettre la propriété à {name} ?",
+        "transferBody": "{name} deviendra propriétaire de l'entreprise, et sera la seule personne à pouvoir la transmettre à nouveau. Vous resterez responsable : vous gardez la gestion de l'équipe, des solutions et des paiements.",
+        "transferring": "Transmission…",
+        "transferConfirm": "Transmettre",
+        "removeTitle": "Retirer {name} ?",
+        "removeBody": "Cette personne perdra l'accès aux solutions de cette entreprise, à leurs journaux d'appels et à leur configuration. Vous pourrez l'inviter à nouveau.",
+        "removing": "Retrait…"
+      },
+      "inviteForm": {
+        "sent": "Invitation envoyée à {email}.",
+        "failed": "L'invitation n'a pas pu être envoyée.",
+        "email": "Adresse e-mail",
+        "emailPlaceholder": "sophie@exemple.fr",
+        "role": "Rôle",
+        "submit": "Inviter",
+        "help": "{roleDescription} La personne recevra un lien pour rejoindre l'entreprise ; si elle n'a pas de compte Automerio, elle pourra en créer un."
+      },
+      "invitations": {
+        "canceled": "Invitation de {email} annulée.",
+        "failed": "L'annulation a échoué.",
+        "waiting": "Invitation envoyée, en attente de réponse. Expire le {date}"
+      },
+      "picker": {
+        "label": "Entreprise affichée",
+        "create": "Nouvelle entreprise"
+      }
+    },
+    "profile": {
+      "title": "Profil",
+      "description": "Vos informations, vos e-mails et la sécurité de votre compte.",
+      "organizationsHint": "Vos entreprises se gèrent depuis le sélecteur d'organisation, en haut de la barre latérale.",
+      "account": {
+        "imageUnavailable": "Traitement d'image indisponible",
+        "imageInvalid": "Image invalide",
+        "fileUnreadable": "Lecture du fichier impossible",
+        "notAnImage": "Merci de choisir un fichier image.",
+        "tooLarge": "L'image ne doit pas dépasser 5 Mo.",
+        "imageFailed": "Impossible de traiter cette image.",
+        "sameEmail": "Saisissez une adresse différente de l'actuelle.",
+        "emailRequestFailed": "La demande n'a pas pu être envoyée.",
+        "error": "Une erreur est survenue.",
+        "saved": "Profil enregistré.",
+        "changePhoto": "Changer la photo de profil",
+        "namePlaceholder": "Votre nom",
+        "removePhoto": "Retirer la photo",
+        "sectionTitle": "Vos informations",
+        "sectionDescription": "Le nom et la photo qui apparaissent dans vos échanges avec l'équipe Automerio.",
+        "name": "Nom",
+        "savePhotoHint": "Enregistrez pour appliquer la nouvelle photo.",
+        "email": "E-mail",
+        "newEmail": "Nouvelle adresse",
+        "sendLink": "Recevoir le lien de confirmation",
+        "changeEmail": "Changer d'adresse",
+        "emailRequested": "Un lien de confirmation a été envoyé à {current}. Une fois confirmé, un second lien vérifiera {next}."
+      },
+      "password": {
+        "mismatch": "Les deux mots de passe ne correspondent pas.",
+        "tooShort": "Le mot de passe doit contenir au moins 8 caractères.",
+        "updated": "Mot de passe mis à jour.",
+        "title": "Mot de passe",
+        "description": "Le changer déconnecte vos autres appareils.",
+        "change": "Changer le mot de passe",
+        "current": "Mot de passe actuel",
+        "new": "Nouveau mot de passe",
+        "minLength": "8 caractères minimum.",
+        "confirm": "Confirmer le nouveau mot de passe",
+        "updating": "Mise à jour…",
+        "update": "Mettre à jour"
+      },
+      "notifications": {
+        "title": "E-mails que nous vous envoyons",
+        "description": "Les e-mails liés à votre compte et à vos paiements vous parviennent dans tous les cas.",
+        "autosave": "Enregistré automatiquement"
+      },
+      "twoFactor": {
+        "wrongPassword": "Mot de passe incorrect.",
+        "enableFailed": "L'activation a échoué. Réessayez dans un instant.",
+        "disableFailed": "La désactivation a échoué. Réessayez dans un instant.",
+        "disabled": "Double authentification désactivée.",
+        "wrongCode": "Code incorrect. Vérifiez que l'heure de votre téléphone est à jour, puis réessayez.",
+        "copied": "Codes copiés.",
+        "copyFailed": "Copie impossible. Recopiez-les à la main.",
+        "enabledDescription": "Activée : un code de votre application vous est demandé à chaque connexion sur un nouvel appareil.",
+        "disabledDescription": "Ajoutez à votre mot de passe un code à 6 chiffres, généré par une application comme Google Authenticator ou 1Password.",
+        "title": "Double authentification",
+        "disable": "Désactiver",
+        "enable": "Activer",
+        "password": "Mot de passe",
+        "enableIntro": "Vous allez associer une application d'authentification à votre compte.",
+        "disableIntro": "Les connexions ne demanderont plus de code.",
+        "wait": "Un instant…",
+        "steps": {
+          "open": "Ouvrez votre application d'authentification.",
+          "scan": "Scannez ce QR code, ou saisissez la clé à la main.",
+          "enter": "Entrez le code à 6 chiffres qu'elle affiche."
+        },
+        "manualKey": "Clé à saisir à la main",
+        "code": "Code affiché",
+        "verifying": "Vérification…",
+        "verify": "Vérifier et activer",
+        "backupIntro": "Double authentification activée. Gardez ces codes de secours en lieu sûr : chacun permet une connexion si vous perdez votre téléphone. Ils ne seront plus affichés.",
+        "copyCodes": "Copier les codes",
+        "kept": "J'ai conservé mes codes"
+      },
+      "data": {
+        "wrongPassword": "Mot de passe incorrect.",
+        "reconnect": "Par sécurité, reconnectez-vous puis recommencez.",
+        "deleteFailed": "La suppression a échoué. Réessayez, ou écrivez-nous depuis la rubrique Aide.",
+        "deleted": "Votre compte a été supprimé.",
+        "title": "Vos données",
+        "description": "Téléchargez tout ce qu'Automerio conserve sur vous, dans un fichier lisible.",
+        "export": "Exporter mes données",
+        "deleteTitle": "Supprimer le compte",
+        "deleteDescription": "Résilie vos abonnements et efface vos organisations, solutions et échanges. Cette action est définitive.",
+        "deleteAccount": "Supprimer mon compte",
+        "confirmTitle": "Supprimer définitivement votre compte ?",
+        "consequences": {
+          "subscriptions": "Vos abonnements en cours sont résiliés immédiatement.",
+          "numbers": "Les numéros de téléphone attribués à l'IA sont libérés.",
+          "data": "Vos organisations, solutions et échanges sont effacés.",
+          "invoices": "Les factures restent conservées par Stripe, comme l'exige la loi."
+        },
+        "password": "Mot de passe",
+        "confirmWord": "SUPPRIMER",
+        "typeToConfirm": "Tapez {word} pour confirmer"
+      },
+      "export": {
+        "unauthenticated": "Non authentifié",
+        "fileName": "mes-donnees-automerio-{date}.json"
+      }
+    },
+    "help": {
+      "title": "Aide",
+      "description": "Une question sur une solution, un souci technique ? L'équipe vous répond ici.",
+      "newRequest": "Nouvelle demande",
+      "form": {
+        "sent": "Votre demande a été envoyée à l'équipe Automerio.",
+        "general": "Question générale",
+        "serviceLabel": "{name} ({service})",
+        "service": "Solution concernée",
+        "subject": "Objet",
+        "subjectPlaceholder": "Ex. Numéro de téléphone injoignable",
+        "message": "Message",
+        "messageHint": "Que se passe-t-il, et depuis quand ? Plus c'est précis, plus vite nous pourrons vous aider.",
+        "submit": "Envoyer ma demande"
+      },
+      "howItWorks": {
+        "title": "Comment ça marche",
+        "steps": {
+          "describe": {
+            "title": "Décrivez votre demande",
+            "description": "Choisissez la solution concernée si besoin, puis expliquez votre problème ou votre question."
+          },
+          "answer": {
+            "title": "L'équipe Automerio répond",
+            "description": "Nous traitons votre demande sous 24 h ouvrées."
+          },
+          "confirm": {
+            "title": "Recevez la confirmation",
+            "description": "Un e-mail vous prévient dès que c'est traité."
+          }
+        }
+      },
+      "history": {
+        "title": "Vos demandes",
+        "emptyTitle": "Vous n'avez pas encore contacté l'équipe",
+        "emptyDescription": "Vos demandes s'affichent ici une fois envoyées.",
+        "resolvedOn": "Traité le {date}",
+        "sentOn": "Envoyée le {date}"
+      },
+      "reply": {
+        "reopened": "Message envoyé. Votre demande est rouverte.",
+        "sent": "Message envoyé à l'équipe Automerio.",
+        "label": "Répondre à l'équipe Automerio",
+        "reopenPlaceholder": "Une question de plus ? Écrivez ici pour rouvrir la demande…",
+        "placeholder": "Ajouter une précision, relancer…",
+        "send": "Envoyer"
+      }
+    }
+  },
+  "Workspace": {
+    "skipToContent": "Aller au contenu",
+    "breadcrumb": "Fil d'Ariane",
+    "sidebar": {
+      "toggle": "Afficher ou masquer la barre latérale",
+      "mainNav": "Navigation principale",
+      "mobileDescription": "Les pages de votre espace."
+    },
+    "nav": {
+      "pending": "en attente",
+      "badge": ", {count} {label}"
+    },
+    "notifications": {
+      "label": "Notifications",
+      "labelUnread": "Notifications, {count, plural, one {# non lue} other {# non lues}}",
+      "empty": "Rien de neuf. Les changements sur vos solutions et les réponses de l'équipe apparaîtront ici.",
+      "justNow": "à l'instant",
+      "minutesAgo": "il y a {minutes} min",
+      "hoursAgo": "il y a {hours} h"
+    },
+    "organization": {
+      "current": ", entreprise actuelle",
+      "create": "Créer une organisation",
+      "manage": "Gérer « {name} »",
+      "switchLabel": "{name}, changer d'entreprise",
+      "createDescription": "Une organisation regroupe les solutions d'une même entreprise.",
+      "nameLabel": "Nom de l'organisation",
+      "namePlaceholder": "Dupont Coiffure",
+      "createError": "Impossible de créer l'organisation. Rechargez la page puis réessayez.",
+      "created": "« {name} » a été créée.",
+      "manageTitle": "Gérer l'organisation",
+      "manageDescription": "Renommez ou supprimez « {name} ».",
+      "renameLabel": "Nom",
+      "renameError": "Impossible de renommer l'organisation.",
+      "renamed": "Organisation renommée.",
+      "deleteAction": "Supprimer cette organisation",
+      "keepOne": "Vous devez conserver au moins une organisation.",
+      "deleteTitle": "Supprimer « {name} » ?",
+      "deleteDescription": "Cette action est irréversible. Elle n'est possible que si aucune solution de cette organisation n'est en cours (payée, en configuration ou active).",
+      "deleted": "« {name} » a été supprimée.",
+      "deleteError": "Impossible de supprimer l'organisation.",
+      "listLabel": "Organisations"
+    },
+    "account": {
+      "menuLabel": "{name}, menu du compte"
+    },
+    "calendar": {
+      "views": {
+        "month": "Mois",
+        "week": "Semaine",
+        "day": "Jour"
+      },
+      "weekdays": {
+        "mon": "Lun",
+        "tue": "Mar",
+        "wed": "Mer",
+        "thu": "Jeu",
+        "fri": "Ven",
+        "sat": "Sam",
+        "sun": "Dim"
+      },
+      "weekOf": "Semaine du {date}",
+      "previous": "Période précédente",
+      "today": "Aujourd'hui",
+      "next": "Période suivante",
+      "unscheduledCount": "{count} sans horaire",
+      "empty": "Aucun rendez-vous ni commande pris par téléphone pour l'instant.",
+      "dayLabel": "{date}, {count, plural, =0 {aucun rendez-vous} one {# rendez-vous} other {# rendez-vous}}",
+      "timeRange": "de {start} à {end}",
+      "notSynced": "Non synchronisé à l'agenda",
+      "unscheduledTitle": "Sans horaire",
+      "unscheduledDescription": "Commandes prises par téléphone. Elles n'occupent pas de créneau et n'apparaissent donc pas dans la grille."
+    }
+  },
+  "Common": {
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "deleting": "Suppression…",
+    "create": "Créer",
+    "creating": "Création…",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…",
+    "rename": "Renommer",
+    "renaming": "…",
+    "close": "Fermer",
+    "back": "Retour",
+    "continue": "Continuer",
+    "sending": "Envoi…",
+    "stepOf": "Étape {current} sur {total}",
+    "stepOfDone": "Étape {current} sur {total}, terminée",
+    "stepPrefix": "{step} : ",
+    "previous": "← Précédent",
+    "next": "Suivant →",
+    "pageOf": "Page {page} sur {total}",
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe",
+    "capsLock": "Verr. Maj est activé."
+  },
+  "Actions": {
+    "generic": "Une erreur est survenue. Réessayez dans un instant.",
+    "sessionExpired": "Votre session a expiré. Reconnectez-vous.",
+    "notYourService": "Cette solution n'appartient pas à votre organisation.",
+    "managersOnly": "Seuls les responsables de l'organisation peuvent effectuer cette action.",
+    "tooManyAttempts": "Trop d'essais. Réessayez dans quelques minutes.",
+    "tooManyTries": "Trop de tentatives. Réessayez dans quelques minutes.",
+    "checkoutUnavailable": "Le paiement n'a pas pu être préparé. Réessayez depuis « Mes solutions ».",
+    "promoNewCustomersOnly": "Ce code est réservé aux nouveaux clients. Retirez-le pour payer au tarif normal.",
+    "promoNotAllowed": "Ce code ne peut pas être utilisé avec votre compte. Retirez-le pour payer au tarif normal.",
+    "noPrice": "Cette solution n'a pas encore de prix. Contactez-nous pour l'activer.",
+    "activationNameRequired": "Merci de donner un nom à cette activation.",
+    "volumeNotOffered": "Ce volume n'est pas proposé pour cette solution.",
+    "fieldRequired": "Le champ « {label} » est requis.",
+    "duplicateName": "Vous avez déjà une solution nommée « {name} » pour ce service dans cette organisation.",
+    "alreadyActive": "Cette solution est déjà active.",
+    "serviceGone": "Cette solution n'existe plus.",
+    "serviceNameRequired": "Merci de donner un nom à cette solution.",
+    "serviceNameTooLong": "Le nom de la solution ne doit pas dépasser 80 caractères.",
+    "unknownCalendarTool": "Outil d'agenda inconnu.",
+    "pasteFullKey": "Collez la clé complète, telle que l'outil l'affiche.",
+    "calendarToolDown": "{provider} ne répond pas pour l'instant. Réessayez dans quelques minutes.",
+    "noEventType": "Ce compte n'a aucun type de rendez-vous actif. Créez-en un dans l'outil, puis réessayez.",
+    "chooseEventType": "Choisissez un type de rendez-vous de la liste.",
+    "noFacebookPage": "Aucune Page Facebook trouvée. Vérifiez que vous en gérez au moins une.",
+    "noPhoneForService": "Cette solution ne prend pas de numéro de téléphone.",
+    "payBeforeNumber": "La solution doit être payée avant de choisir un numéro.",
+    "numberAlreadyAssigned": "Un numéro est déjà assigné à cette solution.",
+    "numberAssignedMeanwhile": "Un numéro a déjà été assigné à cette solution entre-temps.",
+    "noPaymentMethod": "Aucun moyen de paiement n'est encore enregistré pour cette entreprise.",
+    "volumeOnlyActive": "Seule une solution en service peut changer de volume.",
+    "noSubscription": "Cette solution n'a pas d'abonnement en cours.",
+    "volumeNotAdjustable": "Le volume de cette solution n'est pas modifiable.",
+    "callNotFound": "Cet appel est introuvable.",
+    "conversationNotFound": "Cette conversation est introuvable.",
+    "emptyReply": "Écrivez un message avant d'envoyer.",
+    "replyTooLong": "Votre message dépasse {max} caractères.",
+    "tooManyMessages": "Trop de messages envoyés. Patientez une minute.",
+    "replyWindowClosed": "Ce contact ne vous a pas écrit depuis plus de 24 heures. Il doit vous recontacter avant que vous puissiez répondre.",
+    "accountDisconnected": "Le compte n'est plus connecté. Reconnectez-le depuis l'onglet Connecteurs.",
+    "messageNotSent": "Le message n'a pas pu être envoyé. Réessayez dans un instant.",
+    "helpFieldsRequired": "Merci de renseigner un objet et un message.",
+    "serviceNotFound": "Solution introuvable.",
+    "emptyMessage": "Le message ne peut pas être vide.",
+    "requestNotFound": "Demande introuvable.",
+    "tooManyImports": "Trop d'imports. Réessayez dans quelques minutes.",
+    "chooseMenuFile": "Choisissez une photo ou un PDF de votre carte.",
+    "tooManyFiles": "{max} fichiers maximum par import.",
+    "filesTooLarge": "Fichiers trop lourds : {max} Mo maximum au total.",
+    "importUnavailable": "L'import automatique est indisponible pour le moment. Vous pouvez aussi saisir votre carte à la main.",
+    "fileError": "« {name} » : {error}",
+    "importFailed": "La lecture de votre carte a échoué. Réessayez dans un instant. Vous pouvez aussi saisir votre carte à la main.",
+    "noProductFound": "Aucun produit n'a été trouvé dans ce document. Vérifiez qu'il s'agit bien de votre carte. Vous pouvez aussi saisir votre carte à la main.",
+    "noOrganizationAccess": "Vous n'avez pas accès à cette organisation.",
+    "notAMember": "Ce membre ne fait pas partie de l'organisation.",
+    "invalidEmail": "Cette adresse e-mail n'est pas valide.",
+    "roleNotAllowed": "Ce rôle ne peut pas être attribué ici.",
+    "alreadyMember": "Cette personne fait déjà partie de l'organisation.",
+    "noMembers": "Cette organisation n'a aucun membre.",
+    "inviteFailed": "L'invitation n'a pas pu être envoyée. Réessayez.",
+    "invitationGone": "Cette invitation n'existe plus.",
+    "roleChangedMeanwhile": "Votre rôle a changé entre-temps. Rechargez la page.",
+    "keepOneOrganization": "Vous devez conserver au moins une organisation.",
+    "organizationHasServices": "Impossible de supprimer une organisation avec des solutions en cours. Résiliez-les d'abord.",
+    "phoneOnlyTest": "Seules les solutions téléphoniques se testent par un appel.",
+    "testAfterPayment": "Le test est disponible une fois le paiement confirmé.",
+    "frenchNumberRequired": "Saisissez un numéro de mobile ou de fixe français, par exemple 06 12 34 56 78.",
+    "testUnavailable": "Le test d'appel n'est pas disponible pour le moment. Réessayez plus tard.",
+    "testLimit": "Vous avez fait {count} tests aujourd'hui. Réessayez demain.",
+    "callFailed": "L'appel n'a pas pu être lancé. Vérifiez le numéro, puis réessayez.",
+    "noOrganization": "Aucune entreprise n'est associée à votre compte.",
+    "previewPhoneOnly": "L'écoute n'existe que pour les solutions téléphoniques.",
+    "previewUnavailable": "L'écoute n'est pas disponible pour le moment.",
+    "tooManyPreviews": "Trop d'écoutes. Réessayez dans quelques minutes."
+  },
+  "Labels": {
+    "status": {
+      "PENDING_PAYMENT": "Paiement en cours",
+      "CONFIGURING": "En configuration",
+      "ACTIVE": "Actif",
+      "CANCELED": "Résilié"
+    },
+    "serviceEvent": {
+      "CREATED": "Demande d'activation envoyée",
+      "PAYMENT_RECEIVED": "Paiement reçu",
+      "PAYMENT_FAILED": "Paiement refusé",
+      "ACTIVATED": "Solution vérifiée et activée",
+      "NOTE_ADDED": "Note de l'équipe Automerio",
+      "PHONE_ASSIGNED": "Numéro de téléphone attribué",
+      "CALENDAR_CONNECTED": "Agenda connecté",
+      "CALENDAR_DISCONNECTED": "Agenda déconnecté",
+      "WHATSAPP_CONNECTED": "Compte WhatsApp connecté",
+      "WHATSAPP_DISCONNECTED": "Compte WhatsApp déconnecté",
+      "FACEBOOK_CONNECTED": "Page Facebook connectée",
+      "FACEBOOK_DISCONNECTED": "Page Facebook déconnectée",
+      "INSTAGRAM_CONNECTED": "Compte Instagram connecté",
+      "INSTAGRAM_DISCONNECTED": "Compte Instagram déconnecté",
+      "QUOTA_CHANGED": "Volume de l'abonnement modifié",
+      "QUOTA_WARNING": "80 % du forfait consommé",
+      "QUOTA_EXCEEDED": "Forfait dépassé",
+      "CONFIGURATION_UPDATED": "Configuration mise à jour",
+      "CANCELED": "Solution résiliée"
+    },
+    "weekDay": {
+      "mon": "Lundi",
+      "tue": "Mardi",
+      "wed": "Mercredi",
+      "thu": "Jeudi",
+      "fri": "Vendredi",
+      "sat": "Samedi",
+      "sun": "Dimanche"
+    },
+    "role": {
+      "owner": "Propriétaire",
+      "admin": "Responsable",
+      "member": "Collaborateur"
+    },
+    "roleDescription": {
+      "owner": "Gère l'entreprise, l'équipe et les paiements.",
+      "admin": "Gère l'équipe et les paiements, comme le propriétaire.",
+      "member": "Consulte et configure les solutions, sans engager de dépense."
+    },
+    "helpStatus": {
+      "OPEN": "En attente",
+      "RESOLVED": "Traité"
+    },
+    "notification": {
+      "HELP_REQUEST_REPLY": {
+        "label": "Réponse de l'équipe dans une demande d'aide",
+        "description": "Quand l'équipe Automerio répond dans le fil d'une de vos demandes d'aide."
+      },
+      "HELP_REQUEST_RESOLVED": {
+        "label": "Demande d'aide marquée comme traitée",
+        "description": "Quand l'équipe Automerio marque votre demande d'aide comme traitée."
+      },
+      "SERVICE_ACTIVATED": {
+        "label": "Activation d'une solution",
+        "description": "Quand une solution payée devient active."
+      },
+      "SERVICE_NOTE_ADDED": {
+        "label": "Note ajoutée par l'équipe",
+        "description": "Quand l'équipe ajoute une note sur une de vos solutions."
+      },
+      "SERVICE_CANCELED": {
+        "label": "Confirmation de résiliation",
+        "description": "Confirmation quand vous résiliez vous-même une solution."
+      },
+      "QUOTA_ALERT": {
+        "label": "Forfait bientôt atteint ou dépassé",
+        "description": "Quand une solution atteint 80 % puis 100 % de son forfait du mois, avant que le dépassement soit facturé."
+      },
+      "CALL_SUMMARY": {
+        "label": "Résumé de chaque appel",
+        "description": "Après chaque appel traité par votre assistant téléphonique : le motif et ce qu'il faut faire."
+      },
+      "WEEKLY_DIGEST": {
+        "label": "Bilan de la semaine",
+        "description": "Chaque lundi, ce que vos solutions ont fait la semaine passée : appels, rendez-vous, messages."
+      }
+    },
+    "serviceStatus": {
+      "activeSince": "Actif depuis le {date}",
+      "active": "Actif",
+      "pendingSince": "En attente de paiement depuis le {date}",
+      "configuring": "Paiement confirmé. Déploiement en cours par l'équipe Automerio",
+      "canceledOn": "Résilié le {date}",
+      "canceled": "Résilié"
+    },
+    "setup": {
+      "phoneNumber": {
+        "hint": "Choisissez un numéro pour que l'assistant puisse décrocher",
+        "cta": "Choisir un numéro"
+      },
+      "whatsapp": {
+        "hint": "Connectez votre compte WhatsApp pour que l'assistant puisse répondre",
+        "cta": "Connecter WhatsApp"
+      },
+      "facebook": {
+        "hint": "Connectez votre Page Facebook pour que l'assistant puisse répondre",
+        "cta": "Connecter ma Page"
+      },
+      "instagram": {
+        "hint": "Connectez votre compte Instagram pour que l'assistant puisse répondre",
+        "cta": "Connecter Instagram"
+      },
+      "productCatalog": {
+        "hint": "Ajoutez votre carte pour que l'assistant prenne les commandes",
+        "cta": "Ajouter ma carte"
+      }
+    },
+    "period": {
+      "since": "Depuis le {start}",
+      "range": "Période du {start} au {end}"
+    },
+    "nextCharge": {
+      "canceledOn": "Résilié le {date}, plus aucun prélèvement",
+      "canceled": "Résilié, plus aucun prélèvement",
+      "pending": "Aucun prélèvement tant que le premier paiement n'est pas réglé",
+      "notRenewedAfter": "Ne sera pas renouvelé après le {date}",
+      "notRenewed": "Ne sera pas renouvelé",
+      "nextOn": "Prochain prélèvement : {amount} le {date}",
+      "next": "Prochain prélèvement : {amount}"
+    },
+    "day": {
+      "today": "Aujourd'hui",
+      "yesterday": "Hier",
+      "todayPhrase": "aujourd'hui",
+      "yesterdayPhrase": "hier",
+      "on": "le {day}"
+    },
+    "catalog": {
+      "none": "Aucun produit",
+      "products": "{count, plural, one {# produit} other {# produits}}",
+      "inSections": "{count, plural, one {# produit} other {# produits}} dans {sections} rubriques"
     }
   }
 }

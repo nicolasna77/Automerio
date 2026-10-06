@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { requireUser } from "@/lib/session";
-import { ActionError, runAction } from "@/lib/run-action";
+import { actionError, runAction } from "@/lib/run-action";
 
 const BLOCKING_STATUSES = ["PENDING_PAYMENT", "CONFIGURING", "ACTIVE"] as const;
 
@@ -21,14 +21,12 @@ export async function deleteOrganizationAction(organizationId: string) {
       }),
     ]);
 
-    if (!membership) throw new ActionError("Vous n'avez pas accès à cette organisation.");
+    if (!membership) throw actionError("noOrganizationAccess");
     if (organizationCount <= 1) {
-      throw new ActionError("Vous devez conserver au moins une organisation.");
+      throw actionError("keepOneOrganization");
     }
     if (blockingCount > 0) {
-      throw new ActionError(
-        "Impossible de supprimer une organisation avec des solutions en cours. Résiliez-les d'abord."
-      );
+      throw actionError("organizationHasServices");
     }
 
     await db.clientService.deleteMany({

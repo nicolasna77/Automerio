@@ -1,5 +1,6 @@
 "use client";
 
+import { usePriceFormatter } from "@/hooks/use-price-formatter";
 import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { useRouter } from "@/i18n/navigation";
@@ -17,8 +18,6 @@ import {
 import { SubscriptionMinutesSlider } from "@/components/subscription/subscription-minutes-slider";
 import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
-import { formatUsageUnits } from "@/lib/usage-cap";
-import { formatCentsWithVat } from "@/lib/vat";
 import {
   calculateMonthlyPriceCents,
   type SubscriptionTier,
@@ -36,6 +35,9 @@ export function ChangeQuotaDialog({
 }) {
   const router = useRouter();
   const tSimulator = useTranslations("PriceSimulator");
+  const t = useTranslations("Dashboard.quota");
+  const tCommon = useTranslations("Common");
+  const price = usePriceFormatter();
   const [open, setOpen] = useState(false);
   const [units, setUnits] = useState(currentUnits);
   const [pending, startTransition] = useTransition();
@@ -52,15 +54,16 @@ export function ChangeQuotaDialog({
         );
         toast.success(
           immediateChargeCents > 0
-            ? `Volume porté à ${formatUsageUnits(units, tier.unit)}. ${formatCentsWithVat(
-                immediateChargeCents
-              )} prélevés pour la fin du mois en cours.`
-            : `Volume porté à ${formatUsageUnits(units, tier.unit)}.`
+            ? t("raisedWithCharge", {
+                volume: price.usageUnits(units, tier.unit),
+                amount: price.withVat(immediateChargeCents),
+              })
+            : t("changed", { volume: price.usageUnits(units, tier.unit) })
         );
         setOpen(false);
         router.refresh();
       } catch (err) {
-        toast.error(getErrorMessage(err, "Le changement n'a pas pu être appliqué."));
+        toast.error(getErrorMessage(err, t("failed")));
       }
     });
   }
@@ -76,17 +79,14 @@ export function ChangeQuotaDialog({
         }}
       >
         <SlidersHorizontal aria-hidden="true" data-icon="inline-start" />
-        Modifier le volume
+        {t("open")}
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Modifier le volume de l&apos;abonnement</DialogTitle>
-            <DialogDescription>
-              Le changement prend effet immédiatement. La différence est calculée
-              au prorata des jours restants du mois en cours.
-            </DialogDescription>
+            <DialogTitle>{t("title")}</DialogTitle>
+            <DialogDescription>{t("description")}</DialogDescription>
           </DialogHeader>
 
           <SubscriptionMinutesSlider
@@ -98,30 +98,20 @@ export function ChangeQuotaDialog({
           />
 
           <p className="text-sm text-muted-foreground">
-            {unchanged ? (
-              <>C&apos;est votre volume actuel.</>
-            ) : nextPrice > currentPrice ? (
-              <>
-                Votre abonnement passe de {formatCentsWithVat(currentPrice)} à{" "}
-                {formatCentsWithVat(nextPrice)} par mois. Une facture de
-                régularisation, calculée sur les jours restants, sera prélevée
-                aujourd&apos;hui.
-              </>
-            ) : (
-              <>
-                Votre abonnement passe de {formatCentsWithVat(currentPrice)} à{" "}
-                {formatCentsWithVat(nextPrice)} par mois. Le trop-perçu des jours
-                restants vous est recrédité.
-              </>
-            )}
+            {unchanged
+              ? t("unchanged")
+              : t(nextPrice > currentPrice ? "increase" : "decrease", {
+                  from: price.withVat(currentPrice),
+                  to: price.withVat(nextPrice),
+                })}
           </p>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)} disabled={pending}>
-              Annuler
+              {tCommon("cancel")}
             </Button>
             <Button onClick={handleConfirm} disabled={pending || unchanged}>
-              {pending ? "Application…" : "Confirmer"}
+              {pending ? t("applying") : t("confirm")}
             </Button>
           </DialogFooter>
         </DialogContent>

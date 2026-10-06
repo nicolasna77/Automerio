@@ -1,5 +1,6 @@
 import { titleMetadata } from "@/i18n/metadata";
 import { notFound, redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { requireUser } from "@/lib/session";
 import { requireActiveOrganization } from "@/lib/organization";
 import { getSubscriptionFor, isRunning } from "@/lib/subscriptions";
@@ -22,11 +23,12 @@ export default async function ServiceConfigurationPage({
   params: Promise<{ clientServiceId: string }>;
   searchParams: Promise<{ calendar?: string }>;
 }) {
-  const [{ clientServiceId }, { calendar: calendarStatus }, session, { active: organization }] = await Promise.all([
+  const [{ clientServiceId }, { calendar: calendarStatus }, session, { active: organization }, t] = await Promise.all([
     params,
     searchParams,
     requireUser(),
     requireActiveOrganization(),
+    getTranslations("Dashboard.configuration.page"),
   ]);
   // L'abonnement est lu en parallèle ; rien ne s'affiche avant que
   // getMyService ait vérifié l'appartenance de la solution.
@@ -46,12 +48,16 @@ export default async function ServiceConfigurationPage({
     <PageShell size="content">
       <PageHeader
         breadcrumbs={[
-          { label: "Solutions", href: "/dashboard/services" },
+          { label: t("breadcrumb"), href: "/dashboard/services" },
           { label: item.name, href: detailHref },
-          { label: "Réglages" },
+          { label: t("title") },
         ]}
-        title="Réglages"
-        description={item.name === item.service.name ? item.service.name : `${item.name}, ${item.service.name}`}
+        title={t("title")}
+        description={
+          item.name === item.service.name
+            ? item.service.name
+            : t("description", { name: item.name, service: item.service.name })
+        }
         className="mb-0"
       />
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useTransition } from "react";
 import { Bell } from "lucide-react";
@@ -17,12 +18,12 @@ import { cn } from "@/lib/utils";
 import type { NotificationDTO } from "@/lib/notifications";
 import { markNotificationsSeen } from "@/app/[locale]/notification-actions";
 
-function formatWhen(date: Date): string {
+function formatWhen(date: Date, t: ReturnType<typeof useTranslations<"Workspace.notifications">>): string {
   const minutes = Math.round((Date.now() - date.getTime()) / 60_000);
-  if (minutes < 1) return "à l'instant";
-  if (minutes < 60) return `il y a ${minutes} min`;
+  if (minutes < 1) return t("justNow");
+  if (minutes < 60) return t("minutesAgo", { minutes });
   const hours = Math.round(minutes / 60);
-  if (hours < 24) return `il y a ${hours} h`;
+  if (hours < 24) return t("hoursAgo", { hours });
   return date.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
 }
 
@@ -31,6 +32,7 @@ export function NotificationsMenu({
 }: {
   notifications: NotificationDTO[];
 }) {
+  const t = useTranslations("Workspace.notifications");
   const [, startTransition] = useTransition();
   const unreadCount = notifications.filter((n) => n.unread).length;
 
@@ -50,11 +52,7 @@ export function NotificationsMenu({
             variant="ghost"
             size="icon-sm"
             className="relative"
-            aria-label={
-              unreadCount > 0
-                ? `Notifications, ${unreadCount} non lue${unreadCount > 1 ? "s" : ""}`
-                : "Notifications"
-            }
+            aria-label={unreadCount > 0 ? t("labelUnread", { count: unreadCount }) : t("label")}
           >
             <Bell aria-hidden="true" />
             {unreadCount > 0 && (
@@ -70,13 +68,12 @@ export function NotificationsMenu({
       />
       <DropdownMenuContent align="end" className="w-80">
         <DropdownMenuGroup>
-          <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+          <DropdownMenuLabel>{t("label")}</DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         {notifications.length === 0 ? (
           <p className="px-2 py-6 text-center text-sm text-muted-foreground">
-            Rien de neuf. Les changements sur vos solutions et les réponses de
-            l&apos;équipe apparaîtront ici.
+            {t("empty")}
           </p>
         ) : (
           <div className="max-h-96 overflow-y-auto">
@@ -106,7 +103,7 @@ export function NotificationsMenu({
                       {notification.title}
                     </span>
                     <span className="shrink-0 text-xs text-muted-foreground">
-                      {formatWhen(notification.createdAt)}
+                      {formatWhen(notification.createdAt, t)}
                     </span>
                   </span>
                   <span className="block truncate text-xs text-muted-foreground">

@@ -1,9 +1,11 @@
 import { CreditCard } from "lucide-react";
+import { useLabels } from "@/hooks/use-labels";
+import { usePriceFormatter } from "@/hooks/use-price-formatter";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { MonthlyPrice } from "@/components/monthly-price";
-import { formatUsageCap, formatUsageUnits } from "@/lib/usage-cap";
-import { describeNextCharge, describePeriod, isRunning, type MySubscription } from "@/lib/subscriptions";
+import { isRunning, type MySubscription } from "@/lib/subscriptions";
 import { ChangeQuotaDialog } from "./change-quota-dialog";
 import { BillingPortalButton } from "./payments/billing-portal-button";
 import { BILLING_SECTION_ID } from "./billing-section";
@@ -18,6 +20,9 @@ export function ServiceBillingCard({
   subscription: MySubscription;
   organizationId: string;
 }) {
+  const t = useTranslations("Dashboard.settingsCards.billing");
+  const labels = useLabels();
+  const price = usePriceFormatter();
   const running = isRunning(subscription);
   const adjustable = running && subscription.tier !== null && subscription.cap !== null;
 
@@ -30,28 +35,26 @@ export function ServiceBillingCard({
           </span>
           <div className="min-w-0">
             <CardTitle as="h2" className="text-base">
-              Abonnement
+              {t("title")}
             </CardTitle>
-            <CardDescription>
-              Ces changements s&apos;appliquent tout de suite, sans passer par « Enregistrer ».
-            </CardDescription>
+            <CardDescription>{t("description")}</CardDescription>
           </div>
         </div>
       </CardHeader>
       <CardContent>
         <dl className="divide-y divide-border text-sm">
-          <BillingRow label="Formule">
+          <BillingRow label={t("plan")}>
             <MonthlyPrice cents={subscription.monthlyPriceCents} />
             {running && (
               <span className="mt-0.5 block text-xs text-muted-foreground">
-                {describePeriod(subscription)}
+                {labels.period(subscription.period)}
               </span>
             )}
           </BillingRow>
 
           {subscription.cap && (
             <BillingRow
-              label="Volume inclus"
+              label={t("included")}
               action={
                 adjustable && (
                   <ChangeQuotaDialog
@@ -62,30 +65,30 @@ export function ServiceBillingCard({
                 )
               }
             >
-              <span className="font-mono tabular-nums">
-                {formatUsageUnits(subscription.cap.includedUnits, subscription.cap.unit)}
-              </span>{" "}
-              par mois
+              {t.rich("perMonth", {
+                units: price.usageUnits(subscription.cap.includedUnits, subscription.cap.unit),
+                volume: (chunks) => <span className="font-mono tabular-nums">{chunks}</span>,
+              })}
               <span className="mt-0.5 block text-xs text-muted-foreground">
-                {formatUsageCap(subscription.cap)}
+                {price.usageCap(subscription.cap)}
               </span>
             </BillingRow>
           )}
 
           <BillingRow
-            label="Moyen de paiement"
+            label={t("paymentMethod")}
             action={running && <BillingPortalButton organizationId={organizationId} size="sm" />}
           >
-            <span className="text-muted-foreground">Carte ou prélèvement, géré de façon sécurisée par Stripe.</span>
+            <span className="text-muted-foreground">{t("paymentMethodValue")}</span>
           </BillingRow>
 
-          <BillingRow label="Facturation">
-            {describeNextCharge(subscription)}
+          <BillingRow label={t("invoicing")}>
+            {labels.nextCharge(subscription, price.withVat(subscription.monthlyPriceCents))}
             <Link
               href="/dashboard/payments"
               className="mt-0.5 block text-xs text-primary underline-offset-4 hover:underline"
             >
-              Voir mes factures
+              {t("invoices")}
             </Link>
           </BillingRow>
         </dl>

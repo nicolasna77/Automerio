@@ -1,5 +1,6 @@
+import { useTranslations } from "next-intl";
+import { usePriceFormatter } from "@/hooks/use-price-formatter";
 import { formatConfigField, type MyServiceDTO } from "@/lib/catalog";
-import { formatUsageCap } from "@/lib/usage-cap";
 import { formatFrenchPhone } from "@/lib/phone-format";
 
 type FactsLayout = "list" | "grid";
@@ -23,6 +24,7 @@ export function Fact({
   children: React.ReactNode;
   layout?: FactsLayout;
 }) {
+  const t = useTranslations("Dashboard.facts");
   if (layout === "grid") {
     // En grille, en haut de la page d'une solution : le libellé au-dessus.
     // Une liste (horaires, redirections) passe à la ligne entre ses éléments
@@ -43,7 +45,7 @@ export function Fact({
             </ul>
             {items.length > MAX_GRID_ITEMS && (
               <p className="mt-0.5 text-muted-foreground">
-                et {items.length - MAX_GRID_ITEMS} autre{items.length - MAX_GRID_ITEMS > 1 ? "s" : ""}
+                {t("andMore", { count: items.length - MAX_GRID_ITEMS })}
               </p>
             )}
           </dd>
@@ -88,6 +90,8 @@ export function ServiceFacts({
   showUsageCap?: boolean;
   layout?: FactsLayout;
 }) {
+  const t = useTranslations("Dashboard.facts");
+  const price = usePriceFormatter();
   return (
     <dl
       className={
@@ -95,12 +99,12 @@ export function ServiceFacts({
       }
     >
       {item.service.usageCap && showUsageCap && (
-        <Fact layout={layout} label="Plafond d'usage">
-          {formatUsageCap(item.service.usageCap)}
+        <Fact layout={layout} label={t("usageCap")}>
+          {price.usageCap(item.service.usageCap)}
         </Fact>
       )}
       {item.externalPhoneNumber && showPhoneNumber && (
-        <Fact layout={layout} label="Numéro de téléphone">
+        <Fact layout={layout} label={t("phoneNumber")}>
           <span className="font-mono tabular-nums">{formatFrenchPhone(item.externalPhoneNumber)}</span>
         </Fact>
       )}

@@ -1,11 +1,8 @@
+import { useTranslations } from "next-intl";
+import { useLabels } from "@/hooks/use-labels";
 import { Link } from "@/i18n/navigation";
 import { MessageSquareText, TriangleAlert } from "lucide-react";
-import {
-  describeServiceStatus,
-  setupHint,
-  TELEPHONY_SERVICE_SLUGS,
-  type MyServiceDTO,
-} from "@/lib/catalog";
+import { TELEPHONY_SERVICE_SLUGS, type MyServiceDTO } from "@/lib/catalog";
 import { formatFrenchPhone } from "@/lib/phone-format";
 import { MonthlyPrice } from "@/components/monthly-price";
 import { StatusBadge } from "@/components/status-badge";
@@ -22,8 +19,10 @@ export const SOLUTION_COLUMNS = "minmax(0,1fr) 9.5rem 10rem 8.5rem 4.75rem";
 // Une solution dans la liste : toute la ligne ouvre le détail ; les actions
 // secondaires : les réglages ont leur bouton, la résiliation reste dans « ⋯ ».
 export function MyServiceRow({ item }: { item: MyServiceDTO }) {
+  const t = useTranslations("Dashboard.services.list");
+  const labels = useLabels();
   const { service, status } = item;
-  const hint = setupHint(item);
+  const hint = labels.setupAction(item)?.hint ?? null;
   const canResume = status === "PENDING_PAYMENT" || status === "CANCELED";
   const showUsage = status === "ACTIVE" && TELEPHONY_SERVICE_SLUGS.has(service.slug);
   const price = service.monthlyPriceCents;
@@ -46,12 +45,12 @@ export function MyServiceRow({ item }: { item: MyServiceDTO }) {
                 className="outline-none after:absolute after:inset-0 group-hover/row:underline focus-visible:underline underline-offset-4"
               >
                 {item.name}
-                <span className="sr-only">, voir le détail</span>
+                <span className="sr-only">{t("seeDetail")}</span>
               </Link>
             </h3>
             <p className="mt-0.5 text-sm text-muted-foreground">
-              {item.name !== service.name ? `${service.name}. ` : ""}
-              {describeServiceStatus(item)}
+              {item.name !== service.name ? t("serviceNamePrefix", { name: service.name }) : ""}
+              {labels.serviceStatus(item)}
             </p>
             {showUsage && (
               <div className="mt-1.5 text-muted-foreground">
@@ -72,7 +71,7 @@ export function MyServiceRow({ item }: { item: MyServiceDTO }) {
 
           <div className="md:text-right">
             {price === null ? (
-              <span className="text-sm text-muted-foreground">Sans abonnement</span>
+              <span className="text-sm text-muted-foreground">{t("noSubscription")}</span>
             ) : (
               <MonthlyPrice cents={price} />
             )}
@@ -91,11 +90,13 @@ export function MyServiceRow({ item }: { item: MyServiceDTO }) {
             <p className="relative z-10 flex items-start gap-2 text-sm text-foreground">
               <TriangleAlert className="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden="true" />
               <span>
-                Le dernier paiement a été refusé.{" "}
-                <Link href="/dashboard/payments" className="font-medium underline underline-offset-4">
-                  Mettez à jour votre moyen de paiement
-                </Link>{" "}
-                pour éviter une interruption.
+                {t.rich("paymentFailed", {
+                  link: (chunks) => (
+                    <Link href="/dashboard/payments" className="font-medium underline underline-offset-4">
+                      {chunks}
+                    </Link>
+                  ),
+                })}
               </span>
             </p>
           )}
@@ -103,7 +104,7 @@ export function MyServiceRow({ item }: { item: MyServiceDTO }) {
             <p className="flex items-start gap-2 text-sm text-foreground">
               <TriangleAlert className="mt-0.5 size-4 shrink-0 text-attention" aria-hidden="true" />
               <span>
-                <span className="sr-only">À faire : </span>
+                <span className="sr-only">{t("todo")}</span>
                 {hint}
               </span>
             </p>
@@ -112,7 +113,7 @@ export function MyServiceRow({ item }: { item: MyServiceDTO }) {
             <p className="flex items-start gap-2 text-sm text-muted-foreground">
               <MessageSquareText className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
               <span>
-                <span className="font-medium text-foreground">Note de l&apos;équipe : </span>
+                <span className="font-medium text-foreground">{t("teamNote")}</span>
                 {item.adminNote}
               </span>
             </p>

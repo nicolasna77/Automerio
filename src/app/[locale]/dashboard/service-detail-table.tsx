@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Settings } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
@@ -45,11 +46,12 @@ export function ServiceCallsContent({ item }: { item: MyServiceDTO }) {
 }
 
 export function ServiceLiveCard({ item }: { item: MyServiceDTO }) {
+  const t = useTranslations("Dashboard.service");
   if (!hasLiveCalls(item)) return null;
   return (
     <Card>
       <CardHeader>
-        <CardTitle as="h2" className="text-base">Appels reçus</CardTitle>
+        <CardTitle as="h2" className="text-base">{t("calls")}</CardTitle>
       </CardHeader>
       <CardContent>
         <ServiceCallsContent item={item} />
@@ -59,11 +61,12 @@ export function ServiceLiveCard({ item }: { item: MyServiceDTO }) {
 }
 
 export function CallForwardingCard({ item }: { item: MyServiceDTO }) {
+  const t = useTranslations("Dashboard.service");
   if (!isLiveTelephony(item) || !item.externalPhoneNumber) return null;
   return (
     <Card>
       <CardHeader>
-        <CardTitle as="h2" className="text-base">Recevoir vos appels</CardTitle>
+        <CardTitle as="h2" className="text-base">{t("forwarding")}</CardTitle>
       </CardHeader>
       <CardContent>
         <CallForwardingGuide targetNumber={item.externalPhoneNumber} />
@@ -83,6 +86,7 @@ export function ServiceConfigurationCard({
   // sans bouton Modifier (le bouton Réglages est déjà en haut à droite).
   variant?: "side" | "embedded";
 }) {
+  const t = useTranslations("Dashboard.service");
   const isLive = isLiveTelephony(item);
   const takesAppointments = asStringArray(item.configuration.objectives).includes("appointment");
   const canEditConfig = canEditConfiguration(item);
@@ -117,7 +121,7 @@ export function ServiceConfigurationCard({
           />
         ) : (
           <p className="text-sm text-muted-foreground">
-            Aucun réglage renseigné pour l&apos;instant.
+            {t("noSettings")}
           </p>
         )}
 
@@ -156,7 +160,7 @@ export function ServiceConfigurationCard({
     return (
       <section aria-labelledby={`${item.clientServiceId}-informations`}>
         <h2 id={`${item.clientServiceId}-informations`} className="text-sm font-medium text-foreground">
-          Informations du service
+          {t("information")}
         </h2>
         <div className="mt-4 space-y-5">{body}</div>
       </section>
@@ -167,7 +171,7 @@ export function ServiceConfigurationCard({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
         <CardTitle as="h2" className="text-base">
-          Réglages
+          {t("settings")}
         </CardTitle>
         {canEditConfig && (
           <Link
@@ -175,7 +179,7 @@ export function ServiceConfigurationCard({
             className={buttonVariants({ variant: "outline", size: "sm" })}
           >
             <Settings aria-hidden="true" data-icon="inline-start" />
-            Modifier
+            {t("edit")}
           </Link>
         )}
       </CardHeader>

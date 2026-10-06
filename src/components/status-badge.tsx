@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
-import { STATUS_LABELS, type ClientServiceStatus } from "@/lib/catalog";
+import { useLabels } from "@/hooks/use-labels";
+import { type ClientServiceStatus } from "@/lib/catalog";
 
 const STATUS_VARIANT: Record<
   ClientServiceStatus,
@@ -18,9 +19,10 @@ export function StatusBadge({
   status: ClientServiceStatus;
   className?: string;
 }) {
+  const labels = useLabels();
   return (
     <Badge variant={STATUS_VARIANT[status]} className={className}>
-      {STATUS_LABELS[status]}
+      {labels.status(status)}
     </Badge>
   );
 }

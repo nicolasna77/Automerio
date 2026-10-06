@@ -1,9 +1,11 @@
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function OverviewStatsSkeleton() {
+  const t = useTranslations("Dashboard.overview.stats");
   return (
-    <Card role="status" aria-label="Chargement des chiffres…">
+    <Card role="status" aria-label={t("loading")}>
       <CardHeader>
         <Skeleton className="h-5 w-24" />
       </CardHeader>
@@ -22,8 +24,9 @@ export function OverviewStatsSkeleton() {
 }
 
 export function SpendChartSkeleton() {
+  const t = useTranslations("Dashboard.overview.spend");
   return (
-    <Card role="status" aria-label="Chargement du graphique…">
+    <Card role="status" aria-label={t("loading")}>
       <CardHeader>
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
           <div>

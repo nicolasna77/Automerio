@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { pollWhileVisible } from "@/lib/poll-while-visible";
@@ -16,6 +17,7 @@ export function UsageCounter({
   clientServiceId: string;
   variant?: "block" | "inline";
 }) {
+  const t = useTranslations("Dashboard.service.usage");
   const box = variant === "block" ? "rounded-lg bg-muted p-3" : "";
   const [count, setCount] = useState<number | null>(null);
 
@@ -46,7 +48,7 @@ export function UsageCounter({
     return (
       <div
         role="status"
-        aria-label="Chargement de l'usage…"
+        aria-label={t("loading")}
         className={cn("flex items-center gap-2", box)}
       >
         <Skeleton className="size-1.5 shrink-0 rounded-full" />
@@ -68,7 +70,7 @@ export function UsageCounter({
         <span className="font-mono font-medium tabular-nums text-foreground">
           {count}
         </span>{" "}
-        appel{count === 1 ? "" : "s"} reçu{count === 1 ? "" : "s"} ce mois-ci
+        {t("callsThisMonth", { count })}
       </span>
     </div>
   );

@@ -1,5 +1,8 @@
 import { titleMetadata } from "@/i18n/metadata";
+import { getPriceFormatter } from "@/lib/price-format-server";
 import { FileText, TriangleAlert } from "lucide-react";
+import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
@@ -19,28 +22,29 @@ import { formatDate, formatEuroAmount } from "@/lib/catalog";
 import { getMyInvoices, type InvoiceDTO } from "../get-invoices";
 import { organizationCustomerId } from "@/lib/organization-billing";
 import { BillingPortalButton } from "./billing-portal-button";
-import { VAT_PERCENTAGE, excludingVatSuffix } from "@/lib/vat";
+import { VAT_PERCENTAGE } from "@/lib/vat";
 import { PageHeader, PageShell } from "@/components/page-shell";
 
 export const generateMetadata = titleMetadata("payments");
 
-const STATUS_LABEL: Record<string, string> = {
-  paid: "Payée",
-  open: "En attente",
-  draft: "Brouillon",
-  uncollectible: "Irrécouvrable",
-  void: "Annulée",
-};
+const INVOICE_STATUSES = ["paid", "open", "draft", "uncollectible", "void"] as const;
+type KnownInvoiceStatus = (typeof INVOICE_STATUSES)[number];
 
 function InvoiceStatusBadge({ status }: { status: InvoiceDTO["status"] }) {
+  const t = useTranslations("Dashboard.payments.status");
   const variant =
     status === "paid" ? "default" : status === "uncollectible" || status === "void" ? "destructive" : "secondary";
-  return <Badge variant={variant}>{status ? (STATUS_LABEL[status] ?? status) : "Inconnu"}</Badge>;
+  const known = (INVOICE_STATUSES as readonly string[]).includes(status ?? "");
+  return (
+    <Badge variant={variant}>
+      {!status ? t("unknown") : known ? t(status as KnownInvoiceStatus) : status}
+    </Badge>
+  );
 }
 
 export default async function PaiementsPage() {
   const { active: organization } = await requireActiveOrganization();
-  const [invoices, failing, customerId, activatedCount] = await Promise.all([
+  const [invoices, failing, customerId, activatedCount, t, tSubscriptions] = await Promise.all([
     getMyInvoices(organization.id),
     db.clientService.findMany({
       where: { organizationId: organization.id, paymentFailedAt: { not: null } },
@@ -48,18 +52,16 @@ export default async function PaiementsPage() {
     }),
     organizationCustomerId(organization.id),
     db.clientService.count({ where: { organizationId: organization.id } }),
+    getTranslations("Dashboard.payments"),
+    getTranslations("Dashboard.subscriptions"),
   ]);
+  const price = await getPriceFormatter();
 
   return (
     <PageShell size="wide">
       <PageHeader
-        title="Paiements"
-        description={
-          <>
-            Vos factures, par solution. Montant prélevé TTC, TVA à {VAT_PERCENTAGE} % incluse ;
-            le hors taxes est rappelé sous chaque montant.
-          </>
-        }
+        title={t("title")}
+        description={t("description", { vat: VAT_PERCENTAGE })}
         actions={
           customerId && invoices.length > 0 && <BillingPortalButton organizationId={organization.id} />
         }
@@ -73,9 +75,9 @@ export default async function PaiementsPage() {
           <p className="flex items-start gap-2 text-sm text-foreground">
             <TriangleAlert className="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden="true" />
             <span>
-              Le dernier paiement de{" "}
-              {failing.map((cs) => `« ${cs.name} »`).join(", ")} a été refusé.
-              Mettez à jour votre moyen de paiement pour éviter une interruption.
+              {tSubscriptions("failing", {
+                names: failing.map((cs) => tSubscriptions("quoted", { name: cs.name })).join(", "),
+              })}
             </span>
           </p>
           {customerId && <BillingPortalButton organizationId={organization.id} variant="default" />}
@@ -85,20 +87,16 @@ export default async function PaiementsPage() {
       {invoices.length === 0 ? (
         <EmptyState
           icon={FileText}
-          title="Aucune facture pour l'instant"
-          description={
-            activatedCount > 0
-              ? "Votre première facture apparaîtra ici après le prochain prélèvement."
-              : "Vos factures apparaîtront ici dès l'activation d'une solution."
-          }
+          title={t("empty.title")}
+          description={activatedCount > 0 ? t("empty.afterActivation") : t("empty.beforeActivation")}
           action={
             activatedCount > 0 ? (
               <Button variant="outline" nativeButton={false} render={<Link href="/dashboard/subscriptions" />}>
-                Voir mes abonnements
+                {t("empty.subscriptions")}
               </Button>
             ) : (
               <Button nativeButton={false} render={<Link href="/dashboard/services/catalog" />}>
-                Voir le catalogue
+                {t("empty.catalog")}
               </Button>
             )
           }
@@ -106,21 +104,21 @@ export default async function PaiementsPage() {
       ) : (
         <div className="overflow-hidden rounded-lg border border-border bg-card">
           <Table>
-            <TableCaption className="sr-only">Historique des factures</TableCaption>
+            <TableCaption className="sr-only">{t("table.caption")}</TableCaption>
             <TableHeader>
               <TableRow className="bg-muted/40 hover:bg-muted/40">
-                <TableHead className="pl-5">Solution</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead className="text-right">Montant</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead className="pr-5 text-right">Facture</TableHead>
+                <TableHead className="pl-5">{t("table.service")}</TableHead>
+                <TableHead>{t("table.date")}</TableHead>
+                <TableHead className="text-right">{t("table.amount")}</TableHead>
+                <TableHead>{t("table.status")}</TableHead>
+                <TableHead className="pr-5 text-right">{t("table.invoice")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {invoices.map((invoice) => (
                 <TableRow key={invoice.id}>
                   <TableCell className="pl-5 font-medium text-foreground">
-                    {invoice.serviceName ?? "Solution non précisée"}
+                    {invoice.serviceName ?? t("table.unknownService")}
                   </TableCell>
                   <TableCell className="font-mono text-sm tabular-nums text-muted-foreground">
                     {formatDate(invoice.createdAt)}
@@ -129,9 +127,9 @@ export default async function PaiementsPage() {
                     <span className="font-mono tabular-nums text-foreground">
                       {formatEuroAmount(invoice.amountPaidCents)}
                     </span>
-                    <span className="text-muted-foreground"> € TTC</span>
+                    <span className="text-muted-foreground">{t("table.inclVat")}</span>
                     <span className="block text-xs text-muted-foreground">
-                      {excludingVatSuffix(invoice.amountPaidCents)}
+                      {price.excludingVatSuffix(invoice.amountPaidCents)}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -146,10 +144,10 @@ export default async function PaiementsPage() {
                         className="inline-flex items-center gap-1.5 text-sm text-primary underline-offset-4 hover:underline"
                       >
                         <FileText className="size-3.5" aria-hidden="true" />
-                        Voir
+                        {t("table.view")}
                       </a>
                     ) : (
-                      <span className="text-sm text-muted-foreground">Indisponible</span>
+                      <span className="text-sm text-muted-foreground">{t("table.unavailable")}</span>
                     )}
                   </TableCell>
                 </TableRow>

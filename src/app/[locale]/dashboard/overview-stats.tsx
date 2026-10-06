@@ -1,10 +1,13 @@
+import { getTranslations } from "next-intl/server";
+import { getPriceFormatter } from "@/lib/price-format-server";
 import { PhoneCall, Wallet, Zap } from "lucide-react";
 import { StatStrip, type Stat } from "@/components/stat-strip";
 import { db } from "@/lib/db";
 import { formatEuroAmount } from "@/lib/catalog";
-import { excludingVatSuffix } from "@/lib/vat";
 
 export async function OverviewStats({ organizationId }: { organizationId: string }) {
+  const t = await getTranslations("Dashboard.overview.stats");
+  const price = await getPriceFormatter();
   const now = new Date();
   const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
@@ -31,37 +34,34 @@ export async function OverviewStats({ organizationId }: { organizationId: string
     0
   );
 
-  const settingUpNote =
-    settingUpCount > 0
-      ? `+ ${settingUpCount} en cours d'installation`
-      : null;
+  const settingUpNote = settingUpCount > 0 ? t("settingUp", { count: settingUpCount }) : null;
 
   const stats: Stat[] = [
     {
       icon: Zap,
-      label: "Solutions actives",
+      label: t("activeServices"),
       value: String(activeServices.length),
       note: settingUpNote,
     },
     {
       icon: Wallet,
-      label: "Dépense mensuelle",
+      label: t("monthlySpend"),
       value: formatEuroAmount(monthlySpendCents),
-      unit: "€ TTC/mois",
+      unit: t("perMonthUnit"),
       note: [
-        excludingVatSuffix(monthlySpendCents),
-        settingUpNote ? "hors solutions en cours d'installation" : null,
+        price.excludingVatSuffix(monthlySpendCents),
+        settingUpNote ? t("excludingSettingUp") : null,
       ]
         .filter((part): part is string => part !== null)
         .join(" · "),
     },
     {
       icon: PhoneCall,
-      label: "Appels ce mois-ci",
+      label: t("callsThisMonth"),
       value: String(callsThisMonth),
       note: null,
     },
   ];
 
-  return <StatStrip title="Ce mois-ci" stats={stats} />;
+  return <StatStrip title={t("title")} stats={stats} />;
 }

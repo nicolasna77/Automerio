@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
@@ -9,13 +10,14 @@ import { CATALOGUE_PATH, MY_SOLUTIONS_PATH } from "./paths";
 // est rond par nature (DESIGN.md, « Formes »).
 export function SolutionsTabs({ myCount }: { myCount: number }) {
   const pathname = usePathname();
+  const t = useTranslations("Dashboard.services.tabs");
   const tabs = [
-    { href: MY_SOLUTIONS_PATH, label: "Mes solutions", count: myCount },
-    { href: CATALOGUE_PATH, label: "Catalogue", count: null },
+    { href: MY_SOLUTIONS_PATH, label: t("mine"), count: myCount },
+    { href: CATALOGUE_PATH, label: t("catalog"), count: null },
   ];
 
   return (
-    <nav aria-label="Solutions" className="mb-6 border-b border-border">
+    <nav aria-label={t("label")} className="mb-6 border-b border-border">
       <ul className="-mb-px flex gap-6">
         {tabs.map((tab) => {
           const isActive = pathname === tab.href;

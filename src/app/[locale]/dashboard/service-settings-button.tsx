@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Settings } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button";
@@ -19,6 +20,7 @@ export function ServiceSettingsButton({
   labeled?: boolean;
   className?: string;
 }) {
+  const t = useTranslations("Dashboard.services.settings");
   if (!canEditConfiguration(item)) return null;
   const href = `/dashboard/services/${item.clientServiceId}/configuration`;
 
@@ -26,7 +28,7 @@ export function ServiceSettingsButton({
     return (
       <Link href={href} className={buttonVariants({ variant: "outline", className })}>
         <Settings aria-hidden="true" data-icon="inline-start" />
-        Réglages
+        {t("label")}
       </Link>
     );
   }
@@ -37,14 +39,14 @@ export function ServiceSettingsButton({
         render={
           <Link
             href={href}
-            aria-label={`Réglages de « ${item.name} »`}
+            aria-label={t("labelFor", { name: item.name })}
             className={buttonVariants({ variant: "ghost", size: "icon", className: cn("text-muted-foreground hover:text-foreground", className) })}
           />
         }
       >
         <Settings aria-hidden="true" />
       </TooltipTrigger>
-      <TooltipContent>Réglages</TooltipContent>
+      <TooltipContent>{t("label")}</TooltipContent>
     </Tooltip>
   );
 }

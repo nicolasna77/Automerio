@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { usePathname } from "@/i18n/navigation";
 import type { LucideIcon } from "lucide-react";
@@ -44,6 +45,7 @@ export function WorkspaceNavLinks({
 }) {
   const pathname = usePathname();
   const { isMobile, setOpenMobile } = useSidebar();
+  const t = useTranslations("Workspace.nav");
 
   return (
     <SidebarMenu>
@@ -66,7 +68,7 @@ export function WorkspaceNavLinks({
               <span>{item.label}</span>
               {item.badge ? (
                 <span className="sr-only">
-                  , {item.badge} {item.badgeLabel ?? "en attente"}
+                  {t("badge", { count: item.badge, label: item.badgeLabel ?? t("pending") })}
                 </span>
               ) : null}
             </SidebarMenuButton>

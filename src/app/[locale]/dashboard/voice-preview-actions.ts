@@ -6,7 +6,7 @@ import { getActiveOrganizationContext } from "@/lib/organization";
 import { canReadClientService, viewerOf } from "@/lib/client-service-access";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { getOpenAIClient } from "@/lib/openai";
-import { ActionError, runAction } from "@/lib/run-action";
+import { actionError, runAction } from "@/lib/run-action";
 import { TELEPHONY_SERVICE_SLUGS } from "@/lib/catalog";
 import { toneInstructionOf, voiceSettingsOf } from "@/lib/voice-agent/voice";
 
@@ -28,7 +28,7 @@ export async function previewVoice(
 ) {
   return runAction(async () => {
     const session = await getSession();
-    if (!session) throw new ActionError("Votre session a expiré. Reconnectez-vous.");
+    if (!session) throw actionError("sessionExpired");
 
     let slug: string;
     let company: string;
@@ -38,24 +38,24 @@ export async function previewVoice(
         select: { organizationId: true, organization: { select: { name: true } }, service: { select: { slug: true } } },
       });
       if (!canReadClientService(clientService, await viewerOf(session.user.id))) {
-        throw new ActionError("Cette solution n'appartient pas à votre organisation.");
+        throw actionError("notYourService");
       }
       slug = clientService.service.slug;
       company = clientService.organization.name;
     } else {
       const context = await getActiveOrganizationContext();
-      if (!context) throw new ActionError("Aucune entreprise n'est associée à votre compte.");
+      if (!context) throw actionError("noOrganization");
       slug = target.serviceSlug;
       company = context.active.name;
     }
     if (!TELEPHONY_SERVICE_SLUGS.has(slug)) {
-      throw new ActionError("L'écoute n'existe que pour les solutions téléphoniques.");
+      throw actionError("previewPhoneOnly");
     }
     if (!process.env.OPENAI_API_KEY) {
-      throw new ActionError("L'écoute n'est pas disponible pour le moment.");
+      throw actionError("previewUnavailable");
     }
     if (!(await checkRateLimit("voice-preview", session.user.id, "10 m", 20))) {
-      throw new ActionError("Trop d'écoutes. Réessayez dans quelques minutes.");
+      throw actionError("tooManyPreviews");
     }
 
     const configuration = {

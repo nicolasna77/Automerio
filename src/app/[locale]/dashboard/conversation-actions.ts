@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { canReadClientService, viewerOf } from "@/lib/client-service-access";
 import { checkRateLimit } from "@/lib/rate-limit";
-import { ActionError, runAction } from "@/lib/run-action";
+import { ActionError, actionError, runAction } from "@/lib/run-action";
 import { getConversations, replyWindowClosesAt, type ConversationView } from "@/lib/conversations";
 import { MAX_REPLY_LENGTH } from "@/lib/conversation-limits";
 import { parisDayRange } from "@/lib/paris-day";
@@ -19,7 +19,7 @@ function refreshedList(clientServiceId: string, day: string | null) {
 
 async function requireConversation(conversationId: string) {
   const session = await getSession();
-  if (!session) throw new ActionError("Votre session a expiré. Reconnectez-vous.");
+  if (!session) throw actionError("sessionExpired");
 
   const conversation = await db.conversation.findUnique({
     where: { id: conversationId },
@@ -38,7 +38,7 @@ async function requireConversation(conversationId: string) {
     },
   });
   if (!conversation || !canReadClientService(conversation.clientService, await viewerOf(session.user.id))) {
-    throw new ActionError("Cette conversation est introuvable.");
+    throw actionError("conversationNotFound");
   }
   return { conversation, userId: session.user.id };
 }
@@ -74,20 +74,18 @@ export async function sendConversationReply(
 ) {
   return runAction<ConversationView[]>(async () => {
     const text = rawText.trim();
-    if (!text) throw new ActionError("Écrivez un message avant d'envoyer.");
+    if (!text) throw actionError("emptyReply");
     if (text.length > MAX_REPLY_LENGTH) {
-      throw new ActionError(`Votre message dépasse ${MAX_REPLY_LENGTH} caractères.`);
+      throw actionError("replyTooLong", { max: MAX_REPLY_LENGTH });
     }
 
     const { conversation, userId } = await requireConversation(conversationId);
     if (!(await checkRateLimit("conversation-reply", userId, "1 m", 20))) {
-      throw new ActionError("Trop de messages envoyés. Patientez une minute.");
+      throw actionError("tooManyMessages");
     }
     const closesAt = replyWindowClosesAt(conversation.lastInboundAt);
     if (!closesAt || closesAt.getTime() < Date.now()) {
-      throw new ActionError(
-        "Ce contact ne vous a pas écrit depuis plus de 24 heures. Il doit vous recontacter avant que vous puissiez répondre."
-      );
+      throw actionError("replyWindowClosed");
     }
 
     // Le message est enregistré avant l'envoi : si l'écriture échouait après
@@ -115,11 +113,11 @@ export async function sendConversationReply(
         text
       );
       if (!sent) {
-        failure = new ActionError("Le compte n'est plus connecté. Reconnectez-le depuis l'onglet Connecteurs.");
+        failure = actionError("accountDisconnected");
       }
     } catch (err) {
       console.error(`[conversations] échec d'envoi dans ${conversationId} :`, err);
-      failure = new ActionError("Le message n'a pas pu être envoyé. Réessayez dans un instant.");
+      failure = actionError("messageNotSent");
     }
     if (failure) {
       // Rien n'est parti : le message ne doit pas rester dans l'historique.

@@ -1,5 +1,8 @@
+import { getLabels } from "@/lib/labels-server";
 import { titleMetadata } from "@/i18n/metadata";
 import { UserPlus } from "lucide-react";
+import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,7 +12,7 @@ import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import { requireActiveOrganization } from "@/lib/organization";
 import { formatDate } from "@/lib/catalog";
-import { isOrganizationManager, roleLabel } from "@/lib/organization-roles";
+import { isOrganizationManager } from "@/lib/organization-roles";
 import { TeamMembers } from "./team-members";
 import { PendingInvitations } from "./pending-invitations";
 import { InviteForm } from "./invite-form";
@@ -18,9 +21,11 @@ import { OrganizationPicker } from "./organization-picker";
 export const generateMetadata = titleMetadata("organization");
 
 export default async function OrganisationPage() {
-  const [session, { active: organization, organizations }] = await Promise.all([
+  const [session, { active: organization, organizations }, t, labels] = await Promise.all([
     requireUser(),
     requireActiveOrganization(),
+    getTranslations("Dashboard.organization"),
+    getLabels(),
   ]);
 
   const [members, invitations] = await Promise.all([
@@ -52,25 +57,21 @@ export default async function OrganisationPage() {
   return (
     <PageShell size="content">
       <PageHeader
-        title="Organisation"
+        title={t("title")}
         description={
           <>
             <div className="flex flex-wrap items-center gap-2">
               <OrganizationPicker active={organization} organizations={organizations} />
-              {myRole && <Badge variant="secondary">Vous : {roleLabel(myRole)}</Badge>}
+              {myRole && <Badge variant="secondary">{t("you", { role: labels.role(myRole) })}</Badge>}
             </div>
-            <p className="mt-2">
-              Les personnes qui ont accès aux solutions de cette entreprise. Un
-              collaborateur consulte et configure ; un responsable peut en plus
-              résilier, payer et gérer l&apos;équipe.
-            </p>
+            <p className="mt-2">{t("description")}</p>
           </>
         }
         actions={
           canManage && (
             <Button variant="outline" nativeButton={false} render={<a href="#invite" />}>
               <UserPlus aria-hidden="true" data-icon="inline-start" />
-              Inviter un membre
+              {t("invite")}
             </Button>
           )
         }
@@ -79,18 +80,14 @@ export default async function OrganisationPage() {
       <div className="space-y-10">
         <section aria-labelledby="team" className="space-y-3">
           <SectionTitle id="team" count={members.length}>
-            Équipe
+            {t("team")}
           </SectionTitle>
 
           {isAlone ? (
             <EmptyState
               icon={UserPlus}
-              title="Vous êtes seul sur cette entreprise"
-              description={
-                canManage
-                  ? "Invitez un collègue pour qu'il suive les appels reçus et la configuration des solutions, sans lui donner la main sur les paiements."
-                  : "Un responsable peut inviter d'autres personnes à rejoindre cette entreprise."
-              }
+              title={t("alone.title")}
+              description={canManage ? t("alone.manager") : t("alone.member")}
             />
           ) : (
             <Card>
@@ -116,7 +113,7 @@ export default async function OrganisationPage() {
         {invitations.length > 0 && (
           <section aria-labelledby="invitations" className="space-y-3">
             <SectionTitle id="invitations" count={invitations.length}>
-              Invitations en attente
+              {t("pending")}
             </SectionTitle>
             <Card>
               <CardContent>
@@ -137,7 +134,7 @@ export default async function OrganisationPage() {
 
         {canManage && (
           <section id="invite" aria-labelledby="invite-title" className="scroll-mt-20 space-y-3">
-            <SectionTitle id="invite-title">Inviter un membre</SectionTitle>
+            <SectionTitle id="invite-title">{t("invite")}</SectionTitle>
             <Card>
               <CardContent>
                 <InviteForm organizationId={organization.id} />
@@ -159,12 +156,13 @@ function SectionTitle({
   count?: number;
   children: React.ReactNode;
 }) {
+  const t = useTranslations("Dashboard.organization");
   return (
     <h2 id={id} className="flex items-center gap-2 text-lg font-semibold text-foreground">
       {children}
       {count !== undefined && (
         <span className="text-sm font-normal tabular-nums text-muted-foreground">
-          ({count})
+          {t("count", { count })}
         </span>
       )}
     </h2>

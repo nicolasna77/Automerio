@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Building2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -17,6 +18,7 @@ export function OrganizationPicker({
   active: OrganizationSummary;
   organizations: OrganizationSummary[];
 }) {
+  const t = useTranslations("Dashboard.organization.picker");
   const { switchTo, switchingId } = useSwitchOrganization(active.id);
   const [createOpen, setCreateOpen] = useState(false);
   const items = organizations.map((organization) => ({ value: organization.id, label: organization.name }));
@@ -33,7 +35,7 @@ export function OrganizationPicker({
             if (next) void switchTo(next);
           }}
         >
-          <SelectTrigger aria-label="Entreprise affichée" className="h-9 min-w-56 font-medium text-foreground">
+          <SelectTrigger aria-label={t("label")} className="h-9 min-w-56 font-medium text-foreground">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -49,7 +51,7 @@ export function OrganizationPicker({
       )}
       <Button type="button" variant="ghost" size="sm" onClick={() => setCreateOpen(true)}>
         <Plus aria-hidden="true" data-icon="inline-start" />
-        Nouvelle entreprise
+        {t("create")}
       </Button>
       <OrganizationCreateDialog open={createOpen} onOpenChange={setCreateOpen} />
     </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Loader2, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ export function WhatsAppConnection({
   connected: boolean;
   displayNumber: string | null;
 }) {
+  const t = useTranslations("Dashboard.connectors");
   const [isPending, startTransition] = useTransition();
   const signupDataRef = useRef<EmbeddedSignupData | null>(null);
 
@@ -59,9 +61,7 @@ export function WhatsAppConnection({
     const appId = process.env.NEXT_PUBLIC_META_APP_ID;
     const configId = process.env.NEXT_PUBLIC_META_EMBEDDED_SIGNUP_CONFIG_ID;
     if (!appId || !configId) {
-      toast.error(
-        "Connexion WhatsApp indisponible pour l'instant. Contactez l'équipe Automerio."
-      );
+      toast.error(t("whatsapp.unavailable"));
       return;
     }
 
@@ -92,7 +92,7 @@ export function WhatsAppConnection({
             signupData.phoneNumberId
           )
         );
-        toast.success("Compte WhatsApp connecté.");
+        toast.success(t("whatsapp.connected"));
       } catch (err) {
         toast.error(getErrorMessage(err));
       }
@@ -103,7 +103,7 @@ export function WhatsAppConnection({
     startTransition(async () => {
       try {
         unwrap(await disconnectWhatsApp(clientServiceId));
-        toast.success("Compte WhatsApp déconnecté.");
+        toast.success(t("whatsapp.disconnected"));
       } catch (err) {
         toast.error(getErrorMessage(err));
       }
@@ -124,7 +124,7 @@ export function WhatsAppConnection({
         ) : (
           <MessageCircle aria-hidden="true" data-icon="inline-start" />
         )}
-        Connecter mon compte WhatsApp
+        {t("whatsapp.connect")}
       </Button>
     );
   }
@@ -133,7 +133,7 @@ export function WhatsAppConnection({
     <div className="flex items-center gap-2 text-sm">
       <span className="inline-flex items-center gap-1.5 text-foreground">
         <MessageCircle className="size-4 text-primary" aria-hidden="true" />
-        WhatsApp connecté{displayNumber ? ` (${displayNumber})` : ""}
+        {displayNumber ? t("whatsapp.statusWithNumber", { number: displayNumber }) : t("whatsapp.status")}
       </span>
       <Button
         variant="ghost"
@@ -145,7 +145,7 @@ export function WhatsAppConnection({
         {isPending ? (
           <Loader2 className="animate-spin" aria-hidden="true" />
         ) : (
-          "Déconnecter"
+          t("disconnect")
         )}
       </Button>
     </div>

@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+import { usePriceFormatter } from "@/hooks/use-price-formatter";
 import { Link } from "@/i18n/navigation";
 import { PackageSearch } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
@@ -6,7 +8,6 @@ import { StatusBadge } from "@/components/status-badge";
 import type { ClientServiceStatus, ServiceDTO } from "@/lib/catalog";
 import { EmptyState } from "@/components/empty-state";
 import { MonthlyPrice } from "@/components/monthly-price";
-import { formatUsageCap } from "@/lib/usage-cap";
 import { ServiceGlyphBadge } from "@/components/service-glyph";
 
 export function ServiceCatalogGrid({
@@ -16,13 +17,15 @@ export function ServiceCatalogGrid({
   services: ServiceDTO[];
   statusByServiceId: Record<string, ClientServiceStatus>;
 }) {
+  const t = useTranslations("Dashboard.services.catalog");
+  const price = usePriceFormatter();
   if (services.length === 0) {
     return (
       <EmptyState
         icon={PackageSearch}
         tone="neutral"
-        title="Aucune solution disponible pour l'instant"
-        description="Repassez bientôt, ou écrivez-nous si vous cherchez une automatisation en particulier."
+        title={t("emptyTitle")}
+        description={t("emptyDescription")}
       />
     );
   }
@@ -45,14 +48,14 @@ export function ServiceCatalogGrid({
               <CardContent className="mt-auto">
                 <div className="border-t border-border pt-4">
                   {service.monthlyPriceCents === null ? (
-                    <p className="text-sm text-muted-foreground">Sans abonnement</p>
+                    <p className="text-sm text-muted-foreground">{t("noSubscription")}</p>
                   ) : (
                     <MonthlyPrice cents={service.monthlyPriceCents} className="text-base" />
                   )}
                 </div>
                 {service.usageCap && (
                   <p className="mt-0.5 text-xs text-muted-foreground">
-                    {formatUsageCap(service.usageCap)}
+                    {price.usageCap(service.usageCap)}
                   </p>
                 )}
               </CardContent>
@@ -64,7 +67,7 @@ export function ServiceCatalogGrid({
                     className: "w-full",
                   })}
                 >
-                  {status ? "Activer à nouveau" : "Activer"}
+                  {status ? t("activateAgain") : t("activate")}
                   <span className="sr-only"> {service.name}</span>
                 </Link>
               </CardFooter>

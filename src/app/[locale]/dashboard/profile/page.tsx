@@ -1,4 +1,5 @@
 import { titleMetadata } from "@/i18n/metadata";
+import { getTranslations } from "next-intl/server";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import { parsePreferences } from "@/lib/email/preferences";
@@ -20,12 +21,13 @@ export default async function ProfilePage() {
     image: session.user.image ?? "",
   };
 
-  const [user, credentialAccounts] = await Promise.all([
+  const [user, credentialAccounts, t] = await Promise.all([
     db.user.findUniqueOrThrow({
       where: { id: session.user.id },
       select: { notificationPreferences: true, twoFactorEnabled: true },
     }),
     db.account.count({ where: { userId: session.user.id, providerId: "credential" } }),
+    getTranslations("Dashboard.profile"),
   ]);
   const initialPreferences = parsePreferences(user.notificationPreferences);
   const hasPassword = credentialAccounts > 0;
@@ -33,12 +35,12 @@ export default async function ProfilePage() {
   return (
     <PageShell size="form">
       <PageHeader
-        title="Profil"
-        description="Vos informations, vos e-mails et la sécurité de votre compte."
+        title={t("title")}
+        description={t("description")}
       />
       <AccountForm initialAccount={initialAccount} />
       <p className="-mt-4 mb-4 text-sm text-muted-foreground">
-        Vos entreprises se gèrent depuis le sélecteur d&apos;organisation, en haut de la barre latérale.
+        {t("organizationsHint")}
       </p>
       <NotificationPreferencesForm initialPreferences={initialPreferences} />
       {hasPassword && <PasswordForm />}

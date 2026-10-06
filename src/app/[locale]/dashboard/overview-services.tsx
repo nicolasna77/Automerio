@@ -1,10 +1,12 @@
+import { getTranslations } from "next-intl/server";
+import { getLabels } from "@/lib/labels-server";
 import { Link } from "@/i18n/navigation";
 import { ChevronRight, TriangleAlert } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/status-badge";
 import { db } from "@/lib/db";
-import { SETUP_ANCHOR, setupAction } from "@/lib/catalog";
+import { SETUP_ANCHOR } from "@/lib/catalog";
 import { ServiceGlyph } from "@/components/service-glyph";
 import { toMyServiceDTO } from "./get-my-service";
 import { ServiceSettingsButton } from "./service-settings-button";
@@ -14,6 +16,7 @@ export async function OverviewServices({
 }: {
   organizationId: string;
 }) {
+  const [t, labels] = await Promise.all([getTranslations("Dashboard.overview.services"), getLabels()]);
   const rows = await db.clientService.findMany({
     where: { organizationId, status: { not: "CANCELED" } },
     include: { service: true, events: { orderBy: { createdAt: "desc" } } },
@@ -27,19 +30,19 @@ export async function OverviewServices({
     <Card>
       <CardHeader>
         <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-          <CardTitle as="h2" className="text-base">Vos solutions</CardTitle>
+          <CardTitle as="h2" className="text-base">{t("title")}</CardTitle>
           <Link
             href="/dashboard/services"
             className="relative touch-hitbox rounded-sm text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:focus-ring"
           >
-            Tout voir
+            {t("seeAll")}
           </Link>
         </div>
       </CardHeader>
       <CardContent>
         <ul className="divide-y divide-border">
           {items.map((item) => {
-            const action = setupAction(item);
+            const action = labels.setupAction(item);
             return (
               <li key={item.clientServiceId} className="relative py-3 first:pt-0 last:pb-0">
                 <div className="flex items-start gap-3">
@@ -55,7 +58,7 @@ export async function OverviewServices({
                           className="outline-none after:absolute after:inset-0 hover:underline focus-visible:underline"
                         >
                           {item.name}
-                          <span className="sr-only">, voir le détail</span>
+                          <span className="sr-only">{t("seeDetail")}</span>
                         </Link>
                       </p>
                       <div className="flex shrink-0 items-center gap-1.5">

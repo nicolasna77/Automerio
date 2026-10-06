@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,7 @@ export function PasswordInput({
   describedBy,
   ...props
 }: Omit<React.ComponentProps<"input">, "type"> & { describedBy?: string }) {
+  const t = useTranslations("Common");
   const [visible, setVisible] = useState(false);
   const [capsLock, setCapsLock] = useState(false);
   const capsId = useId();
@@ -39,7 +41,7 @@ export function PasswordInput({
           type="button"
           onClick={() => setVisible((shown) => !shown)}
           aria-pressed={visible}
-          aria-label={visible ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+          aria-label={visible ? t("hidePassword") : t("showPassword")}
           className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-3xl text-muted-foreground transition-colors hover:text-foreground focus-visible:focus-ring"
         >
           {visible ? (
@@ -51,7 +53,7 @@ export function PasswordInput({
       </div>
       {capsLock && (
         <p id={capsId} className="text-xs text-muted-foreground">
-          Verr. Maj est activé.
+          {t("capsLock")}
         </p>
       )}
     </div>

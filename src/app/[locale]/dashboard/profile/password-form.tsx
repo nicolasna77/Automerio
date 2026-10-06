@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, type FormEvent } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,9 @@ import { authClient } from "@/lib/auth-client";
 import { ProfileSection } from "./profile-section";
 
 export function PasswordForm() {
+  const t = useTranslations("Dashboard.profile.password");
+  const tCommon = useTranslations("Common");
+  const tAccount = useTranslations("Dashboard.profile.account");
   const [open, setOpen] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -25,11 +29,11 @@ export function PasswordForm() {
     e.preventDefault();
 
     if (newPassword !== confirmPassword) {
-      toast.error("Les deux mots de passe ne correspondent pas.");
+      toast.error(t("mismatch"));
       return;
     }
     if (newPassword.length < 8) {
-      toast.error("Le mot de passe doit contenir au moins 8 caractères.");
+      toast.error(t("tooShort"));
       return;
     }
 
@@ -40,10 +44,10 @@ export function PasswordForm() {
         revokeOtherSessions: true,
       });
       if (error) {
-        toast.error(error.message ?? "Une erreur est survenue.");
+        toast.error(error.message ?? tAccount("error"));
         return;
       }
-      toast.success("Mot de passe mis à jour.");
+      toast.success(t("updated"));
       reset();
       setOpen(false);
     });
@@ -51,12 +55,12 @@ export function PasswordForm() {
 
   return (
     <ProfileSection
-      title="Mot de passe"
-      description="Le changer déconnecte vos autres appareils."
+      title={t("title")}
+      description={t("description")}
       action={
         !open && (
           <Button type="button" variant="outline" onClick={() => setOpen(true)}>
-            Changer le mot de passe
+            {t("change")}
           </Button>
         )
       }
@@ -64,7 +68,7 @@ export function PasswordForm() {
       {open && (
         <form onSubmit={handleSubmit} className="grid gap-4 sm:max-w-md">
           <div className="space-y-2">
-            <Label htmlFor="currentPassword">Mot de passe actuel</Label>
+            <Label htmlFor="currentPassword">{t("current")}</Label>
             <Input
               id="currentPassword"
               type="password"
@@ -76,7 +80,7 @@ export function PasswordForm() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="newPassword">Nouveau mot de passe</Label>
+            <Label htmlFor="newPassword">{t("new")}</Label>
             <Input
               id="newPassword"
               type="password"
@@ -86,10 +90,10 @@ export function PasswordForm() {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
             />
-            <p className="text-xs text-muted-foreground">8 caractères minimum.</p>
+            <p className="text-xs text-muted-foreground">{t("minLength")}</p>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirmer le nouveau mot de passe</Label>
+            <Label htmlFor="confirmPassword">{t("confirm")}</Label>
             <Input
               id="confirmPassword"
               type="password"
@@ -101,7 +105,7 @@ export function PasswordForm() {
           </div>
           <div className="flex gap-2">
             <Button type="submit" disabled={isPending} aria-busy={isPending}>
-              {isPending ? "Mise à jour…" : "Mettre à jour"}
+              {isPending ? t("updating") : t("update")}
             </Button>
             <Button
               type="button"
@@ -112,7 +116,7 @@ export function PasswordForm() {
                 setOpen(false);
               }}
             >
-              Annuler
+              {tCommon("cancel")}
             </Button>
           </div>
         </form>

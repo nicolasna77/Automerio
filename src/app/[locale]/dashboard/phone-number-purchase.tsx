@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
+import { formatFrenchPhone } from "@/lib/phone-format";
 import { toast } from "sonner";
 import { Loader2, Phone, Search } from "lucide-react";
 import {
@@ -30,6 +32,8 @@ export function PhoneNumberPurchase({
 }: {
   clientServiceId: string;
 }) {
+  const t = useTranslations("Dashboard.connectors.phone");
+  const tCommon = useTranslations("Common");
   const [results, setResults] = useState<AvailableNumber[] | null>(null);
   const [isSearching, startSearch] = useTransition();
   const [isPurchasing, startPurchase] = useTransition();
@@ -52,7 +56,7 @@ export function PhoneNumberPurchase({
     startPurchase(async () => {
       try {
         unwrap(await purchasePhoneNumberForService(clientServiceId, confirmNumber.phoneNumber));
-        toast.success(`Numéro ${confirmNumber.phoneNumber} activé.`);
+        toast.success(t("activated", { number: formatFrenchPhone(confirmNumber.phoneNumber) }));
         setConfirmNumber(null);
       } catch (err) {
         toast.error(
@@ -76,7 +80,7 @@ export function PhoneNumberPurchase({
         ) : (
           <Search aria-hidden="true" data-icon="inline-start" />
         )}
-        Rechercher un numéro
+        {t("search")}
       </Button>
     );
   }
@@ -86,7 +90,7 @@ export function PhoneNumberPurchase({
       <div className="space-y-2">
         {results.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            Aucun numéro disponible pour l&apos;instant. Réessayez plus tard.
+            {t("none")}
           </p>
         ) : (
           <ul className="space-y-1.5">
@@ -97,7 +101,7 @@ export function PhoneNumberPurchase({
               >
                 <span className="flex items-center gap-2">
                   <Phone className="size-3.5 text-muted-foreground" aria-hidden="true" />
-                  {number.phoneNumber}
+                  {formatFrenchPhone(number.phoneNumber)}
                   {number.locality && (
                     <span className="text-xs text-muted-foreground">
                       {number.locality}
@@ -109,7 +113,7 @@ export function PhoneNumberPurchase({
                   variant="outline"
                   onClick={() => setConfirmNumber(number)}
                 >
-                  Choisir
+                  {t("choose")}
                 </Button>
               </li>
             ))}
@@ -122,7 +126,7 @@ export function PhoneNumberPurchase({
           disabled={isSearching}
           aria-busy={isSearching}
         >
-          {isSearching ? "Recherche…" : "Actualiser la recherche"}
+          {isSearching ? t("searching") : t("refresh")}
         </Button>
       </div>
 
@@ -133,21 +137,18 @@ export function PhoneNumberPurchase({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Activer le {confirmNumber?.phoneNumber} ?
+              {t("confirmTitle", { number: confirmNumber ? formatFrenchPhone(confirmNumber.phoneNumber) : "" })}
             </AlertDialogTitle>
-            <AlertDialogDescription>
-              Ce numéro sera acheté immédiatement et rattaché à votre
-              solution. Le coût est couvert par votre abonnement.
-            </AlertDialogDescription>
+            <AlertDialogDescription>{t("confirmDescription")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPurchasing}>Annuler</AlertDialogCancel>
+            <AlertDialogCancel disabled={isPurchasing}>{tCommon("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handlePurchase}
               disabled={isPurchasing}
               aria-busy={isPurchasing}
             >
-              {isPurchasing ? "Activation…" : "Confirmer"}
+              {isPurchasing ? t("activating") : t("confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

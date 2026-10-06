@@ -1,11 +1,13 @@
 import { titleMetadata } from "@/i18n/metadata";
+import { getLabels } from "@/lib/labels-server";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { redirect } from "next/navigation";
 import { Plus } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { db } from "@/lib/db";
 import { requireActiveOrganization } from "@/lib/organization";
-import { SETUP_ANCHOR, setupAction, type MyServiceDTO } from "@/lib/catalog";
+import { SETUP_ANCHOR, type MyServiceDTO } from "@/lib/catalog";
 import { toMyServiceDTO } from "../get-my-service";
 import { CheckoutNotice } from "../checkout-notice";
 import { MyServices } from "../my-services";
@@ -20,9 +22,11 @@ export default async function PrestationsPage({
 }: {
   searchParams: Promise<{ checkout?: string; clientServiceId?: string }>;
 }) {
-  const [{ active: organization }, params] = await Promise.all([
+  const [{ active: organization }, params, t, labels] = await Promise.all([
     requireActiveOrganization(),
     searchParams,
+    getTranslations("Dashboard.services"),
+    getLabels(),
   ]);
 
   const clientServices = await db.clientService.findMany({
@@ -42,17 +46,17 @@ export default async function PrestationsPage({
   const checkoutTarget = params.clientServiceId
     ? myServices.find((m) => m.clientServiceId === params.clientServiceId)
     : undefined;
-  const checkoutNextStep = checkoutTarget ? setupAction(checkoutTarget) : null;
+  const checkoutNextStep = checkoutTarget ? labels.setupAction(checkoutTarget) : null;
 
   return (
     <PageShell size="wide">
       <PageHeader
-        title="Solutions"
-        description="Les automatisations que vous avez activées, et où en est chacune."
+        title={t("title")}
+        description={t("description")}
         actions={
           <Link href={CATALOGUE_PATH} className={buttonVariants({ variant: "outline" })}>
             <Plus aria-hidden="true" data-icon="inline-start" />
-            Ajouter une solution
+            {t("add")}
           </Link>
         }
         className="mb-6"

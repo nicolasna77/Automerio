@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useRouter } from "@/i18n/navigation";
 import { CheckCircle2, Info, Loader2, X } from "lucide-react";
@@ -24,6 +25,7 @@ export function CheckoutNotice({
   nextStep?: { cta: string; href: string } | null;
 }) {
   const router = useRouter();
+  const t = useTranslations("Dashboard.checkout");
   const [dismissed, setDismissed] = useState(false);
   const [attempts, setAttempts] = useState(0);
   const attemptsRef = useRef(0);
@@ -61,29 +63,28 @@ export function CheckoutNotice({
       )}
       <AlertTitle>
         {status === "canceled"
-          ? "Paiement annulé"
+          ? t("canceledTitle")
           : awaitingPayment
-            ? `Paiement reçu${serviceName ? ` pour « ${serviceName} »` : ""}`
-            : `Paiement confirmé${serviceName ? ` pour « ${serviceName} »` : ""}`}
+            ? serviceName
+              ? t("receivedTitleFor", { name: serviceName })
+              : t("receivedTitle")
+            : serviceName
+              ? t("confirmedTitleFor", { name: serviceName })
+              : t("confirmedTitle")}
       </AlertTitle>
       <AlertDescription>
-        {status === "canceled" &&
-          "Aucun paiement n'a été effectué. Vous pouvez réessayer quand vous le souhaitez depuis votre solution ci-dessous, ou depuis le catalogue."}
+        {status === "canceled" && t("canceled")}
         {status === "success" &&
           awaitingPayment &&
           !timedOut &&
-          "Nous enregistrons votre paiement, cela ne prend que quelques secondes…"}
+          t("recording")}
         {status === "success" &&
           awaitingPayment &&
           timedOut &&
-          "L'enregistrement du paiement prend plus de temps que prévu. Actualisez la page dans un instant, ou contactez-nous si le problème persiste."}
+          t("slow")}
         {status === "success" &&
           !awaitingPayment &&
-          (nextStep
-            ? "Il reste une étape pour que votre assistant puisse répondre."
-            : initialStatus === "CONFIGURING"
-              ? "Notre équipe installe votre solution et vous prévient dès qu'elle est active."
-              : "Votre solution est active. Retrouvez-la dans « Mes solutions » ci-dessous.")}
+          (nextStep ? t("nextStep") : initialStatus === "CONFIGURING" ? t("configuring") : t("active"))}
         {status === "success" && nextStep && (
           <div className="mt-3">
             <Link href={nextStep.href} className={buttonVariants({ size: "sm" })}>
@@ -97,7 +98,7 @@ export function CheckoutNotice({
           variant="ghost"
           size="icon-sm"
           onClick={() => setDismissed(true)}
-          aria-label="Fermer ce message"
+          aria-label={t("dismiss")}
         >
           <X aria-hidden="true" />
         </Button>
