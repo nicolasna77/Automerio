@@ -97,7 +97,10 @@ export function PasswordForm() {
               minLength={8}
               autoComplete="new-password"
               value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
+              onChange={(e) => {
+                setNewPassword(e.target.value);
+                if (fieldError?.field === "newPassword") setFieldError(null);
+              }}
               aria-invalid={fieldError?.field === "newPassword" ? true : undefined}
               aria-describedby={fieldError?.field === "newPassword" ? "newPassword-hint newPassword-error" : "newPassword-hint"}
             />
@@ -114,7 +117,10 @@ export function PasswordForm() {
               required
               autoComplete="new-password"
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+                if (fieldError?.field === "confirmPassword") setFieldError(null);
+              }}
               aria-invalid={fieldError?.field === "confirmPassword" ? true : undefined}
               aria-describedby={fieldError?.field === "confirmPassword" ? "confirmPassword-error" : undefined}
             />

@@ -3,7 +3,7 @@
 import { useLabels } from "@/hooks/use-labels";
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { toast } from "@/lib/toast";
+import { dismissErrorToasts, toast } from "@/lib/toast";
 import { Switch } from "@/components/ui/switch";
 import { getErrorMessage } from "@/lib/utils";
 import { unwrap } from "@/lib/action-result";
@@ -58,6 +58,7 @@ function NotificationToggleRow({
     startTransition(async () => {
       try {
         unwrap(await setNotificationPreference(type, checked));
+        dismissErrorToasts();
       } catch (err) {
         setEnabled(previous);
         toast.error(getErrorMessage(err));

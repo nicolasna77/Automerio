@@ -13,7 +13,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -61,9 +60,6 @@ export function ServicesTable({ services }: { services: EditableService[] }) {
                 <TableRow key={service.id}>
                   <TableCell className="font-medium text-foreground">
                     {service.name}
-                    {!service.isActive && (
-                      <Badge variant="secondary" className="ml-2">Inactive</Badge>
-                    )}
                     <p className="text-xs font-normal text-muted-foreground">
                       {service.slug}
                     </p>
