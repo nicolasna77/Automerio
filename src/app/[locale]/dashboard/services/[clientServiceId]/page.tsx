@@ -11,18 +11,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireUser } from "@/lib/session";
 import { requireActiveOrganization } from "@/lib/organization";
 import { getMyService } from "@/app/[locale]/dashboard/get-my-service";
-import { asStringArray, FACEBOOK_SERVICE_SLUG, INSTAGRAM_SERVICE_SLUG, TELEPHONY_SERVICE_SLUGS, WHATSAPP_SERVICE_SLUG } from "@/lib/catalog";
+import { asStringArray, MESSAGING_SERVICE_SLUGS, TELEPHONY_SERVICE_SLUGS } from "@/lib/catalog";
 import { StatusBadge } from "@/components/status-badge";
 import { ServiceGlyphBadge } from "@/components/service-glyph";
 import { BookingsCalendar } from "@/components/bookings-calendar";
 import { toCalendarBookings } from "@/lib/bookings";
 import { ServiceProgress } from "@/app/[locale]/dashboard/service-progress";
-import { ServiceTimeline } from "@/app/[locale]/dashboard/service-timeline";
 import {
   hasLiveCalls,
   isLiveTelephony,
   ServiceCallsContent,
-  ServiceConfigurationCard,
   ServiceLiveCard,
 } from "@/app/[locale]/dashboard/service-detail-table";
 import { ServiceActivityTabs } from "@/app/[locale]/dashboard/service-activity-tabs";
@@ -37,19 +35,14 @@ import { getSubscriptionFor } from "@/lib/subscriptions";
 import { formatPriceWithVat } from "@/lib/vat";
 import { PageBreadcrumbs, PageShell } from "@/components/page-shell";
 
-const MESSAGING_SERVICE_SLUGS = new Set([
-  WHATSAPP_SERVICE_SLUG,
-  FACEBOOK_SERVICE_SLUG,
-  INSTAGRAM_SERVICE_SLUG,
-]);
-
 export const generateMetadata = titleMetadata("serviceDetail");
 
 // Disposition : ce qui demande une action ou montre l'activité occupe la
 // colonne principale (mise en service, appels, rendez-vous, conversations) ;
-// l'abonnement, l'essai, les réglages et l'historique vont dans la colonne
-// latérale. Sans activité à montrer, les cartes latérales passent sur deux
-// colonnes plutôt que de laisser un grand vide.
+// l'abonnement et l'essai vont dans la colonne latérale ; les réglages ont
+// leur propre page (bouton Réglages de l'en-tête). Sans activité à montrer,
+// les cartes latérales passent sur deux colonnes plutôt que de laisser un
+// grand vide.
 export default async function ServiceDetailPage({
   params,
   searchParams,
@@ -78,8 +71,6 @@ export default async function ServiceDetailPage({
   const showBookings =
     isLive && (objectives.includes("appointment") || objectives.includes("order"));
   const isMessaging = MESSAGING_SERVICE_SLUGS.has(item.service.slug);
-  // Téléphonie : l'historique n'est pas affiché ; l'activité (appels,
-  // rendez-vous) prime.
   const isTelephony = TELEPHONY_SERVICE_SLUGS.has(item.service.slug);
   const showSetup = !isSetupComplete(item);
   // Agenda facultatif : une fois la solution en service sans agenda, une
@@ -106,12 +97,6 @@ export default async function ServiceDetailPage({
         />
       )}
       {isLive && isDemoCallAvailable() && <TestCallCard clientServiceId={item.clientServiceId} />}
-      {!isTelephony && (
-        <>
-          <ServiceConfigurationCard item={item} showUsageCap={!subscription?.cap} />
-          <ServiceTimeline events={item.events} />
-        </>
-      )}
     </>
   );
 

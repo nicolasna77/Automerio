@@ -105,7 +105,6 @@ export async function getMyService(
       calendarConnection: true,
       schedulingConnection: true,
       bookings: { orderBy: { createdAt: "desc" }, take: 10 },
-      events: { orderBy: { createdAt: "desc" } },
     },
   });
   if (!clientService) return null;

@@ -29,6 +29,12 @@ export const WHATSAPP_SERVICE_SLUG = "assistant-whatsapp";
 export const FACEBOOK_SERVICE_SLUG = "assistant-facebook";
 export const INSTAGRAM_SERVICE_SLUG = "assistant-instagram";
 
+export const MESSAGING_SERVICE_SLUGS: ReadonlySet<string> = new Set([
+  WHATSAPP_SERVICE_SLUG,
+  FACEBOOK_SERVICE_SLUG,
+  INSTAGRAM_SERVICE_SLUG,
+]);
+
 export const PRODUCT_CATALOG_FIELD_KEY = "productCatalog";
 
 export type WeekDay = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
