@@ -7,7 +7,6 @@ import {
   LayoutDashboard,
   Layers,
   LifeBuoy,
-  Receipt,
   ShieldCheck,
   UserRound,
   Users,
@@ -34,6 +33,7 @@ export function DashboardSidebar({
   organizations,
   openHelpRequestCount,
   pendingCallbackCount = 0,
+  showCalendar = true,
   name,
   email,
 }: {
@@ -42,6 +42,9 @@ export function DashboardSidebar({
   organizations: OrganizationSummary[];
   openHelpRequestCount: number;
   pendingCallbackCount?: number;
+  // Le calendrier ne sert qu'aux solutions de téléphonie (rendez-vous pris
+  // par l'assistant) : masqué pour un client qui n'en a aucune.
+  showCalendar?: boolean;
   name: string;
   email: string;
 }) {
@@ -76,14 +79,16 @@ export function DashboardSidebar({
                   icon: Layers,
                   matches: ["/dashboard/services"],
                 },
-                { href: "/dashboard/calendar", label: t("calendar"), icon: CalendarDays },
-              ],
-            },
-            {
-              label: t("groups.billing"),
-              items: [
-                { href: "/dashboard/subscriptions", label: t("subscriptions"), icon: CreditCard },
-                { href: "/dashboard/payments", label: t("payments"), icon: Receipt },
+                ...(showCalendar
+                  ? [{ href: "/dashboard/calendar", label: t("calendar"), icon: CalendarDays }]
+                  : []),
+                // Abonnements et factures : deux onglets d'une même page.
+                {
+                  href: "/dashboard/subscriptions",
+                  label: t("billing"),
+                  icon: CreditCard,
+                  matches: ["/dashboard/payments"],
+                },
               ],
             },
             {

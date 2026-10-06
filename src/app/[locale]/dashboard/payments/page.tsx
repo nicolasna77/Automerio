@@ -1,10 +1,11 @@
 import { titleMetadata } from "@/i18n/metadata";
 import { getPriceFormatter } from "@/lib/price-format-server";
-import { FileText, TriangleAlert } from "lucide-react";
+import { FileText } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
 import { EmptyState } from "@/components/empty-state";
 import {
@@ -22,6 +23,8 @@ import { formatDate, formatEuroAmount } from "@/lib/catalog";
 import { getMyInvoices, type InvoiceDTO } from "../get-invoices";
 import { organizationCustomerId } from "@/lib/organization-billing";
 import { BillingPortalButton } from "./billing-portal-button";
+import { PaymentFailedAlert } from "./payment-failed-alert";
+import { BillingTabs } from "../billing-tabs";
 import { VAT_PERCENTAGE } from "@/lib/vat";
 import { PageHeader, PageShell } from "@/components/page-shell";
 
@@ -44,45 +47,45 @@ function InvoiceStatusBadge({ status }: { status: InvoiceDTO["status"] }) {
 
 export default async function PaiementsPage() {
   const { active: organization } = await requireActiveOrganization();
-  const [invoices, failing, customerId, activatedCount, t, tSubscriptions] = await Promise.all([
+  const [invoices, failing, customerId, activatedCount, t, tBilling] = await Promise.all([
     getMyInvoices(organization.id),
     db.clientService.findMany({
-      where: { organizationId: organization.id, paymentFailedAt: { not: null } },
+      // Même règle que l'onglet Abonnements : une solution résiliée n'a plus
+      // de paiement à régulariser.
+      where: {
+        organizationId: organization.id,
+        paymentFailedAt: { not: null },
+        status: { in: ["ACTIVE", "CONFIGURING"] },
+      },
       select: { id: true, name: true },
     }),
     organizationCustomerId(organization.id),
     db.clientService.count({ where: { organizationId: organization.id } }),
     getTranslations("Dashboard.payments"),
-    getTranslations("Dashboard.subscriptions"),
+    getTranslations("Dashboard.billing"),
   ]);
   const price = await getPriceFormatter();
 
   return (
     <PageShell size="wide">
       <PageHeader
-        title={t("title")}
-        description={t("description", { vat: VAT_PERCENTAGE })}
+        title={tBilling("title")}
+        description={tBilling("description")}
         actions={
           customerId && invoices.length > 0 && <BillingPortalButton organizationId={organization.id} />
         }
+        className="mb-6"
       />
+      <BillingTabs />
 
-      {failing.length > 0 && (
-        <div
-          role="alert"
-          className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-destructive/30 bg-destructive/5 p-4"
-        >
-          <p className="flex items-start gap-2 text-sm text-foreground">
-            <TriangleAlert className="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden="true" />
-            <span>
-              {tSubscriptions("failing", {
-                names: failing.map((cs) => tSubscriptions("quoted", { name: cs.name })).join(", "),
-              })}
-            </span>
-          </p>
-          {customerId && <BillingPortalButton organizationId={organization.id} variant="default" />}
-        </div>
-      )}
+      <div className="mb-8 empty:hidden">
+        <PaymentFailedAlert
+          names={failing.map((cs) => cs.name)}
+          organizationId={organization.id}
+          canOpenPortal={Boolean(customerId)}
+        />
+      </div>
+      <p className="mb-4 text-sm text-muted-foreground">{t("description", { vat: VAT_PERCENTAGE })}</p>
 
       {invoices.length === 0 ? (
         <EmptyState
@@ -102,7 +105,7 @@ export default async function PaiementsPage() {
           }
         />
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border bg-card">
+        <Card className="gap-0 py-0">
           <Table>
             <TableCaption className="sr-only">{t("table.caption")}</TableCaption>
             <TableHeader>
@@ -154,7 +157,7 @@ export default async function PaiementsPage() {
               ))}
             </TableBody>
           </Table>
-        </div>
+        </Card>
       )}
     </PageShell>
   );

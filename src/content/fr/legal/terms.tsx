@@ -80,7 +80,7 @@ export function TermsContent() {
           Le paiement est traité par Stripe ; Automerio ne conserve aucune donnée de
           carte bancaire. L&apos;abonnement est prélevé chaque mois à la date
           anniversaire de la commande. Les factures sont disponibles dans la
-          rubrique « Paiements » du tableau de bord, où le client peut aussi
+          rubrique « Facturation » du tableau de bord, où le client peut aussi
           mettre à jour son moyen de paiement.
         </p>
         <p>

@@ -2,7 +2,8 @@ import { useTranslations } from "next-intl";
 import { useLabels } from "@/hooks/use-labels";
 import { Link } from "@/i18n/navigation";
 import { MessageSquareText, Phone, TriangleAlert } from "lucide-react";
-import { TELEPHONY_SERVICE_SLUGS, type MyServiceDTO } from "@/lib/catalog";
+import { SETUP_ANCHOR, TELEPHONY_SERVICE_SLUGS, type MyServiceDTO } from "@/lib/catalog";
+import { buttonVariants } from "@/components/ui/button";
 import { formatFrenchPhone } from "@/lib/phone-format";
 import { MonthlyPrice } from "@/components/monthly-price";
 import { StatusBadge } from "@/components/status-badge";
@@ -21,11 +22,22 @@ export const SOLUTION_COLUMNS = "minmax(0,1fr) 9.5rem 8.5rem 4.75rem";
 
 // Une solution dans la liste : toute la ligne ouvre le détail ; les actions
 // secondaires : les réglages ont leur bouton, la résiliation reste dans « ⋯ ».
-export function MyServiceRow({ item, quota }: { item: MyServiceDTO; quota: QuotaState | null }) {
+export function MyServiceRow({
+  item,
+  quota,
+  showPaymentIssue = true,
+}: {
+  item: MyServiceDTO;
+  quota: QuotaState | null;
+  // false sur la vue d'ensemble, où une alerte en tête le signale déjà.
+  showPaymentIssue?: boolean;
+}) {
   const t = useTranslations("Dashboard.services.list");
   const labels = useLabels();
   const { service, status } = item;
-  const hint = labels.setupAction(item)?.hint ?? null;
+  const setup = labels.setupAction(item);
+  const hint = setup?.hint ?? null;
+  const paymentFailed = showPaymentIssue && item.paymentFailedAt !== null;
   const canResume = status === "PENDING_PAYMENT" || status === "CANCELED";
   // Sans quota (téléphonie souscrite avant les forfaits), on garde le simple
   // compteur d'appels du mois.
@@ -104,9 +116,9 @@ export function MyServiceRow({ item, quota }: { item: MyServiceDTO; quota: Quota
         </div>
       </div>
 
-      {(item.paymentFailedAt || hint || item.adminNote || canResume) && (
+      {(paymentFailed || hint || item.adminNote || canResume) && (
         <div className="relative space-y-2 px-4 pb-4 pl-13 sm:px-5 sm:pl-14">
-          {item.paymentFailedAt && (
+          {paymentFailed && (
             <p className="relative z-10 flex items-start gap-2 text-sm text-foreground">
               <TriangleAlert className="mt-0.5 size-4 shrink-0 text-destructive" aria-hidden="true" />
               <span>
@@ -120,14 +132,23 @@ export function MyServiceRow({ item, quota }: { item: MyServiceDTO; quota: Quota
               </span>
             </p>
           )}
-          {hint && (
-            <p className="flex items-start gap-2 text-sm text-foreground">
-              <TriangleAlert className="mt-0.5 size-4 shrink-0 text-attention" aria-hidden="true" />
-              <span>
-                <span className="sr-only">{t("todo")}</span>
-                {hint}
-              </span>
-            </p>
+          {hint && setup && (
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+              <p className="flex items-start gap-2 text-sm text-foreground">
+                <TriangleAlert className="mt-0.5 size-4 shrink-0 text-attention" aria-hidden="true" />
+                <span>
+                  <span className="sr-only">{t("todo")}</span>
+                  {hint}
+                </span>
+              </p>
+              <Link
+                href={`/dashboard/services/${item.clientServiceId}#${SETUP_ANCHOR}`}
+                className={buttonVariants({ size: "sm", variant: "outline", className: "relative z-10" })}
+              >
+                {setup.cta}
+                <span className="sr-only"> {item.name}</span>
+              </Link>
+            </div>
           )}
           {item.adminNote && (
             <p className="flex items-start gap-2 text-sm text-muted-foreground">

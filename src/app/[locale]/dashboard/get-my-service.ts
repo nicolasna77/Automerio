@@ -85,7 +85,8 @@ export function toMyServiceDTO(
       name: cs.service.name,
       description: cs.service.description,
       category: cs.service.category,
-      monthlyPriceCents: cs.service.monthlyPriceCents,
+      // Le prix et le quota de ce client : ceux du volume qu'il a choisi.
+      monthlyPriceCents: cs.monthlyPriceCents ?? cs.service.monthlyPriceCents,
       usageCap: readClientUsageCap(cs, cs.service),
       tier: null,
       configFields: (cs.service.configFields as ServiceDTO["configFields"]) ?? [],
@@ -96,7 +97,8 @@ export function toMyServiceDTO(
 
 export async function getMyService(
   clientServiceId: string,
-  userId: string
+  userId: string,
+  { withEvents = false }: { withEvents?: boolean } = {}
 ): Promise<MyServiceDTO | null> {
   const clientService = await db.clientService.findUnique({
     where: { id: clientServiceId },
@@ -105,6 +107,8 @@ export async function getMyService(
       calendarConnection: true,
       schedulingConnection: true,
       bookings: { orderBy: { createdAt: "desc" }, take: 10 },
+      // L'historique ne s'affiche que dans l'onglet de la page Réglages.
+      ...(withEvents && { events: { orderBy: { createdAt: "desc" as const }, take: 50 } }),
     },
   });
   if (!clientService) return null;

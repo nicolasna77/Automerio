@@ -175,6 +175,18 @@ export function isRunning(subscription: MySubscription): boolean {
   return subscription.status === "ACTIVE" || subscription.status === "CONFIGURING";
 }
 
+export type QuotaUsage = { cap: UsageCap; consumedUnits: number };
+
+// Consommation de la période en cours, par solution, pour celles qui ont un
+// quota et sont en service.
+export function quotasByService(subscriptions: MySubscription[]): Record<string, QuotaUsage> {
+  const quotas: Record<string, QuotaUsage> = {};
+  for (const { clientServiceId, cap, usage } of subscriptions) {
+    if (cap && usage) quotas[clientServiceId] = { cap, consumedUnits: usage.consumedUnits };
+  }
+  return quotas;
+}
+
 function formatShortDate(date: Date): string {
   return new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short" }).format(date);
 }

@@ -1,9 +1,9 @@
 import { getTranslations } from "next-intl/server";
 import { getPriceFormatter } from "@/lib/price-format-server";
-import { PhoneCall, Wallet, Zap } from "lucide-react";
+import { MessageSquareText, PhoneCall, Wallet, Zap } from "lucide-react";
 import { StatStrip, type Stat } from "@/components/stat-strip";
 import { db } from "@/lib/db";
-import { formatEuroAmount } from "@/lib/catalog";
+import { formatEuroAmount, MESSAGING_SERVICE_SLUGS, TELEPHONY_SERVICE_SLUGS } from "@/lib/catalog";
 
 export async function OverviewStats({ organizationId }: { organizationId: string }) {
   const t = await getTranslations("Dashboard.overview.stats");
@@ -11,10 +11,13 @@ export async function OverviewStats({ organizationId }: { organizationId: string
   const now = new Date();
   const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
-  const [activeServices, settingUpCount, callsThisMonth] = await Promise.all([
+  const [activeServices, settingUpCount, callsThisMonth, repliesThisMonth] = await Promise.all([
     db.clientService.findMany({
       where: { organizationId, status: "ACTIVE" },
-      select: { service: { select: { monthlyPriceCents: true } } },
+      select: {
+        monthlyPriceCents: true,
+        service: { select: { slug: true, monthlyPriceCents: true } },
+      },
     }),
     db.clientService.count({
       where: { organizationId, status: { in: ["PENDING_PAYMENT", "CONFIGURING"] } },
@@ -27,12 +30,23 @@ export async function OverviewStats({ organizationId }: { organizationId: string
         occurredAt: { gte: periodStart },
       },
     }),
+    db.conversationMessage.count({
+      where: {
+        direction: "OUTBOUND",
+        createdAt: { gte: periodStart },
+        conversation: { clientService: { organizationId } },
+      },
+    }),
   ]);
 
+  // Le prix payé : celui du volume choisi par le client, à défaut celui du
+  // catalogue (abonnements souscrits avant le choix du volume).
   const monthlySpendCents = activeServices.reduce(
-    (sum, cs) => sum + (cs.service.monthlyPriceCents ?? 0),
+    (sum, cs) => sum + (cs.monthlyPriceCents ?? cs.service.monthlyPriceCents ?? 0),
     0
   );
+  const hasTelephony = activeServices.some((cs) => TELEPHONY_SERVICE_SLUGS.has(cs.service.slug));
+  const hasMessaging = activeServices.some((cs) => MESSAGING_SERVICE_SLUGS.has(cs.service.slug));
 
   const settingUpNote = settingUpCount > 0 ? t("settingUp", { count: settingUpCount }) : null;
 
@@ -55,12 +69,14 @@ export async function OverviewStats({ organizationId }: { organizationId: string
         .filter((part): part is string => part !== null)
         .join(" · "),
     },
-    {
-      icon: PhoneCall,
-      label: t("callsThisMonth"),
-      value: String(callsThisMonth),
-      note: null,
-    },
+    // L'activité des solutions que le client a vraiment : appels pour la
+    // téléphonie, réponses envoyées pour les messageries.
+    ...(hasTelephony || callsThisMonth > 0
+      ? [{ icon: PhoneCall, label: t("callsThisMonth"), value: String(callsThisMonth), note: null }]
+      : []),
+    ...(hasMessaging || repliesThisMonth > 0
+      ? [{ icon: MessageSquareText, label: t("repliesThisMonth"), value: String(repliesThisMonth), note: null }]
+      : []),
   ];
 
   return <StatStrip title={t("title")} stats={stats} />;

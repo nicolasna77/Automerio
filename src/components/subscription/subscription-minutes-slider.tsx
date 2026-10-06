@@ -18,12 +18,15 @@ export function SubscriptionMinutesSlider({
   onChange,
   label,
   disabled = false,
+  showPrice = true,
 }: {
   tier: SubscriptionTier;
   value: number;
   onChange: (units: number) => void;
   label: string;
   disabled?: boolean;
+  // false quand le prix est déjà affiché à côté (récapitulatif de commande).
+  showPrice?: boolean;
 }) {
   const t = useTranslations("MinutesSlider");
   const price = usePriceFormatter();
@@ -97,23 +100,25 @@ export function SubscriptionMinutesSlider({
         <span>{price.usageUnits(tier.maxUnits, tier.unit)}</span>
       </div>
 
-      <p
-        role="status"
-        aria-atomic="true"
-        className="rounded-lg bg-muted px-4 py-3 text-center"
-      >
-        <Figure
-          text={price.amountWithVat(priceCents)}
-          className="block text-2xl font-medium text-foreground"
-          unitClassName="text-base text-muted-foreground"
-        />
-        <span className="block text-xs text-muted-foreground">
-          {price.excludingVatSuffix(priceCents)}
-        </span>
-        <span className="mt-1 block text-sm text-muted-foreground">
-          {t("perMonthFor", { units: quantity })}
-        </span>
-      </p>
+      {showPrice && (
+        <p
+          role="status"
+          aria-atomic="true"
+          className="rounded-lg bg-muted px-4 py-3 text-center"
+        >
+          <Figure
+            text={price.amountWithVat(priceCents)}
+            className="block text-2xl font-medium text-foreground"
+            unitClassName="text-base text-muted-foreground"
+          />
+          <span className="block text-xs text-muted-foreground">
+            {price.excludingVatSuffix(priceCents)}
+          </span>
+          <span className="mt-1 block text-sm text-muted-foreground">
+            {t("perMonthFor", { units: quantity })}
+          </span>
+        </p>
+      )}
     </div>
   );
 }

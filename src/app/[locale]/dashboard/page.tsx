@@ -8,10 +8,11 @@ import { requireActiveOrganization } from "@/lib/organization";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { OverviewStats } from "./overview-stats";
+import { OverviewAttention } from "./overview-attention";
 import { OverviewServices } from "./overview-services";
 import { PendingCallbacks } from "./pending-callbacks";
 import { SpendChart } from "./spend-chart";
-import { OverviewStatsSkeleton, SpendChartSkeleton } from "./overview-skeletons";
+import { OverviewServicesSkeleton, OverviewStatsSkeleton, SpendChartSkeleton } from "./overview-skeletons";
 import { PageShell } from "@/components/page-shell";
 
 export const generateMetadata = titleMetadata("dashboard");
@@ -30,18 +31,25 @@ export default async function DashboardPage() {
 
   return (
     <PageShell size="wide">
-      {/* Pas d'en-tête visible : la page s'ouvre directement sur l'activité. */}
+      {/* Pas d'en-tête visible : la page s'ouvre directement sur l'activité,
+          en commençant par ce qui demande une action (rappels, paiement
+          refusé, forfait presque consommé), puis les chiffres et les
+          solutions. Les blocs « À faire » n'existent que s'il y a quelque
+          chose à faire : pas de squelette qui disparaîtrait au chargement. */}
       <h1 className="sr-only">{t("dashboard")}</h1>
 
       {hasEverActivated ? (
-        <div className="space-y-4">
+        <div className="space-y-6">
           <Suspense fallback={null}>
             <PendingCallbacks organizationId={organization.id} />
+          </Suspense>
+          <Suspense fallback={null}>
+            <OverviewAttention organizationId={organization.id} />
           </Suspense>
           <Suspense fallback={<OverviewStatsSkeleton />}>
             <OverviewStats organizationId={organization.id} />
           </Suspense>
-          <Suspense fallback={null}>
+          <Suspense fallback={<OverviewServicesSkeleton />}>
             <OverviewServices organizationId={organization.id} />
           </Suspense>
           <Suspense fallback={<SpendChartSkeleton />}>
