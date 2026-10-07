@@ -2,11 +2,18 @@
 
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
-import { assertCanReadClientService } from "@/lib/client-service-access";
+import {
+  canManageClientServiceBilling,
+  canReadClientService,
+  viewerOf,
+} from "@/lib/client-service-access";
 import { TELEPHONY_SERVICE_SLUGS } from "@/lib/catalog";
 import {
   DEMO_TIME_LIMIT_SEC,
   TEST_CALLS_PER_DAY,
+  TEST_CALLS_PER_DAY_PER_ORGANIZATION,
+  TEST_CALLS_PER_DAY_PER_USER,
+  testCallsGlobalPerDay,
   TEST_SIP_HEADER,
   buildDemoTwiml,
   formatFrenchPhone,
@@ -22,15 +29,21 @@ const TESTABLE_STATUSES = new Set(["CONFIGURING", "ACTIVE"]);
 export async function requestTestCallAction(clientServiceId: string, phone: string) {
   return runAction(async () => {
     const session = await requireUser();
-    if (!(await assertCanReadClientService(clientServiceId, session.user.id))) {
-      throw actionError("notYourService");
-    }
-
+    const userId = session.user.id;
     const clientService = await db.clientService.findUnique({
       where: { id: clientServiceId },
-      select: { status: true, service: { select: { slug: true } } },
+      select: { organizationId: true, status: true, service: { select: { slug: true } } },
     });
-    if (!clientService || !TELEPHONY_SERVICE_SLUGS.has(clientService.service.slug)) {
+    const viewer = await viewerOf(userId);
+    if (!clientService || !canReadClientService(clientService, viewer)) {
+      throw actionError("notYourService");
+    }
+    // Un appel sortant coûte : seuls les responsables peuvent le déclencher.
+    if (!canManageClientServiceBilling(clientService, viewer)) {
+      throw actionError("managersOnly");
+    }
+    const { organizationId } = clientService;
+    if (!TELEPHONY_SERVICE_SLUGS.has(clientService.service.slug)) {
       throw actionError("phoneOnlyTest");
     }
     if (!TESTABLE_STATUSES.has(clientService.status)) {
@@ -47,13 +60,26 @@ export async function requestTestCallAction(clientServiceId: string, phone: stri
 
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const { testCall, recent } = await db.$transaction(async (tx) => {
-      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${clientServiceId}))`;
-      const recent = await tx.testCall.count({ where: { clientServiceId, createdAt: { gte: since } } });
+      // Verrou par organisation : il couvre aussi le plafond par solution.
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`test-call:${organizationId}`}))`;
+      const recentWhere = { createdAt: { gte: since } };
+      const [recent, byOrganization, byUser, overall] = await Promise.all([
+        tx.testCall.count({ where: { ...recentWhere, clientServiceId } }),
+        tx.testCall.count({ where: { ...recentWhere, clientService: { organizationId } } }),
+        tx.testCall.count({ where: { ...recentWhere, requestedById: userId } }),
+        tx.testCall.count({ where: recentWhere }),
+      ]);
       if (recent >= TEST_CALLS_PER_DAY) {
         throw actionError("testLimit", { count: TEST_CALLS_PER_DAY });
       }
+      if (byOrganization >= TEST_CALLS_PER_DAY_PER_ORGANIZATION || byUser >= TEST_CALLS_PER_DAY_PER_USER) {
+        throw actionError("testLimitAccount");
+      }
+      if (overall >= testCallsGlobalPerDay()) {
+        throw actionError("testUnavailable");
+      }
       const testCall = await tx.testCall.create({
-        data: { clientServiceId, requestedById: session.user.id },
+        data: { clientServiceId, requestedById: userId },
       });
       return { testCall, recent };
     });

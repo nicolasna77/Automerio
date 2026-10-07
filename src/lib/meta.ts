@@ -2,16 +2,7 @@ import crypto from "crypto";
 
 const GRAPH_API_VERSION = "v21.0";
 
-export function validateMetaSignature(
-  signatureHeader: string | null,
-  rawBody: string
-): boolean {
-  const appSecret = process.env.WHATSAPP_APP_SECRET;
-  if (!appSecret || !signatureHeader) return false;
-
-  const [scheme, receivedHex] = signatureHeader.split("=");
-  if (scheme !== "sha256" || !receivedHex) return false;
-
+function matchesSignature(receivedHex: string, rawBody: string, appSecret: string): boolean {
   const expectedHex = crypto
     .createHmac("sha256", appSecret)
     .update(rawBody, "utf-8")
@@ -21,6 +12,35 @@ export function validateMetaSignature(
   const expected = Buffer.from(expectedHex, "hex");
   if (received.length !== expected.length) return false;
   return crypto.timingSafeEqual(received, expected);
+}
+
+// Refus par défaut : sans secret configuré ou sans en-tête, rien ne passe.
+// Chaque secret candidat est comparé en temps constant.
+export function validateMetaSignature(
+  signatureHeader: string | null,
+  rawBody: string,
+  appSecrets: (string | undefined)[] = [process.env.WHATSAPP_APP_SECRET]
+): boolean {
+  if (!signatureHeader) return false;
+
+  const [scheme, receivedHex] = signatureHeader.split("=");
+  if (scheme !== "sha256" || !receivedHex) return false;
+
+  const secrets = appSecrets.filter((secret): secret is string => Boolean(secret?.trim()));
+  // Pas de court-circuit : toutes les comparaisons sont faites.
+  return secrets.reduce((valid, secret) => matchesSignature(receivedHex, rawBody, secret) || valid, false);
+}
+
+// Les webhooks Instagram (API Instagram avec connexion Instagram, voir
+// src/lib/instagram.ts) sont signés avec le secret de l'application Instagram
+// (INSTAGRAM_APP_SECRET). Une page reliée via Facebook Login les fait signer
+// par l'application Meta (WHATSAPP_APP_SECRET) : les deux secrets nous
+// appartiennent, accepter l'un ou l'autre n'ouvre la porte à personne d'autre.
+export function validateInstagramSignature(signatureHeader: string | null, rawBody: string): boolean {
+  return validateMetaSignature(signatureHeader, rawBody, [
+    process.env.INSTAGRAM_APP_SECRET,
+    process.env.WHATSAPP_APP_SECRET,
+  ]);
 }
 
 export function verifyMetaWebhookChallenge(

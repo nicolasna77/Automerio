@@ -39,6 +39,8 @@ export default defineConfig({
       DEMO_CALLS_PER_IP_PER_DAY: "1000",
       DEMO_CALLS_PER_DAY: "100000",
       CRON_SECRET: "secret-de-test-du-cron",
+      // Le compte administrateur de démonstration n'a pas de double authentification.
+      ADMIN_REQUIRE_2FA: "false",
     },
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

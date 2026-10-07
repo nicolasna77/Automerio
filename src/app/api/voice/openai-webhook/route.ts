@@ -5,7 +5,13 @@ import { db } from "@/lib/db";
 import type { Configuration } from "@/lib/catalog";
 import { voiceSettingsOf } from "@/lib/voice-agent/voice";
 import { buildSystemPrompt } from "@/lib/voice-agent/prompt";
-import { getToolDefinitions, runTool, toRealtimeTools } from "@/lib/voice-agent/tools";
+import {
+  createToolSession,
+  getToolDefinitions,
+  runTool,
+  toRealtimeTools,
+  type ToolDefinition,
+} from "@/lib/voice-agent/tools";
 import { recordUsageEvent } from "@/lib/usage-events";
 import { TranscriptCollector, outcomeFromTools } from "@/lib/voice-agent/call-transcript";
 import { finalizeCallSummary } from "@/lib/voice-agent/call-summary";
@@ -13,6 +19,7 @@ import { TEST_SIP_HEADER, readDemoCallId } from "@/lib/demo-call";
 import type { TranscriptTurn } from "@/lib/voice-agent/call-transcript";
 import { buildDemoPrompt } from "@/lib/voice-agent/demo-prompt";
 import { loadDemoCatalog } from "@/lib/voice-agent/demo-catalog";
+import { parseToolArguments } from "@/lib/messaging-agent";
 
 export const maxDuration = 800;
 
@@ -135,6 +142,7 @@ export async function POST(request: Request) {
       sipCallId: callId,
       clientServiceId: clientService.id,
       configuration,
+      tools,
       onFinish: async ({ durationSec, toolCalls, turns }) => {
         await recordUsageEvent({
           clientServiceId: clientService.id,
@@ -163,12 +171,15 @@ function listenToCall({
   sipCallId,
   clientServiceId,
   configuration,
+  tools,
   testMode = false,
   onFinish,
 }: {
   sipCallId: string;
   clientServiceId: string;
   configuration: Configuration;
+  // Outils proposés à l'appel : les seuls que l'agent peut exécuter.
+  tools: ToolDefinition[];
   testMode?: boolean;
   onFinish: (end: CallEnd) => Promise<void>;
 }): Promise<void> {
@@ -177,6 +188,7 @@ function listenToCall({
     const transcript = new TranscriptCollector();
     const toolCalls: { name: string; result: string }[] = [];
     const pendingTools = new Set<Promise<void>>();
+    const session = createToolSession(tools);
     const ws = new WebSocket(`wss://api.openai.com/v1/realtime?call_id=${sipCallId}`, {
       headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
     });
@@ -205,16 +217,13 @@ function listenToCall({
       if (!toolCallId || !toolName) return;
 
       const pending = (async () => {
-        let args: Record<string, unknown> = {};
-        try {
-          args = JSON.parse(realtimeEvent.arguments || "{}");
-        } catch {
-        }
+        const args = parseToolArguments(realtimeEvent.arguments);
 
         const result = await runTool(toolName, args, {
           clientServiceId,
           callId: sipCallId,
           configuration,
+          session,
           testMode,
         });
         toolCalls.push({ name: toolName, result });
@@ -329,6 +338,7 @@ async function acceptTestCall(callId: string, testCallId: string): Promise<void>
   const { clientService } = testCall;
   const configuration = (clientService.configuration ?? {}) as Configuration;
   const { calendarConnected, collectsEmail, fixedDurationMinutes } = calendarOf(clientService);
+  const tools = getToolDefinitions(clientService.service.slug, configuration, calendarConnected, collectsEmail);
 
   try {
     await getOpenAIClient().realtime.calls.accept(callId, {
@@ -340,9 +350,7 @@ async function acceptTestCall(callId: string, testCallId: string): Promise<void>
         fixedDurationMinutes,
         companyName: clientService.organization.name,
       }),
-      tools: toRealtimeTools(
-        getToolDefinitions(clientService.service.slug, configuration, calendarConnected, collectsEmail)
-      ),
+      tools: toRealtimeTools(tools),
       audio: {
         input: { format: { type: "audio/pcmu" } },
         output: { format: { type: "audio/pcmu" }, ...voiceSettingsOf(configuration) },
@@ -364,6 +372,7 @@ async function acceptTestCall(callId: string, testCallId: string): Promise<void>
       sipCallId: callId,
       clientServiceId: clientService.id,
       configuration,
+      tools,
       testMode: true,
       onFinish: async ({ durationSec }) => {
         await db.testCall.update({

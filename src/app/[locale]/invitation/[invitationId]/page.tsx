@@ -8,11 +8,11 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
+import { maskEmail } from "@/lib/mask-email";
 import { getLabels } from "@/lib/labels-server";
 import { AcceptInvitation } from "./accept-invitation";
 
 export const dynamic = "force-dynamic";
-
 
 export const generateMetadata = titleMetadata("invitation");
 
@@ -41,6 +41,17 @@ export default async function InvitationPage({
 
   const usable =
     invitation && invitation.status === "pending" && invitation.expiresAt > new Date();
+  // Le lien peut circuler : l'adresse invitée ne s'affiche en entier qu'à la
+  // personne connectée avec cette adresse.
+  const isInvitee =
+    !!session &&
+    !!invitation &&
+    session.user.email.toLowerCase() === invitation.email.toLowerCase();
+  const shownEmail = invitation
+    ? isInvitee
+      ? invitation.email
+      : maskEmail(invitation.email)
+    : "";
   const role = invitation?.role ?? "member";
   const roleName = labels.role(role);
 
@@ -80,16 +91,13 @@ export default async function InvitationPage({
                       <AcceptInvitation
                         invitationId={invitation.id}
                         organizationName={invitation.organization.name}
-                        addressedToAnotherAccount={
-                          session.user.email.toLowerCase() !==
-                          invitation.email.toLowerCase()
-                        }
-                        invitedEmail={invitation.email}
+                        addressedToAnotherAccount={!isInvitee}
+                        invitedEmail={shownEmail}
                       />
                     ) : (
                       <div className="space-y-3">
                         <p className="text-sm text-muted-foreground">
-                          {t("signInPrompt", { email: invitation.email })}
+                          {t("signInPrompt", { email: shownEmail })}
                         </p>
                         <div className="flex flex-wrap gap-2">
                           <Link

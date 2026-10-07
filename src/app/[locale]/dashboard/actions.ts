@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { CLEARED_META_CONNECTION, isUniqueViolation } from "@/lib/meta-connection";
 import { getTranslations } from "next-intl/server";
 import { settingsHiddenKeys } from "./field-categories";
 import { Prisma } from "@prisma/client";
@@ -16,6 +17,8 @@ import {
 } from "@/lib/catalog";
 import { logServiceEvent } from "@/lib/service-events";
 import {
+  isFrenchE164,
+  PhoneNumberUnavailableError,
   purchasePhoneNumber,
   releasePhoneNumber,
   searchAvailableNumbers,
@@ -27,6 +30,7 @@ import {
 } from "@/lib/whatsapp";
 import { exchangeMetaEmbeddedSignupCode } from "@/lib/meta";
 import { fetchManagedPage, subscribePageToApp } from "@/lib/messenger";
+import { whatsAppNumberBelongsToToken } from "@/lib/meta-accounts";
 import { sendServiceCanceledEmail } from "@/lib/email/notifications";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { sealSecret } from "@/lib/secret-box";
@@ -551,22 +555,35 @@ export async function completeWhatsAppEmbeddedSignup(
       requireUserId(),
       db.clientService.findUniqueOrThrow({ where: { id: clientServiceId } }),
     ]);
-    await requireMemberOn(clientService, userId);
+    await requireBillingRoleOn(clientService, userId);
 
     const accessToken = await exchangeMetaEmbeddedSignupCode(code);
+    if (!(await whatsAppNumberBelongsToToken(wabaId, phoneNumberId, accessToken))) {
+      throw actionError("whatsappAccountMismatch");
+    }
+    const alreadyUsed = await db.clientService.findFirst({
+      where: { whatsappPhoneNumberId: phoneNumberId, id: { not: clientServiceId } },
+      select: { id: true },
+    });
+    if (alreadyUsed) throw actionError("whatsappNumberInUse");
+
     await subscribeAppToWaba(wabaId, accessToken);
     await registerPhoneNumber(phoneNumberId, accessToken);
     const displayNumber = await fetchDisplayPhoneNumber(phoneNumberId, accessToken);
 
-    await db.clientService.update({
-      where: { id: clientServiceId },
-      data: {
-        whatsappPhoneNumberId: phoneNumberId,
-        whatsappBusinessAccountId: wabaId,
-        whatsappAccessToken: accessToken,
-        whatsappDisplayNumber: displayNumber,
-      },
-    });
+    await db.clientService
+      .update({
+        where: { id: clientServiceId },
+        data: {
+          whatsappPhoneNumberId: phoneNumberId,
+          whatsappBusinessAccountId: wabaId,
+          whatsappAccessToken: accessToken,
+          whatsappDisplayNumber: displayNumber,
+        },
+      })
+      .catch((err) => {
+        throw isUniqueViolation(err) ? actionError("whatsappNumberInUse") : err;
+      });
     await logServiceEvent(clientServiceId, "WHATSAPP_CONNECTED", displayNumber);
     revalidateDashboard(clientServiceId);
   });
@@ -578,7 +595,7 @@ export async function disconnectWhatsApp(clientServiceId: string) {
       requireUserId(),
       db.clientService.findUniqueOrThrow({ where: { id: clientServiceId } }),
     ]);
-    await requireMemberOn(clientService, userId);
+    await requireBillingRoleOn(clientService, userId);
 
     await db.clientService.update({
       where: { id: clientServiceId },
@@ -600,23 +617,34 @@ export async function completeMessengerConnection(clientServiceId: string, code:
       requireUserId(),
       db.clientService.findUniqueOrThrow({ where: { id: clientServiceId } }),
     ]);
-    await requireMemberOn(clientService, userId);
+    await requireBillingRoleOn(clientService, userId);
 
+    // La Page est lue dans /me/accounts du jeton obtenu auprès de Meta : elle
+    // ne vient jamais du navigateur, son appartenance est donc garantie.
     const userAccessToken = await exchangeMetaEmbeddedSignupCode(code);
     const page = await fetchManagedPage(userAccessToken);
     if (!page) {
       throw actionError("noFacebookPage");
     }
+    const alreadyUsed = await db.clientService.findFirst({
+      where: { facebookPageId: page.id, id: { not: clientServiceId } },
+      select: { id: true },
+    });
+    if (alreadyUsed) throw actionError("facebookPageInUse");
     await subscribePageToApp(page.id, page.access_token);
 
-    await db.clientService.update({
-      where: { id: clientServiceId },
-      data: {
-        facebookPageId: page.id,
-        facebookPageAccessToken: page.access_token,
-        facebookPageName: page.name,
-      },
-    });
+    await db.clientService
+      .update({
+        where: { id: clientServiceId },
+        data: {
+          facebookPageId: page.id,
+          facebookPageAccessToken: page.access_token,
+          facebookPageName: page.name,
+        },
+      })
+      .catch((err) => {
+        throw isUniqueViolation(err) ? actionError("facebookPageInUse") : err;
+      });
     await logServiceEvent(clientServiceId, "FACEBOOK_CONNECTED", page.name);
     revalidateDashboard(clientServiceId);
   });
@@ -628,7 +656,7 @@ export async function disconnectMessenger(clientServiceId: string) {
       requireUserId(),
       db.clientService.findUniqueOrThrow({ where: { id: clientServiceId } }),
     ]);
-    await requireMemberOn(clientService, userId);
+    await requireBillingRoleOn(clientService, userId);
 
     await db.clientService.update({
       where: { id: clientServiceId },
@@ -649,7 +677,7 @@ export async function disconnectInstagram(clientServiceId: string) {
       requireUserId(),
       db.clientService.findUniqueOrThrow({ where: { id: clientServiceId } }),
     ]);
-    await requireMemberOn(clientService, userId);
+    await requireBillingRoleOn(clientService, userId);
 
     await db.clientService.update({
       where: { id: clientServiceId },
@@ -686,10 +714,19 @@ async function requireOwnedTelephonyService(
   return clientService;
 }
 
+const PHONE_SEARCHES_PER_HOUR_PER_USER = 30;
+const PHONE_PURCHASES_PER_DAY_PER_ORGANIZATION = 3;
+const PHONE_PURCHASE_ATTEMPTS_PER_HOUR_PER_ORGANIZATION = 10;
+const MAX_PHONE_NUMBERS_PER_ORGANIZATION = 10;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 export async function searchPhoneNumbers(clientServiceId: string) {
   return runAction(async () => {
     const userId = await requireUserId();
     await requireOwnedTelephonyService(clientServiceId, userId);
+    if (!(await checkRateLimit("phone-search", userId, "1 h", PHONE_SEARCHES_PER_HOUR_PER_USER))) {
+      throw actionError("tooManyNumberSearches");
+    }
     return searchAvailableNumbers();
   });
 }
@@ -700,9 +737,51 @@ export async function purchasePhoneNumberForService(
 ) {
   return runAction(async () => {
     const userId = await requireUserId();
-    await requireOwnedTelephonyService(clientServiceId, userId);
+    if (!isFrenchE164(phoneNumber)) throw actionError("frenchNumberOnly");
+    const clientService = await requireOwnedTelephonyService(clientServiceId, userId);
+    const { organizationId } = clientService;
 
-    const purchased = await purchasePhoneNumber(phoneNumber);
+    // Un numéro par solution (externalPhoneNumber), et un plafond global par
+    // organisation : chaque numéro est facturé tous les mois par Twilio.
+    const numbersInOrganization = await db.clientService.count({
+      where: { organizationId, externalPhoneNumber: { not: null } },
+    });
+    if (numbersInOrganization >= MAX_PHONE_NUMBERS_PER_ORGANIZATION) {
+      throw actionError("phoneNumberCapReached", { max: MAX_PHONE_NUMBERS_PER_ORGANIZATION });
+    }
+    // Le quota quotidien compte les achats réussis (événements PHONE_ASSIGNED
+    // des dernières 24 h), pas les tentatives : un numéro parti entre-temps ou
+    // une erreur Twilio ne doit pas bloquer l'organisation pour la journée.
+    const purchasesToday = await db.serviceEvent.count({
+      where: {
+        type: "PHONE_ASSIGNED",
+        createdAt: { gte: new Date(Date.now() - DAY_MS) },
+        clientService: { organizationId },
+      },
+    });
+    if (purchasesToday >= PHONE_PURCHASES_PER_DAY_PER_ORGANIZATION) {
+      throw actionError("tooManyNumberPurchases");
+    }
+    // Garde-fou contre le martèlement de l'API Twilio, large pour laisser
+    // plusieurs essais après des numéros devenus indisponibles.
+    if (
+      !(await checkRateLimit(
+        "phone-purchase-attempt",
+        organizationId,
+        "1 h",
+        PHONE_PURCHASE_ATTEMPTS_PER_HOUR_PER_ORGANIZATION
+      ))
+    ) {
+      throw actionError("tooManyNumberPurchases");
+    }
+
+    let purchased: Awaited<ReturnType<typeof purchasePhoneNumber>>;
+    try {
+      purchased = await purchasePhoneNumber(phoneNumber);
+    } catch (err) {
+      if (err instanceof PhoneNumberUnavailableError) throw actionError("numberNoLongerAvailable");
+      throw err;
+    }
 
     const { count } = await db.clientService.updateMany({
       where: { id: clientServiceId, externalPhoneNumber: null },
@@ -751,6 +830,9 @@ export async function cancelService(clientServiceId: string) {
         canceledAt: new Date(),
         externalPhoneNumber: null,
         externalPhoneNumberSid: null,
+        // Libère le numéro WhatsApp, la page ou le compte Instagram : ils
+        // pourront être reliés à une nouvelle solution (identifiants uniques).
+        ...CLEARED_META_CONNECTION,
       },
     });
     await logServiceEvent(clientServiceId, "CANCELED");

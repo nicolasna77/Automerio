@@ -13,6 +13,7 @@ import { CONNECTORS_SECTION_ID } from "./billing-section";
 import { InstagramConnection } from "./instagram-connection";
 import { MessengerConnection } from "./messenger-connection";
 import { WhatsAppConnection } from "./whatsapp-connection";
+import { ManagersOnlyNote } from "./managers-only-note";
 
 // Carte « Connecteurs » commune à l'agenda et aux messageries.
 function ConnectorsShell({ children }: { children: React.ReactNode }) {
@@ -45,8 +46,11 @@ export function ServiceConnectorsCard({
   calendar,
   takesAppointments,
   connectionFailed = false,
+  canManage,
 }: {
   clientServiceId: string;
+  // Propriétaire ou administrateur de l'entreprise : seul à pouvoir connecter.
+  canManage: boolean;
   calendar: MyServiceDTO["calendar"];
   takesAppointments: boolean;
   // Retour de Google en échec (?calendar=error).
@@ -70,7 +74,11 @@ export function ServiceConnectorsCard({
           <p className="mt-1 mb-4 text-sm text-muted-foreground">
             {calendar ? t("connected") : t("notConnected")}
           </p>
-          <CalendarConnection clientServiceId={clientServiceId} calendar={calendar} fromSettings />
+          {canManage ? (
+            <CalendarConnection clientServiceId={clientServiceId} calendar={calendar} fromSettings />
+          ) : (
+            <ManagersOnlyNote />
+          )}
           {!takesAppointments && (
             <p className="mt-4 text-xs text-muted-foreground">
               {t("appointmentsOnly")}
@@ -84,7 +92,7 @@ export function ServiceConnectorsCard({
 // Section « Connecteurs » d'une messagerie : le compte WhatsApp, la page
 // Facebook ou le compte Instagram sur lequel l'assistant répond, pour le
 // connecter, en changer ou le déconnecter.
-export function MessagingConnectorsCard({ item }: { item: MyServiceDTO }) {
+export function MessagingConnectorsCard({ item, canManage }: { item: MyServiceDTO; canManage: boolean }) {
   const t = useTranslations("Dashboard.settingsCards.connectors");
   const slug = item.service.slug;
   return (
@@ -95,21 +103,22 @@ export function MessagingConnectorsCard({ item }: { item: MyServiceDTO }) {
           {t("messagingAccount")}
         </p>
         <p className="mt-1 mb-4 text-sm text-muted-foreground">{t("messagingDescription")}</p>
-        {slug === WHATSAPP_SERVICE_SLUG && (
+        {!canManage && <ManagersOnlyNote />}
+        {canManage && slug === WHATSAPP_SERVICE_SLUG && (
           <WhatsAppConnection
             clientServiceId={item.clientServiceId}
             connected={item.whatsappConnected}
             displayNumber={item.whatsappDisplayNumber}
           />
         )}
-        {slug === FACEBOOK_SERVICE_SLUG && (
+        {canManage && slug === FACEBOOK_SERVICE_SLUG && (
           <MessengerConnection
             clientServiceId={item.clientServiceId}
             connected={item.facebookConnected}
             pageName={item.facebookPageName}
           />
         )}
-        {slug === INSTAGRAM_SERVICE_SLUG && (
+        {canManage && slug === INSTAGRAM_SERVICE_SLUG && (
           <InstagramConnection
             clientServiceId={item.clientServiceId}
             connected={item.instagramConnected}

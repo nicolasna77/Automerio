@@ -196,14 +196,14 @@ model ClientService {
   stripeSubscriptionId      String?
   externalPhoneNumber       String?
   externalPhoneNumberSid    String?
-  whatsappPhoneNumberId     String?
+  whatsappPhoneNumberId     String?   @unique
   whatsappBusinessAccountId String?
   whatsappAccessToken       String?
   whatsappDisplayNumber     String?
-  facebookPageId            String?
+  facebookPageId            String?   @unique
   facebookPageAccessToken   String?
   facebookPageName          String?
-  instagramAccountId        String?
+  instagramAccountId        String?   @unique
   instagramAccessToken      String?
   instagramTokenExpiresAt   DateTime?
   instagramUsername         String?

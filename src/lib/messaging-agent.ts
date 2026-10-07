@@ -1,9 +1,22 @@
 import { getOpenAIClient } from "@/lib/openai";
 import type { Configuration } from "@/lib/catalog";
 import { buildSystemPrompt } from "@/lib/voice-agent/prompt";
-import { getToolDefinitions, runTool } from "@/lib/voice-agent/tools";
+import { createToolSession, getToolDefinitions, runTool } from "@/lib/voice-agent/tools";
 
 const CHAT_MODEL = "gpt-5-mini";
+
+// Des arguments illisibles ne doivent pas faire échouer toute la réponse :
+// l'outil reçoit alors un objet vide et renvoie son erreur de validation.
+export function parseToolArguments(raw: string | undefined): Record<string, unknown> {
+  try {
+    const parsed: unknown = JSON.parse(raw || "{}");
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed)
+      ? (parsed as Record<string, unknown>)
+      : {};
+  } catch {
+    return {};
+  }
+}
 
 export async function generateMessagingReply(
   clientService: {
@@ -20,6 +33,9 @@ export async function generateMessagingReply(
     companyName: clientService.organization.name,
   });
   const tools = getToolDefinitions(clientService.service.slug, configuration, false);
+  // Seuls les outils proposés ci-dessus sont exécutables, et les écritures
+  // sont plafonnées pour l'ensemble de la réponse.
+  const session = createToolSession(tools);
 
   const completion = await getOpenAIClient().chat.completions.create({
     model: CHAT_MODEL,
@@ -41,11 +57,12 @@ export async function generateMessagingReply(
   const toolResults = await Promise.all(
     functionCalls.map(async (call) => ({
       tool_call_id: call.id,
-      output: await runTool(
-        call.function.name,
-        JSON.parse(call.function.arguments || "{}"),
-        { clientServiceId: clientService.id, callId: null, configuration }
-      ),
+      output: await runTool(call.function.name, parseToolArguments(call.function.arguments), {
+        clientServiceId: clientService.id,
+        callId: null,
+        configuration,
+        session,
+      }),
     }))
   );
 
