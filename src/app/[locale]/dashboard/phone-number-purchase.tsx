@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { formatFrenchPhone } from "@/lib/phone-format";
 import { toast } from "@/lib/toast";
-import { Loader2, Phone, Search } from "lucide-react";
+import { Phone, Search } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -72,14 +72,9 @@ export function PhoneNumberPurchase({
         variant="outline"
         size="sm"
         onClick={handleSearch}
-        disabled={isSearching}
-        aria-busy={isSearching}
+        loading={isSearching}
       >
-        {isSearching ? (
-          <Loader2 className="animate-spin" aria-hidden="true" data-icon="inline-start" />
-        ) : (
-          <Search aria-hidden="true" data-icon="inline-start" />
-        )}
+        {!isSearching && <Search aria-hidden="true" data-icon="inline-start" />}
         {t("search")}
       </Button>
     );
@@ -123,8 +118,7 @@ export function PhoneNumberPurchase({
           variant="ghost"
           size="xs"
           onClick={handleSearch}
-          disabled={isSearching}
-          aria-busy={isSearching}
+          loading={isSearching}
         >
           {isSearching ? t("searching") : t("refresh")}
         </Button>
@@ -145,8 +139,7 @@ export function PhoneNumberPurchase({
             <AlertDialogCancel disabled={isPurchasing}>{tCommon("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handlePurchase}
-              disabled={isPurchasing}
-              aria-busy={isPurchasing}
+              loading={isPurchasing}
             >
               {isPurchasing ? t("activating") : t("confirm")}
             </AlertDialogAction>

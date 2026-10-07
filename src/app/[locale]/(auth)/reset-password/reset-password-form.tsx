@@ -193,7 +193,7 @@ export function ResetPasswordForm({
           </Alert>
         )}
 
-        <Button type="submit" className="w-full" disabled={loading} aria-busy={loading}>
+        <Button type="submit" className="w-full" loading={loading}>
           {loading ? t("submitting") : t("submit")}
         </Button>
       </form>

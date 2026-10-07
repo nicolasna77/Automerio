@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState, useTransition, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -166,13 +166,8 @@ export function WaitlistForm() {
         </p>
       )}
 
-      <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={isPending} aria-busy={isPending}>
-        {isPending ? (
-          <>
-            <Loader2 className="animate-spin" data-icon="inline-start" aria-hidden="true" />
-            {t("sending")}
-          </>
-        ) : (
+      <Button type="submit" size="lg" className="w-full sm:w-auto" loading={isPending}>
+        {isPending ? t("sending") : (
           <>
             {t("submit")}
             <ArrowRight data-icon="inline-end" aria-hidden="true" />

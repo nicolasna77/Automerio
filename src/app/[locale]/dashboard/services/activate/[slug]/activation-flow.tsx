@@ -516,7 +516,7 @@ export function ActivationFlow({
           )}
 
           {step.kind === "summary" ? (
-            <Button type="button" onClick={handlePay} disabled={isPending} aria-busy={isPending}>
+            <Button type="button" onClick={handlePay} loading={isPending}>
               {isPending
                 ? t("payment.redirecting")
                 : t("payment.pay", { amount: formatPrice(monthlyPriceCents) })}

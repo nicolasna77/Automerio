@@ -3,7 +3,7 @@
 import { useState, useTransition, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "@/lib/toast";
-import { Loader2, Send } from "lucide-react";
+import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -134,17 +134,8 @@ export function HelpRequestForm({
             />
           </div>
 
-          <Button type="submit" disabled={isPending} aria-busy={isPending}>
-            {isPending ? (
-              <>
-                <Loader2
-                  className="animate-spin"
-                  aria-hidden="true"
-                  data-icon="inline-start"
-                />
-                {tCommon("sending")}
-              </>
-            ) : (
+          <Button type="submit" loading={isPending}>
+            {isPending ? tCommon("sending") : (
               <>
                 <Send aria-hidden="true" data-icon="inline-start" />
                 {t("submit")}

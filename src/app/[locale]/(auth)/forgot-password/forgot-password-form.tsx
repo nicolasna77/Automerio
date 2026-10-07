@@ -121,7 +121,7 @@ export function ForgotPasswordForm() {
             required
           />
         </div>
-        <Button type="submit" className="w-full" disabled={loading} aria-busy={loading}>
+        <Button type="submit" className="w-full" loading={loading}>
           {loading ? tCommon("sending") : t("submit")}
         </Button>
       </form>

@@ -95,8 +95,7 @@ export function ServiceActionsMenu({
             <AlertDialogAction
               variant="destructive"
               onClick={handleUnsubscribe}
-              disabled={isCanceling}
-              aria-busy={isCanceling}
+              loading={isCanceling}
             >
               {isCanceling ? t("canceling") : t("unsubscribe")}
             </AlertDialogAction>

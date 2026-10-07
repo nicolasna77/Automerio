@@ -3,7 +3,7 @@
 import { useLabels } from "@/hooks/use-labels";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { ChevronDown, FileUp, Loader2, Plus, Trash2 } from "lucide-react";
+import { ChevronDown, FileUp, Plus, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -187,15 +187,10 @@ export function ProductCatalogEditor({
       type="button"
       variant={variant}
       size={variant === "default" ? "default" : "sm"}
-      disabled={isImporting}
-      aria-busy={isImporting}
+      loading={isImporting}
       onClick={() => inputRef.current?.click()}
     >
-      {isImporting ? (
-        <Loader2 className="animate-spin" aria-hidden="true" data-icon="inline-start" />
-      ) : (
-        <FileUp aria-hidden="true" data-icon="inline-start" />
-      )}
+      {!isImporting && <FileUp aria-hidden="true" data-icon="inline-start" />}
       {t("import")}
     </Button>
   );

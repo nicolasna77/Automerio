@@ -2,7 +2,7 @@
 
 import { useId, useState, useTransition, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
-import { Loader2, PhoneCall, PhoneIncoming } from "lucide-react";
+import { PhoneCall, PhoneIncoming } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -71,12 +71,8 @@ export function TestCallCard({ clientServiceId }: { clientServiceId: string }) {
                   disabled={isPending}
                   className="sm:max-w-56"
                 />
-                <Button type="submit" disabled={isPending || phone.trim() === ""} aria-busy={isPending}>
-                  {isPending ? (
-                    <Loader2 className="animate-spin" aria-hidden="true" data-icon="inline-start" />
-                  ) : (
-                    <PhoneCall aria-hidden="true" data-icon="inline-start" />
-                  )}
+                <Button type="submit" disabled={phone.trim() === ""} loading={isPending}>
+                  {!isPending && <PhoneCall aria-hidden="true" data-icon="inline-start" />}
                   {t("callMe")}
                 </Button>
               </div>

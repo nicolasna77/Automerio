@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useRouter } from "@/i18n/navigation";
 import { toast } from "@/lib/toast";
-import { BadgeInfo, Check, CreditCard, History, Loader2, PhoneForwarded, Plug, UtensilsCrossed, type LucideIcon } from "lucide-react";
+import { BadgeInfo, Check, CreditCard, History, PhoneForwarded, Plug, UtensilsCrossed, type LucideIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -482,8 +482,7 @@ export function ServiceConfigurationForm({
                   {t("backToService")}
                 </Button>
               )}
-              <Button type="button" onClick={handleSave} disabled={!isDirty || isSaving} aria-busy={isSaving}>
-                {isSaving && <Loader2 className="animate-spin" aria-hidden="true" data-icon="inline-start" />}
+              <Button type="button" onClick={handleSave} disabled={!isDirty} loading={isSaving}>
                 {isSaving ? tCommon("saving") : tCommon("save")}
               </Button>
             </div>

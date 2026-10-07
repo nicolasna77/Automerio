@@ -141,8 +141,7 @@ export function OrganizationManageDialog({
             <AlertDialogAction
               variant="destructive"
               onClick={handleDelete}
-              disabled={isDeleting}
-              aria-busy={isDeleting}
+              loading={isDeleting}
             >
               {isDeleting ? tCommon("deleting") : tCommon("delete")}
             </AlertDialogAction>

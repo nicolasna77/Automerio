@@ -43,8 +43,7 @@ export function GoogleSignInButton({ next = null }: { next?: string | null }) {
       variant="outline"
       className="w-full"
       onClick={handleClick}
-      disabled={loading}
-      aria-busy={loading}
+      loading={loading}
     >
       <GoogleIcon />
       {t("continue")}

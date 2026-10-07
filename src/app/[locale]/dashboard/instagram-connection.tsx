@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "@/lib/toast";
-import { Camera, Loader2 } from "lucide-react";
+import { Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
@@ -56,14 +56,9 @@ export function InstagramConnection({
         variant="ghost"
         size="xs"
         onClick={handleDisconnect}
-        disabled={isPending}
-        aria-busy={isPending}
+        loading={isPending}
       >
-        {isPending ? (
-          <Loader2 className="animate-spin" aria-hidden="true" />
-        ) : (
-          t("disconnect")
-        )}
+        {!isPending && t("disconnect")}
       </Button>
     </div>
   );

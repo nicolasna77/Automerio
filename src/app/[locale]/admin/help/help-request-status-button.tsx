@@ -3,7 +3,6 @@
 import { useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "@/lib/toast";
-import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
@@ -41,12 +40,8 @@ export function HelpRequestStatusButton({
       size="sm"
       variant="outline"
       onClick={handleClick}
-      disabled={isPending}
-      aria-busy={isPending}
+      loading={isPending}
     >
-      {isPending ? (
-        <Loader2 className="animate-spin" aria-hidden="true" data-icon="inline-start" />
-      ) : null}
       {status === "OPEN" ? t("markResolved") : t("reopen")}
     </Button>
   );

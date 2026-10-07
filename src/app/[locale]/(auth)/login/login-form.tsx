@@ -126,7 +126,7 @@ export function LoginForm({
           </Alert>
         )}
 
-        <Button type="submit" className="w-full" disabled={loading} aria-busy={loading}>
+        <Button type="submit" className="w-full" loading={loading}>
           {loading ? t("submitting") : tShared("signIn")}
         </Button>
       </form>

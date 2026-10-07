@@ -70,8 +70,8 @@ export function BanControl({
           variant="outline"
           size="sm"
           onClick={handleUnban}
-          disabled={disabled || isPending}
-          aria-busy={isPending}
+          disabled={disabled}
+          loading={isPending}
         >
           {isPending ? t("unbanning") : t("unban")}
         </Button>
@@ -106,8 +106,7 @@ export function BanControl({
             <AlertDialogAction
               variant="destructive"
               onClick={handleBan}
-              disabled={isPending}
-              aria-busy={isPending}
+              loading={isPending}
             >
               {isPending ? t("banning") : t("ban")}
             </AlertDialogAction>

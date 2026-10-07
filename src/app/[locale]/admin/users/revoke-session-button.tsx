@@ -3,7 +3,6 @@
 import { useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "@/lib/toast";
-import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
@@ -43,14 +42,9 @@ export function RevokeSessionButton({
       variant="ghost"
       size="xs"
       onClick={handleRevoke}
-      disabled={isPending}
-      aria-busy={isPending}
+      loading={isPending}
     >
-      {isPending ? (
-        <Loader2 className="animate-spin" aria-hidden="true" />
-      ) : (
-        t("revoke")
-      )}
+      {!isPending && t("revoke")}
     </Button>
   );
 }

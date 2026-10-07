@@ -129,7 +129,7 @@ export function PasswordForm() {
             )}
           </div>
           <div className="flex gap-2">
-            <Button type="submit" disabled={isPending} aria-busy={isPending}>
+            <Button type="submit" loading={isPending}>
               {isPending ? t("updating") : t("update")}
             </Button>
             <Button

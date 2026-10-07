@@ -92,8 +92,7 @@ export function RoleSelector({
             <AlertDialogAction
               variant="destructive"
               onClick={() => applyRole("ADMIN")}
-              disabled={isPending}
-              aria-busy={isPending}
+              loading={isPending}
             >
               {isPending ? t("roleSelector.promoting") : t("roleSelector.promote")}
             </AlertDialogAction>

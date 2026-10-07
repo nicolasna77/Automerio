@@ -136,8 +136,8 @@ export function AccountDataSection({ requiresPassword }: { requiresPassword: boo
               <AlertDialogAction
                 variant="destructive"
                 onClick={handleDelete}
-                disabled={isPending || !canDelete}
-                aria-busy={isPending}
+                disabled={!canDelete}
+                loading={isPending}
               >
                 {isPending ? tCommon("deleting") : t("deleteAccount")}
               </AlertDialogAction>

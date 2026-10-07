@@ -179,7 +179,7 @@ export function PasswordResetControl({
                 >
                   {tCommon("cancel")}
                 </Button>
-                <Button type="submit" disabled={isPending} aria-busy={isPending}>
+                <Button type="submit" loading={isPending}>
                   {isPending ? t("resetting") : t("reset")}
                 </Button>
               </DialogFooter>

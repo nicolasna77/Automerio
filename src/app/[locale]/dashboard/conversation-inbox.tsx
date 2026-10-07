@@ -3,7 +3,7 @@
 import { useLabels } from "@/hooks/use-labels";
 import { Fragment, useEffect, useLayoutEffect, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, Bot, Hand, Loader2, MessageSquare, SendHorizontal } from "lucide-react";
+import { ArrowLeft, Bot, Hand, MessageSquare, SendHorizontal } from "lucide-react";
 import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -420,12 +420,10 @@ function ConversationThread({
           variant="outline"
           size="sm"
           onClick={toggleTakeover}
-          disabled={isToggling}
+          loading={isToggling}
           className="w-full sm:w-auto"
         >
-          {isToggling ? (
-            <Loader2 className="animate-spin motion-reduce:animate-none" aria-hidden="true" />
-          ) : conversation.humanTakeover ? (
+          {isToggling ? null : conversation.humanTakeover ? (
             <Bot aria-hidden="true" />
           ) : (
             <Hand aria-hidden="true" />
@@ -506,11 +504,11 @@ function ConversationThread({
               <Button
                 type="submit"
                 size="icon-lg"
-                disabled={isSending}
+                loading={isSending}
                 aria-label={t("send")}
                 className="rounded-lg"
               >
-                {isSending ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : <SendHorizontal />}
+                {!isSending && <SendHorizontal />}
               </Button>
             </div>
             <p className="mt-2 flex flex-wrap justify-between gap-x-3 gap-y-1 text-xs text-muted-foreground">

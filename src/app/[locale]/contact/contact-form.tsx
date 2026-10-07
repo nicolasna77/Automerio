@@ -9,7 +9,7 @@ import {
 } from "react";
 import { toast } from "@/lib/toast";
 import { useTranslations } from "next-intl";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -133,20 +133,10 @@ export function ContactForm() {
           <Button
             type="submit"
             size="lg"
-            disabled={isPending}
-            aria-busy={isPending}
+            loading={isPending}
             className="w-full sm:w-auto"
           >
-            {isPending ? (
-              <>
-                <Loader2
-                  className="animate-spin"
-                  data-icon="inline-start"
-                  aria-hidden="true"
-                />
-                {t("sending")}
-              </>
-            ) : (
+            {isPending ? t("sending") : (
               <>
                 {t("submit")}
                 <ArrowRight data-icon="inline-end" aria-hidden="true" />

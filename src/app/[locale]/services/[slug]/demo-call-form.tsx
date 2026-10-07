@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState, useTransition, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { Loader2, PhoneCall, PhoneIncoming } from "lucide-react";
+import { PhoneCall, PhoneIncoming } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -94,15 +94,11 @@ export function DemoCallForm({ serviceSlug }: { serviceSlug: string }) {
         type="submit"
         size="lg"
         className="w-full"
-        disabled={isPending || phone.trim() === ""}
-        aria-busy={isPending}
+        disabled={phone.trim() === ""}
+        loading={isPending}
         aria-describedby={noticeId}
       >
-        {isPending ? (
-          <Loader2 className="animate-spin" aria-hidden="true" data-icon="inline-start" />
-        ) : (
-          <PhoneCall aria-hidden="true" data-icon="inline-start" />
-        )}
+        {!isPending && <PhoneCall aria-hidden="true" data-icon="inline-start" />}
         {t("submit")}
       </Button>
 

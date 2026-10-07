@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "@/lib/toast";
-import { Loader2, MessageSquare } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
@@ -71,14 +71,9 @@ export function MessengerConnection({
         variant="outline"
         size="sm"
         onClick={handleConnect}
-        disabled={isPending}
-        aria-busy={isPending}
+        loading={isPending}
       >
-        {isPending ? (
-          <Loader2 className="animate-spin" aria-hidden="true" data-icon="inline-start" />
-        ) : (
-          <MessageSquare aria-hidden="true" data-icon="inline-start" />
-        )}
+        {!isPending && <MessageSquare aria-hidden="true" data-icon="inline-start" />}
         {t("messenger.connect")}
       </Button>
     );
@@ -94,14 +89,9 @@ export function MessengerConnection({
         variant="ghost"
         size="xs"
         onClick={handleDisconnect}
-        disabled={isPending}
-        aria-busy={isPending}
+        loading={isPending}
       >
-        {isPending ? (
-          <Loader2 className="animate-spin" aria-hidden="true" />
-        ) : (
-          t("disconnect")
-        )}
+        {!isPending && t("disconnect")}
       </Button>
     </div>
   );

@@ -48,7 +48,7 @@ export async function WorkspaceLayout({
             <header className="sticky top-0 z-40 flex h-14 items-center justify-between gap-2 border-b bg-background/95 px-4 backdrop-blur">
               <div className="flex min-w-0 flex-1 items-center gap-2">
                 <SidebarTrigger className="-ml-1 shrink-0" />
-                <Separator orientation="vertical" className="mr-1 h-4 w-px self-center" />
+                <Separator orientation="vertical" className="mr-1 data-[orientation=vertical]:h-4 data-[orientation=vertical]:self-center" />
                 <HeaderBreadcrumbs root={breadcrumbRoot} pages={breadcrumbPages} />
               </div>
               <div className="flex shrink-0 items-center gap-2">

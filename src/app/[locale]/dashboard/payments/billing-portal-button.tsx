@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { CreditCard, Loader2 } from "lucide-react";
+import { CreditCard } from "lucide-react";
 import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { unwrap } from "@/lib/action-result";
@@ -37,14 +37,9 @@ export function BillingPortalButton({
       variant={variant}
       size={size}
       onClick={handleClick}
-      disabled={isPending}
-      aria-busy={isPending}
+      loading={isPending}
     >
-      {isPending ? (
-        <Loader2 className="animate-spin" aria-hidden="true" data-icon="inline-start" />
-      ) : (
-        <CreditCard aria-hidden="true" data-icon="inline-start" />
-      )}
+      {!isPending && <CreditCard aria-hidden="true" data-icon="inline-start" />}
       {t("open")}
     </Button>
   );
