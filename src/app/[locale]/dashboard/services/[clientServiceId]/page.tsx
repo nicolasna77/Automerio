@@ -5,6 +5,7 @@ import { formatFrenchPhone } from "@/lib/phone-format";
 import { notFound } from "next/navigation";
 import { AlertTriangle, MessageSquareText, Plug } from "lucide-react";
 import { Link } from "@/i18n/navigation";
+import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +16,8 @@ import { getMyService } from "@/app/[locale]/dashboard/get-my-service";
 import { asStringArray, canPauseService, MESSAGING_SERVICE_SLUGS, TELEPHONY_SERVICE_SLUGS } from "@/lib/catalog";
 import { StatusBadge } from "@/components/status-badge";
 import { PauseSwitch } from "@/app/[locale]/dashboard/pause-switch";
+import { QuotaMeter } from "@/app/[locale]/dashboard/quota-meter";
+import { MonthlyPrice } from "@/components/monthly-price";
 import { ServiceGlyphBadge } from "@/components/service-glyph";
 import { BookingsCalendar } from "@/components/bookings-calendar";
 import { toCalendarBookings } from "@/lib/bookings";
@@ -31,9 +34,8 @@ import { isDemoCallAvailable } from "@/lib/demo-call";
 import { ConversationHistory } from "@/app/[locale]/dashboard/conversation-history";
 import { ServiceDetailActions } from "@/app/[locale]/dashboard/service-detail-actions";
 import { isSetupComplete, ServiceSetupCard } from "@/app/[locale]/dashboard/service-setup-card";
-import { ServiceSubscriptionCard } from "@/app/[locale]/dashboard/service-subscription-card";
 import { BILLING_SECTION_ID, CONNECTORS_SECTION_ID } from "@/app/[locale]/dashboard/billing-section";
-import { getSubscriptionFor } from "@/lib/subscriptions";
+import { getSubscriptionFor, isRunning } from "@/lib/subscriptions";
 import { formatPriceWithVat } from "@/lib/vat";
 import { PageBreadcrumbs, PageShell } from "@/components/page-shell";
 
@@ -41,10 +43,9 @@ export const generateMetadata = titleMetadata("serviceDetail");
 
 // Disposition : ce qui demande une action ou montre l'activité occupe la
 // colonne principale (mise en service, appels, rendez-vous, conversations) ;
-// l'abonnement et l'essai vont dans la colonne latérale ; les réglages ont
-// leur propre page (bouton Réglages de l'en-tête). Sans activité à montrer,
-// les cartes latérales passent sur deux colonnes plutôt que de laisser un
-// grand vide.
+// l'appel d'essai va dans la colonne latérale, quand il est proposé ; le
+// tarif et le quota sont dans le sous-titre ; les réglages ont leur propre
+// page (bouton Réglages de l'en-tête).
 export default async function ServiceDetailPage({
   params,
   searchParams,
@@ -75,6 +76,10 @@ export default async function ServiceDetailPage({
     await viewerOf(session.user.id)
   );
 
+  const quota = subscription?.cap && subscription.usage
+    ? { cap: subscription.cap, consumedUnits: subscription.usage.consumedUnits }
+    : null;
+  const monthlyCents = subscription?.monthlyPriceCents ?? item.service.monthlyPriceCents;
   const isLive = isLiveTelephony(item);
   const objectives = asStringArray(item.configuration.objectives);
   const showBookings =
@@ -101,17 +106,11 @@ export default async function ServiceDetailPage({
         !item.calendarConnected || Boolean(b.googleEventId || b.externalBookingId),
     });
 
-  const sideCards = (
-    <>
-      {subscription && (
-        <ServiceSubscriptionCard
-          subscription={subscription}
-          settingsHref={`/dashboard/services/${item.clientServiceId}/configuration#${BILLING_SECTION_ID}`}
-        />
-      )}
-      {isLive && isDemoCallAvailable() && <TestCallCard clientServiceId={item.clientServiceId} />}
-    </>
-  );
+  // Le tarif et le quota sont dans le sous-titre : seule la carte d'essai
+  // reste à côté de l'activité.
+  const testCall = isLive && isDemoCallAvailable() ? (
+    <TestCallCard clientServiceId={item.clientServiceId} />
+  ) : null;
 
   return (
     <PageShell size="wide">
@@ -122,16 +121,21 @@ export default async function ServiceDetailPage({
         ]}
       />
 
-      <header className="flex items-start gap-4">
+      <header className="@container flex items-start gap-4">
         <ServiceGlyphBadge slug={item.service.slug} size="lg" />
-        {/* Grille : sur ordinateur, les actions à droite du titre ; sur
-            mobile, après la description plutôt qu'entre le titre et elle. */}
-        <div className="grid min-w-0 flex-1 gap-x-3 sm:grid-cols-[minmax(0,1fr)_auto]">
-          <div className="order-1 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 sm:col-start-1">
+        {/* Grille : quand l'en-tête a la place (requête de conteneur, pas
+            d'écran : la barre latérale réduit la largeur), les actions à
+            droite du titre ; sinon, sous le résumé, sans écraser le titre. */}
+        <div className="grid min-w-0 flex-1 gap-x-3 @4xl:grid-cols-[minmax(0,1fr)_auto]">
+          <div className="order-1 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 @4xl:col-start-1">
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">
               {item.name}
             </h1>
             <StatusBadge status={item.status} pausedAt={item.pausedAt} />
+          </div>
+          {/* L'interrupteur de pause rejoint les actions : il agit sur la
+              solution, comme les réglages et la résiliation. */}
+          <div className="order-4 mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 @4xl:order-none @4xl:col-start-2 @4xl:row-start-1 @4xl:mt-0 @4xl:justify-end">
             {canManage && canPauseService(item) && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <PauseSwitch
@@ -142,26 +146,60 @@ export default async function ServiceDetailPage({
                 <span aria-hidden="true">{tPause("label")}</span>
               </div>
             )}
-          </div>
-          <div className="order-4 mt-3 sm:order-none sm:col-start-2 sm:row-start-1 sm:mt-0">
             <ServiceDetailActions item={item} />
           </div>
 
-          {item.name !== item.service.name && (
-            <p className="order-2 text-sm text-muted-foreground sm:col-start-1">{item.service.name}</p>
-          )}
-          <p className="order-3 mt-2 max-w-2xl text-muted-foreground sm:col-start-1">{item.service.description}</p>
-
-          <p className="order-5 mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm sm:col-start-1">
-            <span className="font-medium text-foreground">{labels.serviceStatus(item)}</span>
-            {!subscription && (
-              <span className="tabular-nums text-muted-foreground">
-                {formatPriceWithVat(item.service.monthlyPriceCents)}
-              </span>
+          <p className="order-2 mt-1 max-w-2xl text-sm text-muted-foreground @4xl:col-start-1">
+            {item.name !== item.service.name && (
+              <span className="font-medium text-foreground">{item.service.name}. </span>
             )}
+            {item.service.description}
           </p>
+
+          {/* Sous-titre : où en est la solution, ce qu'elle coûte et, quand
+              elle a un forfait, ce qui en est consommé ce mois-ci. Trois
+              repères libellés, qui passent à la ligne sans séparateur
+              orphelin. */}
+          <dl
+            aria-label={t("summary.label")}
+            className="order-3 mt-4 flex flex-wrap gap-x-10 gap-y-3 text-sm @4xl:col-span-2 @4xl:col-start-1"
+          >
+            <div>
+              <dt className="text-xs text-muted-foreground">{t("summary.status")}</dt>
+              <dd className="mt-0.5 font-medium text-foreground">{labels.serviceStatus(item)}</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-muted-foreground">{t("summary.price")}</dt>
+              {/* TTC seul : le détail HT est dans la carte Abonnement. */}
+              <dd className="mt-0.5 text-foreground">
+                {monthlyCents === null ? (
+                  formatPriceWithVat(null)
+                ) : (
+                  <MonthlyPrice cents={monthlyCents} showExcludingVat={false} />
+                )}
+              </dd>
+              {subscription && isRunning(subscription) && (
+                <dd className="mt-0.5">
+                  <Link
+                    href={`/dashboard/services/${item.clientServiceId}/configuration#${BILLING_SECTION_ID}`}
+                    className="text-sm text-primary underline-offset-4 hover:underline focus-visible:focus-ring"
+                  >
+                    {t("subscription.adjust")}
+                  </Link>
+                </dd>
+              )}
+            </div>
+            {quota && (
+              <div>
+                <dt className="text-xs text-muted-foreground">{t("summary.quota")}</dt>
+                <dd className="mt-1">
+                  <QuotaMeter cap={quota.cap} consumedUnits={quota.consumedUnits} variant="inline" />
+                </dd>
+              </div>
+            )}
+          </dl>
           {showProgress && (
-            <div className="order-6 max-w-2xl sm:col-start-1">
+            <div className="order-5 max-w-2xl @4xl:col-start-1">
               <ServiceProgress status={item.status} />
             </div>
           )}
@@ -217,8 +255,8 @@ export default async function ServiceDetailPage({
       )}
 
       {hasMainColumn ? (
-        <div className="mt-8 grid items-start gap-6 lg:grid-cols-3">
-          <div className="min-w-0 space-y-6 lg:col-span-2">
+        <div className={cn("mt-8 grid items-start gap-6", testCall && "lg:grid-cols-3")}>
+          <div className={cn("min-w-0 space-y-6", testCall && "lg:col-span-2")}>
             {showSetup && <ServiceSetupCard item={item} canManage={canManage} />}
             {/* Appels et calendrier ensemble : deux onglets d'une même carte. */}
             {showBookings && hasLiveCalls(item) ? (
@@ -246,12 +284,14 @@ export default async function ServiceDetailPage({
             )}
             {isMessaging && <ConversationHistory clientServiceId={item.clientServiceId} />}
           </div>
-          <aside aria-label={t("aside")} className="min-w-0 space-y-6">
-            {sideCards}
-          </aside>
+          {testCall && (
+            <aside aria-label={t("aside")} className="min-w-0 space-y-6">
+              {testCall}
+            </aside>
+          )}
         </div>
       ) : (
-        <div className="mt-8 grid items-start gap-6 lg:grid-cols-2 *:min-w-0">{sideCards}</div>
+        testCall && <div className="mt-8 max-w-xl">{testCall}</div>
       )}
     </PageShell>
   );

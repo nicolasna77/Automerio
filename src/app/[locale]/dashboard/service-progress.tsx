@@ -38,7 +38,8 @@ export function ServiceProgress({ status }: { status: ClientServiceStatus }) {
             key={step.status}
             step={index + 1}
             aria-current={index === currentIndex ? "step" : undefined}
-            className="items-start"
+            // La dernière étape ne rétrécit pas sous son libellé.
+            className="items-start last:shrink-0"
           >
             <div className="flex flex-col items-start gap-1.5">
               <StepperIndicator className="size-4 border-2 border-transparent text-[0.625rem] data-[state=inactive]:border-border data-[state=inactive]:bg-transparent" />

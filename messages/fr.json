@@ -1390,11 +1390,8 @@
         "canceling": "Résiliation…"
       },
       "subscription": {
-        "title": "Abonnement",
-        "cap": "Plafond d'usage : {cap}",
         "noQuota": "Cet abonnement n'a pas de quota d'usage : le montant mensuel ne bouge pas.",
-        "adjust": "Ajuster l'abonnement",
-        "manage": "Gérer mes abonnements"
+        "adjust": "Ajuster l'abonnement"
       },
       "progress": {
         "label": "Étapes de la solution",
@@ -1412,6 +1409,12 @@
         "calendar": "Calendrier"
       },
       "breadcrumb": "Solutions",
+      "summary": {
+        "label": "En bref",
+        "status": "Mise en service",
+        "price": "Tarif",
+        "quota": "Quota du mois"
+      },
       "calendarSuggestion": {
         "title": "Connectez un agenda pour que l'assistant réserve",
         "description": "Facultatif. Sans agenda, l'assistant prend les demandes de rendez-vous en message. Avec Google Agenda, Cal.com ou Calendly, il réserve directement.",
