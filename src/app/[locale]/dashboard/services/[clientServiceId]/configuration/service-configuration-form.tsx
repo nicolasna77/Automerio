@@ -4,7 +4,7 @@ import { useEffect, useId, useMemo, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useRouter } from "@/i18n/navigation";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { BadgeInfo, Check, CreditCard, History, Loader2, PhoneForwarded, Plug, UtensilsCrossed, type LucideIcon } from "lucide-react";
 import {
   AlertDialog,

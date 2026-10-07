@@ -4,7 +4,7 @@ import { useLabels } from "@/hooks/use-labels";
 import { Fragment, useEffect, useLayoutEffect, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { ArrowLeft, Bot, Hand, Loader2, MessageSquare, SendHorizontal } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -433,8 +433,9 @@ function ConversationThread({
       <div
         ref={scrollRef}
         role="log"
+        tabIndex={0}
         aria-label={t("messagesWith", { contact: conversation.contact })}
-        className="min-h-0 flex-1 overflow-y-auto bg-background/60 px-3 py-4 sm:px-4"
+        className="min-h-0 flex-1 overflow-y-auto bg-background/60 px-3 py-4 focus-visible:focus-ring focus-visible:-outline-offset-2 sm:px-4"
       >
         <ol aria-label={t("exchangesWith", { contact: conversation.contact })} className="space-y-1">
           {days.map((day) => (

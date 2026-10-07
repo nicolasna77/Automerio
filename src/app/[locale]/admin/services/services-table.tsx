@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Pencil } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,7 +28,7 @@ import {
 import { CATEGORY_LABELS, formatPrice } from "@/lib/catalog";
 import { formatPriceExcludingVat } from "@/lib/vat";
 import { unwrap } from "@/lib/action-result";
-import { cn, getErrorMessage } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import { usageCapLabelOf } from "@/lib/usage-cap";
 import { setServiceActiveAction } from "./actions";
 import { ServiceEditDialog, type EditableService } from "./service-edit-dialog";
@@ -57,10 +57,7 @@ export function ServicesTable({ services }: { services: EditableService[] }) {
             </TableHeader>
             <TableBody>
               {services.map((service) => (
-                <TableRow
-                  key={service.id}
-                  className={cn(!service.isActive && "opacity-60")}
-                >
+                <TableRow key={service.id}>
                   <TableCell className="font-medium text-foreground">
                     {service.name}
                     <p className="text-xs font-normal text-muted-foreground">
