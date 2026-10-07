@@ -225,24 +225,16 @@
   }
 }
 
-/* Hero de l'accueil : un trait lumineux descend le long d'une ligne de la
-   trame et s'estompe en approchant du bas. Le parent fixe la hauteur à
-   parcourir (container-type: size). Seuls transform et opacity bougent : le
-   navigateur anime sans redessiner. */
-@keyframes hero-beam {
-  0% {
-    transform: translateY(-100%);
-    opacity: 0;
+/* Hero de l'accueil : un trait lumineux suit les lignes de la trame et tourne
+   aux croisements. Le tracé est un pointillé (un seul tiret) qu'on fait
+   avancer : chaque chemin fixe son départ et son arrivée par --trace-from et
+   --trace-to (hero-section.tsx). */
+@keyframes hero-trace {
+  from {
+    stroke-dashoffset: var(--trace-from);
   }
-  15% {
-    opacity: 1;
-  }
-  70% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(100cqh);
-    opacity: 0;
+  to {
+    stroke-dashoffset: var(--trace-to);
   }
 }
 

@@ -40,31 +40,71 @@ async function ActivityCard() {
   );
 }
 
-// Traits lumineux qui descendent le long des lignes verticales de la trame :
-// colonne (multiple de 6rem, le pas de la trame), durée et décalage en
-// secondes. Les décalages négatifs évitent que tout parte en même temps.
-const HERO_BEAMS = [
-  { column: 2, duration: 7, delay: -2 },
-  { column: 4, duration: 5.5, delay: -4 },
-  { column: 6, duration: 8, delay: -1 },
-  { column: 8, duration: 6, delay: -5 },
-  { column: 10, duration: 7.5, delay: -3 },
-  { column: 12, duration: 6.5, delay: -6 },
-  { column: 14, duration: 8.5, delay: -2.5 },
+// Traits lumineux qui suivent les lignes de la trame : ils descendent, tournent
+// à un croisement, longent une ligne horizontale puis redescendent. Chaque
+// tracé est une suite de croisements (colonne, rangée), au pas de la trame
+// (6rem). La rangée -1 est au-dessus du hero : le trait entre par le haut.
+const CELL_PX = 96;
+const HERO_TRACES = [
+  { points: [[2, -1], [2, 2], [4, 2], [4, 5]], duration: 9, delay: -2 },
+  { points: [[5, -1], [5, 1], [6, 1], [6, 3], [5, 3], [5, 5]], duration: 11, delay: -7 },
+  { points: [[8, -1], [8, 3], [7, 3], [7, 5]], duration: 8, delay: -4 },
+  { points: [[10, -1], [10, 1], [12, 1], [12, 4]], duration: 10, delay: -1 },
+  { points: [[13, -1], [13, 2], [14, 2], [14, 5]], duration: 8.5, delay: -6 },
+  { points: [[16, -1], [16, 3], [15, 3], [15, 5]], duration: 9.5, delay: -3 },
+  { points: [[11, -1], [11, 3], [9, 3], [9, 5]], duration: 12, delay: -9 },
 ] as const;
+
+// Longueur lumineuse : une tête vive et une traînée plus pâle, alignées sur le
+// même front ; une pause (hors du tracé) espace les passages.
+const HEAD_PX = 44;
+const TAIL_PX = 150;
+
+// Rayon des virages : le trait ne casse pas à angle droit, il tourne en arc.
+const TURN_RADIUS_PX = 20;
+
+function traceGeometry(points: readonly (readonly [number, number])[]) {
+  const px = points.map(([column, row]) => [column * CELL_PX, row * CELL_PX] as const);
+  const r = TURN_RADIUS_PX;
+  let d = `M${px[0][0]} ${px[0][1]}`;
+  let length = 0;
+  for (let i = 1; i < px.length; i++) {
+    const [x0, y0] = px[i - 1];
+    const [x, y] = px[i];
+    const segment = Math.abs(x - x0) + Math.abs(y - y0);
+    const next = px[i + 1];
+    if (!next) {
+      d += ` L${x} ${y}`;
+      length += segment - (i > 1 ? r : 0);
+      continue;
+    }
+    // Virage en (x, y) : on s'arrête r pixels avant le croisement, puis un
+    // quart de cercle rejoint la ligne suivante r pixels après.
+    const inX = Math.sign(x - x0);
+    const inY = Math.sign(y - y0);
+    const outX = Math.sign(next[0] - x);
+    const outY = Math.sign(next[1] - y);
+    const sweep = inX * outY - inY * outX > 0 ? 1 : 0;
+    d += ` L${x - inX * r} ${y - inY * r} A${r} ${r} 0 0 ${sweep} ${x + outX * r} ${y + outY * r}`;
+    length += segment - r - (i > 1 ? r : 0) + (Math.PI * r) / 2;
+  }
+  return { d, length };
+}
 
 // Trame de fond du hero : lignes fines et un point à chaque croisement,
 // estompée vers les bords, parcourue de traits lumineux (seule trame et seule
 // animation décorative autorisées, DESIGN.md, Couleurs et Mouvement).
-// Les traits vivent hors de la couche masquée : chacun est une couche à part
-// que le navigateur déplace sans rien redessiner, sinon le hero entier serait
-// repeint à chaque image et le défilement saccaderait.
+// Les traits sont un SVG à part, dans sa propre couche (will-change), estompé
+// par le même masque que la trame : seul ce SVG est redessiné quand les
+// traits avancent, pas le hero entier.
+const GRID_MASK = "mask-[radial-gradient(ellipse_70%_60%_at_50%_0%,black_40%,transparent_100%)]";
+
 function HeroGrid() {
   return (
     <>
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-10 mask-[radial-gradient(ellipse_70%_60%_at_50%_0%,black_40%,transparent_100%)]"
+        className={`pointer-events-none absolute inset-0 -z-10 ${GRID_MASK}`}
         style={{
           backgroundImage: [
             "radial-gradient(circle, var(--border) 1.5px, transparent 1.6px)",
@@ -77,18 +117,38 @@ function HeroGrid() {
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[60%] overflow-hidden @container-size motion-reduce:hidden"
+        className={`pointer-events-none absolute inset-0 -z-10 overflow-hidden will-change-transform motion-reduce:hidden ${GRID_MASK}`}
       >
-        {HERO_BEAMS.map((beam) => (
-          <span
-            key={beam.column}
-            className="absolute top-0 h-28 w-px bg-linear-to-b from-transparent via-primary/60 to-primary will-change-transform"
-            style={{
-              left: `calc(${beam.column} * 6rem - 0.5px)`,
-              animation: `hero-beam ${beam.duration}s linear ${beam.delay}s infinite`,
-            }}
-          />
-        ))}
+        <svg className="absolute top-0 left-0" width={CELL_PX * 17} height={CELL_PX * 6} fill="none">
+          {HERO_TRACES.map((trace) => {
+            const { d, length } = traceGeometry(trace.points);
+            // Le front lumineux part du début du tracé et va jusqu'après sa
+            // fin, plus une pause : stroke-dashoffset décroît de la longueur
+            // du trait jusqu'à -(tracé + pause).
+            const travel = length + TAIL_PX + length * 0.4;
+            const layers = [
+              { dash: TAIL_PX, opacity: 0.3 },
+              { dash: HEAD_PX, opacity: 0.9 },
+            ];
+            return layers.map((layer) => (
+              <path
+                key={`${trace.points[0][0]}-${layer.dash}`}
+                d={d}
+                stroke="var(--primary)"
+                strokeOpacity={layer.opacity}
+                strokeWidth={1}
+                strokeDasharray={`${layer.dash} ${travel + TAIL_PX}`}
+                style={
+                  {
+                    "--trace-from": `${layer.dash}px`,
+                    "--trace-to": `${layer.dash - travel}px`,
+                    animation: `hero-trace ${trace.duration}s linear ${trace.delay}s infinite`,
+                  } as React.CSSProperties
+                }
+              />
+            ));
+          })}
+        </svg>
       </div>
     </>
   );
