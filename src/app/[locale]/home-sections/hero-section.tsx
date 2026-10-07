@@ -150,7 +150,6 @@ export async function HeroSection() {
           alt={tShots("overviewAlt")}
           caption={tShots("demoCaption")}
           sizes="(min-width: 1152px) 1104px, 100vw"
-          windowUrl="automerio.com/dashboard"
           captionClassName="text-center"
           showcase
           priority
