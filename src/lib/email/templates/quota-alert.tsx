@@ -56,10 +56,12 @@ export function QuotaAlertEmail({
             : "Vous avez refusé le dépassement : une fois le forfait atteint, l'assistant se mettra en pause jusqu'à son renouvellement. Vous pouvez accepter le dépassement dans les réglages de la solution."}
         </Text>
       )}
-      <Text style={emailMutedTextStyle}>
-        Si ce volume devient habituel, augmenter votre forfait revient moins cher que le
-        dépassement.
-      </Text>
+      {!pausesAtLimit && (
+        <Text style={emailMutedTextStyle}>
+          Si ce volume devient habituel, augmenter votre forfait revient moins cher que le
+          dépassement.
+        </Text>
+      )}
       <Link href={appUrl(`/dashboard/services/${clientServiceId}`)} style={emailButtonStyle}>
         Ajuster mon forfait
       </Link>

@@ -1,4 +1,5 @@
 import { Link } from "@/i18n/navigation";
+import { pausesAtLimit } from "@/lib/usage-cap";
 import { usePriceFormatter } from "@/hooks/use-price-formatter";
 import { useLabels } from "@/hooks/use-labels";
 import { useTranslations } from "next-intl";
@@ -42,7 +43,7 @@ export function SubscriptionCard({
         cap={subscription.cap}
         consumedUnits={subscription.usage.consumedUnits}
         overageCents={subscription.usage.overageCents}
-        pausesAtLimit={!subscription.overageAllowed}
+        pausesAtLimit={pausesAtLimit(subscription.cap, subscription.overageAllowed)}
       />
     ) : (
       running &&

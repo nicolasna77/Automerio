@@ -4,8 +4,8 @@ import { generateMessagingReply } from "@/lib/messaging-agent";
 import { recordUsageEvent } from "@/lib/usage-events";
 import { claimInboundMessage, recordReply } from "@/lib/conversations";
 import { checkRateLimit } from "@/lib/rate-limit";
-import { calendarMonth, consumedUnits } from "@/lib/subscriptions";
-import { readClientUsageCap, type UsageCap, type UsageUnit } from "@/lib/usage-cap";
+import { consumedUnits, storedPeriod } from "@/lib/subscriptions";
+import { pausesAtLimit, readClientUsageCap, type UsageCap, type UsageUnit } from "@/lib/usage-cap";
 
 // Messages entrants WhatsApp, Messenger et Instagram : chaque réponse coûte un
 // appel OpenAI et un envoi Meta à la plateforme. Ce module décide si
@@ -28,18 +28,17 @@ export const SERVICE_DAILY_LIMIT = { window: "24 h", max: 500 } as const;
 export type ReplyRefusal = "sender_rate_limited" | "service_daily_cap" | "quota_exhausted";
 export type ReplyDecision = { allowed: true } | { allowed: false; reason: ReplyRefusal };
 
-// Même règle que la facturation (src/lib/overage-billing.ts) : au-delà du
-// forfait, le dépassement est facturé si le client l'a accepté et qu'il a un
-// prix. Dépassement refusé, ou sans prix : l'assistant s'arrête au forfait.
+// Même règle que la voix et la facturation (pausesAtLimit, usage-cap.ts) :
+// dépassement refusé, ou sans prix, l'assistant s'arrête au forfait.
 export function isQuotaExhausted(cap: UsageCap | null, consumed: number, overageAllowed = true): boolean {
-  if (!cap) return false;
-  if (overageAllowed && cap.overageUnitPriceCents > 0) return false;
+  if (!cap || !pausesAtLimit(cap, overageAllowed)) return false;
   return consumed >= cap.includedUnits;
 }
 
 type QuotaColumns = {
   id: string;
   overageAllowed: boolean;
+  stripeSubscriptionId: string | null;
   includedUsageUnits: number | null;
   service: {
     includedUsageUnits: number | null;
@@ -51,13 +50,10 @@ type QuotaColumns = {
 async function quotaExhausted(clientService: QuotaColumns): Promise<boolean> {
   const cap = readClientUsageCap(clientService, clientService.service);
   // Ne compte en base que si le forfait peut bloquer.
-  if (!cap || (clientService.overageAllowed && cap.overageUnitPriceCents > 0)) return false;
-  // Mois calendaire : évite un appel Stripe par message reçu.
-  return isQuotaExhausted(
-    cap,
-    await consumedUnits(clientService.id, cap, calendarMonth()),
-    clientService.overageAllowed
-  );
+  if (!cap || !pausesAtLimit(cap, clientService.overageAllowed)) return false;
+  // Période de facturation lue en base, comme la voix et le tableau de bord.
+  const period = await storedPeriod(clientService.stripeSubscriptionId);
+  return isQuotaExhausted(cap, await consumedUnits(clientService.id, cap, period), clientService.overageAllowed);
 }
 
 export async function decideAiReply(clientService: QuotaColumns, contactId: string): Promise<ReplyDecision> {

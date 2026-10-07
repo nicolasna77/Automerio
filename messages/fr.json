@@ -1984,7 +1984,8 @@
       "refusedToast": "Dépassement refusé : l'assistant se mettra en pause une fois le forfait atteint.",
       "error": "Le changement n'a pas pu être appliqué.",
       "remaining": "Plus que {remaining}",
-      "pausesSoon": "sur cette période. Au-delà, l'assistant se met en pause : vous avez refusé le dépassement."
+      "pausesSoon": "sur cette période. Au-delà, l'assistant se met en pause : vous avez refusé le dépassement.",
+      "notAvailable": "Au-delà de {included} par mois, l'assistant se met en pause jusqu'au renouvellement du forfait. Augmentez le volume pour aller plus loin."
     }
   },
   "Workspace": {
@@ -2197,7 +2198,9 @@
     "cannotChangeOwnRole": "Vous ne pouvez pas modifier votre propre rôle.",
     "cannotBanSelf": "Vous ne pouvez pas vous bannir vous-même.",
     "cannotResetOwnPassword": "Vous ne pouvez pas réinitialiser votre propre mot de passe ici.",
-    "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères."
+    "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères.",
+    "overageOnlyActive": "Seule une solution en service peut changer ce réglage.",
+    "overageNotAvailable": "Le dépassement n'est pas proposé pour cette solution."
   },
   "Labels": {
     "status": {
@@ -3024,5 +3027,9 @@
         "reopened": "Demande rouverte."
       }
     }
+  },
+  "Voice": {
+    "paused": "Nous ne pouvons pas prendre votre appel pour le moment, merci de rappeler plus tard.",
+    "unavailable": "Service momentanément indisponible, merci de rappeler plus tard."
   }
 }

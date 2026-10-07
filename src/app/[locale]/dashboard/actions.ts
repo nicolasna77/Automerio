@@ -1,5 +1,6 @@
 "use server";
 
+import { readClientUsageCap } from "@/lib/usage-cap";
 import { revalidatePath } from "next/cache";
 import { CLEARED_META_CONNECTION, isUniqueViolation } from "@/lib/meta-connection";
 import { getTranslations } from "next-intl/server";
@@ -872,10 +873,19 @@ export async function setOverageAllowed(clientServiceId: string, allowed: boolea
       throw actionError("tooManyAttempts");
     }
 
-    const clientService = await db.clientService.findUniqueOrThrow({
+    const clientService = await db.clientService.findUnique({
       where: { id: clientServiceId },
+      include: { service: true },
     });
+    if (!clientService) throw actionError("notYourService");
     await requireBillingRoleOn(clientService, userId);
+    // Même conditions que l'interrupteur : une solution en service, avec un
+    // forfait dont le dépassement a un prix.
+    if (clientService.status !== "ACTIVE" && clientService.status !== "CONFIGURING") {
+      throw actionError("overageOnlyActive");
+    }
+    const cap = readClientUsageCap(clientService, clientService.service);
+    if (!cap || cap.overageUnitPriceCents <= 0) throw actionError("overageNotAvailable");
     if (clientService.overageAllowed === allowed) return;
 
     await db.clientService.update({

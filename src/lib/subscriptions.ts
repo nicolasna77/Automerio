@@ -44,6 +44,20 @@ export function calendarMonth(now = new Date()): BillingPeriod {
   };
 }
 
+// Période de facturation en cours, lue dans la table subscription (tenue à
+// jour par les webhooks Stripe) plutôt que par un appel à Stripe : elle sert à
+// chaque appel et à chaque message reçu. Hors période connue, mois calendaire.
+export async function storedPeriod(stripeSubscriptionId: string | null, now = new Date()): Promise<BillingPeriod> {
+  if (!stripeSubscriptionId) return calendarMonth(now);
+  const subscription = await db.subscription.findFirst({
+    where: { stripeSubscriptionId },
+    select: { periodStart: true, periodEnd: true },
+  });
+  const start = subscription?.periodStart;
+  const end = subscription?.periodEnd;
+  return start && end && start <= now && now < end ? { start, end } : calendarMonth(now);
+}
+
 export function periodOf(subscription: Stripe.Subscription): BillingPeriod | null {
   const items = subscription.items.data;
   if (items.length === 0) return null;

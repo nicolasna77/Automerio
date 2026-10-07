@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => ({
   memberFindMany: vi.fn(),
   consumedUnits: vi.fn(),
   calendarMonth: vi.fn(),
+  storedPeriod: vi.fn(),
   sendQuotaAlertEmail: vi.fn(),
   logServiceEvent: vi.fn(),
 }));
@@ -36,6 +37,7 @@ vi.mock("@/lib/subscriptions", () => ({
   consumedUnits: mocks.consumedUnits,
   calendarMonth: mocks.calendarMonth,
   periodOf: mocks.periodOf,
+  storedPeriod: mocks.storedPeriod,
 }));
 
 import type Stripe from "stripe";
@@ -140,12 +142,25 @@ describe("billOverageOnInvoice", () => {
     expect(invoiceItemsCreate).not.toHaveBeenCalled();
   });
 
-  it("ne facture rien quand le client a refuse le depassement", async () => {
+  it("ne facture rien quand le client a refuse le depassement toute la periode", async () => {
     findFirst.mockResolvedValue({ ...clientService, overageAllowed: false });
+    mocks.eventCount.mockResolvedValue(0);
     consumedUnits.mockResolvedValue(160);
     await billOverageOnInvoice(invoice());
     expect(consumedUnits).not.toHaveBeenCalled();
     expect(invoiceItemsCreate).not.toHaveBeenCalled();
+  });
+
+  it("facture quand le depassement a ete coupe pendant la periode, apres usage", async () => {
+    findFirst.mockResolvedValue({ ...clientService, overageAllowed: false });
+    // Un événement OVERAGE_REFUSED dans la période : il était accepté avant.
+    mocks.eventCount.mockResolvedValue(1);
+    consumedUnits.mockResolvedValue(187);
+    await billOverageOnInvoice(invoice());
+    expect(invoiceItemsCreate).toHaveBeenCalledWith(
+      expect.objectContaining({ amount: 37 * 30 }),
+      { idempotencyKey: "overage-in_123-cs_1" }
+    );
   });
 });
 

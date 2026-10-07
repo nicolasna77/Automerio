@@ -1,4 +1,5 @@
 import { CreditCard } from "lucide-react";
+import { pausesAtLimit } from "@/lib/usage-cap";
 import { useLabels } from "@/hooks/use-labels";
 import { usePriceFormatter } from "@/hooks/use-price-formatter";
 import { useTranslations } from "next-intl";
@@ -28,8 +29,14 @@ export function ServiceBillingCard({
   const adjustable = running && subscription.tier !== null && subscription.cap !== null;
   const tOverage = useTranslations("Dashboard.overage");
   const { cap, usage, overageAllowed } = subscription;
+  // Sans prix de dépassement, le choix n'existe pas : l'assistant s'arrête
+  // au forfait (pausesAtLimit), on l'explique sans proposer l'interrupteur.
+  const overagePriced = cap !== null && cap.overageUnitPriceCents > 0;
   const pausedByQuota =
-    cap !== null && !overageAllowed && usage !== null && usage.consumedUnits >= cap.includedUnits;
+    cap !== null &&
+    pausesAtLimit(cap, overageAllowed) &&
+    usage !== null &&
+    usage.consumedUnits >= cap.includedUnits;
   const overageDescriptionId = `${BILLING_SECTION_ID}-depassement`;
 
   return (
@@ -85,7 +92,8 @@ export function ServiceBillingCard({
             <BillingRow
               label={tOverage("label")}
               action={
-                running && (
+                running &&
+                overagePriced && (
                   <OverageSwitch
                     clientServiceId={subscription.clientServiceId}
                     allowed={overageAllowed}
@@ -95,14 +103,14 @@ export function ServiceBillingCard({
               }
             >
               <span id={overageDescriptionId}>
-                {overageAllowed
-                  ? cap.overageUnitPriceCents > 0
+                {!overagePriced
+                  ? tOverage("notAvailable", { included: price.usageUnits(cap.includedUnits, cap.unit) })
+                  : overageAllowed
                     ? tOverage("accepted", {
                         included: price.usageUnits(cap.includedUnits, cap.unit),
                         price: price.perUnit(cap.overageUnitPriceCents, cap.unit),
                       })
-                    : tOverage("acceptedFree", { included: price.usageUnits(cap.includedUnits, cap.unit) })
-                  : tOverage("refused", { included: price.usageUnits(cap.includedUnits, cap.unit) })}
+                    : tOverage("refused", { included: price.usageUnits(cap.includedUnits, cap.unit) })}
               </span>
               {pausedByQuota && (
                 <span role="status" className="mt-1 block font-medium text-destructive">
