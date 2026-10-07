@@ -134,9 +134,9 @@ export function ConversationInbox({
       }
     }
     // Au changement de jour, la liste se recharge tout de suite.
-    if (isFirstLoad.current) isFirstLoad.current = false;
-    else poll();
-    const stopPolling = pollWhileVisible(poll, POLL_INTERVAL_MS, setStalled);
+    const immediate = !isFirstLoad.current;
+    isFirstLoad.current = false;
+    const stopPolling = pollWhileVisible(poll, POLL_INTERVAL_MS, setStalled, immediate);
     return () => {
       cancelled = true;
       stopPolling();

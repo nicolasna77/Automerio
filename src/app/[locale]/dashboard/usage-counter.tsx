@@ -37,8 +37,7 @@ export function UsageCounter({
       }
     }
 
-    poll();
-    const stopPolling = pollWhileVisible(poll, POLL_INTERVAL_MS);
+    const stopPolling = pollWhileVisible(poll, POLL_INTERVAL_MS, undefined, true);
     return () => {
       cancelled = true;
       stopPolling();

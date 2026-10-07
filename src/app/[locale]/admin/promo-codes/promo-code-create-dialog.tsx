@@ -40,6 +40,7 @@ type Kind = (typeof KINDS)[number];
 const DURATIONS: DiscountDuration[] = ["once", "repeating", "forever"];
 
 // Même contrôle que le serveur, pour signaler l'erreur sous le champ concerné.
+// Hors du composant : la règle react-hooks/purity y refuse Date.now().
 function checkInput(input: PromoCodeFormInput) {
   return parsePromoCodeInput(input, Date.now());
 }
