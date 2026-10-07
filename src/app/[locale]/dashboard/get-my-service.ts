@@ -60,6 +60,7 @@ export function toMyServiceDTO(
     activatedAt: cs.activatedAt,
     canceledAt: cs.canceledAt,
     paymentFailedAt: cs.paymentFailedAt,
+    pausedAt: cs.pausedAt,
     externalPhoneNumber: cs.externalPhoneNumber,
     calendarConnected: !!(cs.calendarConnection || cs.schedulingConnection),
     calendar: cs.schedulingConnection

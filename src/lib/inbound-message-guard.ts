@@ -25,7 +25,7 @@ export const SENDER_LIMIT = { window: "10 m", max: 20 } as const;
 // Une même prestation : 500 réponses de l'assistant par 24 heures glissantes.
 export const SERVICE_DAILY_LIMIT = { window: "24 h", max: 500 } as const;
 
-export type ReplyRefusal = "sender_rate_limited" | "service_daily_cap" | "quota_exhausted";
+export type ReplyRefusal = "paused" | "sender_rate_limited" | "service_daily_cap" | "quota_exhausted";
 export type ReplyDecision = { allowed: true } | { allowed: false; reason: ReplyRefusal };
 
 // Même règle que la voix et la facturation (pausesAtLimit, usage-cap.ts) :
@@ -38,6 +38,7 @@ export function isQuotaExhausted(cap: UsageCap | null, consumed: number, overage
 type QuotaColumns = {
   id: string;
   overageAllowed: boolean;
+  pausedAt: Date | null;
   stripeSubscriptionId: string | null;
   includedUsageUnits: number | null;
   service: {
@@ -57,6 +58,9 @@ async function quotaExhausted(clientService: QuotaColumns): Promise<boolean> {
 }
 
 export async function decideAiReply(clientService: QuotaColumns, contactId: string): Promise<ReplyDecision> {
+  // Mise en pause par le client : rien à compter, l'assistant se tait.
+  if (clientService.pausedAt) return { allowed: false, reason: "paused" };
+
   const senderAllowed = await checkRateLimit(
     "inbound-message-sender",
     `${clientService.id}:${contactId}`,

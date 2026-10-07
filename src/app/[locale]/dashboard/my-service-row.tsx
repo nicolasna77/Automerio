@@ -7,18 +7,20 @@ import { buttonVariants } from "@/components/ui/button";
 import { formatFrenchPhone } from "@/lib/phone-format";
 import { MonthlyPrice } from "@/components/monthly-price";
 import { StatusBadge } from "@/components/status-badge";
+import { Badge } from "@/components/ui/badge";
 import { ServiceGlyph } from "@/components/service-glyph";
 import { ResumeCheckoutButton } from "./resume-checkout-button";
 import { ServiceActionsMenu } from "./service-detail-actions";
 import { ServiceSettingsButton } from "./service-settings-button";
 import { UsageCounter } from "./usage-counter";
 import { QuotaMeter, type QuotaState } from "./quota-meter";
+import { PauseSwitch } from "./pause-switch";
 
 // Colonnes partagées avec l'en-tête du tableau (SolutionsTable) : solution,
 // statut, quota, tarif, puis réglages et menu d'actions. Le numéro, propre à
 // la téléphonie, s'affiche sous le nom plutôt que dans une colonne vide pour
 // toutes les autres solutions.
-export const SOLUTION_COLUMNS = "minmax(0,1fr) 9rem 12rem 8.5rem 4.75rem";
+export const SOLUTION_COLUMNS = "minmax(0,1fr) 10.5rem 12rem 8.5rem 4.75rem";
 
 // Une solution dans la liste : toute la ligne ouvre le détail ; les actions
 // secondaires : les réglages ont leur bouton, la résiliation reste dans « ⋯ ».
@@ -39,6 +41,9 @@ export function MyServiceRow({
   const hint = setup?.hint ?? null;
   const paymentFailed = showPaymentIssue && item.paymentFailedAt !== null;
   const canResume = status === "PENDING_PAYMENT" || status === "CANCELED";
+  // Payée ou en service : le client peut couper l'assistant à la main.
+  const canPause = status === "ACTIVE" || status === "CONFIGURING";
+  const paused = canPause && item.pausedAt !== null;
   // Sans quota (téléphonie souscrite avant les forfaits), on garde le simple
   // compteur d'appels du mois.
   const showCallCount =
@@ -87,8 +92,15 @@ export function MyServiceRow({
         </div>
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pl-9 md:contents">
-          <div>
-            <StatusBadge status={status} />
+          <div className="flex items-center gap-2.5">
+            {canPause && (
+              <PauseSwitch clientServiceId={item.clientServiceId} name={item.name} paused={paused} />
+            )}
+            {paused ? (
+              <Badge variant="outline">{t("pause.paused")}</Badge>
+            ) : (
+              <StatusBadge status={status} />
+            )}
           </div>
 
           {/* Colonne Quota : alignée d'une ligne à l'autre sur ordinateur ; sur

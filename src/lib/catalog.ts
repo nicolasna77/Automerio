@@ -207,6 +207,8 @@ export type ServiceEventType =
   | "QUOTA_EXCEEDED"
   | "OVERAGE_ACCEPTED"
   | "OVERAGE_REFUSED"
+  | "PAUSED"
+  | "RESUMED"
   | "CANCELED";
 
 export type ServiceEventDTO = {
@@ -226,6 +228,8 @@ export type MyServiceDTO = {
   activatedAt: Date | null;
   canceledAt: Date | null;
   paymentFailedAt: Date | null;
+  // Mise en pause par le client (null : l'assistant est en service).
+  pausedAt: Date | null;
   externalPhoneNumber: string | null;
   calendarConnected: boolean;
   // L'agenda branché, sans aucun secret : outil, compte, type de rendez-vous.

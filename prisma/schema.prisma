@@ -192,6 +192,9 @@ model ClientService {
   // Dépassement du quota accepté par le client. Refusé par défaut : une fois
   // le quota atteint, l'assistant se met en pause jusqu'à la période suivante.
   overageAllowed            Boolean   @default(false)
+  // Pause décidée par le client : l'assistant ne décroche plus et ne répond
+  // plus aux messages tant qu'elle n'est pas levée.
+  pausedAt                  DateTime?
   monthlyPriceCents         Int?
   adminNote                 String?
   stripeCheckoutSessionId   String?
@@ -254,6 +257,8 @@ enum ServiceEventType {
   QUOTA_EXCEEDED
   OVERAGE_ACCEPTED
   OVERAGE_REFUSED
+  PAUSED
+  RESUMED
   CANCELED
 }
 

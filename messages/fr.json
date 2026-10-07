@@ -1118,7 +1118,14 @@
         "serviceNamePrefix": "{name}. ",
         "quotaUsage": "<em>{consumed}</em> / {included}",
         "quotaOver": "+{units} hors forfait",
-        "noQuota": "Pas de forfait pour cette solution"
+        "noQuota": "Pas de forfait pour cette solution",
+        "pause": {
+          "switch": "Assistant en service : {name}",
+          "paused": "En pause",
+          "pausedToast": "{name} est en pause : l'assistant ne répond plus aux appels ni aux messages.",
+          "resumedToast": "{name} est de nouveau en service.",
+          "error": "Le changement n'a pas pu être appliqué."
+        }
       }
     },
     "checkout": {
@@ -2202,7 +2209,8 @@
     "cannotResetOwnPassword": "Vous ne pouvez pas réinitialiser votre propre mot de passe ici.",
     "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères.",
     "overageOnlyActive": "Seule une solution en service peut changer ce réglage.",
-    "overageNotAvailable": "Le dépassement n'est pas proposé pour cette solution."
+    "overageNotAvailable": "Le dépassement n'est pas proposé pour cette solution.",
+    "pauseOnlyLive": "Seule une solution payée peut être mise en pause."
   },
   "Labels": {
     "status": {
@@ -2232,7 +2240,9 @@
       "CONFIGURATION_UPDATED": "Configuration mise à jour",
       "CANCELED": "Solution résiliée",
       "OVERAGE_ACCEPTED": "Dépassement du forfait accepté",
-      "OVERAGE_REFUSED": "Dépassement du forfait refusé"
+      "OVERAGE_REFUSED": "Dépassement du forfait refusé",
+      "PAUSED": "Assistant mis en pause",
+      "RESUMED": "Assistant remis en service"
     },
     "weekDay": {
       "mon": "Lundi",

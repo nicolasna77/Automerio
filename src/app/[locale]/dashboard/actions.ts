@@ -899,6 +899,33 @@ export async function setOverageAllowed(clientServiceId: string, allowed: boolea
   });
 }
 
+// Le client met l'assistant en pause, ou le relance : plus d'appel décroché ni
+// de message répondu tant que la pause dure. Rien ne change côté facturation.
+export async function setServicePaused(clientServiceId: string, paused: boolean) {
+  return runAction(async () => {
+    const userId = await requireUserId();
+    if (!(await checkRateLimit("pause-change", userId, "10 m", 20))) {
+      throw actionError("tooManyAttempts");
+    }
+
+    const clientService = await db.clientService.findUnique({ where: { id: clientServiceId } });
+    if (!clientService) throw actionError("notYourService");
+    await requireMemberOn(clientService, userId);
+    if (clientService.status !== "ACTIVE" && clientService.status !== "CONFIGURING") {
+      throw actionError("pauseOnlyLive");
+    }
+    if ((clientService.pausedAt !== null) === paused) return;
+
+    await db.clientService.update({
+      where: { id: clientServiceId },
+      data: { pausedAt: paused ? new Date() : null },
+    });
+    await logServiceEvent(clientServiceId, paused ? "PAUSED" : "RESUMED");
+
+    revalidateDashboard(clientServiceId);
+  });
+}
+
 export async function changeSubscriptionQuota(
   clientServiceId: string,
   units: number
