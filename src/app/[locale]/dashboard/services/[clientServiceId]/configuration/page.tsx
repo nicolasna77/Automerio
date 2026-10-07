@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { requireUser } from "@/lib/session";
 import { requireActiveOrganization } from "@/lib/organization";
+import { canManageClientServiceBilling, viewerOf } from "@/lib/client-service-access";
 import { getSubscriptionFor, isRunning } from "@/lib/subscriptions";
 import { ServiceBillingCard } from "@/app/[locale]/dashboard/service-billing-card";
 import {
@@ -46,6 +47,12 @@ export default async function ServiceConfigurationPage({
     getSubscriptionFor(clientServiceId),
   ]);
   if (!item) notFound();
+  // Connexions et achat de numéro : réservés aux responsables (vérifié aussi
+  // côté serveur) ; les autres membres voient une explication à la place.
+  const canManage = canManageClientServiceBilling(
+    { organizationId: organization.id },
+    await viewerOf(session.user.id)
+  );
 
   const detailHref = `/dashboard/services/${item.clientServiceId}`;
   // Sans réglage, la page reste utile pour l'abonnement (volume, moyen de
@@ -91,9 +98,10 @@ export default async function ServiceConfigurationPage({
               calendar={item.calendar}
               takesAppointments={asStringArray(item.configuration.objectives).includes("appointment")}
               connectionFailed={calendarStatus === "error"}
+              canManage={canManage}
             />
           ) : MESSAGING_SERVICE_SLUGS.has(item.service.slug) ? (
-            <MessagingConnectorsCard item={item} />
+            <MessagingConnectorsCard item={item} canManage={canManage} />
           ) : null
         }
         historySection={

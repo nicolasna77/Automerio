@@ -8,6 +8,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { roleLabel } from "@/lib/organization-roles";
+import { maskEmail } from "@/lib/mask-email";
 import { AcceptInvitation } from "./accept-invitation";
 
 export const dynamic = "force-dynamic";
@@ -37,6 +38,17 @@ export default async function InvitationPage({
 
   const usable =
     invitation && invitation.status === "pending" && invitation.expiresAt > new Date();
+  // Le lien peut circuler : l'adresse invitée ne s'affiche en entier qu'à la
+  // personne connectée avec cette adresse.
+  const isInvitee =
+    !!session &&
+    !!invitation &&
+    session.user.email.toLowerCase() === invitation.email.toLowerCase();
+  const shownEmail = invitation
+    ? isInvitee
+      ? invitation.email
+      : maskEmail(invitation.email)
+    : "";
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -74,16 +86,13 @@ export default async function InvitationPage({
                       <AcceptInvitation
                         invitationId={invitation.id}
                         organizationName={invitation.organization.name}
-                        addressedToAnotherAccount={
-                          session.user.email.toLowerCase() !==
-                          invitation.email.toLowerCase()
-                        }
-                        invitedEmail={invitation.email}
+                        addressedToAnotherAccount={!isInvitee}
+                        invitedEmail={shownEmail}
                       />
                     ) : (
                       <div className="space-y-3">
                         <p className="text-sm text-muted-foreground">
-                          Connectez-vous avec {invitation.email}, ou créez votre
+                          Connectez-vous avec {shownEmail}, ou créez votre
                           compte avec cette adresse, pour rejoindre
                           l&apos;entreprise.
                         </p>

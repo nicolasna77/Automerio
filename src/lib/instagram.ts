@@ -1,6 +1,10 @@
 import { db } from "@/lib/db";
 import { requireEnv } from "@/lib/env";
-import { signOAuthState, verifyOAuthState } from "@/lib/oauth-state";
+import {
+  signOAuthState,
+  verifyOAuthState,
+  type OAuthStateExpectation,
+} from "@/lib/oauth-state";
 import { logServiceEvent } from "@/lib/service-events";
 
 const INSTAGRAM_AUTH_URL = "https://www.instagram.com/oauth/authorize";
@@ -10,23 +14,34 @@ const INSTAGRAM_SCOPE = "instagram_business_basic,instagram_business_manage_mess
 
 const FEATURE = "la messagerie Instagram";
 
-function signState(clientServiceId: string): string {
-  return signOAuthState(requireEnv("INSTAGRAM_OAUTH_STATE_SECRET", FEATURE), clientServiceId);
+// Cookie qui porte le nonce du state entre /connect et /callback.
+export const INSTAGRAM_NONCE_COOKIE = "instagram_oauth_nonce";
+export const INSTAGRAM_OAUTH_COOKIE_PATH = "/api/instagram";
+
+export function verifyInstagramState(
+  state: string,
+  expected: OAuthStateExpectation
+): string | null {
+  return verifyOAuthState(requireEnv("INSTAGRAM_OAUTH_STATE_SECRET", FEATURE), state, expected);
 }
 
-export function verifyInstagramState(state: string): string | null {
-  return verifyOAuthState(requireEnv("INSTAGRAM_OAUTH_STATE_SECRET", FEATURE), state);
-}
-
-export function buildInstagramAuthUrl(clientServiceId: string): string {
+export function buildInstagramAuthUrl(
+  clientServiceId: string,
+  userId: string
+): { url: string; nonce: string } {
+  const { state, nonce } = signOAuthState(
+    requireEnv("INSTAGRAM_OAUTH_STATE_SECRET", FEATURE),
+    clientServiceId,
+    userId
+  );
   const params = new URLSearchParams({
     client_id: requireEnv("INSTAGRAM_APP_ID", FEATURE),
     redirect_uri: requireEnv("INSTAGRAM_OAUTH_REDIRECT_URI", FEATURE),
     response_type: "code",
     scope: INSTAGRAM_SCOPE,
-    state: signState(clientServiceId),
+    state,
   });
-  return `${INSTAGRAM_AUTH_URL}?${params.toString()}`;
+  return { url: `${INSTAGRAM_AUTH_URL}?${params.toString()}`, nonce };
 }
 
 type ShortLivedTokenResponse = { access_token: string; user_id: string };

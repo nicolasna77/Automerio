@@ -88,8 +88,12 @@ déjà coûté du temps, tous sont vérifiés.
   `playwright.config.ts`. Traître en production : seules les requêtes qui
   portent un cookie de session sont contrôlées, si bien qu'une connexion
   Google réussit et que tout ce qui suit échoue (changer d'organisation, se
-  déconnecter…). `src/lib/trusted-origins.ts` accepte donc les domaines Vercel
-  du projet et `BETTER_AUTH_TRUSTED_ORIGINS`. Le client
+  déconnecter…). `src/lib/trusted-origins.ts` accepte donc, à l'identique et
+  sans joker, les origines tirées de `BETTER_AUTH_URL`,
+  `NEXT_PUBLIC_APP_URL`, `VERCEL_URL`, `VERCEL_BRANCH_URL`,
+  `VERCEL_PROJECT_PRODUCTION_URL` et de la liste `BETTER_AUTH_TRUSTED_ORIGINS`
+  (séparée par des virgules) : le déploiement courant, sa branche et la
+  production, pas les autres previews ni un domaine personnalisé non déclaré. Le client
   (`src/lib/auth-client.ts`) ne fixe volontairement aucune `baseURL` : il
   vise l'origine de la page, sans quoi les previews Vercel échouent en CORS,
   silencieusement.

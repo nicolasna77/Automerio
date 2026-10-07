@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { generateMessagingReply } from "@/lib/messaging-agent";
-import { recordUsageEvent } from "@/lib/usage-events";
-import { claimInboundMessage, recordReply } from "@/lib/conversations";
 import { sendMessengerMessage } from "@/lib/messenger";
 import { validateMetaSignature, verifyMetaWebhookChallenge } from "@/lib/meta";
+import {
+  findLiveClientService,
+  handleInboundMessage,
+  parseWebhookBody,
+  type LiveClientService,
+} from "@/lib/inbound-message-guard";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -37,64 +39,39 @@ export async function POST(request: Request) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
-  const payload = JSON.parse(rawBody) as MessengerWebhookPayload;
-  const event = payload.entry?.[0]?.messaging?.[0];
-  const pageId = event?.recipient?.id;
-  const senderId = event?.sender?.id;
-  const message = event?.message;
+  const payload = parseWebhookBody<MessengerWebhookPayload>(rawBody);
+  if (!payload) return new NextResponse("Bad Request", { status: 400 });
 
-  if (!pageId || !senderId || !message?.text || message.is_echo) {
-    return NextResponse.json({ received: true });
-  }
+  // Meta peut regrouper plusieurs comptes et plusieurs messages dans un envoi.
+  const services = new Map<string, LiveClientService | null>();
+  for (const entry of payload.entry ?? []) {
+    for (const event of entry.messaging ?? []) {
+      const pageId = event.recipient?.id;
+      const senderId = event.sender?.id;
+      const message = event.message;
+      if (!pageId || !senderId || !message?.mid || !message.text || message.is_echo) continue;
 
-  const clientService = await db.clientService.findFirst({
-    where: { facebookPageId: pageId },
-    include: { service: true, organization: true },
-  });
-  if (!clientService) {
-    return NextResponse.json({ received: true });
-  }
-
-  const conversation = await claimInboundMessage({
-    clientServiceId: clientService.id,
-    channel: "MESSENGER",
-    contactId: senderId,
-    text: message.text,
-    externalId: message.mid,
-  }).catch((err) => {
-    console.error(`[messenger] échec d'enregistrement de la conversation ${message.mid} :`, err);
-    return undefined;
-  });
-  if (conversation === null) {
-    return NextResponse.json({ received: true });
-  }
-
-  let sentReply: string | null = null;
-  // Le client a repris la main : le message est enregistré, l'assistant se tait.
-  if (!conversation?.humanTakeover) {
-    try {
-      const replyText = await generateMessagingReply(clientService, message.text);
-      if (replyText && clientService.facebookPageAccessToken) {
-        await sendMessengerMessage(pageId, senderId, replyText, clientService.facebookPageAccessToken);
-        sentReply = replyText;
+      if (!services.has(pageId)) {
+        services.set(pageId, await findLiveClientService("MESSENGER", pageId));
       }
-    } catch (err) {
-      console.error(`[messenger] échec de réponse au message ${message.mid} :`, err);
+      const clientService = services.get(pageId);
+      if (!clientService) continue;
+
+      await handleInboundMessage({
+        clientService,
+        channel: "MESSENGER",
+        contactId: senderId,
+        text: message.text,
+        externalId: message.mid,
+        usageType: "messenger_message",
+        send: async (replyText) => {
+          if (!clientService.facebookPageAccessToken) return false;
+          await sendMessengerMessage(pageId, senderId, replyText, clientService.facebookPageAccessToken);
+          return true;
+        },
+      });
     }
   }
-
-  if (sentReply && conversation) {
-    await recordReply(conversation.id, sentReply).catch((err) =>
-      console.error(`[messenger] échec d'enregistrement de la réponse à ${message.mid} :`, err)
-    );
-  }
-
-  await recordUsageEvent({
-    clientServiceId: clientService.id,
-    type: "messenger_message",
-    externalId: message.mid,
-    metadata: { from: senderId },
-  }).catch((err) => console.error(`[messenger] échec d'enregistrement du message ${message.mid} :`, err));
 
   return NextResponse.json({ received: true });
 }

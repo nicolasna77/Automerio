@@ -23,6 +23,7 @@ import {
 import { countCatalogItems, readProductCatalog } from "@/lib/product-catalog";
 import { CalendarConnection } from "./calendar-connection";
 import { InstagramConnection } from "./instagram-connection";
+import { ManagersOnlyNote } from "./managers-only-note";
 import { MessengerConnection } from "./messenger-connection";
 import { PhoneNumberPurchase } from "./phone-number-purchase";
 import { WhatsAppConnection } from "./whatsapp-connection";
@@ -75,8 +76,12 @@ export function isSetupComplete(item: MyServiceDTO): boolean {
 
 export function ServiceSetupCard({
   item,
+  canManage,
 }: {
   item: MyServiceDTO;
+  // Propriétaire ou administrateur : seul à pouvoir acheter un numéro ou
+  // connecter un compte ; les autres membres voient une explication.
+  canManage: boolean;
 }) {
   const t = useTranslations("Dashboard.setup");
   if (isSetupComplete(item)) return null;
@@ -178,7 +183,11 @@ export function ServiceSetupCard({
           <div className={box}>
             <p className="text-sm font-medium text-foreground">{t("phone.title")}</p>
             <p className="mt-1 mb-3 text-sm text-muted-foreground">{t("phone.description")}</p>
-            <PhoneNumberPurchase clientServiceId={item.clientServiceId} />
+            {canManage ? (
+              <PhoneNumberPurchase clientServiceId={item.clientServiceId} />
+            ) : (
+              <ManagersOnlyNote />
+            )}
           </div>
         )}
 
@@ -186,11 +195,15 @@ export function ServiceSetupCard({
           <div className={box}>
             <p className="text-sm font-medium text-foreground">{t("whatsapp.title")}</p>
             <p className="mt-1 mb-3 text-sm text-muted-foreground">{t("whatsapp.description")}</p>
-            <WhatsAppConnection
-              clientServiceId={item.clientServiceId}
-              connected={item.whatsappConnected}
-              displayNumber={item.whatsappDisplayNumber}
-            />
+            {canManage ? (
+              <WhatsAppConnection
+                clientServiceId={item.clientServiceId}
+                connected={item.whatsappConnected}
+                displayNumber={item.whatsappDisplayNumber}
+              />
+            ) : (
+              <ManagersOnlyNote />
+            )}
           </div>
         )}
 
@@ -198,11 +211,15 @@ export function ServiceSetupCard({
           <div className={box}>
             <p className="text-sm font-medium text-foreground">{t("facebook.title")}</p>
             <p className="mt-1 mb-3 text-sm text-muted-foreground">{t("facebook.description")}</p>
-            <MessengerConnection
-              clientServiceId={item.clientServiceId}
-              connected={item.facebookConnected}
-              pageName={item.facebookPageName}
-            />
+            {canManage ? (
+              <MessengerConnection
+                clientServiceId={item.clientServiceId}
+                connected={item.facebookConnected}
+                pageName={item.facebookPageName}
+              />
+            ) : (
+              <ManagersOnlyNote />
+            )}
           </div>
         )}
 
@@ -210,11 +227,15 @@ export function ServiceSetupCard({
           <div className={box}>
             <p className="text-sm font-medium text-foreground">{t("instagram.title")}</p>
             <p className="mt-1 mb-3 text-sm text-muted-foreground">{t("instagram.description")}</p>
-            <InstagramConnection
-              clientServiceId={item.clientServiceId}
-              connected={item.instagramConnected}
-              username={item.instagramUsername}
-            />
+            {canManage ? (
+              <InstagramConnection
+                clientServiceId={item.clientServiceId}
+                connected={item.instagramConnected}
+                username={item.instagramUsername}
+              />
+            ) : (
+              <ManagersOnlyNote />
+            )}
           </div>
         )}
 
@@ -237,10 +258,14 @@ export function ServiceSetupCard({
               {t("calendar.title")} <span className="font-normal text-muted-foreground">{t("optionalTag")}</span>
             </p>
             <p className="mt-1 mb-3 text-sm text-muted-foreground">{t("calendar.description")}</p>
-            <CalendarConnection
-              clientServiceId={item.clientServiceId}
-              calendar={item.calendar}
-            />
+            {canManage ? (
+              <CalendarConnection
+                clientServiceId={item.clientServiceId}
+                calendar={item.calendar}
+              />
+            ) : (
+              <ManagersOnlyNote />
+            )}
           </div>
         )}
 

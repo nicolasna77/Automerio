@@ -46,9 +46,33 @@ export async function searchAvailableNumbers(limit = 10): Promise<AvailableNumbe
   }));
 }
 
+// Numéro géographique ou non géographique français au format E.164.
+const FRENCH_E164 = /^\+33[1-9]\d{8}$/;
+
+export function isFrenchE164(phoneNumber: unknown): phoneNumber is string {
+  return typeof phoneNumber === "string" && FRENCH_E164.test(phoneNumber);
+}
+
+export function isOffered(offered: { phoneNumber: string }[], phoneNumber: string): boolean {
+  return offered.some((n) => n.phoneNumber === phoneNumber);
+}
+
+// Le numéro vient du navigateur : on redemande à Twilio s'il figure toujours
+// parmi les numéros français disponibles avant de l'acheter.
+export async function isNumberStillAvailable(phoneNumber: string): Promise<boolean> {
+  if (!isFrenchE164(phoneNumber)) return false;
+  const matches = await getTwilioClient()
+    .availablePhoneNumbers("FR")
+    .local.list({ contains: phoneNumber.slice(1), limit: 5 });
+  return isOffered(matches, phoneNumber);
+}
+
 export async function purchasePhoneNumber(
   phoneNumber: string
 ): Promise<{ sid: string; phoneNumber: string }> {
+  if (!isFrenchE164(phoneNumber)) {
+    throw new Error("Numéro refusé : seul un numéro français au format E.164 peut être acheté");
+  }
   const purchased = await getTwilioClient().incomingPhoneNumbers.create({
     phoneNumber,
     voiceUrl: voiceWebhookUrl(),

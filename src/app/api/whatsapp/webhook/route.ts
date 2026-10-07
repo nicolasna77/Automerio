@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { generateMessagingReply } from "@/lib/messaging-agent";
-import { recordUsageEvent } from "@/lib/usage-events";
-import { claimInboundMessage, recordReply } from "@/lib/conversations";
 import { sendWhatsAppMessage } from "@/lib/whatsapp";
 import { validateMetaSignature, verifyMetaWebhookChallenge } from "@/lib/meta";
+import {
+  findLiveClientService,
+  handleInboundMessage,
+  parseWebhookBody,
+  type LiveClientService,
+} from "@/lib/inbound-message-guard";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -42,68 +44,40 @@ export async function POST(request: Request) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
-  const payload = JSON.parse(rawBody) as WhatsAppWebhookPayload;
-  const value = payload.entry?.[0]?.changes?.[0]?.value;
-  const phoneNumberId = value?.metadata?.phone_number_id;
-  const message = value?.messages?.[0];
+  const payload = parseWebhookBody<WhatsAppWebhookPayload>(rawBody);
+  if (!payload) return new NextResponse("Bad Request", { status: 400 });
 
-  if (!phoneNumberId || !message || message.type !== "text" || !message.text) {
-    return NextResponse.json({ received: true });
-  }
+  // Meta peut regrouper plusieurs comptes et plusieurs messages dans un envoi.
+  const services = new Map<string, LiveClientService | null>();
+  for (const entry of payload.entry ?? []) {
+    for (const change of entry.changes ?? []) {
+      const phoneNumberId = change.value?.metadata?.phone_number_id;
+      if (!phoneNumberId) continue;
 
-  const clientService = await db.clientService.findFirst({
-    where: { whatsappPhoneNumberId: phoneNumberId },
-    include: { service: true, organization: true },
-  });
-  if (!clientService) {
-    return NextResponse.json({ received: true });
-  }
+      for (const message of change.value?.messages ?? []) {
+        if (message.type !== "text" || !message.text?.body || !message.id || !message.from) continue;
 
-  const conversation = await claimInboundMessage({
-    clientServiceId: clientService.id,
-    channel: "WHATSAPP",
-    contactId: message.from,
-    text: message.text.body,
-    externalId: message.id,
-  }).catch((err) => {
-    console.error(`[whatsapp] échec d'enregistrement de la conversation ${message.id} :`, err);
-    return undefined;
-  });
-  if (conversation === null) {
-    return NextResponse.json({ received: true });
-  }
+        if (!services.has(phoneNumberId)) {
+          services.set(phoneNumberId, await findLiveClientService("WHATSAPP", phoneNumberId));
+        }
+        const clientService = services.get(phoneNumberId);
+        if (!clientService) continue;
 
-  let sentReply: string | null = null;
-  // Le client a repris la main : le message est enregistré, l'assistant se tait.
-  if (!conversation?.humanTakeover) {
-    try {
-      const replyText = await generateMessagingReply(clientService, message.text.body);
-      if (replyText) {
-        await sendWhatsAppMessage(
-          phoneNumberId,
-          message.from,
-          replyText,
-          clientService.whatsappAccessToken
-        );
-        sentReply = replyText;
+        await handleInboundMessage({
+          clientService,
+          channel: "WHATSAPP",
+          contactId: message.from,
+          text: message.text.body,
+          externalId: message.id,
+          usageType: "whatsapp_message",
+          send: async (replyText) => {
+            await sendWhatsAppMessage(phoneNumberId, message.from, replyText, clientService.whatsappAccessToken);
+            return true;
+          },
+        });
       }
-    } catch (err) {
-      console.error(`[whatsapp] échec de réponse au message ${message.id} :`, err);
     }
   }
-
-  if (sentReply && conversation) {
-    await recordReply(conversation.id, sentReply).catch((err) =>
-      console.error(`[whatsapp] échec d'enregistrement de la réponse à ${message.id} :`, err)
-    );
-  }
-
-  await recordUsageEvent({
-    clientServiceId: clientService.id,
-    type: "whatsapp_message",
-    externalId: message.id,
-    metadata: { from: message.from },
-  }).catch((err) => console.error(`[whatsapp] échec d'enregistrement du message ${message.id} :`, err));
 
   return NextResponse.json({ received: true });
 }

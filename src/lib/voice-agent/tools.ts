@@ -3,6 +3,14 @@ import { db } from "@/lib/db";
 import { getScheduler } from "@/lib/scheduling";
 import { asRuleRows, asStringArray, type Configuration } from "@/lib/catalog";
 import { countCatalogItems, readProductCatalog } from "@/lib/product-catalog";
+import {
+  LIMITS,
+  boundedString,
+  validateBooking,
+  validateMessage,
+  validateOrder,
+  validateSlot,
+} from "@/lib/voice-agent/tool-args";
 
 
 export type ToolDefinition = {
@@ -180,26 +188,58 @@ export function getToolDefinitions(
   return tools;
 }
 
-type OrderItem = { name: string; quantity: number };
+// Plafonds par appel ou par conversation : un appelant ou un expéditeur qui
+// manipule le modèle ne peut pas remplir l'agenda ni la liste des demandes.
+export const MAX_BOOKINGS_PER_SESSION = 3;
+export const MAX_RECORDS_PER_SESSION = 5;
+
+// Une session = un appel ou une conversation. Elle garde les outils réellement
+// proposés au modèle, seuls exécutables, et compte les écritures.
+export type ToolSession = {
+  allowedTools: ReadonlySet<string>;
+  bookings: number;
+  records: number;
+};
+
+export function createToolSession(tools: ToolDefinition[]): ToolSession {
+  return {
+    allowedTools: new Set(tools.map((tool) => tool.function.name)),
+    bookings: 0,
+    records: 0,
+  };
+}
 
 export type ToolContext = {
   clientServiceId: string;
   callId: string | null;
   configuration: Configuration;
+  session: ToolSession;
   testMode?: boolean;
 };
+
+const BOOKING_CAP_REACHED = `Limite atteinte : pas plus de ${MAX_BOOKINGS_PER_SESSION} rendez-vous par échange. N'en réserve pas d'autre ; propose de noter la demande, l'entreprise rappellera.`;
+const RECORD_CAP_REACHED = `Limite atteinte : pas plus de ${MAX_RECORDS_PER_SESSION} commandes ou messages par échange. N'en enregistre pas d'autre ; indique que l'entreprise reviendra vers la personne.`;
 
 export async function runTool(
   name: string,
   args: Record<string, unknown>,
   context: ToolContext
 ): Promise<string> {
+  // Le modèle ne peut appeler que les outils qu'on lui a proposés pour cette
+  // session : pas de prise de rendez-vous sans agenda, par exemple.
+  if (!context.session.allowedTools.has(name)) {
+    console.warn(`[agent] outil non proposé refusé : ${name} (solution ${context.clientServiceId}).`);
+    return `L'outil ${name} n'est pas disponible ici. N'utilise que les outils proposés.`;
+  }
+
   switch (name) {
     case "check_availability": {
-      const startAt = new Date(args.startAt as string);
-      const durationMinutes = Number(args.durationMinutes);
+      const slot = validateSlot(args);
+      if (!slot.ok) return slot.error;
       const scheduler = await getScheduler(context.clientServiceId);
-      const free = scheduler ? await scheduler.isSlotFree(startAt, durationMinutes) : false;
+      const free = scheduler
+        ? await scheduler.isSlotFree(slot.value.startAt, slot.value.durationMinutes)
+        : false;
       if (free) {
         return scheduler?.fixedDurationMinutes
           ? `Le créneau est libre. Le rendez-vous dure ${scheduler.fixedDurationMinutes} minutes.`
@@ -209,19 +249,17 @@ export async function runTool(
     }
 
     case "book_appointment": {
-      const customerName = String(args.customerName ?? "");
-      const customerPhone = String(args.customerPhone ?? "");
-      const customerEmail =
-        typeof args.customerEmail === "string" && args.customerEmail.includes("@")
-          ? args.customerEmail.trim()
-          : null;
-      const startAt = new Date(args.startAt as string);
-      const notes = typeof args.notes === "string" ? args.notes : null;
-      if (context.testMode) return "Rendez-vous confirmé et ajouté à l'agenda.";
-
+      if (context.session.bookings >= MAX_BOOKINGS_PER_SESSION) return BOOKING_CAP_REACHED;
       const scheduler = await getScheduler(context.clientServiceId);
       // Une durée imposée par le type de rendez-vous prime sur celle de l'agent.
-      const durationMinutes = scheduler?.fixedDurationMinutes ?? Number(args.durationMinutes);
+      const booking = validateBooking(args, scheduler?.fixedDurationMinutes ?? null);
+      if (!booking.ok) return booking.error;
+      // Revérifié après l'attente : des appels d'outils peuvent être parallèles.
+      if (context.session.bookings >= MAX_BOOKINGS_PER_SESSION) return BOOKING_CAP_REACHED;
+      context.session.bookings += 1;
+      if (context.testMode) return "Rendez-vous confirmé et ajouté à l'agenda.";
+
+      const { customerName, customerPhone, customerEmail, startAt, durationMinutes, notes } = booking.value;
       const endAt = new Date(startAt.getTime() + durationMinutes * 60_000);
       const result = scheduler
         ? await scheduler.book({
@@ -254,14 +292,13 @@ export async function runTool(
     }
 
     case "take_order": {
-      const customerName = String(args.customerName ?? "");
-      const customerPhone = String(args.customerPhone ?? "");
-      const items = (Array.isArray(args.items) ? args.items : []) as OrderItem[];
-      const fulfillment = args.fulfillment === "delivery" ? "delivery" : "pickup";
-      const address = typeof args.address === "string" ? args.address : null;
-      const notes = typeof args.notes === "string" ? args.notes : null;
+      if (context.session.records >= MAX_RECORDS_PER_SESSION) return RECORD_CAP_REACHED;
+      const order = validateOrder(args);
+      if (!order.ok) return order.error;
+      context.session.records += 1;
       if (context.testMode) return "Commande enregistrée.";
 
+      const { customerName, customerPhone, items, fulfillment, address, notes } = order.value;
       await db.booking.create({
         data: {
           clientServiceId: context.clientServiceId,
@@ -277,7 +314,7 @@ export async function runTool(
     }
 
     case "transfer_call": {
-      const reason = String(args.reason ?? "");
+      const reason = boundedString(args.reason, LIMITS.notes);
       const rules = asRuleRows(context.configuration.callRouting);
       const target = rules.find((r) => r.trigger === reason)?.target;
       if (!target) {
@@ -295,11 +332,13 @@ export async function runTool(
     }
 
     case "take_message": {
-      const customerName = String(args.customerName ?? "");
-      const customerPhone = String(args.customerPhone ?? "");
-      const reason = typeof args.reason === "string" ? args.reason : null;
+      if (context.session.records >= MAX_RECORDS_PER_SESSION) return RECORD_CAP_REACHED;
+      const message = validateMessage(args);
+      if (!message.ok) return message.error;
+      context.session.records += 1;
       if (context.testMode) return "Message enregistré, l'entreprise rappellera.";
 
+      const { customerName, customerPhone, reason } = message.value;
       await db.booking.create({
         data: {
           clientServiceId: context.clientServiceId,

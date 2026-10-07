@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
+import { isOrganizationManager } from "@/lib/organization-roles";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +16,16 @@ export async function GET(_request: Request, { params }: { params: Promise<{ loc
   if (!session) return new NextResponse(t("unauthenticated"), { status: 401 });
   const userId = session.user.id;
 
-  const [user, memberships, clientServices, helpRequests, sessions] = await Promise.all([
+  // Structure de l'export :
+  // - account, helpRequests, sessions : données personnelles du compte, complètes ;
+  // - organizations : une entrée par organisation dont le compte est membre
+  //   AUJOURD'HUI (rôle, date d'arrivée), avec ses solutions — toutes, quel
+  //   qu'en soit le créateur. Un membre retiré n'exporte plus rien de
+  //   l'organisation qu'il a quittée ;
+  // - les données des clients finaux (nom, téléphone et notes des
+  //   réservations) ne figurent que pour un propriétaire ou un responsable :
+  //   pour un collaborateur, `bookings` ne garde que les dates et le type.
+  const [user, memberships, helpRequests, sessions] = await Promise.all([
     db.user.findUniqueOrThrow({
       where: { id: userId },
       select: {
@@ -31,41 +41,11 @@ export async function GET(_request: Request, { params }: { params: Promise<{ loc
     }),
     db.member.findMany({
       where: { userId },
-      select: { role: true, createdAt: true, organization: { select: { name: true } } },
-    }),
-    db.clientService.findMany({
-      where: { userId },
       select: {
-        id: true,
-        name: true,
-        status: true,
-        configuration: true,
-        promoCode: true,
-        externalPhoneNumber: true,
-        whatsappDisplayNumber: true,
-        facebookPageName: true,
-        instagramUsername: true,
-        activatedAt: true,
-        canceledAt: true,
+        role: true,
         createdAt: true,
-        service: { select: { name: true } },
+        organizationId: true,
         organization: { select: { name: true } },
-        calendarConnection: { select: { googleAccountEmail: true, createdAt: true } },
-        events: { select: { type: true, message: true, createdAt: true } },
-        bookings: {
-          select: {
-            kind: true,
-            customerName: true,
-            customerPhone: true,
-            startAt: true,
-            endAt: true,
-            notes: true,
-            createdAt: true,
-          },
-        },
-        usageEvents: {
-          select: { type: true, status: true, occurredAt: true, endedAt: true, durationSec: true },
-        },
       },
     }),
     db.helpRequest.findMany({
@@ -85,12 +65,61 @@ export async function GET(_request: Request, { params }: { params: Promise<{ loc
     }),
   ]);
 
+  const organizations = await Promise.all(
+    memberships.map(async (membership) => {
+      const withCustomerData = isOrganizationManager(membership.role);
+      const solutions = await db.clientService.findMany({
+        where: { organizationId: membership.organizationId },
+        select: {
+          id: true,
+          name: true,
+          status: true,
+          configuration: true,
+          promoCode: true,
+          externalPhoneNumber: true,
+          whatsappDisplayNumber: true,
+          facebookPageName: true,
+          instagramUsername: true,
+          activatedAt: true,
+          canceledAt: true,
+          createdAt: true,
+          userId: true,
+          service: { select: { name: true } },
+          calendarConnection: { select: { googleAccountEmail: true, createdAt: true } },
+          events: { select: { type: true, message: true, createdAt: true } },
+          bookings: {
+            select: {
+              kind: true,
+              customerName: withCustomerData,
+              customerPhone: withCustomerData,
+              startAt: true,
+              endAt: true,
+              notes: withCustomerData,
+              createdAt: true,
+            },
+          },
+          usageEvents: {
+            select: { type: true, status: true, occurredAt: true, endedAt: true, durationSec: true },
+          },
+        },
+      });
+      return {
+        name: membership.organization.name,
+        role: membership.role,
+        memberSince: membership.createdAt,
+        solutions: solutions.map(({ userId: creatorId, ...solution }) => ({
+          ...solution,
+          createdByMe: creatorId === userId,
+        })),
+      };
+    })
+  );
+
   const body = JSON.stringify(
     {
       exportedAt: new Date().toISOString(),
       account: user,
-      organizations: memberships,
-      solutions: clientServices,
+      organizations,
       helpRequests,
       sessions,
     },

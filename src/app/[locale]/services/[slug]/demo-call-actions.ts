@@ -44,6 +44,12 @@ export async function requestDemoCall(input: {
     if ((await db.demoCall.count({ where: { createdAt: { gte: since } } })) >= limits.perDay) {
       throw new ActionError(t("unavailable"));
     }
+    // Sans Redis, checkRateLimit ne compte que sur l'instance qui répond :
+    // la base garde la trace de chaque essai, on y recompte par adresse IP.
+    const ipHash = hashIp(ip);
+    if ((await db.demoCall.count({ where: { ipHash, createdAt: { gte: since } } })) >= limits.perIpPerDay) {
+      throw new ActionError(t("tooManyFromIp"));
+    }
 
     const phoneHash = hashPhone(phone);
     const alreadyCalled = await db.demoCall.findUnique({ where: { phoneHash }, select: { id: true } });
@@ -54,7 +60,7 @@ export async function requestDemoCall(input: {
     let demoCall;
     try {
       demoCall = await db.demoCall.create({
-        data: { phoneHash, ipHash: hashIp(ip), serviceSlug: input.serviceSlug },
+        data: { phoneHash, ipHash, serviceSlug: input.serviceSlug },
       });
     } catch (err) {
       if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {

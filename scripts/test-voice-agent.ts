@@ -5,7 +5,7 @@ import OpenAI from "openai";
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { buildSystemPrompt } from "../src/lib/voice-agent/prompt";
-import { getToolDefinitions, runTool } from "../src/lib/voice-agent/tools";
+import { createToolSession, getToolDefinitions, runTool } from "../src/lib/voice-agent/tools";
 import type { Configuration } from "../src/lib/catalog";
 
 const SUPPORTED_SLUGS = new Set(["standard-telephonique-ia", "prise-rdv-telephone"]);
@@ -44,6 +44,7 @@ async function main() {
     companyName: clientService.organization.name,
   });
   const tools = getToolDefinitions(clientService.service.slug, configuration, calendarConnected);
+  const session = createToolSession(tools);
 
   console.log(`--- Prompt système ---\n${systemPrompt}\n`);
   console.log(`--- Tools disponibles : ${tools.map((t) => t.function.name).join(", ") || "aucun"} ---\n`);
@@ -85,6 +86,7 @@ async function main() {
           clientServiceId,
           callId: null,
           configuration,
+          session,
         });
         console.log(`  [tool result] ${result}`);
         messages.push({ role: "tool", tool_call_id: call.id, content: result });

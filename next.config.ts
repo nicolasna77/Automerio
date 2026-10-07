@@ -9,7 +9,7 @@ const SECURITY_HEADERS = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), browsing-topics=()" },
-  { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
+  { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
 ];
 
 const LEGACY_PATHS: [string, string][] = [
@@ -41,7 +41,13 @@ const nextConfig: NextConfig = {
     ]);
   },
   experimental: {
-    serverActions: { bodySizeLimit: "15mb" },
+    // Limite globale (Next ne permet pas de la fixer action par action) : la seule
+    // Server Action qui reçoit un gros corps est l'import de carte
+    // (`transcribeMenu`, src/app/[locale]/dashboard/menu-import-actions.ts),
+    // plafonnée à MENU_IMPORT_MAX_TOTAL_BYTES = 12 Mo (src/lib/menu-import.ts).
+    // 13 Mo = ces 12 Mo + la marge de l'enveloppe multipart. À ajuster avec ce
+    // plafond ; l'avatar passe par l'API better-auth, pas par une Server Action.
+    serverActions: { bodySizeLimit: "13mb" },
   },
   async headers() {
     return [{ source: "/:path*", headers: SECURITY_HEADERS }];

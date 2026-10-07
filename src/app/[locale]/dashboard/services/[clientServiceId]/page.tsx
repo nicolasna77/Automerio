@@ -10,6 +10,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireUser } from "@/lib/session";
 import { requireActiveOrganization } from "@/lib/organization";
+import { canManageClientServiceBilling, viewerOf } from "@/lib/client-service-access";
 import { getMyService } from "@/app/[locale]/dashboard/get-my-service";
 import { asStringArray, MESSAGING_SERVICE_SLUGS, TELEPHONY_SERVICE_SLUGS } from "@/lib/catalog";
 import { StatusBadge } from "@/components/status-badge";
@@ -50,7 +51,7 @@ export default async function ServiceDetailPage({
   params: Promise<{ clientServiceId: string }>;
   searchParams: Promise<{ calendar?: string }>;
 }) {
-  const [{ clientServiceId }, { calendar }, session, , t, labels] = await Promise.all([
+  const [{ clientServiceId }, { calendar }, session, { active: organization }, t, labels] = await Promise.all([
     params,
     searchParams,
     requireUser(),
@@ -65,6 +66,12 @@ export default async function ServiceDetailPage({
     getSubscriptionFor(clientServiceId),
   ]);
   if (!item) notFound();
+  // Connexions et achat de numéro : réservés aux responsables (vérifié aussi
+  // côté serveur) ; les autres membres voient une explication à la place.
+  const canManage = canManageClientServiceBilling(
+    { organizationId: organization.id },
+    await viewerOf(session.user.id)
+  );
 
   const isLive = isLiveTelephony(item);
   const objectives = asStringArray(item.configuration.objectives);
@@ -183,7 +190,7 @@ export default async function ServiceDetailPage({
       {hasMainColumn ? (
         <div className="mt-8 grid items-start gap-6 lg:grid-cols-3">
           <div className="min-w-0 space-y-6 lg:col-span-2">
-            {showSetup && <ServiceSetupCard item={item} />}
+            {showSetup && <ServiceSetupCard item={item} canManage={canManage} />}
             {/* Appels et calendrier ensemble : deux onglets d'une même carte. */}
             {showBookings && hasLiveCalls(item) ? (
               <ServiceActivityTabs

@@ -6,6 +6,7 @@ import {
   hashPhone,
   normalizeFrenchPhone,
   readDemoCallId,
+  testCallsGlobalPerDay,
 } from "./demo-call";
 
 describe("normalizeFrenchPhone", () => {
@@ -76,5 +77,19 @@ describe("buildDemoTwiml / readDemoCallId", () => {
     expect(readDemoCallId([{ name: "x-automerio-demo", value: "clx123abc456" }])).toBe("clx123abc456");
     expect(readDemoCallId([{ name: "X-Automerio-Demo", value: "'; drop" }])).toBeNull();
     expect(readDemoCallId([{ name: "To", value: "sip:+33612345678@x" }])).toBeNull();
+  });
+});
+
+describe("testCallsGlobalPerDay", () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("plafonne par defaut les tests d'appel de tous les clients", () => {
+    vi.stubEnv("TEST_CALLS_PER_DAY_GLOBAL", "");
+    expect(testCallsGlobalPerDay()).toBe(200);
+  });
+
+  it("se regle par l'environnement", () => {
+    vi.stubEnv("TEST_CALLS_PER_DAY_GLOBAL", "50");
+    expect(testCallsGlobalPerDay()).toBe(50);
   });
 });

@@ -38,6 +38,7 @@ export async function sendHelpRequestResolvedEmail(
     return;
   }
   await sendEmail({
+    kind: "sendHelpRequestResolvedEmail",
     to: recipient.email,
     subject: `Votre demande « ${subject} » a été traitée`,
     react: <HelpRequestResolvedEmail recipientName={recipient.name} subject={subject} />,
@@ -53,6 +54,7 @@ export async function sendHelpRequestReplyEmail(
     return;
   }
   await sendEmail({
+    kind: "sendHelpRequestReplyEmail",
     to: recipient.email,
     subject: `Réponse à votre demande « ${subject} »`,
     react: (
@@ -74,6 +76,7 @@ export async function sendServiceActivatedEmail(
     return;
   }
   await sendEmail({
+    kind: "sendServiceActivatedEmail",
     to: recipient.email,
     subject: `« ${serviceName} » est maintenant active`,
     react: (
@@ -96,6 +99,7 @@ export async function sendServiceNoteAddedEmail(
     return;
   }
   await sendEmail({
+    kind: "sendServiceNoteAddedEmail",
     to: recipient.email,
     subject: `Nouvelle note sur « ${serviceName} »`,
     react: (
@@ -117,6 +121,7 @@ export async function sendServiceCanceledEmail(
     return;
   }
   await sendEmail({
+    kind: "sendServiceCanceledEmail",
     to: recipient.email,
     subject: `Résiliation de « ${serviceName} » confirmée`,
     react: <ServiceCanceledEmail recipientName={recipient.name} serviceName={serviceName} />,
@@ -132,6 +137,7 @@ export async function sendNewHelpRequestInternalEmail(input: {
   serviceName: string | null;
 }) {
   await sendEmail({
+    kind: "sendNewHelpRequestInternalEmail",
     to: teamEmail(),
     subject: `Nouvelle demande d'aide : ${input.subject}`,
     react: <NewHelpRequestInternalEmail {...input} />,
@@ -146,6 +152,7 @@ export async function sendHelpRequestClientReplyInternalEmail(input: {
   body: string;
 }) {
   await sendEmail({
+    kind: "sendHelpRequestClientReplyInternalEmail",
     to: teamEmail(),
     subject: `Réponse de ${input.clientName} : ${input.subject}`,
     react: <HelpRequestClientReplyInternalEmail {...input} />,
@@ -159,6 +166,7 @@ export async function sendNewContactMessageInternalEmail(input: {
   message: string;
 }) {
   await sendEmail({
+    kind: "sendNewContactMessageInternalEmail",
     to: teamEmail(),
     subject: `Nouveau message de contact de ${input.name}`,
     react: <NewContactMessageInternalEmail {...input} />,
@@ -170,6 +178,7 @@ export async function sendPasswordResetEmail(
   url: string
 ) {
   await sendEmail({
+    kind: "sendPasswordResetEmail",
     to: recipient.email,
     subject: "Réinitialisez votre mot de passe Automerio",
     react: <PasswordResetEmail recipientName={recipient.name} url={url} />,
@@ -181,6 +190,7 @@ export async function sendEmailVerificationEmail(
   url: string
 ) {
   await sendEmail({
+    kind: "sendEmailVerificationEmail",
     to: recipient.email,
     subject: "Confirmez votre adresse e-mail Automerio",
     react: <EmailVerificationEmail recipientName={recipient.name} url={url} />,
@@ -194,6 +204,7 @@ export async function sendEmailChangeConfirmationEmail(
   url: string
 ) {
   await sendEmail({
+    kind: "sendEmailChangeConfirmationEmail",
     to: recipient.email,
     subject: "Confirmez le changement d'adresse de votre compte Automerio",
     react: <EmailChangeConfirmationEmail recipientName={recipient.name} newEmail={newEmail} url={url} />,
@@ -206,6 +217,7 @@ export async function sendPaymentFailedEmail(
   serviceName: string
 ) {
   await sendEmail({
+    kind: "sendPaymentFailedEmail",
     to: recipient.email,
     subject: `Le paiement de « ${serviceName} » a échoué`,
     react: <PaymentFailedEmail recipientName={recipient.name} serviceName={serviceName} />,
@@ -221,6 +233,7 @@ export async function sendOrganizationInvitationEmail(input: {
   url: string;
 }) {
   await sendEmail({
+    kind: "sendOrganizationInvitationEmail",
     to: input.to,
     subject: `${input.inviterName} vous invite à rejoindre ${input.organizationName}`,
     react: (
@@ -248,6 +261,7 @@ export async function sendQuotaAlertEmail(
 ) {
   if (!isNotificationEnabled(recipient.notificationPreferences, "QUOTA_ALERT")) return;
   await sendEmail({
+    kind: "sendQuotaAlertEmail",
     to: recipient.email,
     subject:
       quota.alert === "EXCEEDED"
@@ -270,6 +284,7 @@ export async function sendCallSummaryEmail(
 ) {
   if (!isNotificationEnabled(recipient.notificationPreferences, "CALL_SUMMARY")) return;
   await sendEmail({
+    kind: "sendCallSummaryEmail",
     to: recipient.email,
     subject: call.reason ? `Appel : ${call.reason}` : `Nouvel appel sur « ${call.serviceName} »`,
     react: <CallSummaryEmail recipientName={recipient.name} {...call} />,
@@ -282,6 +297,7 @@ export async function sendWeeklyDigestEmail(
 ) {
   if (!isNotificationEnabled(recipient.notificationPreferences, "WEEKLY_DIGEST")) return;
   await sendEmail({
+    kind: "sendWeeklyDigestEmail",
     to: recipient.email,
     subject: `Votre semaine : ${digest.highlights[0]}`,
     react: <WeeklyDigestEmail recipientName={recipient.name} {...digest} />,
