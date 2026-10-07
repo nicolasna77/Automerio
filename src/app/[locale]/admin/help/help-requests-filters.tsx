@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   Select,
   SelectContent,
@@ -9,13 +10,11 @@ import {
 } from "@/components/ui/select";
 import { useQueryParamFilters } from "@/hooks/use-query-param-filters";
 
-const STATUS_OPTIONS = [
-  { value: "open", label: "En attente" },
-  { value: "resolved", label: "Traitées" },
-  { value: "all", label: "Toutes" },
-];
+const STATUS_VALUES = ["open", "resolved", "all"] as const;
 
 export function HelpRequestsFilters() {
+  const t = useTranslations("Admin.help.filters");
+  const STATUS_OPTIONS = STATUS_VALUES.map((value) => ({ value, label: t(value) }));
   const { searchParams, updateParams } = useQueryParamFilters();
 
   return (
@@ -27,7 +26,7 @@ export function HelpRequestsFilters() {
         }
         items={STATUS_OPTIONS}
       >
-        <SelectTrigger className="w-56" aria-label="Filtrer par statut">
+        <SelectTrigger className="w-56" aria-label={t("statusFilter")}>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

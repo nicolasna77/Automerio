@@ -157,7 +157,7 @@ function ChatIllustration({ slug }: { slug: string }) {
         <div className="flex items-center gap-2.5 border-b border-border px-4 py-3">
           <ServiceGlyph slug={slug} className="size-6" />
           <div className="leading-tight">
-            <p className="text-sm font-medium text-foreground">Camille R.</p>
+            <p className="text-sm font-medium text-foreground">{t("contactName")}</p>
             <Label>{t("online")}</Label>
           </div>
         </div>

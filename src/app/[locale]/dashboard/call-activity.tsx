@@ -14,6 +14,7 @@ import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
 import { setCallHandledAction } from "./call-actions";
 import { pollWhileVisible } from "@/lib/poll-while-visible";
+import { PollingStatus } from "@/components/polling-status";
 import { formatFrenchPhone } from "@/lib/phone-format";
 
 const POLL_INTERVAL_MS = 5_000;
@@ -307,6 +308,8 @@ export function CallActivity({ clientServiceId }: { clientServiceId: string }) {
   const [day, setDay] = useState<string>(ALL_DAYS);
   // Vrai entre un changement de filtre et l'arrivée de la liste filtrée.
   const [filtering, setFiltering] = useState(false);
+  // Vrai quand l'actualisation échoue ou que le réseau est coupé.
+  const [stalled, setStalled] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -321,7 +324,7 @@ export function CallActivity({ clientServiceId }: { clientServiceId: string }) {
         const res = await fetch(url);
         if (!res.ok) {
           if (!cancelled) setFiltering(false);
-          return;
+          return false;
         }
         const json: CallsResponse = await res.json();
         if (!cancelled) {
@@ -330,11 +333,11 @@ export function CallActivity({ clientServiceId }: { clientServiceId: string }) {
         }
       } catch {
         if (!cancelled) setFiltering(false);
+        return false;
       }
     }
 
-    poll();
-    const stopPolling = pollWhileVisible(poll, POLL_INTERVAL_MS);
+    const stopPolling = pollWhileVisible(poll, POLL_INTERVAL_MS, setStalled, true);
     return () => {
       cancelled = true;
       stopPolling();
@@ -370,20 +373,20 @@ export function CallActivity({ clientServiceId }: { clientServiceId: string }) {
 
   if (!data) {
     return (
-      <div
-        role="status"
-        aria-label={t("loading")}
-        className="space-y-2"
-      >
-        <Skeleton className="h-4 w-40" />
-        <Skeleton className="h-14 w-full rounded-2xl" />
-        <Skeleton className="h-14 w-full rounded-2xl" />
+      <div className="space-y-2">
+        <PollingStatus stalled={stalled} />
+        <div role="status" aria-label={t("loading")} className="space-y-2">
+          <Skeleton className="h-4 w-40" />
+          <Skeleton className="h-14 w-full rounded-2xl" />
+          <Skeleton className="h-14 w-full rounded-2xl" />
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
+      <PollingStatus stalled={stalled} />
       {data.inProgress.length > 0 && (
         <div>
           <h3 className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">

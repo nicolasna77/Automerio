@@ -198,20 +198,20 @@ describe("parsePromoCodeInput", () => {
   });
 
   it.each([
-    [{ code: "ab" }, "3 à 30 caractères"],
-    [{ code: "code avec espace" }, "3 à 30 caractères"],
-    [{ value: 0 }, "pourcentage"],
-    [{ value: 120 }, "pourcentage"],
-    [{ kind: "amount" as const, value: 0 }, "montant"],
-    [{ duration: "repeating" as const, durationInMonths: null }, "entre 1 et 36 mois"],
-    [{ duration: "repeating" as const, durationInMonths: 40 }, "entre 1 et 36 mois"],
-    [{ expiresAtMs: NOW - 1 }, "futur"],
-    [{ maxRedemptions: 0 }, "entier positif"],
-    [{ maxRedemptions: 2.5 }, "entier positif"],
-  ])("refuse %o", (override, message) => {
+    [{ code: "ab" }, "promoCodeFormat"],
+    [{ code: "code avec espace" }, "promoCodeFormat"],
+    [{ value: 0 }, "promoPercentRange"],
+    [{ value: 120 }, "promoPercentRange"],
+    [{ kind: "amount" as const, value: 0 }, "promoAmountPositive"],
+    [{ duration: "repeating" as const, durationInMonths: null }, "promoMonthsRange"],
+    [{ duration: "repeating" as const, durationInMonths: 40 }, "promoMonthsRange"],
+    [{ expiresAtMs: NOW - 1 }, "promoExpiryPast"],
+    [{ maxRedemptions: 0 }, "promoMaxUsesInteger"],
+    [{ maxRedemptions: 2.5 }, "promoMaxUsesInteger"],
+  ])("refuse %o", (override, problem) => {
     const result = parsePromoCodeInput({ ...base, ...override }, NOW);
     expect(result.ok).toBe(false);
-    expect(!result.ok && result.error).toContain(message);
+    expect(!result.ok && result.problem).toBe(problem);
   });
 
   it("ne garde la durée en mois que pour une remise répétée", () => {

@@ -1,4 +1,5 @@
 import { ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Card, CardContent } from "@/components/ui/card";
 import { ServiceTimelineList } from "@/components/service-timeline-list";
 import { ServiceFacts, hasServiceFacts } from "@/components/service-facts";
@@ -8,12 +9,13 @@ import { formatDate, type MyServiceDTO } from "@/lib/catalog";
 import { ConnectionSummary } from "./connection-summary";
 
 export function ServiceHistory({ items }: { items: MyServiceDTO[] }) {
+  const t = useTranslations("Admin.userDetail.history");
   if (items.length === 0) return null;
 
   return (
     <section className="mt-10">
       <h2 className="mb-3 text-lg font-semibold text-foreground">
-        Ce que voit le client
+        {t("heading")}
       </h2>
       <Card>
         <CardContent className="divide-y divide-border">
@@ -43,8 +45,8 @@ export function ServiceHistory({ items }: { items: MyServiceDTO[] }) {
                   <StatusBadge status={item.status} />
                   <span className="shrink-0 text-xs text-muted-foreground">
                     {item.events.length > 0
-                      ? `dernier événement le ${formatDate(item.events[0].createdAt)}`
-                      : "aucun événement"}
+                      ? t("lastEvent", { date: formatDate(item.events[0].createdAt) })
+                      : t("noEvents")}
                   </span>
                 </summary>
 
@@ -56,7 +58,7 @@ export function ServiceHistory({ items }: { items: MyServiceDTO[] }) {
                   {item.adminNote && (
                     <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4">
                       <p className="text-xs font-medium text-primary">
-                        Note affichée au client
+                        {t("adminNote")}
                       </p>
                       <p className="mt-1 text-sm text-foreground">{item.adminNote}</p>
                     </div>
@@ -67,7 +69,7 @@ export function ServiceHistory({ items }: { items: MyServiceDTO[] }) {
                   {showFacts && (
                     <div>
                       <h3 className="mb-1 text-sm font-medium text-foreground">
-                        Configuration
+                        {t("configuration")}
                       </h3>
                       <ServiceFacts item={item} />
                     </div>
@@ -76,7 +78,7 @@ export function ServiceHistory({ items }: { items: MyServiceDTO[] }) {
                   {item.events.length > 0 && (
                     <div>
                       <h3 className="mb-3 text-sm font-medium text-foreground">
-                        Historique
+                        {t("timeline")}
                       </h3>
                       <ServiceTimelineList events={item.events} />
                     </div>

@@ -1,4 +1,5 @@
 import { titleMetadata } from "@/i18n/metadata";
+import { getTranslations } from "next-intl/server";
 import { CloudOff, TicketPercent } from "lucide-react";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/session";
@@ -17,7 +18,8 @@ export const generateMetadata = titleMetadata("adminPromoCodes");
 
 async function loadPromoCodes(
   codesPromise: ReturnType<typeof listPromotionCodes>,
-  nameBySlug: Map<string, string>
+  nameBySlug: Map<string, string>,
+  discountDeleted: string
 ): Promise<PromoCodeRow[] | null> {
   try {
     const codes = await codesPromise;
@@ -42,7 +44,7 @@ async function loadPromoCodes(
         state,
         discount: coupon
           ? describeDiscount(discountRuleFromCoupon(coupon))
-          : "Remise supprimée dans Stripe",
+          : discountDeleted,
         services: slugs === null ? null : slugs.map((slug) => nameBySlug.get(slug) ?? slug),
         firstTimeOnly: promo.restrictions.first_time_transaction,
         timesRedeemed: promo.times_redeemed,
@@ -58,6 +60,7 @@ async function loadPromoCodes(
 
 export default async function AdminPromoCodesPage() {
   await requireAdmin();
+  const t = await getTranslations("Admin.promoCodes");
 
   const codesPromise = listPromotionCodes();
   codesPromise.catch(() => {});
@@ -66,13 +69,17 @@ export default async function AdminPromoCodesPage() {
     orderBy: { sortOrder: "asc" },
     select: { slug: true, name: true },
   });
-  const rows = await loadPromoCodes(codesPromise, new Map(services.map((s) => [s.slug, s.name])));
+  const rows = await loadPromoCodes(
+    codesPromise,
+    new Map(services.map((s) => [s.slug, s.name])),
+    t("discountDeleted")
+  );
 
   return (
     <PageShell size="wide">
       <PageHeader
-        title="Codes promo"
-        description="Les remises que vos clients saisissent en activant une solution. Stripe compte les utilisations et fait respecter les limites."
+        title={t("title")}
+        description={t("description")}
         actions={<PromoCodeCreateDialog services={services} />}
       />
 
@@ -81,14 +88,14 @@ export default async function AdminPromoCodesPage() {
           <EmptyState
             icon={CloudOff}
             tone="neutral"
-            title="Impossible de joindre Stripe"
-            description="Les codes ne peuvent pas être affichés pour l'instant. Vérifiez STRIPE_SECRET_KEY, puis rechargez la page."
+            title={t("stripeDownTitle")}
+            description={t("stripeDownDescription")}
           />
         ) : rows.length === 0 ? (
           <EmptyState
             icon={TicketPercent}
-            title="Aucun code promo"
-            description="Créez un premier code : vos clients pourront le saisir au moment d'activer une solution."
+            title={t("emptyTitle")}
+            description={t("emptyDescription")}
           />
         ) : (
           <div className="rounded-3xl border border-border bg-card p-2">

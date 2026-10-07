@@ -1,11 +1,22 @@
+import { hasLocale } from "next-intl";
+import { getTranslations } from "next-intl/server";
+import { routing } from "@/i18n/routing";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/session";
 import { csvResponseHeaders, toCsv } from "@/lib/csv";
-import { STATUS_LABELS, formatCents, type ClientServiceStatus } from "@/lib/catalog";
+import { formatCents, type ClientServiceStatus } from "@/lib/catalog";
+import { createLabels, type LabelTranslator } from "@/lib/labels";
 import { formatCentsExcludingVat } from "@/lib/vat";
 
-export async function GET() {
+export async function GET(_request: Request, { params }: { params: Promise<{ locale: string }> }) {
   await requireAdmin();
+  const requested = (await params).locale;
+  const locale = hasLocale(routing.locales, requested) ? requested : routing.defaultLocale;
+  const [t, tLabels] = await Promise.all([
+    getTranslations({ locale, namespace: "Admin.export.clients" }),
+    getTranslations({ locale, namespace: "Labels" }),
+  ]);
+  const labels = createLabels(tLabels as unknown as LabelTranslator, locale);
 
   const rows = await db.clientService.findMany({
     orderBy: { createdAt: "desc" },
@@ -17,35 +28,35 @@ export async function GET() {
   });
 
   const csv = toCsv(rows, [
-    { header: "Client", value: (r) => r.user.name },
-    { header: "E-mail", value: (r) => r.user.email },
-    { header: "Organisation", value: (r) => r.organization.name },
-    { header: "Solution", value: (r) => r.service.name },
-    { header: "Nom de l'activation", value: (r) => r.name },
+    { header: t("client"), value: (r) => r.user.name },
+    { header: t("email"), value: (r) => r.user.email },
+    { header: t("organization"), value: (r) => r.organization.name },
+    { header: t("service"), value: (r) => r.service.name },
+    { header: t("activationName"), value: (r) => r.name },
     {
-      header: "Statut",
-      value: (r) => STATUS_LABELS[r.status as ClientServiceStatus] ?? r.status,
+      header: t("status"),
+      value: (r) => labels.status(r.status as ClientServiceStatus),
     },
     {
-      header: "Abonnement mensuel TTC",
+      header: t("monthlyWithVat"),
       value: (r) =>
         r.service.monthlyPriceCents === null
           ? ""
           : formatCents(r.service.monthlyPriceCents),
     },
     {
-      header: "Abonnement mensuel HT",
+      header: t("monthlyExcludingVat"),
       value: (r) =>
         r.service.monthlyPriceCents === null
           ? ""
           : formatCentsExcludingVat(r.service.monthlyPriceCents),
     },
-    { header: "Code promo", value: (r) => r.promoCode },
-    { header: "Numéro attribué", value: (r) => r.externalPhoneNumber },
-    { header: "Note pour le client", value: (r) => r.adminNote },
-    { header: "Demandée le", value: (r) => r.createdAt },
-    { header: "Activée le", value: (r) => r.activatedAt },
-    { header: "Résiliée le", value: (r) => r.canceledAt },
+    { header: t("promoCode"), value: (r) => r.promoCode },
+    { header: t("phoneNumber"), value: (r) => r.externalPhoneNumber },
+    { header: t("note"), value: (r) => r.adminNote },
+    { header: t("requestedOn"), value: (r) => r.createdAt },
+    { header: t("activatedOn"), value: (r) => r.activatedAt },
+    { header: t("canceledOn"), value: (r) => r.canceledAt },
   ]);
 
   return new Response(csv, { headers: csvResponseHeaders("clients-automerio") });

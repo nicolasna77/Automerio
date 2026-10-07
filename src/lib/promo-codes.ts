@@ -124,6 +124,20 @@ export type PromoCodeFormInput = {
   serviceSlugs: string[];
 };
 
+// Refus de saisie : la clé du message (espace « Actions » de messages/*.json)
+// et le champ du formulaire à signaler.
+export type PromoCodeProblem =
+  | "promoCodeFormat"
+  | "promoPercentRange"
+  | "promoAmountPositive"
+  | "promoMonthsRange"
+  | "promoExpiryPast"
+  | "promoMaxUsesInteger";
+
+export type PromoCodeField = "code" | "value" | "months" | "expires" | "maxUses";
+
+export type PromoCodeRefusal = { ok: false; problem: PromoCodeProblem; field: PromoCodeField };
+
 export type ParsedPromoCode = {
   code: string;
   rule: DiscountRule;
@@ -136,27 +150,24 @@ export type ParsedPromoCode = {
 export function parsePromoCodeInput(
   input: PromoCodeFormInput,
   nowMs: number
-): { ok: true; value: ParsedPromoCode } | { ok: false; error: string } {
+): { ok: true; value: ParsedPromoCode } | PromoCodeRefusal {
   const code = normalizePromoCode(input.code);
   if (!PROMO_CODE_PATTERN.test(code)) {
-    return {
-      ok: false,
-      error: "Le code doit faire de 3 à 30 caractères : lettres, chiffres, tirets.",
-    };
+    return { ok: false, problem: "promoCodeFormat", field: "code" };
   }
 
   const discount = parseDiscountRule(input);
   if (!discount.ok) return discount;
 
   if (input.expiresAtMs !== null && input.expiresAtMs <= nowMs) {
-    return { ok: false, error: "La date d'expiration doit être dans le futur." };
+    return { ok: false, problem: "promoExpiryPast", field: "expires" };
   }
 
   if (
     input.maxRedemptions !== null &&
     (!Number.isInteger(input.maxRedemptions) || input.maxRedemptions < 1)
   ) {
-    return { ok: false, error: "Le nombre d'utilisations doit être un entier positif." };
+    return { ok: false, problem: "promoMaxUsesInteger", field: "maxUses" };
   }
 
   return {
@@ -174,18 +185,18 @@ export function parsePromoCodeInput(
 
 export function parseDiscountRule(
   input: Pick<PromoCodeFormInput, "kind" | "value" | "duration" | "durationInMonths">
-): { ok: true; rule: DiscountRule } | { ok: false; error: string } {
+): { ok: true; rule: DiscountRule } | PromoCodeRefusal {
   let percentOff: number | null = null;
   let amountOffCents: number | null = null;
   if (input.kind === "percent") {
     if (!Number.isFinite(input.value) || input.value <= 0 || input.value > 100) {
-      return { ok: false, error: "Le pourcentage doit être compris entre 0 (exclu) et 100." };
+      return { ok: false, problem: "promoPercentRange", field: "value" };
     }
     percentOff = Math.round(input.value * 100) / 100;
   } else {
     const cents = Math.round(input.value * 100);
     if (!Number.isFinite(cents) || cents <= 0) {
-      return { ok: false, error: "Le montant de la remise doit être positif." };
+      return { ok: false, problem: "promoAmountPositive", field: "value" };
     }
     amountOffCents = cents;
   }
@@ -194,7 +205,7 @@ export function parseDiscountRule(
   if (input.duration === "repeating") {
     const months = input.durationInMonths;
     if (months === null || !Number.isInteger(months) || months < 1 || months > 36) {
-      return { ok: false, error: "Indiquez une durée entre 1 et 36 mois." };
+      return { ok: false, problem: "promoMonthsRange", field: "months" };
     }
     durationInMonths = months;
   }

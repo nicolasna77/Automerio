@@ -1,8 +1,10 @@
 import { Building2, Users, Zap, Wallet, Clock3 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Card, CardHeader, CardDescription } from "@/components/ui/card";
 import { StatCard } from "@/components/stat-card";
 import { db } from "@/lib/db";
-import { STATUS_LABELS, formatPrice, type ClientServiceStatus } from "@/lib/catalog";
+import { formatPrice, type ClientServiceStatus } from "@/lib/catalog";
+import { getLabels } from "@/lib/labels-server";
 import { formatPriceExcludingVat } from "@/lib/vat";
 
 const STATUS_ORDER: ClientServiceStatus[] = [
@@ -20,12 +22,11 @@ function startOfDay(date: Date) {
   return d;
 }
 
-function formatDelta(delta: number, suffix: string) {
-  if (delta === 0) return null;
-  return `${delta > 0 ? "+" : ""}${delta} ${suffix}`;
+function signedDelta(delta: number) {
+  return `${delta > 0 ? "+" : ""}${delta}`;
 }
 
-function Sparkline({ counts }: { counts: number[] }) {
+function Sparkline({ counts, label }: { counts: number[]; label: string }) {
   const max = Math.max(1, ...counts);
   const width = 120;
   const height = 28;
@@ -43,7 +44,7 @@ function Sparkline({ counts }: { counts: number[] }) {
       viewBox={`0 0 ${width} ${height}`}
       className="h-7 w-full text-primary"
       role="img"
-      aria-label={`Activations des ${SPARKLINE_DAYS} derniers jours : ${counts.join(", ")}`}
+      aria-label={label}
     >
       <polyline
         points={points}
@@ -71,6 +72,8 @@ export async function Stats() {
     statusCounts,
     activatedLast7d,
     dailyActivations,
+    t,
+    labels,
   ] = await Promise.all([
     db.user.count({ where: { role: { not: "ADMIN" } } }),
     db.user.count({
@@ -89,6 +92,8 @@ export async function Stats() {
       GROUP BY day
       ORDER BY day ASC
     `,
+    getTranslations("Admin"),
+    getLabels(),
   ]);
 
   const activeCount = activeServices.length;
@@ -118,44 +123,47 @@ export async function Stats() {
   return (
     <div className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={Users} label="Clients" value={clientCount}>
-          {formatDelta(newClientsLast7d, "cette semaine") && (
+        <StatCard icon={Users} label={t("stats.clients")} value={clientCount}>
+          {newClientsLast7d !== 0 && (
             <p className="text-xs text-muted-foreground">
-              {formatDelta(newClientsLast7d, "cette semaine")}
+              {t("stats.newThisWeek", { delta: signedDelta(newClientsLast7d) })}
             </p>
           )}
         </StatCard>
-        <StatCard icon={Zap} label="Automatisations actives" value={activeCount}>
-          {formatDelta(activatedLast7d, "activées cette semaine") && (
+        <StatCard icon={Zap} label={t("stats.activeAutomations")} value={activeCount}>
+          {activatedLast7d !== 0 && (
             <p className="text-xs text-muted-foreground">
-              {formatDelta(activatedLast7d, "activées cette semaine")}
+              {t("stats.activatedThisWeek", { delta: signedDelta(activatedLast7d) })}
             </p>
           )}
         </StatCard>
         <StatCard
           icon={Wallet}
-          label="Revenu récurrent mensuel"
+          label={t("stats.mrr")}
           value={
             <>
-              {formatPrice(mrrCents)} TTC
+              {t("price.withVat", { amount: formatPrice(mrrCents) })}
               <span className="block text-xs font-normal text-muted-foreground">
-                soit {formatPriceExcludingVat(mrrCents)} HT
+                {t("price.excludingVat", { amount: formatPriceExcludingVat(mrrCents) })}
               </span>
             </>
           }
         >
-          <Sparkline counts={sparklineCounts} />
+          <Sparkline
+            counts={sparklineCounts}
+            label={t("stats.sparkline", { days: SPARKLINE_DAYS, counts: sparklineCounts.join(", ") })}
+          />
         </StatCard>
         <Card>
           <CardHeader>
             <div className="mb-1 flex items-center justify-between">
-              <CardDescription>Répartition par statut</CardDescription>
+              <CardDescription>{t("stats.byStatus")}</CardDescription>
               <Clock3 className="size-4 text-muted-foreground" aria-hidden="true" />
             </div>
             <dl className="space-y-1">
               {STATUS_ORDER.map((status) => (
                 <div key={status} className="flex items-center justify-between gap-2 text-sm">
-                  <dt className="text-muted-foreground">{STATUS_LABELS[status]}</dt>
+                  <dt className="text-muted-foreground">{labels.status(status)}</dt>
                   <dd className="font-mono tabular-nums text-foreground">
                     {countByStatus.get(status) ?? 0}
                   </dd>
@@ -167,9 +175,7 @@ export async function Stats() {
       </div>
       <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
         <Building2 className="size-3.5" aria-hidden="true" />
-        Basé sur {clientCount} client{clientCount > 1 ? "s" : ""} et{" "}
-        {activeCount} automatisation{activeCount > 1 ? "s" : ""} active
-        {activeCount > 1 ? "s" : ""}.
+        {t("stats.basedOn", { clients: clientCount, active: activeCount })}
       </p>
     </div>
   );

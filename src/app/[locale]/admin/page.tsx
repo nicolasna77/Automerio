@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { titleMetadata } from "@/i18n/metadata";
 import { Suspense } from "react";
 import { Stats } from "./stats";
@@ -14,13 +15,13 @@ export default async function AdminPage({
 }: {
   searchParams: Promise<{ q?: string; status?: string; scope?: string; page?: string }>;
 }) {
-  const params = await searchParams;
+  const [params, t] = await Promise.all([searchParams, getTranslations("Admin.overview")]);
 
   return (
     <PageShell size="wide">
       <PageHeader
-        title="Vue d'ensemble"
-        description="Supervision de l'ensemble des clients Automerio."
+        title={t("title")}
+        description={t("description")}
         actions={<LiveRefreshToggle />}
       />
 
@@ -31,7 +32,7 @@ export default async function AdminPage({
       </div>
 
       <div className="mt-12">
-        <h2 className="mb-4 text-lg font-semibold text-foreground">Clients</h2>
+        <h2 className="mb-4 text-lg font-semibold text-foreground">{t("clientsHeading")}</h2>
         <ClientsFilters />
         <Suspense
           key={`${params.q ?? ""}:${params.status ?? ""}:${params.scope ?? ""}:${params.page ?? ""}`}

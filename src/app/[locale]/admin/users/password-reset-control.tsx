@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, type FormEvent } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "@/lib/toast";
 import { Check, Copy } from "lucide-react";
 import {
@@ -20,6 +21,9 @@ import { setUserPasswordAction } from "./actions";
 const PASSWORD_ALPHABET =
   "abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789";
 
+const PASSWORD_INPUT_ID = "admin-new-password";
+const PASSWORD_ERROR_ID = "admin-new-password-error";
+
 function generatePassword(length = 14) {
   const values = new Uint32Array(length);
   crypto.getRandomValues(values);
@@ -35,8 +39,12 @@ export function PasswordResetControl({
   userId: string;
   disabled?: boolean;
 }) {
+  const t = useTranslations("Admin.users.password");
+  const tCommon = useTranslations("Common");
   const [isPending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
+  // Erreur de saisie affichée sous le champ, qui reçoit le focus.
+  const [fieldError, setFieldError] = useState<string | null>(null);
   const [password, setPassword] = useState("");
   const [done, setDone] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -45,6 +53,7 @@ export function PasswordResetControl({
     setPassword("");
     setDone(false);
     setCopied(false);
+    setFieldError(null);
   }
 
   async function handleCopy() {
@@ -53,20 +62,23 @@ export function PasswordResetControl({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error("Impossible de copier. Copiez-le manuellement.");
+      toast.error(t("copyFailed"));
     }
   }
 
-  function handleSubmit() {
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault();
     if (password.length < 8) {
-      toast.error("Le mot de passe doit contenir au moins 8 caractères.");
+      setFieldError(t("tooShort"));
+      document.getElementById(PASSWORD_INPUT_ID)?.focus();
       return;
     }
+    setFieldError(null);
     startTransition(async () => {
       try {
         unwrap(await setUserPasswordAction(userId, password));
         setDone(true);
-        toast.success("Mot de passe réinitialisé.");
+        toast.success(t("done"));
       } catch (err) {
         toast.error(getErrorMessage(err));
       }
@@ -81,7 +93,7 @@ export function PasswordResetControl({
         onClick={() => setOpen(true)}
         disabled={disabled}
       >
-        Réinitialiser le mot de passe
+        {t("open")}
       </Button>
 
       <Dialog
@@ -93,12 +105,9 @@ export function PasswordResetControl({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Réinitialiser le mot de passe</DialogTitle>
+            <DialogTitle>{t("title")}</DialogTitle>
             {!done && (
-              <DialogDescription>
-                Ses sessions actives seront révoquées : il devra se
-                reconnecter avec ce nouveau mot de passe.
-              </DialogDescription>
+              <DialogDescription>{t("description")}</DialogDescription>
             )}
           </DialogHeader>
 
@@ -113,7 +122,7 @@ export function PasswordResetControl({
                   variant="ghost"
                   size="icon-sm"
                   onClick={handleCopy}
-                  aria-label="Copier le mot de passe"
+                  aria-label={t("copy")}
                 >
                   {copied ? (
                     <Check className="text-primary" aria-hidden="true" />
@@ -122,49 +131,59 @@ export function PasswordResetControl({
                   )}
                 </Button>
               </div>
-              <p className="text-sm text-muted-foreground">
-                Communiquez-le à l&apos;utilisateur. Il ne sera plus affiché
-                ensuite.
-              </p>
+              <p className="text-sm text-muted-foreground">{t("shareOnce")}</p>
               <DialogFooter>
-                <Button onClick={() => setOpen(false)}>Fermer</Button>
+                <Button onClick={() => setOpen(false)}>{tCommon("close")}</Button>
               </DialogFooter>
             </>
           ) : (
-            <>
-              <div className="flex gap-2">
-                <Input
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Nouveau mot de passe"
-                  aria-label="Nouveau mot de passe"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setPassword(generatePassword())}
-                  disabled={isPending}
-                >
-                  Générer
-                </Button>
+            <form onSubmit={handleSubmit} noValidate className="grid gap-4">
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  <Input
+                    id={PASSWORD_INPUT_ID}
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setFieldError(null);
+                    }}
+                    placeholder={t("label")}
+                    aria-label={t("label")}
+                    aria-invalid={fieldError ? true : undefined}
+                    aria-describedby={fieldError ? PASSWORD_ERROR_ID : undefined}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setPassword(generatePassword());
+                      setFieldError(null);
+                    }}
+                    disabled={isPending}
+                  >
+                    {t("generate")}
+                  </Button>
+                </div>
+                {fieldError && (
+                  <p id={PASSWORD_ERROR_ID} className="text-sm text-destructive">
+                    {fieldError}
+                  </p>
+                )}
               </div>
               <DialogFooter>
                 <Button
+                  type="button"
                   variant="outline"
                   onClick={() => setOpen(false)}
                   disabled={isPending}
                 >
-                  Annuler
+                  {tCommon("cancel")}
                 </Button>
-                <Button
-                  onClick={handleSubmit}
-                  disabled={isPending || password.length < 8}
-                  aria-busy={isPending}
-                >
-                  {isPending ? "Réinitialisation…" : "Réinitialiser"}
+                <Button type="submit" disabled={isPending} aria-busy={isPending}>
+                  {isPending ? t("resetting") : t("reset")}
                 </Button>
               </DialogFooter>
-            </>
+            </form>
           )}
         </DialogContent>
       </Dialog>

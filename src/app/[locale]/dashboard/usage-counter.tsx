@@ -29,15 +29,15 @@ export function UsageCounter({
         const res = await fetch(
           `/api/client-services/${clientServiceId}/usage`
         );
-        if (!res.ok) return;
+        if (!res.ok) return false;
         const data: { count: number } = await res.json();
         if (!cancelled) setCount(data.count);
       } catch {
+        return false;
       }
     }
 
-    poll();
-    const stopPolling = pollWhileVisible(poll, POLL_INTERVAL_MS);
+    const stopPolling = pollWhileVisible(poll, POLL_INTERVAL_MS, undefined, true);
     return () => {
       cancelled = true;
       stopPolling();

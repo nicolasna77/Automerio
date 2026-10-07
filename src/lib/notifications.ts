@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
-import { SERVICE_EVENT_LABELS, type ServiceEventType } from "@/lib/catalog";
+import type { ServiceEventType } from "@/lib/catalog";
+import { getLabels } from "@/lib/labels-server";
 
 export type NotificationDTO = {
   id: string;
@@ -36,7 +37,8 @@ export async function getClientNotifications(
 ): Promise<NotificationDTO[]> {
   const since = windowStart();
 
-  const [events, replies] = await Promise.all([
+  const [labels, events, replies] = await Promise.all([
+    getLabels(),
     db.serviceEvent.findMany({
       where: {
         createdAt: { gte: since },
@@ -62,7 +64,7 @@ export async function getClientNotifications(
     [
       ...events.map((event) => ({
         id: `event-${event.id}`,
-        title: SERVICE_EVENT_LABELS[event.type as ServiceEventType],
+        title: labels.serviceEvent(event.type as ServiceEventType),
         description: event.clientService.name,
         href: `/dashboard/services/${event.clientService.id}`,
         createdAt: event.createdAt,

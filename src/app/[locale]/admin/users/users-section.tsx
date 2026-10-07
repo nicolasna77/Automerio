@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import type { Prisma } from "@prisma/client";
 import { Badge } from "@/components/ui/badge";
@@ -41,7 +42,8 @@ export async function UsersSection({
     ...(role === "ADMIN" || role === "CLIENT" ? { role } : {}),
   };
 
-  const [total, users] = await Promise.all([
+  const [t, total, users] = await Promise.all([
+    getTranslations("Admin.users"),
     db.user.count({ where }),
     db.user.findMany({
       where,
@@ -61,22 +63,22 @@ export async function UsersSection({
         {users.length === 0 ? (
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Aucun utilisateur ne correspond à ces critères.
+              {t("empty")}
             </p>
           </CardContent>
         ) : (
           <CardContent>
             <Table>
               <TableCaption className="sr-only">
-                Utilisateurs de l&apos;application
+                {t("caption")}
               </TableCaption>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nom</TableHead>
-                  <TableHead>Organisation</TableHead>
-                  <TableHead>Rôle</TableHead>
-                  <TableHead>Statut</TableHead>
-                  <TableHead>Inscrit le</TableHead>
+                  <TableHead>{t("columns.name")}</TableHead>
+                  <TableHead>{t("columns.organization")}</TableHead>
+                  <TableHead>{t("columns.role")}</TableHead>
+                  <TableHead>{t("columns.status")}</TableHead>
+                  <TableHead>{t("columns.signedUp")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -100,14 +102,14 @@ export async function UsersSection({
                     </TableCell>
                     <TableCell>
                       <Badge variant={user.role === "ADMIN" ? "default" : "secondary"}>
-                        {user.role ?? "CLIENT"}
+                        {t(`role.${user.role === "ADMIN" ? "ADMIN" : "CLIENT"}`)}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       {user.banned ? (
-                        <Badge variant="destructive">Banni</Badge>
+                        <Badge variant="destructive">{t("banned")}</Badge>
                       ) : (
-                        <span className="text-sm text-muted-foreground">Actif</span>
+                        <span className="text-sm text-muted-foreground">{t("active")}</span>
                       )}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
@@ -126,7 +128,7 @@ export async function UsersSection({
         totalPages={totalPages}
         basePath="/admin/users"
         params={pageParams}
-        label="Pagination des utilisateurs"
+        label={t("pagination")}
       />
     </div>
   );
