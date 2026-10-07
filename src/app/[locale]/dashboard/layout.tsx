@@ -1,4 +1,5 @@
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
+import { getTranslations } from "next-intl/server";
 import { WorkspaceLayout } from "@/components/workspace-layout";
 import { db } from "@/lib/db";
 import { isAdmin, requireUser } from "@/lib/session";
@@ -39,8 +40,25 @@ export default async function DashboardLayout({
     db.booking.count({ where: { clientService: { organizationId: active.id } }, take: 1 }),
   ]);
 
+  const [tNav, tTitles] = await Promise.all([
+    getTranslations("Dashboard.nav"),
+    getTranslations("PageTitles"),
+  ]);
+
   return (
     <WorkspaceLayout
+      breadcrumbRoot={{ label: tTitles("dashboard"), href: "/dashboard" }}
+      breadcrumbPages={{
+        "/dashboard": tNav("overview"),
+        "/dashboard/services": tNav("services"),
+        "/dashboard/services/catalog": tTitles("catalog"),
+        "/dashboard/calendar": tNav("calendar"),
+        "/dashboard/subscriptions": tNav("billing"),
+        "/dashboard/payments": tNav("billing"),
+        "/dashboard/organization": tNav("organization"),
+        "/dashboard/profile": tNav("profile"),
+        "/dashboard/help": tNav("help"),
+      }}
       sidebar={
         <DashboardSidebar
           isAdmin={isAdmin(session.user)}
