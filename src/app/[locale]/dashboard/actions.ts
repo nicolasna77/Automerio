@@ -12,6 +12,7 @@ import { getSession } from "@/lib/session";
 import {
   findMissingRequiredField,
   TELEPHONY_SERVICE_SLUGS,
+  canPauseService,
   withCleanProductCatalog,
   type ConfigField,
   type Configuration,
@@ -829,6 +830,8 @@ export async function cancelService(clientServiceId: string) {
       data: {
         status: "CANCELED",
         canceledAt: new Date(),
+        // Une solution relancée plus tard repart en service.
+        pausedAt: null,
         externalPhoneNumber: null,
         externalPhoneNumberSid: null,
         // Libère le numéro WhatsApp, la page ou le compte Instagram : ils
@@ -896,6 +899,38 @@ export async function setOverageAllowed(clientServiceId: string, allowed: boolea
 
     revalidateDashboard(clientServiceId);
     revalidatePath("/dashboard/subscriptions");
+  });
+}
+
+// Le client met l'assistant en pause, ou le relance : plus d'appel décroché ni
+// de message répondu tant que la pause dure. Rien ne change côté facturation.
+export async function setServicePaused(clientServiceId: string, paused: boolean) {
+  return runAction(async () => {
+    const userId = await requireUserId();
+    if (!(await checkRateLimit("pause-change", userId, "10 m", 20))) {
+      throw actionError("tooManyAttempts");
+    }
+
+    const clientService = await db.clientService.findUnique({
+      where: { id: clientServiceId },
+      include: { service: true },
+    });
+    if (!clientService) throw actionError("notYourService");
+    // Couper le standard d'une entreprise : réservé aux responsables, comme
+    // les connexions et le dépassement.
+    await requireBillingRoleOn(clientService, userId);
+    if (!canPauseService(clientService)) throw actionError("pauseOnlyLive");
+
+    // Écriture conditionnelle : un double clic ou deux membres en même temps
+    // ne datent la pause et ne la journalisent qu'une fois.
+    const { count } = await db.clientService.updateMany({
+      where: { id: clientServiceId, pausedAt: paused ? null : { not: null } },
+      data: { pausedAt: paused ? new Date() : null },
+    });
+    if (count === 0) return;
+    await logServiceEvent(clientServiceId, paused ? "PAUSED" : "RESUMED");
+
+    revalidateDashboard(clientServiceId);
   });
 }
 

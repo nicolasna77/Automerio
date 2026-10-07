@@ -7,6 +7,7 @@ import { Plus } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { db } from "@/lib/db";
 import { requireActiveOrganization } from "@/lib/organization";
+import { canManageOrganization } from "@/lib/client-service-access";
 import { SETUP_ANCHOR, type MyServiceDTO } from "@/lib/catalog";
 import { getMySubscriptions, quotasByService } from "@/lib/subscriptions";
 import { toMyServiceDTO } from "../get-my-service";
@@ -30,13 +31,14 @@ export default async function PrestationsPage({
     getLabels(),
   ]);
 
-  const [clientServices, subscriptions] = await Promise.all([
+  const [clientServices, subscriptions, canManage] = await Promise.all([
     db.clientService.findMany({
       where: { organizationId: organization.id },
       include: { service: true },
       orderBy: { createdAt: "desc" },
     }),
     getMySubscriptions(organization.id),
+    canManageOrganization(organization.id),
   ]);
   const myServices: MyServiceDTO[] = clientServices.map(toMyServiceDTO);
   const quotas = quotasByService(subscriptions);
@@ -86,7 +88,7 @@ export default async function PrestationsPage({
         </div>
       )}
 
-      <MyServices items={myServices} quotas={quotas} />
+      <MyServices items={myServices} quotas={quotas} canManage={canManage} />
     </PageShell>
   );
 }

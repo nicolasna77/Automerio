@@ -23,7 +23,8 @@ export async function POST(request: Request) {
 
   const t = await getTranslations({ locale: routing.defaultLocale, namespace: "Voice" });
 
-  // Forfait atteint sans dépassement possible : l'assistant ne décroche pas.
+  // Mise en pause par le client, ou forfait atteint sans dépassement possible :
+  // l'assistant ne décroche pas.
   // Toute erreur de lecture (base indisponible…) laisse passer l'appel : mieux
   // vaut décrocher un appel de trop que raccrocher au nez d'un client.
   let paused = false;
@@ -33,7 +34,9 @@ export async function POST(request: Request) {
         where: { externalPhoneNumber: params.To },
         include: { service: true },
       });
-      paused = clientService ? await isPausedByQuota(clientService) : false;
+      paused = clientService
+        ? clientService.pausedAt !== null || (await isPausedByQuota(clientService))
+        : false;
     } catch (err) {
       console.error("[voice] lecture du quota impossible, appel transmis :", err);
     }

@@ -18,6 +18,7 @@ import {
 export type ClientServiceCellData = {
   id: string;
   status: string;
+  pausedAt: Date | null;
   configuration: unknown;
   adminNote: string | null;
   externalPhoneNumber: string | null;

@@ -44,6 +44,7 @@ function clientService(service = billedService, includedUsageUnits: number | nul
   return {
     id: "cs_1",
     overageAllowed,
+    pausedAt: null,
     stripeSubscriptionId: null,
     includedUsageUnits,
     configuration: {},
@@ -129,6 +130,12 @@ describe("decideAiReply", () => {
       allowed: false,
       reason: "quota_exhausted",
     });
+  });
+
+  it("se tait quand le client a mis l'assistant en pause", async () => {
+    const paused = { ...clientService(), pausedAt: new Date() };
+    expect(await decideAiReply(paused, "c")).toEqual({ allowed: false, reason: "paused" });
+    expect(mocks.checkRateLimit).not.toHaveBeenCalled();
   });
 
   it("refuse un forfait épuisé sans prix de dépassement", async () => {

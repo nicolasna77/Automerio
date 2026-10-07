@@ -29,9 +29,11 @@ type StatusFilter = ClientServiceStatus | "all";
 export function MyServices({
   items,
   quotas,
+  canManage,
 }: {
   items: MyServiceDTO[];
   quotas: Record<string, QuotaState>;
+  canManage: boolean;
 }) {
   const t = useTranslations("Dashboard.services.list");
   const labels = useLabels();
@@ -162,7 +164,7 @@ export function MyServices({
           }
         />
       ) : (
-        <SolutionsTable items={filtered} quotas={quotas} />
+        <SolutionsTable items={filtered} quotas={quotas} canManage={canManage} />
       )}
     </section>
   );

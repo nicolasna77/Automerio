@@ -9,10 +9,12 @@ import type { QuotaState } from "./quota-meter";
 export function SolutionsTable({
   items,
   quotas,
+  canManage,
   showPaymentIssues = true,
 }: {
   items: MyServiceDTO[];
   quotas: Record<string, QuotaState>;
+  canManage: boolean;
   showPaymentIssues?: boolean;
 }) {
   const t = useTranslations("Dashboard.services.list");
@@ -35,6 +37,7 @@ export function SolutionsTable({
             key={item.clientServiceId}
             item={item}
             quota={quotas[item.clientServiceId] ?? null}
+            canManage={canManage}
             showPaymentIssue={showPaymentIssues}
           />
         ))}

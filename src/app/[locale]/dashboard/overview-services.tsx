@@ -5,11 +5,12 @@ import { quotasByService } from "@/lib/subscriptions";
 import { toMyServiceDTO } from "./get-my-service";
 import { getOverviewSubscriptions } from "./overview-data";
 import { SolutionsTable } from "./solutions-table";
+import { canManageOrganization } from "@/lib/client-service-access";
 
 // Les solutions en cours, dans le même tableau que la page Solutions (statut,
 // quota, tarif, mise en service à terminer), sans les filtres.
 export async function OverviewServices({ organizationId }: { organizationId: string }) {
-  const [t, rows, subscriptions] = await Promise.all([
+  const [t, rows, subscriptions, canManage] = await Promise.all([
     getTranslations("Dashboard.overview.services"),
     db.clientService.findMany({
       where: { organizationId, status: { not: "CANCELED" } },
@@ -17,6 +18,7 @@ export async function OverviewServices({ organizationId }: { organizationId: str
       orderBy: { createdAt: "desc" },
     }),
     getOverviewSubscriptions(organizationId),
+    canManageOrganization(organizationId),
   ]);
   if (rows.length === 0) return null;
 
@@ -37,6 +39,7 @@ export async function OverviewServices({ organizationId }: { organizationId: str
       <SolutionsTable
         items={rows.map(toMyServiceDTO)}
         quotas={quotasByService(subscriptions)}
+        canManage={canManage}
         showPaymentIssues={false}
       />
     </section>

@@ -42,7 +42,7 @@ function parseClientScope(raw?: string): ClientScope {
 function ClientServices({
   services,
 }: {
-  services: { id: string; name: string; status: ClientServiceStatus }[];
+  services: { id: string; name: string; status: ClientServiceStatus; pausedAt: Date | null }[];
 }) {
   const t = useTranslations("Admin.clients");
   if (services.length === 0) {
@@ -53,7 +53,7 @@ function ClientServices({
       {services.map((cs) => (
         <li key={cs.id} className="flex flex-wrap items-center gap-2 text-sm">
           <span className="text-foreground">{cs.name}</span>
-          <StatusBadge status={cs.status} />
+          <StatusBadge status={cs.status} pausedAt={cs.pausedAt} />
         </li>
       ))}
     </ul>
@@ -110,7 +110,7 @@ export async function ClientsSection({
         createdAt: true,
         members: { select: { organization: { select: { name: true } } } },
         clientServices: {
-          select: { id: true, name: true, status: true },
+          select: { id: true, name: true, status: true, pausedAt: true },
           orderBy: { createdAt: "desc" },
         },
       },

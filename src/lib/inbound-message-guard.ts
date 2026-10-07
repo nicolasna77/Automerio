@@ -6,15 +6,16 @@ import { claimInboundMessage, recordReply } from "@/lib/conversations";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { consumedUnits, storedPeriod } from "@/lib/subscriptions";
 import { pausesAtLimit, readClientUsageCap, type UsageCap, type UsageUnit } from "@/lib/usage-cap";
+import { LIVE_STATUSES } from "@/lib/catalog";
 
 // Messages entrants WhatsApp, Messenger et Instagram : chaque réponse coûte un
 // appel OpenAI et un envoi Meta à la plateforme. Ce module décide si
 // l'assistant répond, et orchestre l'enregistrement et la réponse.
 
-// Payée (CONFIGURING : le client teste sa messagerie avant la mise en service)
-// ou en service. Un paiement en échec (paymentFailedAt) laisse la période de
-// grâce annoncée au client ; PENDING_PAYMENT et CANCELED ne répondent pas.
-export const LIVE_STATUSES = ["CONFIGURING", "ACTIVE"] as const satisfies readonly ClientServiceStatus[];
+// LIVE_STATUSES (catalog.ts). Un paiement en échec (paymentFailedAt) laisse la
+// période de grâce annoncée au client ; PENDING_PAYMENT et CANCELED ne
+// répondent pas.
+export { LIVE_STATUSES };
 
 export function isLiveStatus(status: ClientServiceStatus): boolean {
   return (LIVE_STATUSES as readonly ClientServiceStatus[]).includes(status);
@@ -25,7 +26,7 @@ export const SENDER_LIMIT = { window: "10 m", max: 20 } as const;
 // Une même prestation : 500 réponses de l'assistant par 24 heures glissantes.
 export const SERVICE_DAILY_LIMIT = { window: "24 h", max: 500 } as const;
 
-export type ReplyRefusal = "sender_rate_limited" | "service_daily_cap" | "quota_exhausted";
+export type ReplyRefusal = "paused" | "sender_rate_limited" | "service_daily_cap" | "quota_exhausted";
 export type ReplyDecision = { allowed: true } | { allowed: false; reason: ReplyRefusal };
 
 // Même règle que la voix et la facturation (pausesAtLimit, usage-cap.ts) :
@@ -38,6 +39,7 @@ export function isQuotaExhausted(cap: UsageCap | null, consumed: number, overage
 type QuotaColumns = {
   id: string;
   overageAllowed: boolean;
+  pausedAt: Date | null;
   stripeSubscriptionId: string | null;
   includedUsageUnits: number | null;
   service: {
@@ -57,6 +59,9 @@ async function quotaExhausted(clientService: QuotaColumns): Promise<boolean> {
 }
 
 export async function decideAiReply(clientService: QuotaColumns, contactId: string): Promise<ReplyDecision> {
+  // Mise en pause par le client : rien à compter, l'assistant se tait.
+  if (clientService.pausedAt) return { allowed: false, reason: "paused" };
+
   const senderAllowed = await checkRateLimit(
     "inbound-message-sender",
     `${clientService.id}:${contactId}`,

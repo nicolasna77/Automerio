@@ -42,7 +42,7 @@ export function ServiceHistory({ items }: { items: MyServiceDTO[] }) {
                       </span>
                     )}
                   </span>
-                  <StatusBadge status={item.status} />
+                  <StatusBadge status={item.status} pausedAt={item.pausedAt} />
                   <span className="shrink-0 text-xs text-muted-foreground">
                     {item.events.length > 0
                       ? t("lastEvent", { date: formatDate(item.events[0].createdAt) })
