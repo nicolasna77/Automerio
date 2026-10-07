@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { AutomerioLogo } from "@/components/brand";
@@ -8,6 +8,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { UserMenu } from "@/components/user-menu";
 import { getSession, isAdmin } from "@/lib/session";
 import { getCatalog } from "@/lib/get-catalog";
+import { getServiceCopy } from "@/lib/service-copy";
 import { SITE_NAV_LINKS } from "@/lib/site";
 import { isWaitlistMode } from "@/lib/launch-mode";
 import { IndustriesMenu } from "@/components/industries-menu";
@@ -15,15 +16,21 @@ import { getTrades, tradePath } from "@/lib/trades";
 
 export async function SiteHeader() {
   const waitlist = isWaitlistMode();
-  const [session, catalog, t, tWaitlist] = await Promise.all([
+  const [session, catalog, t, tWaitlist, locale] = await Promise.all([
     getSession(),
     getCatalog(),
     getTranslations("Site"),
     getTranslations("Waitlist"),
+    getLocale(),
   ]);
   const services = waitlist
     ? []
-    : catalog.map(({ slug, name, category }) => ({ slug, name, category }));
+    : catalog.map(({ slug, name, category }) => ({
+        slug,
+        name,
+        category,
+        tagline: getServiceCopy(slug, locale)?.tagline ?? null,
+      }));
   const industries = getTrades().map((trade) => ({
     slug: trade.slug,
     name: trade.name,

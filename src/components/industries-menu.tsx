@@ -21,9 +21,18 @@ export function IndustriesMenu({ industries }: { industries: IndustryMenuItem[] 
   const t = useTranslations("Site");
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex items-center gap-1 rounded-md text-sm text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:focus-ring">
+      {/* S'ouvre aussi au survol, comme le menu Solutions. */}
+      <DropdownMenuTrigger
+        openOnHover
+        delay={80}
+        closeDelay={150}
+        className="group/trigger flex items-center gap-1 rounded-md text-sm text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:focus-ring data-popup-open:text-foreground"
+      >
         {t("industriesMenu.label")}
-        <ChevronDown className="size-3.5" aria-hidden="true" />
+        <ChevronDown
+          className="size-3.5 transition-transform group-hover/trigger:rotate-180 group-data-popup-open/trigger:rotate-180 motion-reduce:transition-none"
+          aria-hidden="true"
+        />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-64">
         <DropdownMenuGroup>

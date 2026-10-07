@@ -2,6 +2,7 @@ import type { ServiceCopy } from "@/lib/service-copy";
 
 export const SERVICE_COPY: Record<string, ServiceCopy> = {
   "standard-telephonique-ia": {
+    tagline: "Décroche chaque appel et vous transfère ceux qui comptent.",
     intro:
       "Vous êtes sur un chantier, en rendez-vous ou en pleine prestation : le téléphone sonne, et personne ne peut décrocher. L'assistant répond dès la première sonnerie, à toute heure, renseigne vos horaires, votre adresse et vos délais, puis vous transfère l'appel quand le motif l'exige. Chaque appel vous est ensuite résumé dans votre tableau de bord.",
     benefits: [
@@ -58,6 +59,7 @@ export const SERVICE_COPY: Record<string, ServiceCopy> = {
   },
 
   "prise-rdv-telephone": {
+    tagline: "Prend rendez-vous et note les commandes au téléphone.",
     intro:
       "Prendre un rendez-vous au téléphone, c'est trois minutes d'échange, un agenda à ouvrir et une note à ne pas perdre. Multipliez par le nombre d'appels de la journée. L'assistant propose vos créneaux réellement libres et inscrit le rendez-vous dans votre agenda. Il peut aussi prendre les commandes, à partir de votre carte et de vos prix.",
     benefits: [
@@ -114,6 +116,7 @@ export const SERVICE_COPY: Record<string, ServiceCopy> = {
   },
 
   "assistant-whatsapp": {
+    tagline: "Répond à vos clients sur WhatsApp, jour et nuit.",
     intro:
       "Sur WhatsApp, un client qui pose une question attend une réponse dans la minute, pas le lendemain soir. L'assistant répond à votre place aux questions que vous avez renseignées : horaires, tarifs, délais, disponibilités. Les conversations restent dans votre compte WhatsApp Business, où vous reprenez la main quand vous le voulez.",
     benefits: [
@@ -170,6 +173,7 @@ export const SERVICE_COPY: Record<string, ServiceCopy> = {
   },
 
   "assistant-facebook": {
+    tagline: "Répond aux messages de votre page Facebook.",
     intro:
       "Les messages de votre Page arrivent le soir, le week-end, pendant que vous servez un client. L'assistant y répond dès leur arrivée à partir de vos questions fréquentes, et les conversations restent dans la boîte de réception de votre Page, où vous pouvez reprendre la main.",
     benefits: [
@@ -226,6 +230,7 @@ export const SERVICE_COPY: Record<string, ServiceCopy> = {
   },
 
   "assistant-instagram": {
+    tagline: "Répond aux messages privés de votre compte Instagram.",
     intro:
       "Une publication qui marche, ce sont trente messages privés dans la foulée, et presque toujours les trois mêmes questions. L'assistant y répond à partir de ce que vous avez renseigné, et les conversations restent dans votre compte, où vous reprenez la main dès qu'un échange le mérite.",
     benefits: [
@@ -282,6 +287,7 @@ export const SERVICE_COPY: Record<string, ServiceCopy> = {
   },
 
   "reponses-emails": {
+    tagline: "Trie votre boîte mail et prépare les réponses.",
     intro:
       "Une boîte mail de TPE, c'est cent messages par semaine dont dix comptent vraiment. Le tri se fait selon vos règles, les messages qui comptent remontent, et des brouillons de réponse vous attendent. Rien ne part sans vous : vous relisez, vous corrigez, vous envoyez.",
     benefits: [
@@ -338,6 +344,7 @@ export const SERVICE_COPY: Record<string, ServiceCopy> = {
   },
 
   "prise-rdv-automatique": {
+    tagline: "Vos clients réservent en ligne sur vos vrais créneaux.",
     intro:
       "Trouver une date par messages interposés prend trois allers-retours et deux jours. Là, votre client voit vos disponibilités réelles et réserve lui-même ; le rendez-vous s'inscrit dans votre agenda, à la durée que vous avez fixée.",
     benefits: [
@@ -394,6 +401,7 @@ export const SERVICE_COPY: Record<string, ServiceCopy> = {
   },
 
   "resume-pdf": {
+    tagline: "L'essentiel d'un document long en quelques lignes.",
     intro:
       "Un contrat de quarante pages, un rapport d'expertise, un devis fournisseur : vous les recevez, vous n'avez pas le temps de les lire, et ils finissent lus trop tard. Déposez-les dans le dossier convenu ; vous recevez l'essentiel, en points clés ou en synthèse détaillée selon ce que vous avez choisi.",
     benefits: [
@@ -450,6 +458,7 @@ export const SERVICE_COPY: Record<string, ServiceCopy> = {
   },
 
   "resume-reunions": {
+    tagline: "Un compte-rendu clair de chaque réunion.",
     intro:
       "Prendre des notes en réunion, c'est écouter à moitié. L'enregistrement ou la transcription part dans l'automatisation, et le compte-rendu revient structuré : ce qui a été décidé, ce qui reste à faire, et par qui. Le consentement des participants est demandé à l'activation : une réunion ne s'enregistre pas à leur insu.",
     benefits: [
@@ -506,6 +515,7 @@ export const SERVICE_COPY: Record<string, ServiceCopy> = {
   },
 
   "ocr-lecture-automatique": {
+    tagline: "Vos documents scannés deviennent des données, sans ressaisie.",
     intro:
       "Une facture scannée, un bon de livraison photographié : les données sont là, mais il faut encore les retaper dans votre outil de gestion. L'automatisation les lit et les transmet à l'outil que vous utilisez déjà, pour les types de documents que vous avez déclarés prioritaires.",
     benefits: [
@@ -562,6 +572,7 @@ export const SERVICE_COPY: Record<string, ServiceCopy> = {
   },
 
   "support-prioritaire": {
+    tagline: "Un accompagnement dédié, en plus du support inclus.",
     intro:
       "Chaque solution inclut déjà son suivi mensuel et son support. Cet abonnement y ajoute un accompagnement dédié : vos demandes passent devant, et votre interlocuteur connaît votre installation sans que vous ayez à la réexpliquer.",
     benefits: [
