@@ -633,7 +633,8 @@
       "us1": "Bonsoir Camille, oui, le devis est gratuit. Nous avons un créneau de visite mardi ou jeudi : lequel vous arrange ?",
       "them2": "Jeudi, en fin de journée.",
       "us2": "C'est noté pour jeudi. L'équipe vous confirme l'heure demain matin.",
-      "answered": "Répondu à 22 h 14"
+      "answered": "Répondu à 22 h 14",
+      "contactName": "Camille R."
     },
     "email": {
       "inbox": "Boîte de réception",
@@ -824,7 +825,15 @@
       "heading": "Une erreur est survenue",
       "lead": "Quelque chose s'est mal passé de notre côté. Vous pouvez réessayer, ou revenir à l'accueil.",
       "retry": "Réessayer",
-      "home": "Retour à l'accueil"
+      "home": "Retour à l'accueil",
+      "reference": "Référence de l'erreur : {digest}"
+    },
+    "workspace": {
+      "heading": "Cette page n'a pas pu s'afficher",
+      "lead": "Un problème est survenu en la chargeant. Réessayez : si l'erreur persiste, écrivez-nous.",
+      "reference": "Référence de l'erreur : {digest}",
+      "retry": "Réessayer",
+      "help": "Contacter l'équipe"
     }
   },
   "Legal": {
@@ -2006,7 +2015,8 @@
       "deleteDescription": "Cette action est irréversible. Elle n'est possible que si aucune solution de cette organisation n'est en cours (payée, en configuration ou active).",
       "deleted": "« {name} » a été supprimée.",
       "deleteError": "Impossible de supprimer l'organisation.",
-      "listLabel": "Organisations"
+      "listLabel": "Organisations",
+      "switchError": "Impossible de changer d'organisation. Rechargez la page puis réessayez."
     },
     "account": {
       "menuLabel": "{name}, menu du compte"
@@ -2050,6 +2060,7 @@
     "rename": "Renommer",
     "renaming": "…",
     "close": "Fermer",
+    "closeNotification": "Fermer la notification",
     "back": "Retour",
     "continue": "Continuer",
     "sending": "Envoi…",
@@ -2061,7 +2072,8 @@
     "pageOf": "Page {page} sur {total}",
     "showPassword": "Afficher le mot de passe",
     "hidePassword": "Masquer le mot de passe",
-    "capsLock": "Verr. Maj est activé."
+    "capsLock": "Verr. Maj est activé.",
+    "pollingStalled": "Actualisation interrompue : nouvelle tentative automatique en cours."
   },
   "Actions": {
     "generic": "Une erreur est survenue. Réessayez dans un instant.",
@@ -2150,7 +2162,28 @@
     "whatsappNumberInUse": "Ce numéro WhatsApp est déjà relié à une autre solution.",
     "facebookPageInUse": "Cette Page Facebook est déjà reliée à une autre solution.",
     "avatarInvalid": "Cette photo n'est pas acceptée : choisissez une image JPEG, PNG ou WebP de moins de 150 Ko.",
-    "leaveSoleOwner": "Vous êtes le seul propriétaire de cette organisation et d'autres membres y restent. Transmettez-en la propriété à un membre (page Équipe) avant de la quitter."
+    "leaveSoleOwner": "Vous êtes le seul propriétaire de cette organisation et d'autres membres y restent. Transmettez-en la propriété à un membre (page Équipe) avant de la quitter.",
+    "adminServiceNameRequired": "Le nom est requis.",
+    "adminServiceDescriptionRequired": "La description est requise.",
+    "adminServicePriceRequired": "Le prix de l'abonnement mensuel est requis.",
+    "adminServiceCapIncomplete": "Un plafond d'usage demande à la fois une quantité incluse et une unité.",
+    "adminServiceCapPositive": "La quantité incluse doit être supérieure à zéro.",
+    "marketingPostNotFound": "Publication introuvable.",
+    "marketingPostTooLong": "Le texte dépasse la limite de ce réseau.",
+    "promoCodeFormat": "Le code doit faire de 3 à 30 caractères : lettres, chiffres, tirets.",
+    "promoPercentRange": "Le pourcentage doit être compris entre 0 (exclu) et 100.",
+    "promoAmountPositive": "Le montant de la remise doit être positif.",
+    "promoMonthsRange": "Indiquez une durée entre 1 et 36 mois.",
+    "promoExpiryPast": "La date d'expiration doit être dans le futur.",
+    "promoMaxUsesInteger": "Le nombre d'utilisations doit être un entier positif.",
+    "promoServiceGone": "Une des solutions choisies n'existe plus. Rechargez la page.",
+    "promoCodeExists": "Un code « {code} » est déjà actif.",
+    "promoCreateRejected": "Stripe a refusé la création du code. Réessayez.",
+    "promoDeactivateRejected": "Stripe a refusé la désactivation. Réessayez.",
+    "cannotChangeOwnRole": "Vous ne pouvez pas modifier votre propre rôle.",
+    "cannotBanSelf": "Vous ne pouvez pas vous bannir vous-même.",
+    "cannotResetOwnPassword": "Vous ne pouvez pas réinitialiser votre propre mot de passe ici.",
+    "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères."
   },
   "Labels": {
     "status": {
@@ -2291,6 +2324,689 @@
       "none": "Aucun produit",
       "products": "{count, plural, one {# produit} other {# produits}}",
       "inSections": "{count, plural, one {# produit} other {# produits}} dans {sections} rubriques"
+    }
+  },
+  "Auth": {
+    "shared": {
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "vous@entreprise.fr",
+      "passwordLabel": "Mot de passe",
+      "or": "ou",
+      "backToLogin": "Retour à la connexion",
+      "returnToLogin": "Revenir à la connexion",
+      "checkInbox": "Vérifiez votre boîte mail",
+      "resendLink": "Renvoyer le lien",
+      "resendLinkCooldown": "Renvoyer le lien ({seconds} s)",
+      "newLinkSent": "Nouveau lien envoyé.",
+      "minLength": "{min} caractères minimum.",
+      "signIn": "Se connecter",
+      "createAccount": "Créer mon compte"
+    },
+    "login": {
+      "title": "Connexion",
+      "subtitle": "Retrouvez vos automatisations et leur suivi.",
+      "forgotPassword": "Mot de passe oublié ?",
+      "submitting": "Connexion…",
+      "noAccount": "Pas encore de compte ? <link>Créer mon compte</link>",
+      "errors": {
+        "emailNotVerified": "Confirmez d'abord votre adresse e-mail : nous venons de vous renvoyer le lien.",
+        "banned": "Ce compte a été suspendu. Contactez l'équipe Automerio.",
+        "invalidCredentials": "E-mail ou mot de passe incorrect.",
+        "tooManyAttempts": "Trop de tentatives. Réessayez dans quelques minutes.",
+        "generic": "La connexion a échoué. Réessayez dans un instant."
+      }
+    },
+    "verification": {
+      "title": "Vérification en deux étapes",
+      "descriptionTotp": "Saisissez le code à 6 chiffres affiché dans votre application d'authentification.",
+      "descriptionBackup": "Saisissez l'un des codes de secours obtenus à l'activation.",
+      "codeLabel": "Code",
+      "backupCodeLabel": "Code de secours",
+      "trustDevice": "Ne plus demander sur cet appareil pendant 30 jours",
+      "submit": "Valider",
+      "submitting": "Vérification…",
+      "useBackupCode": "Utiliser un code de secours",
+      "useApp": "Utiliser mon application",
+      "errors": {
+        "expired": "La vérification a expiré. Reconnectez-vous.",
+        "invalidBackupCode": "Ce code de secours n'est pas valable.",
+        "invalidCode": "Code incorrect. Vérifiez que l'heure de votre téléphone est à jour, puis réessayez."
+      }
+    },
+    "signup": {
+      "title": "Créer un compte",
+      "subtitle": "Activez vos premières automatisations en quelques minutes.",
+      "nameLabel": "Nom",
+      "namePlaceholder": "Marie Dupont",
+      "companyLabel": "Entreprise",
+      "optional": "(optionnel)",
+      "companyPlaceholder": "Dupont Coiffure",
+      "submitting": "Création du compte…",
+      "terms": "En créant un compte, vous acceptez nos <terms>conditions générales de vente</terms> et notre <privacy>politique de confidentialité</privacy>.",
+      "hasAccount": "Déjà un compte ? <link>Se connecter</link>",
+      "sentDescription": "Nous avons envoyé un lien de confirmation à <email>{email}</email>. Cliquez dessus pour activer votre compte.",
+      "notReceived": "Rien reçu après quelques minutes ? Regardez dans les indésirables, ou demandez un nouveau lien.",
+      "errors": {
+        "emailTaken": "Un compte existe déjà avec cet e-mail.",
+        "generic": "La création du compte a échoué. Vérifiez vos informations puis réessayez.",
+        "resendFailed": "L'envoi a échoué. Réessayez dans quelques minutes."
+      },
+      "sentMessage": "Nous avons envoyé un lien de confirmation à <strong>{email}</strong>. Cliquez dessus pour activer votre compte."
+    },
+    "forgotPassword": {
+      "title": "Mot de passe oublié",
+      "subtitle": "Indiquez votre e-mail : nous vous envoyons un lien pour en choisir un nouveau.",
+      "submit": "Envoyer le lien",
+      "sentDescription": "Si un compte existe pour <email>{email}</email>, un lien pour choisir un nouveau mot de passe vient de lui être envoyé. Il expire dans une heure.",
+      "notReceived": "Rien reçu ? Regardez dans les indésirables avant de redemander un lien.",
+      "useAnotherAddress": "Utiliser une autre adresse",
+      "sentMessage": "Si un compte existe pour <strong>{email}</strong>, un lien pour choisir un nouveau mot de passe vient de lui être envoyé. Il expire dans une heure."
+    },
+    "resetPassword": {
+      "invalidTitle": "Lien invalide ou expiré",
+      "invalidDescription": "Les liens de réinitialisation ne servent qu'une fois et expirent au bout d'une heure. Demandez-en un nouveau pour continuer.",
+      "requestNewLink": "Demander un nouveau lien",
+      "doneTitle": "Mot de passe mis à jour",
+      "doneDescription": "Connectez-vous avec votre nouveau mot de passe. Si vous n'êtes pas à l'origine de ce changement, contactez l'équipe Automerio.",
+      "title": "Choisir un nouveau mot de passe",
+      "subtitle": "Il remplacera l'ancien dès la validation.",
+      "newPasswordLabel": "Nouveau mot de passe",
+      "confirmLabel": "Confirmer",
+      "mismatch": "Les deux mots de passe ne correspondent pas.",
+      "tooShort": "Le mot de passe doit contenir au moins {min} caractères.",
+      "submit": "Mettre à jour le mot de passe",
+      "submitting": "Mise à jour…",
+      "errors": {
+        "generic": "La mise à jour a échoué. Redemandez un lien."
+      }
+    },
+    "aside": {
+      "line1": "Votre entreprise tourne.",
+      "line2": "Vos automatisations s'occupent du reste.",
+      "capabilities": {
+        "phone": "Répond au téléphone et sur vos messageries",
+        "booking": "Prend les rendez-vous dans votre agenda",
+        "summary": "Vous transmet l'essentiel, pas le reste"
+      },
+      "guarantee": "Notre équipe l'installe, la connecte à vos outils et la surveille chaque mois. Sans engagement : votre abonnement est remboursé sous 30 jours si ça ne vous convient pas."
+    },
+    "google": {
+      "continue": "Continuer avec Google"
+    }
+  },
+  "Invitation": {
+    "title": "Invitation",
+    "unusable": "Cette invitation n'est plus valable : elle a peut-être déjà été acceptée, annulée, ou elle a expiré. Demandez à la personne qui vous a invité de vous en envoyer une nouvelle.",
+    "backHome": "Retour à l'accueil",
+    "invited": "Vous êtes invité à rejoindre <strong>{organization}</strong> en tant que {role}.",
+    "signInPrompt": "Connectez-vous avec {email}, ou créez votre compte avec cette adresse, pour rejoindre l'entreprise.",
+    "createAccount": "Créer mon compte",
+    "haveAccount": "J'ai déjà un compte",
+    "otherAccount": "Cette invitation a été envoyée à {email}, et vous êtes connecté avec une autre adresse. Déconnectez-vous, puis reprenez ce lien depuis le compte invité.",
+    "join": "Rejoindre {organization}",
+    "joining": "En cours…",
+    "joined": "Vous avez rejoint {organization}.",
+    "acceptFailed": "L'invitation n'a pas pu être acceptée.",
+    "invalid": "Cette invitation n'est plus valable, ou elle ne vous est pas destinée."
+  },
+  "Admin": {
+    "services": {
+      "title": "Solutions",
+      "description": "Le catalogue affiché sur le site public et proposé aux clients.",
+      "caption": "Catalogue des solutions",
+      "columns": {
+        "solution": "Solution",
+        "category": "Catégorie",
+        "price": "Prix",
+        "usageCap": "Plafond d'usage",
+        "order": "Ordre",
+        "active": "Active",
+        "actions": "Actions"
+      },
+      "excludingVat": "soit {amount} HT",
+      "edit": "Modifier {name}",
+      "deactivateNamed": "Désactiver {name}",
+      "reactivateNamed": "Réactiver {name}",
+      "statusActive": "Active",
+      "statusInactive": "Désactivée",
+      "reactivated": "« {name} » est de nouveau proposée.",
+      "deactivated": "« {name} » est désactivée temporairement.",
+      "toggleError": "Impossible de changer le statut.",
+      "confirmTitle": "Retirer « {name} » du catalogue ?",
+      "confirmDescription": "Elle ne sera plus proposée sur le site ni dans le catalogue des clients. Les clients qui l'ont déjà activée la gardent. Vous pourrez la réactiver à tout moment.",
+      "confirmAction": "Retirer du catalogue",
+      "editDialog": {
+        "title": "Modifier « {name} »",
+        "description": "Ces changements s'appliquent au site public et au tableau de bord client.",
+        "name": "Nom",
+        "descriptionLabel": "Description",
+        "category": "Catégorie",
+        "sortOrder": "Ordre d'affichage",
+        "monthlyPrice": "Abonnement mensuel TTC (€)",
+        "monthlyPriceHelp": "Les solutions ne se vendent qu'en abonnement : pas de frais de mise en place.",
+        "usageCap": "Plafond d'usage",
+        "optional": "(optionnel)",
+        "unit": "Unité",
+        "units": {
+          "none": "Aucun plafond",
+          "CALL": "Appels",
+          "MINUTE": "Minutes",
+          "MESSAGE": "Réponses (prix par 100)"
+        },
+        "included": "Quantité incluse",
+        "includedPlaceholder": "Ex. 150",
+        "overage": "Dépassement (€)",
+        "overagePlaceholder": "Ex. 0,30",
+        "capPreview": "Affiché au client : « {cap} »",
+        "noCapHint": "Laissez « Aucun plafond » pour une solution sans quota d’usage.",
+        "saved": "« {name} » a été mise à jour.",
+        "saveError": "Impossible de mettre à jour la solution."
+      },
+      "auditDetail": {
+        "name": "Nom : {before} → {after}",
+        "category": "Catégorie : {before} → {after}",
+        "subscription": "Abonnement : {before} → {after}",
+        "usageCap": "Plafond d'usage : {before} → {after}",
+        "order": "Ordre : {before} → {after}",
+        "description": "Description modifiée",
+        "none": "aucun"
+      }
+    },
+    "promoCodes": {
+      "title": "Codes promo",
+      "description": "Les remises que vos clients saisissent en activant une solution. Stripe compte les utilisations et fait respecter les limites.",
+      "stripeDownTitle": "Impossible de joindre Stripe",
+      "stripeDownDescription": "Les codes ne peuvent pas être affichés pour l'instant. Vérifiez STRIPE_SECRET_KEY, puis rechargez la page.",
+      "emptyTitle": "Aucun code promo",
+      "emptyDescription": "Créez un premier code : vos clients pourront le saisir au moment d'activer une solution.",
+      "discountDeleted": "Remise supprimée dans Stripe",
+      "caption": "Codes promo",
+      "columns": {
+        "code": "Code",
+        "discount": "Remise",
+        "conditions": "Conditions",
+        "uses": "Utilisations",
+        "expires": "Expire le",
+        "state": "État",
+        "action": "Action"
+      },
+      "allServices": "Toutes les solutions",
+      "newCustomersOnly": "Nouveaux clients seulement",
+      "states": {
+        "active": "Actif",
+        "expired": "Expiré",
+        "exhausted": "Épuisé",
+        "inactive": "Désactivé"
+      },
+      "deactivate": "Désactiver",
+      "deactivating": "Désactivation…",
+      "deactivateTitle": "Désactiver « {code} » ?",
+      "deactivateDescription": "Vos clients ne pourront plus le saisir. Ceux qui en ont déjà bénéficié gardent leur remise.",
+      "deactivated": "Code « {code} » désactivé.",
+      "create": "Créer un code",
+      "createTitle": "Créer un code promo",
+      "createDescription": "Vos clients le saisissent en activant une solution.",
+      "code": "Code",
+      "codePlaceholder": "BIENVENUE20",
+      "codeHelp": "Lettres, chiffres et tirets. Vos clients peuvent le taper en minuscules.",
+      "discount": "Remise",
+      "kinds": {
+        "percent": "Pourcentage",
+        "amount": "Montant fixe"
+      },
+      "inPercent": "En %",
+      "inEuros": "En €",
+      "appliesTo": "S'applique à",
+      "durations": {
+        "once": "Premier paiement seulement",
+        "repeating": "Plusieurs mois",
+        "forever": "Toute la durée de l'abonnement"
+      },
+      "months": "Mois",
+      "previewEmpty": "Indiquez une remise pour voir ce que vos clients liront.",
+      "previewLabel": "Vos clients liront : ",
+      "servicesLegend": "Solutions concernées",
+      "servicesHint": "Aucune cochée : le code vaut pour toutes.",
+      "firstTimeOnly": "Réservé aux nouveaux clients",
+      "firstTimeOnlyHint": "Refusé à un client qui a déjà payé une solution.",
+      "expiresOn": "Expire le",
+      "maxUses": "Utilisations max.",
+      "optional": "(facultatif)",
+      "submit": "Créer le code",
+      "created": "Code « {code} » créé.",
+      "createError": "La création a échoué. Vérifiez votre connexion puis réessayez."
+    },
+    "marketing": {
+      "title": "Marketing",
+      "description": "Les comptes sociaux d'Automerio, pas ceux de vos clients. L'agent rédige à partir du catalogue réel. Il n'a le droit d'affirmer que ce qui s'y trouve.",
+      "sections": {
+        "DRAFT": {
+          "title": "À relire",
+          "description": "Propositions de l'agent. Rien ne part sans votre validation.",
+          "empty": "Aucune proposition en attente. Demandez-en ci-dessus."
+        },
+        "APPROVED": {
+          "title": "Validées",
+          "description": "Prêtes à publier. Copiez le texte, puis marquez la publication faite.",
+          "empty": "Rien de validé pour l'instant."
+        },
+        "PUBLISHED": {
+          "title": "Publiées",
+          "description": "L'historique, qui sert aussi à ne pas se répéter.",
+          "empty": "Rien de publié pour l'instant."
+        },
+        "REJECTED": {
+          "title": "Écartées",
+          "description": "Conservées volontairement : leur angle continue d'être rappelé à l'agent, qui ne le repropose pas.",
+          "empty": "Rien d'écarté."
+        }
+      },
+      "network": "Réseau",
+      "count": "Propositions",
+      "generate": "Proposer",
+      "generating": "Rédaction…",
+      "generated": "{count, plural, one {Proposition ajoutée à relire.} other {# propositions ajoutées à relire.}}",
+      "generateError": "La génération a échoué. Réessayez.",
+      "ruleIntro": "Sur {network}, on s'adresse à {audience}.",
+      "needsImage": "Ce réseau exige une image : l'agent décrit le visuel à produire.",
+      "targetChars": "Environ {count} caractères.",
+      "audience": {
+        "LINKEDIN": "des dirigeants de TPE/PME, des indépendants et des coachs, qui lisent entre deux rendez-vous",
+        "FACEBOOK": "des artisans et des commerçants, souvent sur mobile, entre deux chantiers",
+        "INSTAGRAM": "un public large, qui fait défiler et s'arrête sur une image"
+      },
+      "actionError": "L'opération a échoué.",
+      "saved": "Texte enregistré.",
+      "copied": "Texte copié.",
+      "copyError": "Copie impossible depuis ce navigateur.",
+      "bodyLabel": "Texte de la publication",
+      "overLimit": "(au-delà de la limite du réseau)",
+      "imageBrief": "Visuel à produire : ",
+      "checkBefore": "À vérifier avant publication",
+      "publishedOn": "Publiée le {date}.",
+      "approve": "Valider",
+      "approved": "Publication validée.",
+      "edit": "Modifier",
+      "reject": "Écarter",
+      "rejected": "Publication écartée.",
+      "copy": "Copier le texte",
+      "markPublished": "Marquer publiée",
+      "markedPublished": "Marquée comme publiée.",
+      "reopen": "Remettre à relire",
+      "reopened": "Remise à relire."
+    },
+    "waitlist": {
+      "title": "Liste d'attente",
+      "summary": "{count, plural, one {# inscrit} other {# inscrits}} : {callbacks} à recontacter, {newsletter} pour l'annonce du lancement.",
+      "waitlistMode": "Le site est en mode présentation : seule la page d'accueil est ouverte.",
+      "openMode": "Le site est ouvert : le formulaire n'est plus affiché.",
+      "export": "Exporter en CSV",
+      "emptyTitle": "Personne pour l'instant",
+      "emptyDescription": "Les inscriptions du formulaire de la page d'accueil apparaîtront ici.",
+      "columns": {
+        "createdAt": "Inscrit le",
+        "email": "E-mail",
+        "name": "Nom",
+        "company": "Entreprise",
+        "phone": "Téléphone",
+        "callback": "À recontacter",
+        "launch": "Lancement"
+      },
+      "yes": "Oui",
+      "no": "Non"
+    },
+    "auditLog": {
+      "title": "Journal d'administration",
+      "description": "Qui a fait quoi sur les comptes et le catalogue. Les entrées ne sont ni modifiables ni supprimables depuis l'application.",
+      "empty": "Aucune action enregistrée pour l'instant. Un bannissement, un changement de rôle ou une modification du catalogue apparaîtra ici.",
+      "caption": "Actions d'administration, de la plus récente à la plus ancienne",
+      "columns": {
+        "action": "Action",
+        "target": "Cible",
+        "detail": "Détail",
+        "actor": "Par",
+        "when": "Quand"
+      },
+      "pagination": "Pagination du journal",
+      "actions": {
+        "USER_ROLE_CHANGED": "Rôle modifié",
+        "USER_BANNED": "Compte banni",
+        "USER_UNBANNED": "Compte débanni",
+        "USER_PASSWORD_RESET": "Mot de passe réinitialisé",
+        "USER_SESSION_REVOKED": "Session révoquée",
+        "SERVICE_UPDATED": "Solution modifiée",
+        "SERVICE_ACTIVATED": "Solution réactivée",
+        "SERVICE_DEACTIVATED": "Solution désactivée",
+        "PROMO_CODE_CREATED": "Code promo créé",
+        "PROMO_CODE_DEACTIVATED": "Code promo désactivé"
+      }
+    },
+    "calendar": {
+      "title": "Calendrier",
+      "description": "Rendez-vous et commandes pris par téléphone, tous clients confondus."
+    },
+    "layout": {
+      "twoFactorWarning": "Votre compte donne accès à tous les clients et paiements. <link>Activez la double authentification</link> pour le protéger."
+    },
+    "nav": {
+      "badge": "Admin",
+      "groups": {
+        "clients": "Clients",
+        "catalog": "Catalogue",
+        "tracking": "Suivi"
+      },
+      "overview": "Vue d'ensemble",
+      "users": "Utilisateurs",
+      "waitlist": "Liste d'attente",
+      "help": "Centre d'aide",
+      "services": "Solutions",
+      "promoCodes": "Codes promo",
+      "marketing": "Marketing",
+      "calendar": "Calendrier",
+      "auditLog": "Journal",
+      "dashboard": "Tableau de bord"
+    },
+    "overview": {
+      "title": "Vue d'ensemble",
+      "description": "Supervision de l'ensemble des clients Automerio.",
+      "clientsHeading": "Clients"
+    },
+    "price": {
+      "withVat": "{amount} TTC",
+      "excludingVat": "soit {amount} HT"
+    },
+    "stats": {
+      "clients": "Clients",
+      "newThisWeek": "{delta} cette semaine",
+      "activeAutomations": "Automatisations actives",
+      "activatedThisWeek": "{delta} activées cette semaine",
+      "mrr": "Revenu récurrent mensuel",
+      "sparkline": "Activations des {days} derniers jours : {counts}",
+      "byStatus": "Répartition par statut",
+      "basedOn": "Basé sur {clients, plural, one {# client} other {# clients}} et {active, plural, one {# automatisation active} other {# automatisations actives}}."
+    },
+    "clients": {
+      "empty": "Aucun client ne correspond à ces critères.",
+      "noServices": "Aucune solution",
+      "caption": "Clients, du plus récent au plus ancien",
+      "columns": {
+        "client": "Client",
+        "organization": "Organisation",
+        "services": "Solutions",
+        "signup": "Inscription",
+        "profile": "Fiche"
+      },
+      "openProfile": "Ouvrir la fiche de {name}",
+      "pagination": "Pagination des clients",
+      "filters": {
+        "searchLabel": "Rechercher un client",
+        "searchPlaceholder": "Rechercher par nom, e-mail, entreprise…",
+        "allStatuses": "Tous les statuts",
+        "statusFilter": "Filtrer par statut",
+        "scopeFilter": "Filtrer par solutions activées",
+        "scope": {
+          "with": "Avec une solution",
+          "without": "Sans solution",
+          "all": "Tous les clients"
+        },
+        "export": "Exporter en CSV"
+      }
+    },
+    "clientService": {
+      "requestedOn": "Demandée le",
+      "price": "Prix",
+      "note": "Note pour le client",
+      "connection": "Connexion externe",
+      "ok": "OK",
+      "noteEditor": {
+        "label": "Note pour le client",
+        "placeholder": "Ex. Connexion de l'agenda en cours…",
+        "saved": "Note enregistrée.",
+        "save": "Enregistrer la note"
+      },
+      "phone": {
+        "label": "Numéro Twilio",
+        "placeholder": "+33…",
+        "saved": "Numéro enregistré.",
+        "save": "Enregistrer le numéro"
+      },
+      "whatsapp": {
+        "label": "Phone Number ID Meta",
+        "placeholder": "ex. 109876543210987",
+        "saved": "Numéro WhatsApp connecté.",
+        "save": "Enregistrer le numéro"
+      },
+      "facebook": {
+        "label": "ID de la Page Facebook",
+        "placeholder": "ex. 109876543210987",
+        "saved": "Page Facebook connectée.",
+        "save": "Enregistrer la Page"
+      },
+      "instagram": {
+        "label": "ID du compte Instagram",
+        "placeholder": "ex. 17841400000000000",
+        "saved": "Compte Instagram connecté.",
+        "save": "Enregistrer le compte"
+      },
+      "markActive": "Marquer active",
+      "activating": "Activation…",
+      "markedActive": "Solution marquée active.",
+      "events": {
+        "whatsappConnected": "Numéro WhatsApp connecté",
+        "facebookConnected": "Page Facebook connectée",
+        "instagramConnected": "Compte Instagram connecté"
+      }
+    },
+    "skeletons": {
+      "stats": "Chargement des statistiques…",
+      "clients": "Chargement des clients…",
+      "helpRequests": "Chargement des demandes…",
+      "users": "Chargement des utilisateurs…",
+      "page": "Chargement de la page…"
+    },
+    "liveRefresh": {
+      "live": "Direct",
+      "paused": "En pause"
+    },
+    "export": {
+      "clients": {
+        "client": "Client",
+        "email": "E-mail",
+        "organization": "Organisation",
+        "service": "Solution",
+        "activationName": "Nom de l'activation",
+        "status": "Statut",
+        "monthlyWithVat": "Abonnement mensuel TTC",
+        "monthlyExcludingVat": "Abonnement mensuel HT",
+        "promoCode": "Code promo",
+        "phoneNumber": "Numéro attribué",
+        "note": "Note pour le client",
+        "requestedOn": "Demandée le",
+        "activatedOn": "Activée le",
+        "canceledOn": "Résiliée le"
+      },
+      "helpRequests": {
+        "client": "Client",
+        "email": "E-mail",
+        "organization": "Organisation",
+        "service": "Solution concernée",
+        "subject": "Sujet",
+        "message": "Message",
+        "status": "Statut",
+        "teamReplies": "Réponses de l'équipe",
+        "firstReplyOn": "Première réponse le",
+        "receivedOn": "Reçue le",
+        "resolvedOn": "Résolue le"
+      },
+      "waitlist": {
+        "email": "E-mail",
+        "name": "Nom",
+        "company": "Entreprise",
+        "phone": "Téléphone",
+        "wantsCallback": "À recontacter",
+        "wantsNewsletter": "Informé du lancement",
+        "newsletterConsentOn": "Consentement lancement le",
+        "signedUpOn": "Inscrit le",
+        "yes": "Oui",
+        "no": "Non"
+      }
+    },
+    "users": {
+      "title": "Utilisateurs",
+      "description": "Gestion des comptes : rôles, bannissement, sessions.",
+      "empty": "Aucun utilisateur ne correspond à ces critères.",
+      "caption": "Utilisateurs de l'application",
+      "columns": {
+        "name": "Nom",
+        "organization": "Organisation",
+        "role": "Rôle",
+        "status": "Statut",
+        "signedUp": "Inscrit le"
+      },
+      "banned": "Banni",
+      "active": "Actif",
+      "pagination": "Pagination des utilisateurs",
+      "role": {
+        "ADMIN": "ADMIN",
+        "CLIENT": "CLIENT"
+      },
+      "filters": {
+        "searchLabel": "Rechercher un utilisateur",
+        "searchPlaceholder": "Rechercher par nom, e-mail, entreprise…",
+        "roleFilter": "Filtrer par rôle",
+        "roles": {
+          "all": "Tous les rôles",
+          "ADMIN": "Administrateurs",
+          "CLIENT": "Clients"
+        }
+      },
+      "audit": {
+        "newRole": "Nouveau rôle : {role}",
+        "reason": "Motif : {reason}",
+        "noReason": "Sans motif renseigné",
+        "sessionsRevoked": "Sessions existantes révoquées"
+      },
+      "roleSelector": {
+        "label": "Rôle de l'utilisateur",
+        "updated": "Rôle mis à jour : {role}.",
+        "promoteTitle": "Promouvoir en ADMIN ?",
+        "promoteDescription": "Cette personne aura un accès total à tous les clients, tous les paiements et le catalogue des prestations, au même titre que vous. Cette portée d'accès ne peut pas être restreinte (il n'existe pas de rôle intermédiaire).",
+        "promote": "Promouvoir en ADMIN",
+        "promoting": "Promotion…"
+      },
+      "ban": {
+        "reason": "Motif : {reason}",
+        "unban": "Débannir",
+        "unbanning": "Débannissement…",
+        "unbanned": "Utilisateur débanni.",
+        "ban": "Bannir",
+        "banning": "Bannissement…",
+        "banned": "Utilisateur banni.",
+        "title": "Bannir cet utilisateur ?",
+        "description": "Toutes ses sessions actives seront révoquées et il ne pourra plus se connecter.",
+        "reasonPlaceholder": "Motif (optionnel)"
+      },
+      "password": {
+        "open": "Réinitialiser le mot de passe",
+        "title": "Réinitialiser le mot de passe",
+        "description": "Ses sessions actives seront révoquées : il devra se reconnecter avec ce nouveau mot de passe.",
+        "copy": "Copier le mot de passe",
+        "copyFailed": "Impossible de copier. Copiez-le manuellement.",
+        "shareOnce": "Communiquez-le à l'utilisateur. Il ne sera plus affiché ensuite.",
+        "label": "Nouveau mot de passe",
+        "generate": "Générer",
+        "tooShort": "Le mot de passe doit contenir au moins 8 caractères.",
+        "reset": "Réinitialiser",
+        "resetting": "Réinitialisation…",
+        "done": "Mot de passe réinitialisé."
+      },
+      "revoke": {
+        "alreadyExpired": "Déjà expirée",
+        "revoke": "Révoquer",
+        "revoked": "Session révoquée."
+      }
+    },
+    "userDetail": {
+      "breadcrumb": "Utilisateurs",
+      "servicesHeading": "Solutions",
+      "servicesDescription": "Note affichée au client, connexion externe et mise en service.",
+      "noServices": "Aucune solution activée.",
+      "bookings": "Rendez-vous et commandes",
+      "access": {
+        "role": "Rôle",
+        "cannotChangeOwnRole": "Vous ne pouvez pas modifier votre propre rôle.",
+        "account": "Accès au compte",
+        "cannotBanSelf": "Vous ne pouvez pas vous bannir vous-même.",
+        "password": "Mot de passe",
+        "cannotResetOwnPassword": "Vous ne pouvez pas réinitialiser votre propre mot de passe ici."
+      },
+      "sessions": {
+        "heading": "Sessions (historique de connexion)",
+        "empty": "Aucune session enregistrée.",
+        "caption": "Sessions de {name}",
+        "columns": {
+          "connectedOn": "Connecté le",
+          "state": "État",
+          "expiresOn": "Expire le",
+          "ip": "Adresse IP",
+          "device": "Appareil",
+          "action": "Action"
+        },
+        "expired": "Expirée",
+        "active": "Active",
+        "pagination": "Pagination des sessions"
+      },
+      "history": {
+        "heading": "Ce que voit le client",
+        "lastEvent": "dernier événement le {date}",
+        "noEvents": "aucun événement",
+        "adminNote": "Note affichée au client",
+        "configuration": "Configuration",
+        "timeline": "Historique"
+      },
+      "connections": {
+        "heading": "Connexions",
+        "whatsapp": "Compte WhatsApp",
+        "facebook": "Page Facebook",
+        "instagram": "Compte Instagram",
+        "calendar": "Agenda",
+        "calendarDetail": "{provider} : {account}",
+        "connected": "connecté",
+        "notConnected": "non connecté"
+      }
+    },
+    "help": {
+      "title": "Centre d'aide",
+      "description": "Demandes envoyées par les clients depuis leur tableau de bord.",
+      "filters": {
+        "statusFilter": "Filtrer par statut",
+        "open": "En attente",
+        "resolved": "Traitées",
+        "all": "Toutes"
+      },
+      "bulk": {
+        "resolve": "Marquer la sélection comme traitée",
+        "noneOpen": "Aucune demande en attente sur cette page.",
+        "export": "Exporter en CSV"
+      },
+      "empty": "Aucune demande ne correspond à ces critères.",
+      "select": "Sélectionner « {subject} »",
+      "general": "Question générale",
+      "receivedOn": "Reçue le {date}",
+      "resolvedOn": " · Traitée le {date}",
+      "pagination": "Pagination des demandes",
+      "reply": {
+        "label": "Répondre au client",
+        "placeholder": "Répondre au client…",
+        "send": "Envoyer la réponse",
+        "sent": "Réponse envoyée au client."
+      },
+      "status": {
+        "markResolved": "Marquer comme traité",
+        "reopen": "Rouvrir",
+        "resolved": "Demande marquée comme traitée.",
+        "reopened": "Demande rouverte."
+      }
     }
   }
 }

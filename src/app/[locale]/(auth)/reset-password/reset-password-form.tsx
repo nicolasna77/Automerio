@@ -2,6 +2,7 @@
 
 import { Link } from "@/i18n/navigation";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { ArrowLeft, Check, CircleAlert, LockKeyhole } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,8 @@ import { cn } from "cn";
 
 const MIN_PASSWORD_LENGTH = 8;
 
+type PasswordField = "newPassword" | "confirmPassword";
+
 export function ResetPasswordForm({
   token,
   invalidToken,
@@ -19,26 +22,39 @@ export function ResetPasswordForm({
   token?: string;
   invalidToken: boolean;
 }) {
+  const t = useTranslations("Auth.resetPassword");
+  const tShared = useTranslations("Auth.shared");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Erreur de saisie affichée sous le champ concerné, qui reçoit le focus.
+  const [fieldError, setFieldError] = useState<{ field: PasswordField; message: string } | null>(null);
   const [done, setDone] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
 
   const longEnough = password.length >= MIN_PASSWORD_LENGTH;
   const mismatch = confirmation.length > 0 && confirmation !== password;
+  const newPasswordError = fieldError?.field === "newPassword" ? fieldError.message : null;
+  const confirmError =
+    fieldError?.field === "confirmPassword" ? fieldError.message : mismatch ? t("mismatch") : null;
+
+  function showFieldError(field: PasswordField, message: string) {
+    setFieldError({ field, message });
+    document.getElementById(field)?.focus();
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!token) return;
     setError(null);
+    setFieldError(null);
 
-    if (password !== confirmation) {
-      setError("Les deux mots de passe ne correspondent pas.");
+    if (!longEnough) {
+      showFieldError("newPassword", t("tooShort", { min: MIN_PASSWORD_LENGTH }));
       return;
     }
-    if (!longEnough) {
-      setError(`Le mot de passe doit contenir au moins ${MIN_PASSWORD_LENGTH} caractères.`);
+    if (password !== confirmation) {
+      showFieldError("confirmPassword", t("mismatch"));
       return;
     }
 
@@ -50,7 +66,7 @@ export function ResetPasswordForm({
     setLoading(false);
 
     if (resetError) {
-      setError(resetError.message ?? "La mise à jour a échoué. Redemandez un lien.");
+      setError(resetError.message ?? t("errors.generic"));
       return;
     }
     setDone(true);
@@ -61,25 +77,24 @@ export function ResetPasswordForm({
       <div>
         <CircleAlert className="size-6 text-muted-foreground" aria-hidden="true" />
         <h1 className="mt-3 text-2xl font-semibold tracking-tight text-foreground">
-          Lien invalide ou expiré
+          {t("invalidTitle")}
         </h1>
         <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-          Les liens de réinitialisation ne servent qu&apos;une fois et expirent
-          au bout d&apos;une heure. Demandez-en un nouveau pour continuer.
+          {t("invalidDescription")}
         </p>
         <Button
           render={<Link href="/forgot-password" />}
           nativeButton={false}
           className="mt-8 w-full"
         >
-          Demander un nouveau lien
+          {t("requestNewLink")}
         </Button>
         <Link
           href="/login"
           className="mt-6 inline-flex items-center gap-1.5 rounded-sm text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:focus-ring"
         >
           <ArrowLeft className="size-4" aria-hidden="true" />
-          Retour à la connexion
+          {tShared("backToLogin")}
         </Link>
       </div>
     );
@@ -90,18 +105,17 @@ export function ResetPasswordForm({
       <div>
         <LockKeyhole className="size-6 text-primary" aria-hidden="true" />
         <h1 className="mt-3 text-2xl font-semibold tracking-tight text-foreground">
-          Mot de passe mis à jour
+          {t("doneTitle")}
         </h1>
         <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-          Connectez-vous avec votre nouveau mot de passe. Si vous n&apos;êtes pas
-          à l&apos;origine de ce changement, contactez l&apos;équipe Automerio.
+          {t("doneDescription")}
         </p>
         <Button
           render={<Link href="/login" />}
           nativeButton={false}
           className="mt-8 w-full"
         >
-          Se connecter
+          {tShared("signIn")}
         </Button>
       </div>
     );
@@ -110,23 +124,27 @@ export function ResetPasswordForm({
   return (
     <div>
       <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-        Choisir un nouveau mot de passe
+        {t("title")}
       </h1>
       <p className="mt-1.5 text-sm text-muted-foreground">
-        Il remplacera l&apos;ancien dès la validation.
+        {t("subtitle")}
       </p>
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="newPassword">Nouveau mot de passe</Label>
+          <Label htmlFor="newPassword">{t("newPasswordLabel")}</Label>
           <PasswordInput
             id="newPassword"
             name="newPassword"
             autoComplete="new-password"
             minLength={MIN_PASSWORD_LENGTH}
             value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            describedBy="password-rule"
+            onChange={(event) => {
+              setPassword(event.target.value);
+              if (fieldError?.field === "newPassword") setFieldError(null);
+            }}
+            aria-invalid={newPasswordError ? true : undefined}
+            describedBy={newPasswordError ? "password-rule newPassword-error" : "password-rule"}
             autoFocus
             required
           />
@@ -138,24 +156,32 @@ export function ResetPasswordForm({
             )}
           >
             {longEnough && <Check className="size-3.5" aria-hidden="true" />}
-            {MIN_PASSWORD_LENGTH} caractères minimum.
+            {tShared("minLength", { min: MIN_PASSWORD_LENGTH })}
           </p>
+          {newPasswordError && (
+            <p id="newPassword-error" className="text-sm text-destructive">
+              {newPasswordError}
+            </p>
+          )}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="confirmPassword">Confirmer</Label>
+          <Label htmlFor="confirmPassword">{t("confirmLabel")}</Label>
           <PasswordInput
             id="confirmPassword"
             name="confirmPassword"
             autoComplete="new-password"
             value={confirmation}
-            onChange={(event) => setConfirmation(event.target.value)}
-            aria-invalid={mismatch || undefined}
-            describedBy={mismatch ? "confirm-mismatch" : undefined}
+            onChange={(event) => {
+              setConfirmation(event.target.value);
+              if (fieldError?.field === "confirmPassword") setFieldError(null);
+            }}
+            aria-invalid={confirmError ? true : undefined}
+            describedBy={confirmError ? "confirmPassword-error" : undefined}
             required
           />
-          {mismatch && (
-            <p id="confirm-mismatch" className="text-xs text-destructive">
-              Les deux mots de passe ne correspondent pas.
+          {confirmError && (
+            <p id="confirmPassword-error" className="text-sm text-destructive">
+              {confirmError}
             </p>
           )}
         </div>
@@ -168,7 +194,7 @@ export function ResetPasswordForm({
         )}
 
         <Button type="submit" className="w-full" disabled={loading} aria-busy={loading}>
-          {loading ? "Mise à jour…" : "Mettre à jour le mot de passe"}
+          {loading ? t("submitting") : t("submit")}
         </Button>
       </form>
     </div>

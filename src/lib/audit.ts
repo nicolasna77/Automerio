@@ -20,19 +20,6 @@ export async function logAdminAction(input: {
   });
 }
 
-export const AUDIT_ACTION_LABELS: Record<AuditAction, string> = {
-  USER_ROLE_CHANGED: "Rôle modifié",
-  USER_BANNED: "Compte banni",
-  USER_UNBANNED: "Compte débanni",
-  USER_PASSWORD_RESET: "Mot de passe réinitialisé",
-  USER_SESSION_REVOKED: "Session révoquée",
-  SERVICE_UPDATED: "Solution modifiée",
-  SERVICE_ACTIVATED: "Solution réactivée",
-  SERVICE_DEACTIVATED: "Solution désactivée",
-  PROMO_CODE_CREATED: "Code promo créé",
-  PROMO_CODE_DEACTIVATED: "Code promo désactivé",
-};
-
 export const SENSITIVE_AUDIT_ACTIONS = new Set<AuditAction>([
   "USER_ROLE_CHANGED",
   "USER_BANNED",

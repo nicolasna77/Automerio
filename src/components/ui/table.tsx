@@ -4,10 +4,27 @@ import * as React from "react"
 import { cn } from "cn"
 
 function Table({ className, ...props }: React.ComponentProps<"table">) {
+  // Un tableau qui déborde se fait défiler au clavier : le conteneur ne
+  // rejoint l'ordre de tabulation que s'il y a réellement de quoi défiler.
+  const containerRef = React.useRef<HTMLDivElement>(null)
+  const [scrollable, setScrollable] = React.useState(false)
+  React.useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+    const update = () => setScrollable(container.scrollWidth > container.clientWidth)
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(container)
+    if (container.firstElementChild) observer.observe(container.firstElementChild)
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <div
+      ref={containerRef}
+      tabIndex={scrollable ? 0 : undefined}
       data-slot="table-container"
-      className="relative w-full overflow-x-auto"
+      className="relative w-full overflow-x-auto focus-visible:focus-ring"
     >
       <table
         data-slot="table"

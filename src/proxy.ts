@@ -23,7 +23,12 @@ export function proxy(request: NextRequest) {
   if (isWaitlistMode() && !isOpenDuringWaitlist(path)) {
     return NextResponse.redirect(new URL(`${prefix}/`, request.url));
   }
-  if (PROTECTED.test(path) && !getSessionCookie(request)) {
+  // Un appel de Server Action n'est pas redirigé : la redirection le ferait
+  // aboutir sur /login, où l'action n'existe pas (« Server Action … was not
+  // found »). Chaque action vérifie elle-même la session : sans elle, elle
+  // renvoie vers /login ou répond « Votre session a expiré ».
+  const isServerAction = request.method === "POST" && request.headers.has("next-action");
+  if (PROTECTED.test(path) && !isServerAction && !getSessionCookie(request)) {
     return NextResponse.redirect(
       new URL(`${prefix}${authPathWithNext("/login", `${pathname}${search}`)}`, request.url)
     );

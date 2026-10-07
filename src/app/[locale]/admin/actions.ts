@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/session";
 import { logServiceEvent } from "@/lib/service-events";
@@ -87,7 +88,10 @@ export async function setWhatsAppPhoneNumberId(
     where: { id: clientServiceId },
     data: { whatsappPhoneNumberId: trimmed || null },
   });
-  if (trimmed) await logServiceEvent(clientServiceId, "CONFIGURATION_UPDATED", "Numéro WhatsApp connecté");
+  if (trimmed) {
+    const t = await getTranslations("Admin.clientService.events");
+    await logServiceEvent(clientServiceId, "CONFIGURATION_UPDATED", t("whatsappConnected"));
+  }
 
   revalidatePath("/admin");
   revalidatePath("/dashboard");
@@ -101,7 +105,10 @@ export async function setFacebookPageId(clientServiceId: string, pageId: string)
     where: { id: clientServiceId },
     data: { facebookPageId: trimmed || null },
   });
-  if (trimmed) await logServiceEvent(clientServiceId, "CONFIGURATION_UPDATED", "Page Facebook connectée");
+  if (trimmed) {
+    const t = await getTranslations("Admin.clientService.events");
+    await logServiceEvent(clientServiceId, "CONFIGURATION_UPDATED", t("facebookConnected"));
+  }
 
   revalidatePath("/admin");
   revalidatePath("/dashboard");
@@ -115,7 +122,10 @@ export async function setInstagramAccountId(clientServiceId: string, accountId: 
     where: { id: clientServiceId },
     data: { instagramAccountId: trimmed || null },
   });
-  if (trimmed) await logServiceEvent(clientServiceId, "CONFIGURATION_UPDATED", "Compte Instagram connecté");
+  if (trimmed) {
+    const t = await getTranslations("Admin.clientService.events");
+    await logServiceEvent(clientServiceId, "CONFIGURATION_UPDATED", t("instagramConnected"));
+  }
 
   revalidatePath("/admin");
   revalidatePath("/dashboard");

@@ -12,6 +12,7 @@ import {
   TicketPercent,
   Users,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { AutomerioLogo } from "@/components/brand";
 import { SidebarUserMenu } from "@/components/sidebar-user-menu";
 import { WorkspaceNav, WorkspaceNavLinks } from "@/components/workspace-nav";
@@ -35,6 +36,7 @@ export function AdminSidebar({
   name: string;
   email: string;
 }) {
+  const t = useTranslations("Admin.nav");
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
@@ -43,8 +45,8 @@ export function AdminSidebar({
             href={ROOT}
             className="[&>span:last-child]:group-data-[collapsible=icon]:hidden"
           />
-          <span className="ml-auto rounded-md bg-primary/10 px-1.5 py-0.5 text-xs font-medium text-primary group-data-[collapsible=icon]:hidden">
-            Admin
+          <span className="ml-auto rounded-md bg-primary/10 px-1.5 py-0.5 text-xs font-medium text-foreground group-data-[collapsible=icon]:hidden">
+            {t("badge")}
           </span>
         </div>
       </SidebarHeader>
@@ -54,32 +56,32 @@ export function AdminSidebar({
           root={ROOT}
           groups={[
             {
-              label: "Clients",
+              label: t("groups.clients"),
               items: [
-                { href: ROOT, label: "Vue d'ensemble", icon: LayoutDashboard },
-                { href: "/admin/users", label: "Utilisateurs", icon: Users },
-                { href: "/admin/waitlist", label: "Liste d'attente", icon: ListChecks },
+                { href: ROOT, label: t("overview"), icon: LayoutDashboard },
+                { href: "/admin/users", label: t("users"), icon: Users },
+                { href: "/admin/waitlist", label: t("waitlist"), icon: ListChecks },
                 {
                   href: "/admin/help",
-                  label: "Centre d'aide",
+                  label: t("help"),
                   icon: LifeBuoy,
                   badge: openHelpRequestCount,
                 },
               ],
             },
             {
-              label: "Catalogue",
+              label: t("groups.catalog"),
               items: [
-                { href: "/admin/services", label: "Solutions", icon: Package },
-                { href: "/admin/promo-codes", label: "Codes promo", icon: TicketPercent },
-                { href: "/admin/marketing", label: "Marketing", icon: Megaphone },
+                { href: "/admin/services", label: t("services"), icon: Package },
+                { href: "/admin/promo-codes", label: t("promoCodes"), icon: TicketPercent },
+                { href: "/admin/marketing", label: t("marketing"), icon: Megaphone },
               ],
             },
             {
-              label: "Suivi",
+              label: t("groups.tracking"),
               items: [
-                { href: "/admin/calendar", label: "Calendrier", icon: CalendarDays },
-                { href: "/admin/audit-log", label: "Journal", icon: ScrollText },
+                { href: "/admin/calendar", label: t("calendar"), icon: CalendarDays },
+                { href: "/admin/audit-log", label: t("auditLog"), icon: ScrollText },
               ],
             },
           ]}
@@ -88,7 +90,7 @@ export function AdminSidebar({
       <SidebarFooter>
         <WorkspaceNavLinks
           root={ROOT}
-          items={[{ href: "/dashboard", label: "Tableau de bord", icon: ArrowLeftRight }]}
+          items={[{ href: "/dashboard", label: t("dashboard"), icon: ArrowLeftRight }]}
         />
         <SidebarSeparator className="mx-0" />
         <SidebarUserMenu name={name} email={email} />

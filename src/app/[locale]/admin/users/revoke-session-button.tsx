@@ -1,7 +1,8 @@
 "use client";
 
 import { useTransition } from "react";
-import { toast } from "sonner";
+import { useTranslations } from "next-intl";
+import { toast } from "@/lib/toast";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { unwrap } from "@/lib/action-result";
@@ -17,11 +18,12 @@ export function RevokeSessionButton({
   sessionToken: string;
   expired?: boolean;
 }) {
+  const t = useTranslations("Admin.users.revoke");
   const [isPending, startTransition] = useTransition();
 
   if (expired) {
     return (
-      <span className="text-xs text-muted-foreground">Déjà expirée</span>
+      <span className="text-xs text-muted-foreground">{t("alreadyExpired")}</span>
     );
   }
 
@@ -29,7 +31,7 @@ export function RevokeSessionButton({
     startTransition(async () => {
       try {
         unwrap(await revokeUserSessionAction(userId, sessionToken));
-        toast.success("Session révoquée.");
+        toast.success(t("revoked"));
       } catch (err) {
         toast.error(getErrorMessage(err));
       }
@@ -47,7 +49,7 @@ export function RevokeSessionButton({
       {isPending ? (
         <Loader2 className="animate-spin" aria-hidden="true" />
       ) : (
-        "Révoquer"
+        t("revoke")
       )}
     </Button>
   );

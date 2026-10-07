@@ -1,11 +1,23 @@
 "use client"
 
 import { useTheme } from "next-themes"
+import { useEffect } from "react"
+import { useTranslations } from "next-intl"
+import { usePathname } from "@/i18n/navigation"
+import { dismissErrorToasts } from "@/lib/toast"
 import { Toaster as Sonner, type ToasterProps } from "sonner"
 import { CircleCheckIcon, InfoIcon, TriangleAlertIcon, OctagonXIcon, Loader2Icon } from "lucide-react"
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme()
+  const t = useTranslations("Common")
+  const pathname = usePathname()
+
+  // Une erreur concerne la page où elle est survenue : elle ne suit pas
+  // l'utilisateur sur la suivante.
+  useEffect(() => {
+    dismissErrorToasts()
+  }, [pathname])
 
   return (
     <Sonner
@@ -37,6 +49,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
         } as React.CSSProperties
       }
       toastOptions={{
+        closeButtonAriaLabel: t("closeNotification"),
         classNames: {
           toast: "cn-toast",
         },

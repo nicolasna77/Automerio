@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { titleMetadata } from "@/i18n/metadata";
 import { notFound } from "next/navigation";
 import { Building2 } from "lucide-react";
@@ -38,8 +39,9 @@ export default async function AdminUserDetailPage({
   const [{ userId }, { page: pageParam }] = await Promise.all([params, searchParams]);
   const sessionsPage = Math.max(1, Number(pageParam) || 1);
 
-  const [currentSession, user, memberships, sessions, sessionsCount, clientServices, bookings] =
+  const [t, currentSession, user, memberships, sessions, sessionsCount, clientServices, bookings] =
     await Promise.all([
+    getTranslations("Admin"),
     requireAdmin(),
     db.user.findUnique({ where: { id: userId } }),
     db.member.findMany({
@@ -78,7 +80,7 @@ export default async function AdminUserDetailPage({
     <PageShell size="content">
       <PageHeader
         breadcrumbs={[
-          { label: "Utilisateurs", href: "/admin/users" },
+          { label: t("userDetail.breadcrumb"), href: "/admin/users" },
           { label: user.name },
         ]}
         title={user.name}
@@ -96,7 +98,7 @@ export default async function AdminUserDetailPage({
         actions={
           <>
             <Badge variant={user.role === "ADMIN" ? "default" : "secondary"}>
-              {user.role ?? "CLIENT"}
+              {t(`users.role.${user.role === "ADMIN" ? "ADMIN" : "CLIENT"}`)}
             </Badge>
             <LiveRefreshToggle />
           </>
@@ -114,13 +116,13 @@ export default async function AdminUserDetailPage({
       />
       <section className="mt-10" aria-labelledby="client-services-heading">
         <h2 id="client-services-heading" className="text-lg font-semibold text-foreground">
-          Solutions
+          {t("userDetail.servicesHeading")}
         </h2>
         <p className="mt-1 mb-4 text-sm text-muted-foreground">
-          Note affichée au client, connexion externe et mise en service.
+          {t("userDetail.servicesDescription")}
         </p>
         {clientServices.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Aucune solution activée.</p>
+          <p className="text-sm text-muted-foreground">{t("userDetail.noServices")}</p>
         ) : (
           <ul className="grid gap-4 md:grid-cols-2">
             {clientServices.map((cs) => (
@@ -134,7 +136,7 @@ export default async function AdminUserDetailPage({
         <Card className="mt-10">
           <CardHeader>
             <CardTitle className="text-base">
-              Rendez-vous et commandes
+              {t("userDetail.bookings")}
             </CardTitle>
           </CardHeader>
           <CardContent className="h-[30rem] sm:h-[34rem]">

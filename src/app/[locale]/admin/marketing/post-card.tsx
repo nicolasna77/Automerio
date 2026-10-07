@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { AlertTriangle, Check, Copy, Image as ImageIcon, Pencil, Undo2, X } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import type { MarketingChannel, MarketingPostStatus } from "@prisma/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,8 @@ export type PostCardData = {
 };
 
 export function PostCard({ post }: { post: PostCardData }) {
+  const t = useTranslations("Admin.marketing");
+  const tCommon = useTranslations("Common");
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(post.body);
   const [pending, startTransition] = useTransition();
@@ -46,7 +49,7 @@ export function PostCard({ post }: { post: PostCardData }) {
         await action();
         toast.success(success);
       } catch (err) {
-        toast.error(getErrorMessage(err, "L'opération a échoué."));
+        toast.error(getErrorMessage(err, t("actionError")));
       }
     });
   }
@@ -55,15 +58,15 @@ export function PostCard({ post }: { post: PostCardData }) {
     run(async () => {
       unwrap(await updatePostAction(post.id, draft));
       setEditing(false);
-    }, "Texte enregistré.");
+    }, t("saved"));
   }
 
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(post.body);
-      toast.success("Texte copié.");
+      toast.success(t("copied"));
     } catch {
-      toast.error("Copie impossible depuis ce navigateur.");
+      toast.error(t("copyError"));
     }
   }
 
@@ -87,12 +90,12 @@ export function PostCard({ post }: { post: PostCardData }) {
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
               rows={12}
-              aria-label="Texte de la publication"
+              aria-label={t("bodyLabel")}
               aria-invalid={tooLong || undefined}
             />
             <p className="text-xs tabular-nums text-muted-foreground">
               {draft.length} / {rule.maxChars}
-              {tooLong && " (au-delà de la limite du réseau)"}
+              {tooLong && ` ${t("overLimit")}`}
             </p>
           </div>
         ) : (
@@ -103,7 +106,7 @@ export function PostCard({ post }: { post: PostCardData }) {
           <div className="flex gap-2 rounded-2xl bg-muted/50 p-3 text-sm text-muted-foreground">
             <ImageIcon className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
             <span>
-              <span className="font-medium text-foreground">Visuel à produire : </span>
+              <span className="font-medium text-foreground">{t("imageBrief")}</span>
               {post.imageBrief}
             </span>
           </div>
@@ -113,7 +116,7 @@ export function PostCard({ post }: { post: PostCardData }) {
           <div className="flex gap-2 rounded-2xl border border-border p-3 text-sm text-muted-foreground">
             <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
             <div>
-              <p className="font-medium text-foreground">À vérifier avant publication</p>
+              <p className="font-medium text-foreground">{t("checkBefore")}</p>
               <ul className="mt-1 list-disc space-y-0.5 pl-4">
                 {post.warnings.map((warning) => (
                   <li key={warning}>{warning}</li>
@@ -125,7 +128,7 @@ export function PostCard({ post }: { post: PostCardData }) {
 
         {post.publishedAt && (
           <p className="text-sm text-muted-foreground">
-            Publiée le {formatDate(post.publishedAt)}.
+            {t("publishedOn", { date: formatDate(post.publishedAt) })}
           </p>
         )}
       </CardContent>
@@ -134,7 +137,7 @@ export function PostCard({ post }: { post: PostCardData }) {
         {editing ? (
           <>
             <Button size="sm" onClick={handleSave} disabled={pending || tooLong}>
-              Enregistrer
+              {tCommon("save")}
             </Button>
             <Button
               size="sm"
@@ -145,7 +148,7 @@ export function PostCard({ post }: { post: PostCardData }) {
               }}
               disabled={pending}
             >
-              Annuler
+              {tCommon("cancel")}
             </Button>
           </>
         ) : (
@@ -155,25 +158,25 @@ export function PostCard({ post }: { post: PostCardData }) {
                 <Button
                   size="sm"
                   onClick={() =>
-                    run(() => approvePostAction(post.id, null), "Publication validée.")
+                    run(() => approvePostAction(post.id, null), t("approved"))
                   }
                   disabled={pending}
                 >
                   <Check data-icon="inline-start" />
-                  Valider
+                  {t("approve")}
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => setEditing(true)}>
                   <Pencil data-icon="inline-start" />
-                  Modifier
+                  {t("edit")}
                 </Button>
                 <Button
                   size="sm"
                   variant="ghost"
-                  onClick={() => run(() => rejectPostAction(post.id), "Publication écartée.")}
+                  onClick={() => run(() => rejectPostAction(post.id), t("rejected"))}
                   disabled={pending}
                 >
                   <X data-icon="inline-start" />
-                  Écarter
+                  {t("reject")}
                 </Button>
               </>
             )}
@@ -182,21 +185,21 @@ export function PostCard({ post }: { post: PostCardData }) {
               <>
                 <Button size="sm" onClick={handleCopy}>
                   <Copy data-icon="inline-start" />
-                  Copier le texte
+                  {t("copy")}
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() =>
-                    run(() => markPublishedAction(post.id), "Marquée comme publiée.")
+                    run(() => markPublishedAction(post.id), t("markedPublished"))
                   }
                   disabled={pending}
                 >
-                  Marquer publiée
+                  {t("markPublished")}
                 </Button>
                 <Button size="sm" variant="ghost" onClick={() => setEditing(true)}>
                   <Pencil data-icon="inline-start" />
-                  Modifier
+                  {t("edit")}
                 </Button>
               </>
             )}
@@ -204,7 +207,7 @@ export function PostCard({ post }: { post: PostCardData }) {
             {post.status === "PUBLISHED" && (
               <Button size="sm" variant="outline" onClick={handleCopy}>
                 <Copy data-icon="inline-start" />
-                Copier le texte
+                {t("copy")}
               </Button>
             )}
 
@@ -212,11 +215,11 @@ export function PostCard({ post }: { post: PostCardData }) {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => run(() => reopenPostAction(post.id), "Remise à relire.")}
+                onClick={() => run(() => reopenPostAction(post.id), t("reopened"))}
                 disabled={pending}
               >
                 <Undo2 data-icon="inline-start" />
-                Remettre à relire
+                {t("reopen")}
               </Button>
             )}
           </>

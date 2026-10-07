@@ -13,7 +13,6 @@ export type DashboardShot = {
   width: number;
   height: number;
   alt: string;
-  url: string;
 };
 
 // Une capture à la fois, en grand, plutôt que quatre réduites au point
@@ -110,7 +109,6 @@ export function DashboardTabs({
                 alt={shot.alt}
                 caption={caption}
                 sizes={`(min-width: 1152px) ${Math.min(shot.width, 720)}px, 100vw`}
-                windowUrl={shot.url}
               />
             </div>
           </div>

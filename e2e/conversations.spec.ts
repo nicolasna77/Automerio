@@ -155,7 +155,7 @@ test("les conversations Messenger se filtrent par jour", async ({ page }) => {
   await page.getByRole("combobox", { name: "Filtrer par jour" }).click();
   await page.getByRole("option", { name: /Aujourd'hui/ }).click();
 
-  await expect(page.getByRole("status")).toHaveText("1 conversation aujourd'hui");
+  await expect(page.getByRole("status").filter({ hasText: /conversation/ })).toHaveText("1 conversation aujourd'hui");
   await expect(list.getByRole("button")).toHaveCount(1);
   await expect(list).toContainText("Contact ·1111");
   await expect(list).not.toContainText("Contact ·2222");

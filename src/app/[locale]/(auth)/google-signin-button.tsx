@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 
@@ -28,6 +29,7 @@ function GoogleIcon() {
 }
 
 export function GoogleSignInButton({ next = null }: { next?: string | null }) {
+  const t = useTranslations("Auth.google");
   const [loading, setLoading] = useState(false);
 
   async function handleClick() {
@@ -45,7 +47,7 @@ export function GoogleSignInButton({ next = null }: { next?: string | null }) {
       aria-busy={loading}
     >
       <GoogleIcon />
-      Continuer avec Google
+      {t("continue")}
     </Button>
   );
 }

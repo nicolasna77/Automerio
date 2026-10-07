@@ -4,11 +4,12 @@ import { useLabels } from "@/hooks/use-labels";
 import { Fragment, useEffect, useLayoutEffect, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { ArrowLeft, Bot, Hand, Loader2, MessageSquare, SendHorizontal } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { pollWhileVisible } from "@/lib/poll-while-visible";
+import { PollingStatus } from "@/components/polling-status";
 import { parisDayKey } from "@/lib/paris-day";
 import { previousDayKey } from "@/lib/day-label";
 import { unwrap } from "@/lib/action-result";
@@ -98,6 +99,8 @@ export function ConversationInbox({
   const [selectedId, setSelectedId] = useState<string | null>(initialConversations[0]?.id ?? null);
   // Sur mobile, la liste et la conversation s'affichent l'une après l'autre.
   const [mobileView, setMobileView] = useState<"list" | "thread">("list");
+  // Vrai quand l'actualisation échoue ou que le réseau est coupé.
+  const [stalled, setStalled] = useState(false);
   const dayParam = day === ALL_DAYS ? null : day;
   // Le premier rendu vient du serveur : pas de rechargement immédiat au montage.
   const isFirstLoad = useRef(true);
@@ -117,7 +120,7 @@ export function ConversationInbox({
       const generation = updateGeneration.current;
       try {
         const res = await fetch(url);
-        if (!res.ok) return;
+        if (!res.ok) return false;
         const json: { conversations: ConversationView[]; days: ConversationDay[] } = await res.json();
         if (!cancelled) {
           if (generation === updateGeneration.current) setConversations(json.conversations);
@@ -125,14 +128,15 @@ export function ConversationInbox({
         }
       } catch {
         // Réseau momentanément indisponible : le prochain passage réessaie.
+        return false;
       } finally {
         if (!cancelled) setFiltering(false);
       }
     }
     // Au changement de jour, la liste se recharge tout de suite.
-    if (isFirstLoad.current) isFirstLoad.current = false;
-    else poll();
-    const stopPolling = pollWhileVisible(poll, POLL_INTERVAL_MS);
+    const immediate = !isFirstLoad.current;
+    isFirstLoad.current = false;
+    const stopPolling = pollWhileVisible(poll, POLL_INTERVAL_MS, setStalled, immediate);
     return () => {
       cancelled = true;
       stopPolling();
@@ -164,6 +168,7 @@ export function ConversationInbox({
 
   return (
     <div className="space-y-3">
+      <PollingStatus stalled={stalled} />
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p role="status" className="text-sm text-muted-foreground">
           {filtering
@@ -433,8 +438,9 @@ function ConversationThread({
       <div
         ref={scrollRef}
         role="log"
+        tabIndex={0}
         aria-label={t("messagesWith", { contact: conversation.contact })}
-        className="min-h-0 flex-1 overflow-y-auto bg-background/60 px-3 py-4 sm:px-4"
+        className="min-h-0 flex-1 overflow-y-auto bg-background/60 px-3 py-4 focus-visible:focus-ring focus-visible:-outline-offset-2 sm:px-4"
       >
         <ol aria-label={t("exchangesWith", { contact: conversation.contact })} className="space-y-1">
           {days.map((day) => (

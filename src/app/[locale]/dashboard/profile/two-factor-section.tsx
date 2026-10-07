@@ -4,7 +4,7 @@ import { useState, useTransition, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import dynamic from "next/dynamic";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,12 +43,20 @@ export function TwoFactorSection({
   const [step, setStep] = useState<Step>({ kind: "idle" });
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
+  // Erreur de saisie (mot de passe ou code) affichée sous le champ concerné.
+  const [fieldError, setFieldError] = useState<{ field: "two-factor-password" | "two-factor-code"; message: string } | null>(null);
+
+  function showFieldError(field: "two-factor-password" | "two-factor-code", message: string) {
+    setFieldError({ field, message });
+    document.getElementById(field)?.focus();
+  }
   const [isPending, startTransition] = useTransition();
 
   function close() {
     setStep({ kind: "idle" });
     setPassword("");
     setCode("");
+    setFieldError(null);
   }
 
   function handlePassword(event: FormEvent) {
@@ -60,11 +68,8 @@ export function TwoFactorSection({
       if (step.mode === "enable") {
         const { data, error } = await authClient.twoFactor.enable(credentials);
         if (error || !data) {
-          toast.error(
-            error?.status === 400 || error?.status === 401
-              ? t("wrongPassword")
-              : t("enableFailed")
-          );
+          if (error?.status === 400 || error?.status === 401) showFieldError("two-factor-password", t("wrongPassword"));
+          else toast.error(t("enableFailed"));
           return;
         }
         setPassword("");
@@ -74,11 +79,8 @@ export function TwoFactorSection({
 
       const { error } = await authClient.twoFactor.disable(credentials);
       if (error) {
-        toast.error(
-          error.status === 400 || error.status === 401
-            ? t("wrongPassword")
-            : t("disableFailed")
-        );
+        if (error.status === 400 || error.status === 401) showFieldError("two-factor-password", t("wrongPassword"));
+        else toast.error(t("disableFailed"));
         return;
       }
       toast.success(t("disabled"));
@@ -97,7 +99,7 @@ export function TwoFactorSection({
         code: code.replace(/\s+/g, ""),
       });
       if (error) {
-        toast.error(t("wrongCode"));
+        showFieldError("two-factor-code", t("wrongCode"));
         return;
       }
       setCode("");
@@ -146,8 +148,16 @@ export function TwoFactorSection({
                 autoFocus
                 autoComplete="current-password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (fieldError?.field === "two-factor-password") setFieldError(null);
+                }}
+                aria-invalid={fieldError?.field === "two-factor-password" ? true : undefined}
+                aria-describedby={fieldError?.field === "two-factor-password" ? "two-factor-password-error" : undefined}
               />
+              {fieldError?.field === "two-factor-password" && (
+                <p id="two-factor-password-error" className="text-sm text-destructive">{fieldError.message}</p>
+              )}
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
@@ -189,9 +199,17 @@ export function TwoFactorSection({
               autoComplete="one-time-code"
               required
               value={code}
-              onChange={(e) => setCode(e.target.value)}
+              onChange={(e) => {
+                setCode(e.target.value);
+                if (fieldError?.field === "two-factor-code") setFieldError(null);
+              }}
+              aria-invalid={fieldError?.field === "two-factor-code" ? true : undefined}
+              aria-describedby={fieldError?.field === "two-factor-code" ? "two-factor-code-error" : undefined}
               className="tabular-nums tracking-widest"
             />
+            {fieldError?.field === "two-factor-code" && (
+              <p id="two-factor-code-error" className="text-sm text-destructive">{fieldError.message}</p>
+            )}
           </div>
           <div className="flex gap-2">
             <Button type="submit" disabled={isPending || !code.trim()} aria-busy={isPending}>

@@ -2,8 +2,9 @@
 
 import { Link } from "@/i18n/navigation";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { ArrowLeft, Check, CircleAlert, MailCheck } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +26,8 @@ export function SignupForm({
   googleEnabled: boolean;
   next: string | null;
 }) {
+  const t = useTranslations("Auth.signup");
+  const tShared = useTranslations("Auth.shared");
   const afterVerificationUrl = next ?? AFTER_VERIFICATION_URL;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -61,8 +64,8 @@ export function SignupForm({
     if (error) {
       setError(
         error.status === 422
-          ? "Un compte existe déjà avec cet e-mail."
-          : "La création du compte a échoué. Vérifiez vos informations puis réessayez."
+          ? t("errors.emailTaken")
+          : t("errors.generic")
       );
       return;
     }
@@ -77,11 +80,11 @@ export function SignupForm({
       callbackURL: afterVerificationUrl,
     });
     if (error) {
-      toast.error("L'envoi a échoué. Réessayez dans quelques minutes.");
+      toast.error(t("errors.resendFailed"));
       return;
     }
     setCooldown(RESEND_DELAY_SECONDS);
-    toast.success("Nouveau lien envoyé.");
+    toast.success(tShared("newLinkSent"));
   }
 
   if (sentTo) {
@@ -89,16 +92,16 @@ export function SignupForm({
       <div>
         <MailCheck className="size-6 text-primary" aria-hidden="true" />
         <h1 className="mt-3 text-2xl font-semibold tracking-tight text-foreground">
-          Vérifiez votre boîte mail
+          {tShared("checkInbox")}
         </h1>
         <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-          Nous avons envoyé un lien de confirmation à{" "}
-          <span className="font-medium text-foreground">{sentTo}</span>.
-          Cliquez dessus pour activer votre compte.
+          {t.rich("sentMessage", {
+            email: sentTo,
+            strong: (chunks) => <span className="font-medium text-foreground">{chunks}</span>,
+          })}
         </p>
         <p className="mt-4 text-sm text-muted-foreground">
-          Rien reçu après quelques minutes ? Regardez dans les indésirables, ou
-          demandez un nouveau lien.
+          {t("notReceived")}
         </p>
 
         <div className="mt-8">
@@ -108,7 +111,9 @@ export function SignupForm({
             onClick={handleResend}
             disabled={cooldown > 0}
           >
-            {cooldown > 0 ? `Renvoyer le lien (${cooldown} s)` : "Renvoyer le lien"}
+            {cooldown > 0
+              ? tShared("resendLinkCooldown", { seconds: cooldown })
+              : tShared("resendLink")}
           </Button>
         </div>
 
@@ -117,7 +122,7 @@ export function SignupForm({
           className="mt-6 inline-flex items-center gap-1.5 rounded-sm text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:focus-ring"
         >
           <ArrowLeft className="size-4" aria-hidden="true" />
-          Revenir à la connexion
+          {tShared("returnToLogin")}
         </Link>
       </div>
     );
@@ -126,10 +131,10 @@ export function SignupForm({
   return (
     <div>
       <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-        Créer un compte
+        {t("title")}
       </h1>
       <p className="mt-1.5 text-sm text-muted-foreground">
-        Activez vos premières automatisations en quelques minutes.
+        {t("subtitle")}
       </p>
 
       {googleEnabled && (
@@ -137,7 +142,7 @@ export function SignupForm({
           <GoogleSignInButton next={next} />
           <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
             <span className="h-px flex-1 bg-border" />
-            ou
+            {tShared("or")}
             <span className="h-px flex-1 bg-border" />
           </div>
         </div>
@@ -145,43 +150,43 @@ export function SignupForm({
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="name">Nom</Label>
+          <Label htmlFor="name">{t("nameLabel")}</Label>
           <Input
             id="name"
             name="name"
             autoComplete="name"
-            placeholder="Marie Dupont"
+            placeholder={t("namePlaceholder")}
             autoFocus
             required
           />
         </div>
         <div className="space-y-2">
           <Label htmlFor="company">
-            Entreprise <span className="text-muted-foreground">(optionnel)</span>
+            {t("companyLabel")} <span className="text-muted-foreground">{t("optional")}</span>
           </Label>
           <Input
             id="company"
             name="company"
             autoComplete="organization"
-            placeholder="Dupont Coiffure"
+            placeholder={t("companyPlaceholder")}
             maxLength={80}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="email">E-mail</Label>
+          <Label htmlFor="email">{tShared("emailLabel")}</Label>
           <Input
             id="email"
             name="email"
             type="email"
             autoComplete="email"
-            placeholder="vous@entreprise.fr"
+            placeholder={tShared("emailPlaceholder")}
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? "signup-error" : undefined}
             required
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="password">Mot de passe</Label>
+          <Label htmlFor="password">{tShared("passwordLabel")}</Label>
           <PasswordInput
             id="password"
             name="password"
@@ -200,7 +205,7 @@ export function SignupForm({
             )}
           >
             {longEnough && <Check className="size-3.5" aria-hidden="true" />}
-            {MIN_PASSWORD_LENGTH} caractères minimum.
+            {tShared("minLength", { min: MIN_PASSWORD_LENGTH })}
           </p>
         </div>
 
@@ -212,32 +217,35 @@ export function SignupForm({
         )}
 
         <Button type="submit" className="w-full" disabled={loading} aria-busy={loading}>
-          {loading ? "Création du compte…" : "Créer mon compte"}
+          {loading ? t("submitting") : tShared("createAccount")}
         </Button>
       </form>
 
       <p className="mt-5 text-xs leading-relaxed text-muted-foreground">
-        En créant un compte, vous acceptez nos{" "}
-        <Link href="/terms" className="rounded-sm underline underline-offset-4 hover:text-foreground focus-visible:focus-ring">
-          conditions générales de vente
-        </Link>{" "}
-        et notre{" "}
-        <Link
-          href="/privacy"
-          className="rounded-sm underline underline-offset-4 hover:text-foreground focus-visible:focus-ring"
-        >
-          politique de confidentialité
-        </Link>
-        .
+        {t.rich("terms", {
+          terms: (chunks) => (
+            <Link href="/terms" className="rounded-sm underline underline-offset-4 hover:text-foreground focus-visible:focus-ring">
+              {chunks}
+            </Link>
+          ),
+          privacy: (chunks) => (
+            <Link href="/privacy" className="rounded-sm underline underline-offset-4 hover:text-foreground focus-visible:focus-ring">
+              {chunks}
+            </Link>
+          ),
+        })}
       </p>
       <p className="mt-4 text-sm text-muted-foreground">
-        Déjà un compte ?{" "}
-        <Link
-          href={authPathWithNext("/login", next)}
-          className="rounded-sm text-foreground underline underline-offset-4 focus-visible:focus-ring"
-        >
-          Se connecter
-        </Link>
+        {t.rich("hasAccount", {
+          link: (chunks) => (
+            <Link
+              href={authPathWithNext("/login", next)}
+              className="rounded-sm text-foreground underline underline-offset-4 focus-visible:focus-ring"
+            >
+              {chunks}
+            </Link>
+          ),
+        })}
       </p>
     </div>
   );

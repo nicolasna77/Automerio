@@ -24,7 +24,7 @@ export async function SiteFooter() {
         </div>
         <div className="grid grid-cols-2 gap-8 text-sm text-muted-foreground sm:flex sm:gap-16">
           <div>
-            <h3 className="font-medium text-foreground">{t("offer")}</h3>
+            <h2 className="font-medium text-foreground">{t("offer")}</h2>
             <ul className="mt-3 space-y-2">
               <li>
                 <Link href="/#services" className="hover:text-foreground">
@@ -39,7 +39,7 @@ export async function SiteFooter() {
             </ul>
           </div>
           <div>
-            <h3 className="font-medium text-foreground">{t("audience")}</h3>
+            <h2 className="font-medium text-foreground">{t("audience")}</h2>
             <ul className="mt-3 space-y-2">
               {getTrades().map((trade) => (
                 <li key={trade.slug}>
@@ -52,7 +52,7 @@ export async function SiteFooter() {
           </div>
           {!isWaitlistMode() && (
           <div>
-            <h3 className="font-medium text-foreground">{t("account")}</h3>
+            <h2 className="font-medium text-foreground">{t("account")}</h2>
             <ul className="mt-3 space-y-2">
               <li>
                 <Link href="/contact" className="hover:text-foreground">

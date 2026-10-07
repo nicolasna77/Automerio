@@ -309,7 +309,11 @@ async function capture(
     // Masque l'indicateur de développement de Next (« N », « Compiling »).
     // L'en-tête collant recouvrirait le haut d'une carte capturée seule.
     await page.addStyleTag({
-      content: "nextjs-portal { display: none !important; } header { position: static !important; }",
+      // Animations et transitions coupées : une capture prise en plein fondu
+      // est floue ou à moitié transparente.
+      content:
+        "nextjs-portal { display: none !important; } header { position: static !important; } " +
+        "*, *::before, *::after { animation: none !important; transition: none !important; caret-color: transparent !important; }",
     });
     await page.waitForTimeout(800);
     if (target.prepare) {
@@ -317,13 +321,18 @@ async function capture(
       await page.waitForTimeout(400);
     }
     const { cardHeading, clip = { x: 0, y: 0, width: 1280, height: 800 } } = target;
-    const png = cardHeading
-      ? await page
-          .getByRole("heading", { name: cardHeading, exact: true })
-          .locator("xpath=ancestor::*[@data-slot='card'][1]")
-          .screenshot()
-      : await page.screenshot({ clip });
-    await sharp(png).webp({ quality: 82 }).toFile(`${OUT_DIR}/${name}-${theme}.webp`);
+    const card = cardHeading
+      ? page.getByRole("heading", { name: cardHeading, exact: true }).locator("xpath=ancestor::*[@data-slot='card'][1]")
+      : null;
+    // Les listes (appels, conversations) se chargent après la page : on
+    // attend que plus aucun squelette ne reste à l'écran.
+    await (card ?? page.locator("body"))
+      .locator('[data-slot="skeleton"]')
+      .first()
+      .waitFor({ state: "detached", timeout: 20_000 });
+    await page.evaluate(() => document.fonts.ready);
+    const png = card ? await card.screenshot() : await page.screenshot({ clip });
+    await sharp(png).webp({ quality: 92, effort: 6, smartSubsample: true }).toFile(`${OUT_DIR}/${name}-${theme}.webp`);
     console.info(`capture : ${OUT_DIR}/${name}-${theme}.webp`);
   }
   if (target.viewport) await page.setViewportSize({ width: 1280, height: 800 });
@@ -350,8 +359,8 @@ async function main() {
   await capture(page, "/dashboard", "dashboard-overview", { clip: { x: 0, y: 0, width: 1280, height: 800 } });
   await capture(page, `/dashboard/services/${clientServiceId}`, "dashboard-calls", { cardHeading: "Appels reçus" });
   await capture(page, "/dashboard/calendar", "dashboard-calendar", {
-    viewport: { width: 1024, height: 800 },
-    clip: { x: 256, y: 64, width: 768, height: 576 },
+    // Pleine largeur : à 1024 px, les noms des rendez-vous étaient tronqués.
+    clip: { x: 256, y: 64, width: 1024, height: 640 },
     prepare: (page) => page.getByRole("button", { name: "Semaine" }).click(),
   });
   await capture(page, `/dashboard/services/${whatsappServiceId}`, "dashboard-conversations", {

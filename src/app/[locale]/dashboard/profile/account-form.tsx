@@ -3,7 +3,7 @@
 import { useRef, useState, useTransition, type ChangeEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Camera, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,6 +62,8 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
   const [changingEmail, setChangingEmail] = useState(false);
   const [newEmail, setNewEmail] = useState("");
   const [emailRequestedFor, setEmailRequestedFor] = useState<string | null>(null);
+  // Erreur affichée sous le champ du nouvel e-mail, qui reçoit le focus.
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [isRequestingEmail, startEmailRequest] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -93,10 +95,16 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
     }
   }
 
+  function showEmailError(message: string) {
+    setEmailError(message);
+    document.getElementById("new-email")?.focus();
+  }
+
   function handleEmailChange() {
+    setEmailError(null);
     const email = newEmail.trim();
     if (!email || email.toLowerCase() === initialAccount.email.toLowerCase()) {
-      toast.error(t("sameEmail"));
+      showEmailError(t("sameEmail"));
       return;
     }
     startEmailRequest(async () => {
@@ -105,7 +113,7 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
         callbackURL: "/dashboard/profile",
       });
       if (error) {
-        toast.error(error.message ?? t("emailRequestFailed"));
+        showEmailError(error.message ?? t("emailRequestFailed"));
         return;
       }
       setEmailRequestedFor(email);
@@ -228,8 +236,16 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
                     autoComplete="email"
                     required
                     value={newEmail}
-                    onChange={(e) => setNewEmail(e.target.value)}
+                    onChange={(e) => {
+                      setNewEmail(e.target.value);
+                      setEmailError(null);
+                    }}
+                    aria-invalid={emailError ? true : undefined}
+                    aria-describedby={emailError ? "new-email-error" : undefined}
                   />
+                  {emailError && (
+                    <p id="new-email-error" className="text-sm text-destructive">{emailError}</p>
+                  )}
                   <div className="flex flex-wrap gap-2">
                     <Button type="submit" disabled={isRequestingEmail} aria-busy={isRequestingEmail}>
                       {isRequestingEmail ? tCommon("sending") : t("sendLink")}
@@ -237,7 +253,10 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
                     <Button
                       type="button"
                       variant="ghost"
-                      onClick={() => setChangingEmail(false)}
+                      onClick={() => {
+                        setChangingEmail(false);
+                        setEmailError(null);
+                      }}
                       disabled={isRequestingEmail}
                     >
                       {tCommon("cancel")}

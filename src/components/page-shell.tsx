@@ -1,6 +1,4 @@
-import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
-import { ChevronRight } from "lucide-react";
+import { PageBreadcrumbs, type Breadcrumb } from "@/components/header-breadcrumbs";
 import { cn } from "@/lib/utils";
 
 const SIZES = {
@@ -28,47 +26,9 @@ export function PageShell({
   );
 }
 
-export type Breadcrumb = { label: string; href?: string };
-
-export function PageBreadcrumbs({
-  items,
-  className,
-}: {
-  items: Breadcrumb[];
-  className?: string;
-}) {
-  const t = useTranslations("Workspace");
-  return (
-    <nav aria-label={t("breadcrumb")} className={cn("mb-4", className)}>
-      <ol className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground">
-        {items.map((item, index) => {
-          const isLast = index === items.length - 1;
-          return (
-            <li key={`${item.label}-${index}`} className="flex min-w-0 items-center gap-1">
-              {item.href && !isLast ? (
-                <Link
-                  href={item.href}
-                  className="truncate rounded-sm transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-                >
-                  {item.label}
-                </Link>
-              ) : (
-                <span
-                  className="truncate text-foreground"
-                  aria-current={isLast ? "page" : undefined}
-                >
-                  {item.label}
-                </span>
-              )}
-              {!isLast && <ChevronRight className="size-3.5 shrink-0" aria-hidden="true" />}
-            </li>
-          );
-        })}
-      </ol>
-    </nav>
-  );
-}
-
+// Le fil d'Ariane s'affiche dans la barre du haut (header-breadcrumbs.tsx) ;
+// une page le fournit quand son titre vient des données.
+export { PageBreadcrumbs, type Breadcrumb } from "@/components/header-breadcrumbs";
 export function PageHeader({
   title,
   description,
