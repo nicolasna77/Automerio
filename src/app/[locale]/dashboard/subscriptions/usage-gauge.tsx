@@ -8,12 +8,16 @@ export function UsageGauge({
   cap,
   consumedUnits,
   overageCents,
+  pausesAtLimit = false,
 }: {
   cap: UsageCap;
   consumedUnits: number;
   overageCents: number;
+  // Dépassement refusé : l'assistant se met en pause au lieu de facturer.
+  pausesAtLimit?: boolean;
 }) {
   const t = useTranslations("Dashboard.subscriptions.gauge");
+  const tOverage = useTranslations("Dashboard.overage");
   const price = usePriceFormatter();
   const over = overageUnits(consumedUnits, cap);
   const ratio = usageRatio(consumedUnits, cap);
@@ -50,7 +54,16 @@ export function UsageGauge({
       </div>
 
       <p className="mt-2 text-xs text-muted-foreground">
-        {over > 0
+        {pausesAtLimit && consumedUnits >= cap.includedUnits ? (
+          <span className="font-medium text-destructive">{tOverage("paused")}</span>
+        ) : pausesAtLimit && nearLimit ? (
+          <>
+            <span className="font-medium text-foreground">
+              {tOverage("remaining", { remaining: price.usageUnits(cap.includedUnits - consumedUnits, cap.unit) })}
+            </span>{" "}
+            {tOverage("pausesSoon")}
+          </>
+        ) : over > 0
           ? t.rich("over", {
               units: price.usageUnits(over, cap.unit),
               amount: price.withVat(overageCents),

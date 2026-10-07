@@ -8,6 +8,7 @@ import {
   calendarMonth,
   consumedUnits,
   periodOf,
+  storedPeriod,
   type BillingPeriod,
 } from "@/lib/subscriptions";
 import {
@@ -15,9 +16,11 @@ import {
   formatUsageUnits,
   overageCents,
   overageUnits,
+  pausesAtLimit,
   PRICE_BLOCK_UNITS,
   readClientUsageCap,
   type UsageCap,
+  type UsageUnit,
 } from "@/lib/usage-cap";
 import { formatCentsWithVat } from "@/lib/vat";
 import { QUOTA_WARNING_RATIO } from "@/lib/quota";
@@ -105,7 +108,17 @@ async function overageFor(subscriptionId: string, period: BillingPeriod): Promis
     where: { stripeSubscriptionId: subscriptionId },
     include: { service: true },
   });
+  // Facturé si le dépassement a été accepté à un moment de la période : le
+  // couper la veille de la facture n'efface pas ce qui a déjà été consommé.
+  // Refusé toute la période : rien au-delà du forfait, y compris la fin d'un
+  // appel commencé avant que le quota soit atteint.
   if (!clientService) return null;
+  const allowedDuringPeriod =
+    clientService.overageAllowed ||
+    (await db.serviceEvent.count({
+      where: { clientServiceId: clientService.id, type: "OVERAGE_REFUSED", createdAt: { gte: period.start } },
+    })) > 0;
+  if (!allowedDuringPeriod) return null;
 
   const cap = readClientUsageCap(clientService, clientService.service);
   if (!cap || cap.overageUnitPriceCents <= 0) return null;
@@ -137,6 +150,28 @@ async function currentPeriod(stripeSubscriptionId: string | null): Promise<Billi
     console.error("[quota] période Stripe illisible, repli sur le mois calendaire :", err);
     return calendarMonth();
   }
+}
+
+type QuotaPauseColumns = {
+  id: string;
+  overageAllowed: boolean;
+  includedUsageUnits: number | null;
+  stripeSubscriptionId: string | null;
+  service: {
+    includedUsageUnits: number | null;
+    usageUnit: UsageUnit | null;
+    overageUnitPriceCents: number | null;
+  };
+};
+
+// Dépassement refusé (ou sans prix) et quota atteint : l'assistant ne décroche
+// plus jusqu'à la période suivante. Appelée à chaque appel entrant : la période
+// est lue en base (storedPeriod), sans aller-retour vers Stripe.
+export async function isPausedByQuota(clientService: QuotaPauseColumns): Promise<boolean> {
+  const cap = readClientUsageCap(clientService, clientService.service);
+  if (!cap || !pausesAtLimit(cap, clientService.overageAllowed)) return false;
+  const period = await storedPeriod(clientService.stripeSubscriptionId);
+  return (await consumedUnits(clientService.id, cap, period)) >= cap.includedUnits;
 }
 
 export function unitsOfCall(unit: UsageCap["unit"], durationSec: number | null): number {
@@ -184,7 +219,10 @@ export async function checkQuotaAlerts(
         consumed: formatUsageUnits(after, cap.unit),
         included: formatUsageUnits(cap.includedUnits, cap.unit),
         overagePrice:
-          cap.overageUnitPriceCents > 0 ? formatPerUnit(cap.overageUnitPriceCents, cap.unit) : null,
+          clientService.overageAllowed && cap.overageUnitPriceCents > 0
+            ? formatPerUnit(cap.overageUnitPriceCents, cap.unit)
+            : null,
+        pausesAtLimit: pausesAtLimit(cap, clientService.overageAllowed),
       })
     )
   );

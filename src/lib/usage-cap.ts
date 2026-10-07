@@ -76,6 +76,13 @@ export function usageCapLabelOf(service: ServiceUsageColumns): string | null {
   return cap ? formatUsageCap(cap) : null;
 }
 
+// Une seule règle pour la voix, la messagerie, la jauge et les e-mails :
+// l'assistant s'arrête au forfait si le client a refusé le dépassement, ou si
+// le dépassement n'a pas de prix (il ne pourrait pas être facturé).
+export function pausesAtLimit(cap: UsageCap, overageAllowed: boolean): boolean {
+  return !overageAllowed || cap.overageUnitPriceCents <= 0;
+}
+
 export function overageUnits(consumedUnits: number, cap: UsageCap): number {
   return Math.max(0, consumedUnits - cap.includedUnits);
 }

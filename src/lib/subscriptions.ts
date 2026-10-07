@@ -32,6 +32,7 @@ export type MySubscription = {
   period: BillingPeriod;
   renews: boolean;
   cap: UsageCap | null;
+  overageAllowed: boolean;
   usage: SubscriptionUsage | null;
   tier: SubscriptionTier | null;
 };
@@ -41,6 +42,20 @@ export function calendarMonth(now = new Date()): BillingPeriod {
     start: new Date(now.getFullYear(), now.getMonth(), 1),
     end: new Date(now.getFullYear(), now.getMonth() + 1, 1),
   };
+}
+
+// Période de facturation en cours, lue dans la table subscription (tenue à
+// jour par les webhooks Stripe) plutôt que par un appel à Stripe : elle sert à
+// chaque appel et à chaque message reçu. Hors période connue, mois calendaire.
+export async function storedPeriod(stripeSubscriptionId: string | null, now = new Date()): Promise<BillingPeriod> {
+  if (!stripeSubscriptionId) return calendarMonth(now);
+  const subscription = await db.subscription.findFirst({
+    where: { stripeSubscriptionId },
+    select: { periodStart: true, periodEnd: true },
+  });
+  const start = subscription?.periodStart;
+  const end = subscription?.periodEnd;
+  return start && end && start <= now && now < end ? { start, end } : calendarMonth(now);
 }
 
 export function periodOf(subscription: Stripe.Subscription): BillingPeriod | null {
@@ -103,7 +118,10 @@ async function toMySubscription(
     ? subscriptions.get(cs.stripeSubscriptionId)
     : undefined;
   const period = (subscription && periodOf(subscription)) ?? fallback;
-  const cap = readClientUsageCap(cs, cs.service);
+  const catalogCap = readClientUsageCap(cs, cs.service);
+  // Dépassement refusé : rien n'est facturé au-delà du forfait.
+  const cap =
+    catalogCap && !cs.overageAllowed ? { ...catalogCap, overageUnitPriceCents: 0 } : catalogCap;
   const tracksUsage = cs.status === "ACTIVE" || cs.status === "CONFIGURING";
 
   const usage =
@@ -131,6 +149,7 @@ async function toMySubscription(
         ? !subscription.cancel_at_period_end && subscription.status !== "canceled"
         : true),
     cap,
+    overageAllowed: cs.overageAllowed,
     usage,
   };
 }

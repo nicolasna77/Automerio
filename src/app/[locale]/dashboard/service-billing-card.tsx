@@ -1,4 +1,5 @@
 import { CreditCard } from "lucide-react";
+import { pausesAtLimit } from "@/lib/usage-cap";
 import { useLabels } from "@/hooks/use-labels";
 import { usePriceFormatter } from "@/hooks/use-price-formatter";
 import { useTranslations } from "next-intl";
@@ -7,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { MonthlyPrice } from "@/components/monthly-price";
 import { isRunning, type MySubscription } from "@/lib/subscriptions";
 import { ChangeQuotaDialog } from "./change-quota-dialog";
+import { OverageSwitch } from "./overage-switch";
 import { BillingPortalButton } from "./payments/billing-portal-button";
 import { BILLING_SECTION_ID } from "./billing-section";
 
@@ -25,6 +27,17 @@ export function ServiceBillingCard({
   const price = usePriceFormatter();
   const running = isRunning(subscription);
   const adjustable = running && subscription.tier !== null && subscription.cap !== null;
+  const tOverage = useTranslations("Dashboard.overage");
+  const { cap, usage, overageAllowed } = subscription;
+  // Sans prix de dépassement, le choix n'existe pas : l'assistant s'arrête
+  // au forfait (pausesAtLimit), on l'explique sans proposer l'interrupteur.
+  const overagePriced = cap !== null && cap.overageUnitPriceCents > 0;
+  const pausedByQuota =
+    cap !== null &&
+    pausesAtLimit(cap, overageAllowed) &&
+    usage !== null &&
+    usage.consumedUnits >= cap.includedUnits;
+  const overageDescriptionId = `${BILLING_SECTION_ID}-depassement`;
 
   return (
     <Card id={BILLING_SECTION_ID} className="scroll-mt-24">
@@ -72,6 +85,38 @@ export function ServiceBillingCard({
               <span className="mt-0.5 block text-xs text-muted-foreground">
                 {price.usageCap(subscription.cap)}
               </span>
+            </BillingRow>
+          )}
+
+          {cap && (
+            <BillingRow
+              label={tOverage("label")}
+              action={
+                running &&
+                overagePriced && (
+                  <OverageSwitch
+                    clientServiceId={subscription.clientServiceId}
+                    allowed={overageAllowed}
+                    describedBy={overageDescriptionId}
+                  />
+                )
+              }
+            >
+              <span id={overageDescriptionId}>
+                {!overagePriced
+                  ? tOverage("notAvailable", { included: price.usageUnits(cap.includedUnits, cap.unit) })
+                  : overageAllowed
+                    ? tOverage("accepted", {
+                        included: price.usageUnits(cap.includedUnits, cap.unit),
+                        price: price.perUnit(cap.overageUnitPriceCents, cap.unit),
+                      })
+                    : tOverage("refused", { included: price.usageUnits(cap.includedUnits, cap.unit) })}
+              </span>
+              {pausedByQuota && (
+                <span role="status" className="mt-1 block font-medium text-destructive">
+                  {tOverage("paused")}
+                </span>
+              )}
             </BillingRow>
           )}
 

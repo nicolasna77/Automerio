@@ -189,6 +189,9 @@ model ClientService {
   configuration  Json                @default("{}")
 
   includedUsageUnits        Int?
+  // Dépassement du quota accepté par le client. Refusé par défaut : une fois
+  // le quota atteint, l'assistant se met en pause jusqu'à la période suivante.
+  overageAllowed            Boolean   @default(false)
   monthlyPriceCents         Int?
   adminNote                 String?
   stripeCheckoutSessionId   String?
@@ -249,6 +252,8 @@ enum ServiceEventType {
   QUOTA_CHANGED
   QUOTA_WARNING
   QUOTA_EXCEEDED
+  OVERAGE_ACCEPTED
+  OVERAGE_REFUSED
   CANCELED
 }
 

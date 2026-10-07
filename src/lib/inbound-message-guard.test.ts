@@ -15,7 +15,7 @@ vi.mock("@/lib/db", () => ({ db: { clientService: { findFirst: mocks.findFirst }
 vi.mock("@/lib/rate-limit", () => ({ checkRateLimit: mocks.checkRateLimit }));
 vi.mock("@/lib/subscriptions", () => ({
   consumedUnits: mocks.consumedUnits,
-  calendarMonth: () => ({ start: new Date(2026, 9, 1), end: new Date(2026, 10, 1) }),
+  storedPeriod: async () => ({ start: new Date(2026, 9, 1), end: new Date(2026, 10, 1) }),
 }));
 vi.mock("@/lib/messaging-agent", () => ({ generateMessagingReply: mocks.generateMessagingReply }));
 vi.mock("@/lib/conversations", () => ({
@@ -40,9 +40,11 @@ import { validateInstagramSignature, validateMetaSignature } from "./meta";
 const billedService = { includedUsageUnits: 3000, usageUnit: "MESSAGE" as const, overageUnitPriceCents: 25 };
 const unbilledService = { ...billedService, overageUnitPriceCents: 0 };
 
-function clientService(service = billedService, includedUsageUnits: number | null = 3000) {
+function clientService(service = billedService, includedUsageUnits: number | null = 3000, overageAllowed = true) {
   return {
     id: "cs_1",
+    overageAllowed,
+    stripeSubscriptionId: null,
     includedUsageUnits,
     configuration: {},
     organization: { name: "Boulangerie" },
@@ -88,6 +90,13 @@ describe("isQuotaExhausted", () => {
     expect(isQuotaExhausted(cap, 100)).toBe(true);
   });
 
+  it("bloque au forfait quand le client a refusé le dépassement, même facturable", () => {
+    const billed = { ...cap, overageUnitPriceCents: 25 };
+    expect(isQuotaExhausted(billed, 100, true)).toBe(false);
+    expect(isQuotaExhausted(billed, 100, false)).toBe(true);
+    expect(isQuotaExhausted(billed, 99, false)).toBe(false);
+  });
+
   it("laisse passer quand le dépassement est facturé ou sans forfait", () => {
     expect(isQuotaExhausted({ ...cap, overageUnitPriceCents: 25 }, 10_000)).toBe(false);
     expect(isQuotaExhausted(null, 10_000)).toBe(false);
@@ -112,6 +121,14 @@ describe("decideAiReply", () => {
   it("refuse au-delà du plafond quotidien de la prestation", async () => {
     mocks.checkRateLimit.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
     expect(await decideAiReply(clientService(), "c")).toEqual({ allowed: false, reason: "service_daily_cap" });
+  });
+
+  it("refuse un forfait épuisé quand le client a refusé le dépassement", async () => {
+    mocks.consumedUnits.mockResolvedValue(3000);
+    expect(await decideAiReply(clientService(billedService, 3000, false), "c")).toEqual({
+      allowed: false,
+      reason: "quota_exhausted",
+    });
   });
 
   it("refuse un forfait épuisé sans prix de dépassement", async () => {
@@ -269,4 +286,5 @@ describe("signature des webhooks Instagram", () => {
     process.env.INSTAGRAM_APP_SECRET = "secret-instagram";
     expect(validateMetaSignature(sign("secret-instagram"), body)).toBe(false);
   });
+
 });

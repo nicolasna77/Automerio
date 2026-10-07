@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl";
+import { pausesAtLimit } from "@/lib/usage-cap";
 import { useLabels } from "@/hooks/use-labels";
 import { usePriceFormatter } from "@/hooks/use-price-formatter";
 import { Link } from "@/i18n/navigation";
@@ -38,6 +39,7 @@ export function ServiceSubscriptionCard({
             cap={subscription.cap}
             consumedUnits={subscription.usage.consumedUnits}
             overageCents={subscription.usage.overageCents}
+            pausesAtLimit={pausesAtLimit(subscription.cap, subscription.overageAllowed)}
           />
         ) : subscription.cap ? (
           <p className="text-sm text-muted-foreground">

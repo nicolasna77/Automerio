@@ -205,6 +205,8 @@ export type ServiceEventType =
   | "QUOTA_CHANGED"
   | "QUOTA_WARNING"
   | "QUOTA_EXCEEDED"
+  | "OVERAGE_ACCEPTED"
+  | "OVERAGE_REFUSED"
   | "CANCELED";
 
 export type ServiceEventDTO = {

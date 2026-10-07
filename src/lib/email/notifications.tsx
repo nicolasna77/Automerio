@@ -257,6 +257,7 @@ export async function sendQuotaAlertEmail(
     consumed: string;
     included: string;
     overagePrice: string | null;
+    pausesAtLimit: boolean;
   }
 ) {
   if (!isNotificationEnabled(recipient.notificationPreferences, "QUOTA_ALERT")) return;
@@ -265,7 +266,9 @@ export async function sendQuotaAlertEmail(
     to: recipient.email,
     subject:
       quota.alert === "EXCEEDED"
-        ? `Forfait dépassé sur « ${quota.serviceName} »`
+        ? quota.pausesAtLimit
+          ? `Forfait atteint : « ${quota.serviceName} » en pause`
+          : `Forfait dépassé sur « ${quota.serviceName} »`
         : `« ${quota.serviceName} » : 80 % du forfait consommé`,
     react: <QuotaAlertEmail recipientName={recipient.name} {...quota} />,
   });

@@ -1,5 +1,6 @@
 "use server";
 
+import { readClientUsageCap } from "@/lib/usage-cap";
 import { revalidatePath } from "next/cache";
 import { CLEARED_META_CONNECTION, isUniqueViolation } from "@/lib/meta-connection";
 import { getTranslations } from "next-intl/server";
@@ -860,6 +861,41 @@ export async function openBillingPortal(organizationId: string) {
     }
     const url = await createBillingPortalUrl(customerId, `${appUrl()}/dashboard/payments`);
     return { url };
+  });
+}
+
+// Le client accepte ou refuse que l'assistant continue au-delà de son forfait.
+// Refusé, l'assistant se met en pause une fois le forfait atteint.
+export async function setOverageAllowed(clientServiceId: string, allowed: boolean) {
+  return runAction(async () => {
+    const userId = await requireUserId();
+    if (!(await checkRateLimit("overage-change", userId, "10 m", 10))) {
+      throw actionError("tooManyAttempts");
+    }
+
+    const clientService = await db.clientService.findUnique({
+      where: { id: clientServiceId },
+      include: { service: true },
+    });
+    if (!clientService) throw actionError("notYourService");
+    await requireBillingRoleOn(clientService, userId);
+    // Même conditions que l'interrupteur : une solution en service, avec un
+    // forfait dont le dépassement a un prix.
+    if (clientService.status !== "ACTIVE" && clientService.status !== "CONFIGURING") {
+      throw actionError("overageOnlyActive");
+    }
+    const cap = readClientUsageCap(clientService, clientService.service);
+    if (!cap || cap.overageUnitPriceCents <= 0) throw actionError("overageNotAvailable");
+    if (clientService.overageAllowed === allowed) return;
+
+    await db.clientService.update({
+      where: { id: clientServiceId },
+      data: { overageAllowed: allowed },
+    });
+    await logServiceEvent(clientServiceId, allowed ? "OVERAGE_ACCEPTED" : "OVERAGE_REFUSED");
+
+    revalidateDashboard(clientServiceId);
+    revalidatePath("/dashboard/subscriptions");
   });
 }
 
