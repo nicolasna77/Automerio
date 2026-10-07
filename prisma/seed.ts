@@ -226,6 +226,9 @@ async function main() {
           configuration: sub.configuration ?? {},
           adminNote: sub.adminNote ?? null,
           includedUsageUnits,
+          // Clients de démonstration déjà en place : dépassement accepté,
+          // comme la migration le fait pour les solutions existantes.
+          overageAllowed: true,
           createdAt,
           activatedAt,
           canceledAt,
@@ -235,6 +238,7 @@ async function main() {
           configuration: sub.configuration ?? {},
           adminNote: sub.adminNote ?? null,
           includedUsageUnits,
+          overageAllowed: true,
           activatedAt,
           canceledAt,
         },
