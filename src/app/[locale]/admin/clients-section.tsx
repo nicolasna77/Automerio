@@ -1,3 +1,5 @@
+import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { ChevronRight } from "lucide-react";
 import type { Prisma } from "@prisma/client";
@@ -42,8 +44,9 @@ function ClientServices({
 }: {
   services: { id: string; name: string; status: ClientServiceStatus }[];
 }) {
+  const t = useTranslations("Admin.clients");
   if (services.length === 0) {
-    return <span className="text-sm text-muted-foreground">Aucune solution</span>;
+    return <span className="text-sm text-muted-foreground">{t("noServices")}</span>;
   }
   return (
     <ul className="flex flex-col gap-1.5">
@@ -92,7 +95,8 @@ export async function ClientsSection({
           : {}),
   };
 
-  const [total, clients] = await Promise.all([
+  const [t, total, clients] = await Promise.all([
+    getTranslations("Admin.clients"),
     db.user.count({ where }),
     db.user.findMany({
       where,
@@ -121,7 +125,7 @@ export async function ClientsSection({
       <Card>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            Aucun client ne correspond à ces critères.
+            {t("empty")}
           </p>
         </CardContent>
       </Card>
@@ -134,16 +138,16 @@ export async function ClientsSection({
         <CardContent>
           <Table>
             <TableCaption className="sr-only">
-              Clients, du plus récent au plus ancien
+              {t("caption")}
             </TableCaption>
             <TableHeader>
               <TableRow>
-                <TableHead>Client</TableHead>
-                <TableHead>Organisation</TableHead>
-                <TableHead>Solutions</TableHead>
-                <TableHead className="text-right">Inscription</TableHead>
+                <TableHead>{t("columns.client")}</TableHead>
+                <TableHead>{t("columns.organization")}</TableHead>
+                <TableHead>{t("columns.services")}</TableHead>
+                <TableHead className="text-right">{t("columns.signup")}</TableHead>
                 <TableHead>
-                  <span className="sr-only">Fiche</span>
+                  <span className="sr-only">{t("columns.profile")}</span>
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -171,7 +175,7 @@ export async function ClientsSection({
                   <TableCell className="w-10 text-right">
                     <Link
                       href={`/admin/users/${client.id}`}
-                      aria-label={`Ouvrir la fiche de ${client.name}`}
+                      aria-label={t("openProfile", { name: client.name })}
                       className="inline-flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                     >
                       <ChevronRight className="size-4" aria-hidden="true" />
@@ -215,7 +219,7 @@ export async function ClientsSection({
         totalPages={totalPages}
         basePath="/admin"
         params={pageParams}
-        label="Pagination des clients"
+        label={t("pagination")}
       />
     </div>
   );

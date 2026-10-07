@@ -1,5 +1,6 @@
 import { titleMetadata } from "@/i18n/metadata";
 import { Link } from "@/i18n/navigation";
+import { getTranslations } from "next-intl/server";
 import { Building2 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,10 +8,12 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
-import { roleLabel } from "@/lib/organization-roles";
 import { AcceptInvitation } from "./accept-invitation";
 
 export const dynamic = "force-dynamic";
+
+const ROLES = ["owner", "admin", "member"] as const;
+type Role = (typeof ROLES)[number];
 
 export const generateMetadata = titleMetadata("invitation");
 
@@ -20,7 +23,9 @@ export default async function InvitationPage({
   params: Promise<{ invitationId: string }>;
 }) {
   const { invitationId } = await params;
-  const [session, invitation] = await Promise.all([
+  const [t, tLabels, session, invitation] = await Promise.all([
+    getTranslations("Invitation"),
+    getTranslations("Labels"),
     getSession(),
     db.invitation.findUnique({
       where: { id: invitationId },
@@ -37,6 +42,8 @@ export default async function InvitationPage({
 
   const usable =
     invitation && invitation.status === "pending" && invitation.expiresAt > new Date();
+  const role = invitation?.role ?? "member";
+  const roleName = ROLES.includes(role as Role) ? tLabels(`role.${role as Role}`) : role;
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -47,28 +54,28 @@ export default async function InvitationPage({
             <Card>
               <CardHeader className="flex flex-row items-center gap-2 space-y-0">
                 <Building2 className="size-4 text-muted-foreground" aria-hidden="true" />
-                <CardTitle className="text-base">
-                  {usable ? invitation.organization.name : "Invitation"}
+                <CardTitle as="h1" className="text-base">
+                  {usable ? invitation.organization.name : t("title")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-5">
                 {!usable ? (
                   <>
                     <p className="text-sm text-muted-foreground">
-                      Cette invitation n&apos;est plus valable : elle a peut-être
-                      déjà été acceptée, annulée, ou elle a expiré. Demandez à la
-                      personne qui vous a invité de vous en envoyer une nouvelle.
+                      {t("unusable")}
                     </p>
                     <Link href="/" className={buttonVariants({ variant: "outline" })}>
-                      Retour à l&apos;accueil
+                      {t("backHome")}
                     </Link>
                   </>
                 ) : (
                   <>
                     <p className="text-sm text-foreground">
-                      Vous êtes invité à rejoindre{" "}
-                      <strong>{invitation.organization.name}</strong> en tant que{" "}
-                      {roleLabel(invitation.role ?? "member").toLowerCase()}.
+                      {t.rich("invited", {
+                        organization: invitation.organization.name,
+                        role: roleName.toLowerCase(),
+                        strong: (chunks) => <strong>{chunks}</strong>,
+                      })}
                     </p>
                     {session ? (
                       <AcceptInvitation
@@ -83,22 +90,20 @@ export default async function InvitationPage({
                     ) : (
                       <div className="space-y-3">
                         <p className="text-sm text-muted-foreground">
-                          Connectez-vous avec {invitation.email}, ou créez votre
-                          compte avec cette adresse, pour rejoindre
-                          l&apos;entreprise.
+                          {t("signInPrompt", { email: invitation.email })}
                         </p>
                         <div className="flex flex-wrap gap-2">
                           <Link
                             href={`/signup?invitation=${invitation.id}`}
                             className={buttonVariants()}
                           >
-                            Créer mon compte
+                            {t("createAccount")}
                           </Link>
                           <Link
                             href={`/login?invitation=${invitation.id}`}
                             className={buttonVariants({ variant: "outline" })}
                           >
-                            J&apos;ai déjà un compte
+                            {t("haveAccount")}
                           </Link>
                         </div>
                       </div>

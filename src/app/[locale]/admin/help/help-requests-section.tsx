@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Building2 } from "lucide-react";
 import type { HelpRequestStatus, Prisma } from "@prisma/client";
@@ -12,7 +13,8 @@ import {
 import { PaginationNav } from "@/components/pagination-nav";
 import { db } from "@/lib/db";
 import { formatDate } from "@/lib/catalog";
-import { HELP_REQUEST_STATUS_LABELS, toHelpRequestMessageDTOs } from "@/lib/help";
+import { toHelpRequestMessageDTOs } from "@/lib/help";
+import { getLabels } from "@/lib/labels-server";
 import { HelpRequestThread } from "@/components/help-request-thread";
 import { HelpRequestReplyForm } from "./help-request-reply-form";
 import { HelpRequestStatusButton } from "./help-request-status-button";
@@ -39,7 +41,9 @@ export async function HelpRequestsSection({
   const where: Prisma.HelpRequestWhereInput =
     statusFilter === "all" ? {} : { status: statusFilter };
 
-  const [total, requests] = await Promise.all([
+  const [t, labels, total, requests] = await Promise.all([
+    getTranslations("Admin.help"),
+    getLabels(),
     db.helpRequest.count({ where }),
     db.helpRequest.findMany({
       where,
@@ -69,7 +73,7 @@ export async function HelpRequestsSection({
       <div className="space-y-4">
         {requests.length === 0 && (
           <p className="text-sm text-muted-foreground">
-            Aucune demande ne correspond à ces critères.
+            {t("empty")}
           </p>
         )}
         {requests.map((r) => (
@@ -83,7 +87,7 @@ export async function HelpRequestsSection({
                       name="helpRequestIds"
                       value={r.id}
                       form={BULK_FORM_ID}
-                      aria-label={`Sélectionner « ${r.subject} »`}
+                      aria-label={t("select", { subject: r.subject })}
                       className="mt-1.5 size-4 shrink-0 accent-primary"
                     />
                   )}
@@ -106,10 +110,10 @@ export async function HelpRequestsSection({
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   <Badge variant="outline">
-                    {r.clientService ? r.clientService.name : "Question générale"}
+                    {r.clientService ? r.clientService.name : t("general")}
                   </Badge>
                   <Badge variant={r.status === "OPEN" ? "default" : "secondary"}>
-                    {HELP_REQUEST_STATUS_LABELS[r.status]}
+                    {labels.helpStatus(r.status)}
                   </Badge>
                 </div>
               </div>
@@ -122,8 +126,8 @@ export async function HelpRequestsSection({
               <HelpRequestReplyForm helpRequestId={r.id} />
               <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
                 <p className="text-xs text-muted-foreground">
-                  Reçue le {formatDate(r.createdAt)}
-                  {r.resolvedAt && ` · Traitée le ${formatDate(r.resolvedAt)}`}
+                  {t("receivedOn", { date: formatDate(r.createdAt) })}
+                  {r.resolvedAt && t("resolvedOn", { date: formatDate(r.resolvedAt) })}
                 </p>
                 <HelpRequestStatusButton helpRequestId={r.id} status={r.status} />
               </div>
@@ -137,7 +141,7 @@ export async function HelpRequestsSection({
         totalPages={totalPages}
         basePath="/admin/help"
         params={{ status: rawStatus }}
-        label="Pagination des demandes"
+        label={t("pagination")}
       />
     </div>
   );

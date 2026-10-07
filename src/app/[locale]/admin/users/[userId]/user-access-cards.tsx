@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RoleSelector } from "../role-selector";
 import { BanControl } from "../ban-control";
@@ -10,16 +11,17 @@ export function UserAccessCards({
   user: { id: string; role: string | null; banned: boolean | null; banReason: string | null };
   isSelf: boolean;
 }) {
+  const t = useTranslations("Admin.userDetail.access");
   return (
     <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Rôle</CardTitle>
+          <CardTitle className="text-base">{t("role")}</CardTitle>
         </CardHeader>
         <CardContent>
           {isSelf ? (
             <p className="text-sm text-muted-foreground">
-              Vous ne pouvez pas modifier votre propre rôle.
+              {t("cannotChangeOwnRole")}
             </p>
           ) : (
             <RoleSelector
@@ -32,12 +34,12 @@ export function UserAccessCards({
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Accès au compte</CardTitle>
+          <CardTitle className="text-base">{t("account")}</CardTitle>
         </CardHeader>
         <CardContent>
           {isSelf ? (
             <p className="text-sm text-muted-foreground">
-              Vous ne pouvez pas vous bannir vous-même.
+              {t("cannotBanSelf")}
             </p>
           ) : (
             <BanControl
@@ -51,13 +53,12 @@ export function UserAccessCards({
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Mot de passe</CardTitle>
+          <CardTitle className="text-base">{t("password")}</CardTitle>
         </CardHeader>
         <CardContent>
           {isSelf ? (
             <p className="text-sm text-muted-foreground">
-              Vous ne pouvez pas réinitialiser votre propre mot de passe
-              ici.
+              {t("cannotResetOwnPassword")}
             </p>
           ) : (
             <PasswordResetControl userId={user.id} />

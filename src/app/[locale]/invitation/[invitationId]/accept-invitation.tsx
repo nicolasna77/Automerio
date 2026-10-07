@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
@@ -19,15 +20,14 @@ export function AcceptInvitation({
   addressedToAnotherAccount: boolean;
   invitedEmail: string;
 }) {
+  const t = useTranslations("Invitation");
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
   if (addressedToAnotherAccount) {
     return (
       <p className="text-sm text-muted-foreground">
-        Cette invitation a été envoyée à {invitedEmail}, et vous êtes connecté
-        avec une autre adresse. Déconnectez-vous, puis reprenez ce lien depuis le
-        compte invité.
+        {t("otherAccount", { email: invitedEmail })}
       </p>
     );
   }
@@ -36,17 +36,17 @@ export function AcceptInvitation({
     startTransition(async () => {
       try {
         unwrap(await acceptInvitationAction(invitationId));
-        toast.success(`Vous avez rejoint ${organizationName}.`);
+        toast.success(t("joined", { organization: organizationName }));
         router.push("/dashboard");
       } catch (err) {
-        toast.error(getErrorMessage(err, "L'invitation n'a pas pu être acceptée."));
+        toast.error(getErrorMessage(err, t("acceptFailed")));
       }
     });
   }
 
   return (
     <Button onClick={handleAccept} disabled={pending}>
-      {pending ? "En cours…" : `Rejoindre ${organizationName}`}
+      {pending ? t("joining") : t("join", { organization: organizationName })}
     </Button>
   );
 }

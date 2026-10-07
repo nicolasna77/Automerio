@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "@/lib/toast";
 import { Loader2, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import { getErrorMessage } from "@/lib/utils";
 import { replyToHelpRequest } from "./actions";
 
 export function HelpRequestReplyForm({ helpRequestId }: { helpRequestId: string }) {
+  const t = useTranslations("Admin.help.reply");
   const [body, setBody] = useState("");
   const [isPending, startTransition] = useTransition();
 
@@ -17,7 +19,7 @@ export function HelpRequestReplyForm({ helpRequestId }: { helpRequestId: string 
     startTransition(async () => {
       try {
         unwrap(await replyToHelpRequest(helpRequestId, body));
-        toast.success("Réponse envoyée au client.");
+        toast.success(t("sent"));
         setBody("");
       } catch (err) {
         toast.error(getErrorMessage(err));
@@ -28,12 +30,12 @@ export function HelpRequestReplyForm({ helpRequestId }: { helpRequestId: string 
   return (
     <div className="mt-4 space-y-2">
       <label className="sr-only" htmlFor={`reply-${helpRequestId}`}>
-        Répondre au client
+        {t("label")}
       </label>
       <Textarea
         id={`reply-${helpRequestId}`}
         rows={3}
-        placeholder="Répondre au client…"
+        placeholder={t("placeholder")}
         value={body}
         onChange={(e) => setBody(e.target.value)}
         disabled={isPending}
@@ -50,7 +52,7 @@ export function HelpRequestReplyForm({ helpRequestId }: { helpRequestId: string 
         ) : (
           <Send aria-hidden="true" data-icon="inline-start" />
         )}
-        Envoyer la réponse
+        {t("send")}
       </Button>
     </div>
   );

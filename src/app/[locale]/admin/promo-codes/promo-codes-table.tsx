@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -25,26 +26,20 @@ export type PromoCodeRow = {
   expiresAt: Date | null;
 };
 
-const STATE_LABELS: Record<PromoCodeState, string> = {
-  active: "Actif",
-  expired: "Expiré",
-  exhausted: "Épuisé",
-  inactive: "Désactivé",
-};
-
 export function PromoCodesTable({ rows }: { rows: PromoCodeRow[] }) {
+  const t = useTranslations("Admin.promoCodes");
   return (
     <Table>
-      <TableCaption className="sr-only">Codes promo</TableCaption>
+      <TableCaption className="sr-only">{t("caption")}</TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead>Code</TableHead>
-          <TableHead>Remise</TableHead>
-          <TableHead>Conditions</TableHead>
-          <TableHead className="text-right">Utilisations</TableHead>
-          <TableHead>Expire le</TableHead>
-          <TableHead>État</TableHead>
-          <TableHead className="text-right">Action</TableHead>
+          <TableHead>{t("columns.code")}</TableHead>
+          <TableHead>{t("columns.discount")}</TableHead>
+          <TableHead>{t("columns.conditions")}</TableHead>
+          <TableHead className="text-right">{t("columns.uses")}</TableHead>
+          <TableHead>{t("columns.expires")}</TableHead>
+          <TableHead>{t("columns.state")}</TableHead>
+          <TableHead className="text-right">{t("columns.action")}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -56,10 +51,10 @@ export function PromoCodesTable({ rows }: { rows: PromoCodeRow[] }) {
             <TableCell className="font-medium text-foreground">{row.code}</TableCell>
             <TableCell className="min-w-56 whitespace-normal">{row.discount}</TableCell>
             <TableCell className="min-w-44 whitespace-normal text-sm">
-              {row.services === null ? "Toutes les solutions" : row.services.join(", ")}
+              {row.services === null ? t("allServices") : row.services.join(", ")}
               {row.firstTimeOnly && (
                 <span className="block text-xs text-muted-foreground">
-                  Nouveaux clients seulement
+                  {t("newCustomersOnly")}
                 </span>
               )}
             </TableCell>
@@ -71,7 +66,7 @@ export function PromoCodesTable({ rows }: { rows: PromoCodeRow[] }) {
             <TableCell>{row.expiresAt ? formatDate(row.expiresAt) : "—"}</TableCell>
             <TableCell>
               <Badge variant={row.state === "active" ? "secondary" : "outline"}>
-                {STATE_LABELS[row.state]}
+                {t(`states.${row.state}`)}
               </Badge>
             </TableCell>
             <TableCell className="text-right">

@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { PaginationNav } from "@/components/pagination-nav";
@@ -39,33 +40,34 @@ export function UserSessionsTable({
   page: number;
   totalPages: number;
 }) {
+  const t = useTranslations("Admin.userDetail.sessions");
   return (
     <section className="mt-10">
       <h2 className="mb-3 text-lg font-semibold text-foreground">
-        Sessions (historique de connexion)
+        {t("heading")}
       </h2>
       <Card>
         {sessions.length === 0 ? (
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Aucune session enregistrée.
+              {t("empty")}
             </p>
           </CardContent>
         ) : (
           <CardContent>
             <Table>
               <TableCaption className="sr-only">
-                Sessions de {userName}
+                {t("caption", { name: userName })}
               </TableCaption>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Connecté le</TableHead>
-                  <TableHead>État</TableHead>
-                  <TableHead>Expire le</TableHead>
-                  <TableHead>Adresse IP</TableHead>
-                  <TableHead>Appareil</TableHead>
+                  <TableHead>{t("columns.connectedOn")}</TableHead>
+                  <TableHead>{t("columns.state")}</TableHead>
+                  <TableHead>{t("columns.expiresOn")}</TableHead>
+                  <TableHead>{t("columns.ip")}</TableHead>
+                  <TableHead>{t("columns.device")}</TableHead>
                   <TableHead className="sticky right-0 border-l border-border bg-card text-right">
-                    Action
+                    {t("columns.action")}
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -75,7 +77,7 @@ export function UserSessionsTable({
                     <TableCell>{formatDate(s.createdAt)}</TableCell>
                     <TableCell>
                       <Badge variant={s.expired ? "outline" : "secondary"}>
-                        {s.expired ? "Expirée" : "Active"}
+                        {s.expired ? t("expired") : t("active")}
                       </Badge>
                     </TableCell>
                     <TableCell>{formatDate(s.expiresAt)}</TableCell>
@@ -105,7 +107,7 @@ export function UserSessionsTable({
               totalPages={totalPages}
               basePath={`/admin/users/${userId}`}
               params={{}}
-              label="Pagination des sessions"
+              label={t("pagination")}
             />
           </CardContent>
         )}
