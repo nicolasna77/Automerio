@@ -25,6 +25,7 @@ export function SolutionsTable({
       >
         <span className="pl-9">{t("columns.service")}</span>
         <span>{t("columns.status")}</span>
+        <span>{t("columns.quota")}</span>
         <span className="text-right">{t("columns.price")}</span>
         <span />
       </div>

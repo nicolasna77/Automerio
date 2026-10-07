@@ -1106,7 +1106,8 @@
         "columns": {
           "service": "Solution",
           "status": "Statut",
-          "price": "Tarif"
+          "price": "Tarif",
+          "quota": "Quota"
         },
         "numberLabel": "Numéro : ",
         "seeDetail": ", voir le détail",
@@ -1116,7 +1117,8 @@
         "teamNote": "Note de l'équipe : ",
         "serviceNamePrefix": "{name}. ",
         "quotaUsage": "<em>{consumed}</em> / {included}",
-        "quotaOver": "+{units} hors forfait"
+        "quotaOver": "+{units} hors forfait",
+        "noQuota": "Pas de forfait pour cette solution"
       }
     },
     "checkout": {

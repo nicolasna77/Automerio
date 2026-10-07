@@ -14,11 +14,11 @@ import { ServiceSettingsButton } from "./service-settings-button";
 import { UsageCounter } from "./usage-counter";
 import { QuotaMeter, type QuotaState } from "./quota-meter";
 
-// Colonnes partagées avec l'en-tête du tableau (MyServices) :
-// solution, statut, tarif, réglages et menu d'actions. Le numéro, propre à
-// la téléphonie, s'affiche sous le nom plutôt que dans une colonne vide
-// pour toutes les autres solutions.
-export const SOLUTION_COLUMNS = "minmax(0,1fr) 9.5rem 8.5rem 4.75rem";
+// Colonnes partagées avec l'en-tête du tableau (SolutionsTable) : solution,
+// statut, quota, tarif, puis réglages et menu d'actions. Le numéro, propre à
+// la téléphonie, s'affiche sous le nom plutôt que dans une colonne vide pour
+// toutes les autres solutions.
+export const SOLUTION_COLUMNS = "minmax(0,1fr) 9rem 12rem 8.5rem 4.75rem";
 
 // Une solution dans la liste : toute la ligne ouvre le détail ; les actions
 // secondaires : les réglages ont leur bouton, la résiliation reste dans « ⋯ ».
@@ -83,22 +83,29 @@ export function MyServiceRow({
                 </p>
               )}
             </div>
-            {quota && (
-              <div className="mt-3">
-                <QuotaMeter cap={quota.cap} consumedUnits={quota.consumedUnits} />
-              </div>
-            )}
-            {showCallCount && (
-              <div className="mt-1.5 text-muted-foreground">
-                <UsageCounter clientServiceId={item.clientServiceId} variant="inline" />
-              </div>
-            )}
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pl-9 md:contents">
           <div>
             <StatusBadge status={status} />
+          </div>
+
+          {/* Colonne Quota : alignée d'une ligne à l'autre sur ordinateur ; sur
+              mobile, en pleine largeur sous le statut et le tarif. */}
+          <div className="order-last basis-full md:order-none md:basis-auto">
+            {quota ? (
+              <QuotaMeter cap={quota.cap} consumedUnits={quota.consumedUnits} />
+            ) : showCallCount ? (
+              <div className="text-muted-foreground">
+                <UsageCounter clientServiceId={item.clientServiceId} variant="inline" />
+              </div>
+            ) : (
+              <span className="hidden text-sm text-muted-foreground md:inline">
+                <span aria-hidden="true">—</span>
+                <span className="sr-only">{t("noQuota")}</span>
+              </span>
+            )}
           </div>
 
           <div className="md:text-right">
