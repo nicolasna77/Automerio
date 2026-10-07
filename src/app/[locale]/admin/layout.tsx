@@ -20,13 +20,27 @@ export default async function AdminLayout({
     where: { id: session.user.id },
     select: { notificationsSeenAt: true, twoFactorEnabled: true },
   });
-  const [notifications, t] = await Promise.all([
+  const [notifications, t, tNav, tTitles] = await Promise.all([
     getAdminNotifications(viewer?.notificationsSeenAt ?? null),
     getTranslations("Admin.layout"),
+    getTranslations("Admin.nav"),
+    getTranslations("PageTitles"),
   ]);
 
   return (
     <WorkspaceLayout
+      breadcrumbRoot={{ label: tTitles("admin"), href: "/admin" }}
+      breadcrumbPages={{
+        "/admin": tNav("overview"),
+        "/admin/users": tNav("users"),
+        "/admin/waitlist": tNav("waitlist"),
+        "/admin/help": tNav("help"),
+        "/admin/services": tNav("services"),
+        "/admin/promo-codes": tNav("promoCodes"),
+        "/admin/marketing": tNav("marketing"),
+        "/admin/calendar": tNav("calendar"),
+        "/admin/audit-log": tNav("auditLog"),
+      }}
       sidebar={
         <AdminSidebar
           openHelpRequestCount={openHelpRequestCount}
