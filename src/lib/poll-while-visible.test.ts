@@ -104,4 +104,48 @@ describe("pollWhileVisible", () => {
     expect(onStalledChange).toHaveBeenLastCalledWith(false);
     stop();
   });
+
+  it("annonce l'état initial, même hors ligne dès le départ", () => {
+    vi.stubGlobal("window", new EventTarget());
+    vi.stubGlobal("navigator", { onLine: false });
+    const tick = vi.fn();
+    const onStalledChange = vi.fn();
+    const stop = pollWhileVisible(tick, 1000, onStalledChange, true);
+    expect(onStalledChange).toHaveBeenCalledWith(true);
+    expect(tick).not.toHaveBeenCalled();
+    stop();
+
+    vi.stubGlobal("navigator", { onLine: true });
+    const onStalledChangeOnline = vi.fn();
+    const stopOnline = pollWhileVisible(tick, 1000, onStalledChangeOnline);
+    expect(onStalledChangeOnline).toHaveBeenCalledWith(false);
+    stopOnline();
+  });
+
+  it("compte l'échec du premier appel immédiat", async () => {
+    const tick = vi.fn(async () => false);
+    const onStalledChange = vi.fn();
+    const stop = pollWhileVisible(tick, 1000, onStalledChange, true);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(tick).toHaveBeenCalledTimes(1);
+    expect(onStalledChange).toHaveBeenLastCalledWith(true);
+    await vi.advanceTimersByTimeAsync(1999);
+    expect(tick).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(tick).toHaveBeenCalledTimes(2);
+    stop();
+  });
+
+  it("ne démarre jamais deux chaînes d'appels en parallèle", async () => {
+    const tick = vi.fn();
+    const stop = pollWhileVisible(tick, 1000);
+    vi.advanceTimersByTime(500);
+    setHidden(false); // retour au premier plan pendant l'attente
+    expect(tick).toHaveBeenCalledTimes(1);
+    vi.advanceTimersByTime(1000);
+    expect(tick).toHaveBeenCalledTimes(2);
+    vi.advanceTimersByTime(1000);
+    expect(tick).toHaveBeenCalledTimes(3);
+    stop();
+  });
 });

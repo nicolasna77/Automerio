@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { getSession } from "@/lib/session";
@@ -57,6 +58,9 @@ export const getActiveOrganizationContext = cache(
 
 export async function requireActiveOrganization(): Promise<ActiveOrganizationContext> {
   const ctx = await getActiveOrganizationContext();
+  // Session expirée : retour à la connexion, comme requireUser (y compris
+  // depuis une Server Action, où runAction laisse passer la redirection).
+  if (!ctx && !(await getSession())) redirect("/login");
   if (!ctx) throw new Error("Aucune organisation trouvée pour ce compte.");
   return ctx;
 }

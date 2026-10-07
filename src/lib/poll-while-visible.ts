@@ -4,8 +4,10 @@
 // `false`, directement ou via une promesse : l'intervalle double alors à chaque
 // échec, jusqu'à huit fois sa durée, puis revient à la normale au premier
 // succès. Hors ligne, rien n'est envoyé ; la reprise est immédiate au retour
-// du réseau. `onStalledChange` prévient l'interface quand l'actualisation
-// cesse de fonctionner, et quand elle repart.
+// du réseau. `onStalledChange` reçoit l'état initial au démarrage, puis
+// chaque changement : l'actualisation cesse de fonctionner, ou repart.
+// `immediate` lance le premier appel tout de suite au lieu d'attendre un
+// intervalle ; son échec compte comme les suivants.
 export type PollTick = () => void | boolean | Promise<void | boolean>;
 
 const MAX_BACKOFF_FACTOR = 8;
@@ -13,13 +15,14 @@ const MAX_BACKOFF_FACTOR = 8;
 export function pollWhileVisible(
   tick: PollTick,
   intervalMs: number,
-  onStalledChange?: (stalled: boolean) => void
+  onStalledChange?: (stalled: boolean) => void,
+  immediate = false
 ): () => void {
   let timer: ReturnType<typeof setTimeout> | undefined;
   let stopped = false;
   let inFlight = false;
   let failures = 0;
-  let stalled = false;
+  let stalled: boolean | undefined;
 
   const isOffline = () => typeof navigator !== "undefined" && navigator.onLine === false;
 
@@ -53,8 +56,12 @@ export function pollWhileVisible(
   };
 
   function run() {
-    timer = undefined;
+    clear();
     if (stopped || inFlight) return;
+    if (isOffline()) {
+      report();
+      return;
+    }
     let result: ReturnType<PollTick>;
     try {
       result = tick();
@@ -86,7 +93,9 @@ export function pollWhileVisible(
     report();
   };
 
-  schedule();
+  report();
+  if (immediate && !document.hidden) run();
+  else schedule();
   document.addEventListener("visibilitychange", onVisibilityChange);
   if (typeof window !== "undefined") {
     window.addEventListener("online", onOnline);

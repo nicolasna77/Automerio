@@ -337,8 +337,7 @@ export function CallActivity({ clientServiceId }: { clientServiceId: string }) {
       }
     }
 
-    poll();
-    const stopPolling = pollWhileVisible(poll, POLL_INTERVAL_MS, setStalled);
+    const stopPolling = pollWhileVisible(poll, POLL_INTERVAL_MS, setStalled, true);
     return () => {
       cancelled = true;
       stopPolling();
@@ -374,14 +373,13 @@ export function CallActivity({ clientServiceId }: { clientServiceId: string }) {
 
   if (!data) {
     return (
-      <div
-        role="status"
-        aria-label={t("loading")}
-        className="space-y-2"
-      >
-        <Skeleton className="h-4 w-40" />
-        <Skeleton className="h-14 w-full rounded-2xl" />
-        <Skeleton className="h-14 w-full rounded-2xl" />
+      <div className="space-y-2">
+        <PollingStatus stalled={stalled} />
+        <div role="status" aria-label={t("loading")} className="space-y-2">
+          <Skeleton className="h-4 w-40" />
+          <Skeleton className="h-14 w-full rounded-2xl" />
+          <Skeleton className="h-14 w-full rounded-2xl" />
+        </div>
       </div>
     );
   }

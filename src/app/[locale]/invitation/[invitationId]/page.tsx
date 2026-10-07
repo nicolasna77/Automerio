@@ -8,12 +8,11 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/session";
+import { getLabels } from "@/lib/labels-server";
 import { AcceptInvitation } from "./accept-invitation";
 
 export const dynamic = "force-dynamic";
 
-const ROLES = ["owner", "admin", "member"] as const;
-type Role = (typeof ROLES)[number];
 
 export const generateMetadata = titleMetadata("invitation");
 
@@ -23,9 +22,9 @@ export default async function InvitationPage({
   params: Promise<{ invitationId: string }>;
 }) {
   const { invitationId } = await params;
-  const [t, tLabels, session, invitation] = await Promise.all([
+  const [t, labels, session, invitation] = await Promise.all([
     getTranslations("Invitation"),
-    getTranslations("Labels"),
+    getLabels(),
     getSession(),
     db.invitation.findUnique({
       where: { id: invitationId },
@@ -43,7 +42,7 @@ export default async function InvitationPage({
   const usable =
     invitation && invitation.status === "pending" && invitation.expiresAt > new Date();
   const role = invitation?.role ?? "member";
-  const roleName = ROLES.includes(role as Role) ? tLabels(`role.${role as Role}`) : role;
+  const roleName = labels.role(role);
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
