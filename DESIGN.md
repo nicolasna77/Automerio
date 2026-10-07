@@ -41,8 +41,9 @@ Aucun dégradé, aucun halo, aucune trame décorative.
 Seule exception, le hero de l'accueil : une trame de lignes fines (1 px, couleur
 `--border`) avec un point à chaque croisement, et la capture du produit qui
 s'efface vers le bas par un masque de transparence (pas de dégradé de couleur).
-Des traits fins (1 px, vert de la marque, dégradé vers le transparent) y
-descendent lentement le long des lignes verticales de la trame.
+Des traits fins (1 px, vert de la marque, une tête vive et une traînée plus
+pâle) suivent lentement les lignes de la trame : ils descendent, tournent à un
+croisement, longent une ligne horizontale puis redescendent.
 Nulle part ailleurs.
 
 ## Typographie
@@ -181,7 +182,7 @@ Seules animations autorisées :
 - transition de couleur ou d'opacité au survol et au clic (150 ms) ;
 - ouverture et fermeture des fenêtres et menus (fondu court) ;
 - indicateur de chargement (rotation) et squelette de chargement ;
-- traits lumineux de la trame du hero de l'accueil (descente lente, en boucle).
+- traits lumineux de la trame du hero de l'accueil (parcours lent le long des lignes, en boucle).
 
 Pas d'animation au défilement, de parallaxe, de pulsation ni d'effet « radar ».
 Le réglage système « réduire les animations » coupe tout mouvement.
