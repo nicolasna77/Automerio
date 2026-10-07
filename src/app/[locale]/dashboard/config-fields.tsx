@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,12 +35,12 @@ import {
 import { TEMPLATE_FIELDS } from "@/content/fr/call-templates";
 import { AddressField } from "./address-field";
 
-const DEFAULT_SECTION = "Détail de la solution";
+type ConfigFieldsT = ReturnType<typeof useTranslations<"Dashboard.configFields">>;
 
-function groupBySection(fields: ConfigField[]): [string, ConfigField[]][] {
+function groupBySection(fields: ConfigField[], defaultSection: string): [string, ConfigField[]][] {
   const groups = new Map<string, ConfigField[]>();
   for (const field of fields) {
-    const section = field.section ?? DEFAULT_SECTION;
+    const section = field.section ?? defaultSection;
     const existing = groups.get(section);
     if (existing) existing.push(field);
     else groups.set(section, [field]);
@@ -48,10 +49,8 @@ function groupBySection(fields: ConfigField[]): [string, ConfigField[]][] {
 }
 
 // Dit quoi faire, pas seulement que ça manque.
-function requiredMessage(field: ConfigField): string {
-  return field.type === "multiselect"
-    ? "Choisissez au moins une option pour continuer."
-    : `Renseignez « ${field.label} » pour continuer.`;
+function requiredMessage(field: ConfigField, t: ConfigFieldsT): string {
+  return field.type === "multiselect" ? t("chooseOne") : t("required", { label: field.label });
 }
 
 function renderFieldInput({
@@ -242,6 +241,7 @@ export function ConfigFieldsForm({
   // Nom repris dans les modèles de textes (« Bonjour, vous êtes bien chez … »).
   companyName?: string;
 }) {
+  const t = useTranslations("Dashboard.configFields");
   const [touched, setTouched] = useState<Set<string>>(new Set());
   const visibleFields = fields.filter(
     (field) => !omitKeys.includes(field.key) && isFieldVisible(field, values)
@@ -252,7 +252,7 @@ export function ConfigFieldsForm({
     setTouched((prev) => (prev.has(key) ? prev : new Set(prev).add(key)));
   }
 
-  const sections = groupBySection(visibleFields);
+  const sections = groupBySection(visibleFields, t("defaultSection"));
   const showHeadings = sections.length > 1;
 
   return (
@@ -305,7 +305,7 @@ export function ConfigFieldsForm({
                   </label>
                   {hasError ? (
                     <p className="pl-6 text-xs text-destructive">
-                      Cochez cette case pour continuer.
+                      {t("checkToContinue")}
                     </p>
                   ) : (
                     field.helpText && (
@@ -335,7 +335,7 @@ export function ConfigFieldsForm({
                         *
                       </span>
                     ) : (
-                      <span className="font-normal text-muted-foreground"> (facultatif)</span>
+                      <span className="font-normal text-muted-foreground">{t("optional")}</span>
                     )}
                   </Label>
                   {field.type === "textarea" && TEMPLATE_FIELDS[field.key] && (
@@ -366,7 +366,7 @@ export function ConfigFieldsForm({
                       hasError ? "text-destructive" : "text-muted-foreground"
                     )}
                   >
-                    {hasError ? requiredMessage(field) : field.helpText}
+                    {hasError ? requiredMessage(field, t) : field.helpText}
                   </p>
                 )}
               </div>

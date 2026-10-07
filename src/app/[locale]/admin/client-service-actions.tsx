@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn, getErrorMessage } from "@/lib/utils";
@@ -15,25 +15,22 @@ import {
   updateServiceNote,
 } from "./actions";
 
+type EditorKey = "noteEditor" | "phone" | "whatsapp" | "facebook" | "instagram";
+
 function InlineFieldEditor({
   id,
-  label,
+  messages,
   value: initialValue,
-  placeholder,
   inputClassName,
-  successMessage,
-  saveLabel,
   onSave,
 }: {
   id: string;
-  label: string;
+  messages: EditorKey;
   value: string;
-  placeholder?: string;
   inputClassName?: string;
-  successMessage: string;
-  saveLabel: string;
   onSave: (value: string) => Promise<void>;
 }) {
+  const t = useTranslations("Admin.clientService");
   const [value, setValue] = useState(initialValue);
   const [isPending, startTransition] = useTransition();
 
@@ -41,7 +38,7 @@ function InlineFieldEditor({
     startTransition(async () => {
       try {
         await onSave(value);
-        toast.success(successMessage);
+        toast.success(t(`${messages}.saved`));
       } catch (err) {
         toast.error(getErrorMessage(err));
       }
@@ -51,7 +48,7 @@ function InlineFieldEditor({
   return (
     <div className="flex items-center gap-1.5">
       <label className="sr-only" htmlFor={id}>
-        {label}
+        {t(`${messages}.label`)}
       </label>
       <Input
         id={id}
@@ -62,7 +59,7 @@ function InlineFieldEditor({
           e.preventDefault();
           handleSave();
         }}
-        placeholder={placeholder}
+        placeholder={t(`${messages}.placeholder`)}
         className={cn("h-8 text-xs", inputClassName)}
         disabled={isPending}
       />
@@ -71,15 +68,10 @@ function InlineFieldEditor({
         size="xs"
         variant="outline"
         onClick={handleSave}
-        disabled={isPending}
-        aria-busy={isPending}
+        loading={isPending}
       >
-        {isPending ? (
-          <Loader2 className="animate-spin" aria-hidden="true" />
-        ) : (
-          "OK"
-        )}
-        <span className="sr-only">{saveLabel}</span>
+        {!isPending && t("ok")}
+        <span className="sr-only">{t(`${messages}.save`)}</span>
       </Button>
     </div>
   );
@@ -95,12 +87,9 @@ export function NoteEditor({
   return (
     <InlineFieldEditor
       id={`note-${clientServiceId}`}
-      label="Note pour le client"
+      messages="noteEditor"
       value={initialNote}
-      placeholder="Ex. Connexion de l'agenda en cours…"
       inputClassName="min-w-48"
-      successMessage="Note enregistrée."
-      saveLabel="Enregistrer la note"
       onSave={(value) => updateServiceNote(clientServiceId, value)}
     />
   );
@@ -116,12 +105,9 @@ export function PhoneNumberEditor({
   return (
     <InlineFieldEditor
       id={`phone-${clientServiceId}`}
-      label="Numéro Twilio"
+      messages="phone"
       value={initialPhoneNumber}
-      placeholder="+33…"
       inputClassName="min-w-36"
-      successMessage="Numéro enregistré."
-      saveLabel="Enregistrer le numéro"
       onSave={(value) => setExternalPhoneNumber(clientServiceId, value)}
     />
   );
@@ -137,12 +123,9 @@ export function WhatsAppPhoneNumberEditor({
   return (
     <InlineFieldEditor
       id={`whatsapp-${clientServiceId}`}
-      label="Phone Number ID Meta"
+      messages="whatsapp"
       value={initialPhoneNumberId}
-      placeholder="ex. 109876543210987"
       inputClassName="min-w-36"
-      successMessage="Numéro WhatsApp connecté."
-      saveLabel="Enregistrer le numéro"
       onSave={(value) => setWhatsAppPhoneNumberId(clientServiceId, value)}
     />
   );
@@ -158,12 +141,9 @@ export function FacebookPageIdEditor({
   return (
     <InlineFieldEditor
       id={`facebook-${clientServiceId}`}
-      label="ID de la Page Facebook"
+      messages="facebook"
       value={initialPageId}
-      placeholder="ex. 109876543210987"
       inputClassName="min-w-36"
-      successMessage="Page Facebook connectée."
-      saveLabel="Enregistrer la Page"
       onSave={(value) => setFacebookPageId(clientServiceId, value)}
     />
   );
@@ -179,12 +159,9 @@ export function InstagramAccountIdEditor({
   return (
     <InlineFieldEditor
       id={`instagram-${clientServiceId}`}
-      label="ID du compte Instagram"
+      messages="instagram"
       value={initialAccountId}
-      placeholder="ex. 17841400000000000"
       inputClassName="min-w-36"
-      successMessage="Compte Instagram connecté."
-      saveLabel="Enregistrer le compte"
       onSave={(value) => setInstagramAccountId(clientServiceId, value)}
     />
   );
@@ -195,13 +172,14 @@ export function MarkActiveButton({
 }: {
   clientServiceId: string;
 }) {
+  const t = useTranslations("Admin.clientService");
   const [isPending, startTransition] = useTransition();
 
   function handleActivate() {
     startTransition(async () => {
       try {
         await markServiceActive(clientServiceId);
-        toast.success("Solution marquée active.");
+        toast.success(t("markedActive"));
       } catch (err) {
         toast.error(getErrorMessage(err));
       }
@@ -214,17 +192,9 @@ export function MarkActiveButton({
       size="sm"
       variant="outline"
       onClick={handleActivate}
-      disabled={isPending}
-      aria-busy={isPending}
+      loading={isPending}
     >
-      {isPending ? (
-        <>
-          <Loader2 className="animate-spin" aria-hidden="true" data-icon="inline-start" />
-          Activation…
-        </>
-      ) : (
-        "Marquer active"
-      )}
+      {isPending ? t("activating") : t("markActive")}
     </Button>
   );
 }

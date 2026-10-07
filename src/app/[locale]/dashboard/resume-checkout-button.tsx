@@ -1,8 +1,8 @@
 "use client";
 
 import { useId, useState, useTransition } from "react";
-import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -27,6 +27,8 @@ export function ResumeCheckoutButton({
   status: "PENDING_PAYMENT" | "CANCELED";
   fullWidth?: boolean;
 }) {
+  const t = useTranslations("Dashboard.checkout.resume");
+  const tCommon = useTranslations("Common");
   const codeFieldId = useId();
   const [isPending, startTransition] = useTransition();
   const [promoOpen, setPromoOpen] = useState(false);
@@ -49,18 +51,12 @@ export function ResumeCheckoutButton({
         className={cn(fullWidth && "w-full")}
         variant={status === "CANCELED" ? "outline" : "default"}
         onClick={() => resume(null)}
-        disabled={isPending}
-        aria-busy={isPending}
+        loading={isPending}
       >
-        {isPending ? (
-          <>
-            <Loader2 className="animate-spin" aria-hidden="true" data-icon="inline-start" />
-            Redirection…
-          </>
-        ) : status === "CANCELED" ? (
-          "Réactiver"
+        {isPending ? t("redirecting") : status === "CANCELED" ? (
+          t("reactivate")
         ) : (
-          "Reprendre le paiement"
+          t("resume")
         )}
       </Button>
       <Button
@@ -69,7 +65,7 @@ export function ResumeCheckoutButton({
         onClick={() => setPromoOpen(true)}
         disabled={isPending}
       >
-        J&apos;ai un code promo
+        {t("havePromo")}
       </Button>
 
       <Dialog
@@ -87,13 +83,11 @@ export function ResumeCheckoutButton({
             }}
           >
             <DialogHeader>
-              <DialogTitle>Payer avec un code promo</DialogTitle>
-              <DialogDescription>
-                Le code est vérifié, puis appliqué au paiement Stripe.
-              </DialogDescription>
+              <DialogTitle>{t("promoTitle")}</DialogTitle>
+              <DialogDescription>{t("promoDescription")}</DialogDescription>
             </DialogHeader>
             <div className="mt-4 space-y-2">
-              <Label htmlFor={codeFieldId}>Code promo</Label>
+              <Label htmlFor={codeFieldId}>{t("promoLabel")}</Label>
               <Input
                 id={codeFieldId}
                 value={code}
@@ -112,10 +106,10 @@ export function ResumeCheckoutButton({
                 onClick={() => setPromoOpen(false)}
                 disabled={isPending}
               >
-                Annuler
+                {tCommon("cancel")}
               </Button>
-              <Button type="submit" disabled={isPending || !code.trim()} aria-busy={isPending}>
-                {isPending ? "Redirection…" : "Payer avec ce code"}
+              <Button type="submit" disabled={!code.trim()} loading={isPending}>
+                {isPending ? t("redirecting") : t("payWithCode")}
               </Button>
             </DialogFooter>
           </form>

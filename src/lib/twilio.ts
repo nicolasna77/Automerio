@@ -46,14 +46,51 @@ export async function searchAvailableNumbers(limit = 10): Promise<AvailableNumbe
   }));
 }
 
+// Numéro géographique ou non géographique français au format E.164.
+const FRENCH_E164 = /^\+33[1-9]\d{8}$/;
+
+export function isFrenchE164(phoneNumber: unknown): phoneNumber is string {
+  return typeof phoneNumber === "string" && FRENCH_E164.test(phoneNumber);
+}
+
+// « PhoneNumber is not available » : le numéro n'appartient pas (ou plus) au
+// stock achetable de Twilio — https://www.twilio.com/docs/api/errors/21422
+export const TWILIO_NUMBER_NOT_AVAILABLE = 21422;
+
+export class PhoneNumberUnavailableError extends Error {
+  constructor(phoneNumber: string) {
+    super(`Numéro ${phoneNumber} plus disponible chez Twilio`);
+    this.name = "PhoneNumberUnavailableError";
+  }
+}
+
+function twilioErrorCode(err: unknown): number | null {
+  if (typeof err !== "object" || err === null || !("code" in err)) return null;
+  const code = Number((err as { code: unknown }).code);
+  return Number.isFinite(code) ? code : null;
+}
+
+// Pas de vérification préalable de disponibilité : la recherche Twilio par
+// motif n'est pas exacte et le numéro peut partir entre-temps. On tente
+// l'achat, et Twilio répond 21422 si le numéro n'est plus achetable.
 export async function purchasePhoneNumber(
   phoneNumber: string
 ): Promise<{ sid: string; phoneNumber: string }> {
-  const purchased = await getTwilioClient().incomingPhoneNumbers.create({
-    phoneNumber,
-    voiceUrl: voiceWebhookUrl(),
-  });
-  return { sid: purchased.sid, phoneNumber: purchased.phoneNumber };
+  if (!isFrenchE164(phoneNumber)) {
+    throw new Error("Numéro refusé : seul un numéro français au format E.164 peut être acheté");
+  }
+  try {
+    const purchased = await getTwilioClient().incomingPhoneNumbers.create({
+      phoneNumber,
+      voiceUrl: voiceWebhookUrl(),
+    });
+    return { sid: purchased.sid, phoneNumber: purchased.phoneNumber };
+  } catch (err) {
+    if (twilioErrorCode(err) === TWILIO_NUMBER_NOT_AVAILABLE) {
+      throw new PhoneNumberUnavailableError(phoneNumber);
+    }
+    throw err;
+  }
 }
 
 export async function releasePhoneNumber(sid: string): Promise<void> {

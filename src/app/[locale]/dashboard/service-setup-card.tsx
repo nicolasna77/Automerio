@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Check } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
@@ -22,6 +23,7 @@ import {
 import { countCatalogItems, readProductCatalog } from "@/lib/product-catalog";
 import { CalendarConnection } from "./calendar-connection";
 import { InstagramConnection } from "./instagram-connection";
+import { ManagersOnlyNote } from "./managers-only-note";
 import { MessengerConnection } from "./messenger-connection";
 import { PhoneNumberPurchase } from "./phone-number-purchase";
 import { WhatsAppConnection } from "./whatsapp-connection";
@@ -74,9 +76,14 @@ export function isSetupComplete(item: MyServiceDTO): boolean {
 
 export function ServiceSetupCard({
   item,
+  canManage,
 }: {
   item: MyServiceDTO;
+  // Propriétaire ou administrateur : seul à pouvoir acheter un numéro ou
+  // connecter un compte ; les autres membres voient une explication.
+  canManage: boolean;
 }) {
+  const t = useTranslations("Dashboard.setup");
   if (isSetupComplete(item)) return null;
 
   const {
@@ -94,24 +101,24 @@ export function ServiceSetupCard({
   } = setupState(item);
 
   const steps = [
-    { label: "Paiement", done: paid },
+    { label: t("steps.payment"), done: paid },
     ...(isTelephony
-      ? [{ label: "Numéro de téléphone attribué", done: hasNumber }]
+      ? [{ label: t("steps.phone"), done: hasNumber }]
       : []),
     ...(isWhatsApp
-      ? [{ label: "Compte WhatsApp connecté", done: item.whatsappConnected }]
+      ? [{ label: t("steps.whatsapp"), done: item.whatsappConnected }]
       : []),
     ...(isFacebook
-      ? [{ label: "Page Facebook connectée", done: item.facebookConnected }]
+      ? [{ label: t("steps.facebook"), done: item.facebookConnected }]
       : []),
     ...(isInstagram
-      ? [{ label: "Compte Instagram connecté", done: item.instagramConnected }]
+      ? [{ label: t("steps.instagram"), done: item.instagramConnected }]
       : []),
-    ...(takesOrders ? [{ label: "Carte ajoutée", done: catalogDone }] : []),
+    ...(takesOrders ? [{ label: t("steps.catalog"), done: catalogDone }] : []),
     ...(takesAppointments
-      ? [{ label: "Agenda connecté", done: item.calendarConnected, optional: true }]
+      ? [{ label: t("steps.calendar"), done: item.calendarConnected, optional: true }]
       : []),
-    { label: "Vérification par l'équipe Automerio", done: verified },
+    { label: t("steps.verification"), done: verified },
   ];
 
   const nextIsPhone = needsPhoneNumber(item);
@@ -159,7 +166,7 @@ export function ServiceSetupCard({
               >
                 {step.label}
                 {step.optional && !step.done && (
-                  <span className="font-normal text-muted-foreground"> (facultatif)</span>
+                  <span className="font-normal text-muted-foreground">{t("optional")}</span>
                 )}
               </span>
             </li>
@@ -168,90 +175,79 @@ export function ServiceSetupCard({
 
         {!paid && (
           <p className="text-sm text-muted-foreground">
-            Finalisez le paiement pour lancer la mise en service. Le bouton se
-            trouve en haut de cette page.
+            {t("payFirst")}
           </p>
         )}
 
         {nextIsPhone && (
           <div className={box}>
-            <p className="text-sm font-medium text-foreground">
-              Choisissez le numéro qui recevra vos appels
-            </p>
-            <p className="mt-1 mb-3 text-sm text-muted-foreground">
-              L&apos;assistant ne peut pas encore décrocher tant qu&apos;aucun numéro
-              n&apos;est attribué. Vous pourrez ensuite y renvoyer votre ligne
-              actuelle, sans changer de numéro.
-            </p>
-            <PhoneNumberPurchase clientServiceId={item.clientServiceId} />
+            <p className="text-sm font-medium text-foreground">{t("phone.title")}</p>
+            <p className="mt-1 mb-3 text-sm text-muted-foreground">{t("phone.description")}</p>
+            {canManage ? (
+              <PhoneNumberPurchase clientServiceId={item.clientServiceId} />
+            ) : (
+              <ManagersOnlyNote />
+            )}
           </div>
         )}
 
         {nextIsWhatsApp && (
           <div className={box}>
-            <p className="text-sm font-medium text-foreground">
-              Connectez votre compte WhatsApp Business
-            </p>
-            <p className="mt-1 mb-3 text-sm text-muted-foreground">
-              L&apos;assistant ne peut pas encore répondre à vos clients tant qu&apos;aucun
-              compte n&apos;est connecté. Vous gardez votre numéro actuel.
-            </p>
-            <WhatsAppConnection
-              clientServiceId={item.clientServiceId}
-              connected={item.whatsappConnected}
-              displayNumber={item.whatsappDisplayNumber}
-            />
+            <p className="text-sm font-medium text-foreground">{t("whatsapp.title")}</p>
+            <p className="mt-1 mb-3 text-sm text-muted-foreground">{t("whatsapp.description")}</p>
+            {canManage ? (
+              <WhatsAppConnection
+                clientServiceId={item.clientServiceId}
+                connected={item.whatsappConnected}
+                displayNumber={item.whatsappDisplayNumber}
+              />
+            ) : (
+              <ManagersOnlyNote />
+            )}
           </div>
         )}
 
         {nextIsFacebook && (
           <div className={box}>
-            <p className="text-sm font-medium text-foreground">
-              Connectez votre Page Facebook
-            </p>
-            <p className="mt-1 mb-3 text-sm text-muted-foreground">
-              L&apos;assistant ne peut pas encore répondre à vos clients tant
-              qu&apos;aucune Page n&apos;est connectée.
-            </p>
-            <MessengerConnection
-              clientServiceId={item.clientServiceId}
-              connected={item.facebookConnected}
-              pageName={item.facebookPageName}
-            />
+            <p className="text-sm font-medium text-foreground">{t("facebook.title")}</p>
+            <p className="mt-1 mb-3 text-sm text-muted-foreground">{t("facebook.description")}</p>
+            {canManage ? (
+              <MessengerConnection
+                clientServiceId={item.clientServiceId}
+                connected={item.facebookConnected}
+                pageName={item.facebookPageName}
+              />
+            ) : (
+              <ManagersOnlyNote />
+            )}
           </div>
         )}
 
         {nextIsInstagram && (
           <div className={box}>
-            <p className="text-sm font-medium text-foreground">
-              Connectez votre compte Instagram
-            </p>
-            <p className="mt-1 mb-3 text-sm text-muted-foreground">
-              L&apos;assistant ne peut pas encore répondre à vos clients tant
-              qu&apos;aucun compte n&apos;est connecté.
-            </p>
-            <InstagramConnection
-              clientServiceId={item.clientServiceId}
-              connected={item.instagramConnected}
-              username={item.instagramUsername}
-            />
+            <p className="text-sm font-medium text-foreground">{t("instagram.title")}</p>
+            <p className="mt-1 mb-3 text-sm text-muted-foreground">{t("instagram.description")}</p>
+            {canManage ? (
+              <InstagramConnection
+                clientServiceId={item.clientServiceId}
+                connected={item.instagramConnected}
+                username={item.instagramUsername}
+              />
+            ) : (
+              <ManagersOnlyNote />
+            )}
           </div>
         )}
 
         {nextIsCatalog && (
           <div className={box}>
-            <p className="text-sm font-medium text-foreground">
-              Ajoutez votre carte
-            </p>
-            <p className="mt-1 mb-3 text-sm text-muted-foreground">
-              Sans carte, l&apos;IA note les coordonnées de vos clients mais ne
-              prend pas leurs commandes. Une photo ou un PDF suffit.
-            </p>
+            <p className="text-sm font-medium text-foreground">{t("catalog.title")}</p>
+            <p className="mt-1 mb-3 text-sm text-muted-foreground">{t("catalog.description")}</p>
             <Link
               href={`/dashboard/services/${item.clientServiceId}/configuration`}
               className={buttonVariants({ size: "sm" })}
             >
-              Ajouter ma carte
+              {t("catalog.cta")}
             </Link>
           </div>
         )}
@@ -259,23 +255,23 @@ export function ServiceSetupCard({
         {nextIsCalendar && (
           <div className={box}>
             <p className="text-sm font-medium text-foreground">
-              Connectez votre agenda <span className="font-normal text-muted-foreground">(facultatif)</span>
+              {t("calendar.title")} <span className="font-normal text-muted-foreground">{t("optionalTag")}</span>
             </p>
-            <p className="mt-1 mb-3 text-sm text-muted-foreground">
-              Les rendez-vous pris par téléphone s&apos;ajouteront directement
-              dans votre agenda : Google Agenda, Cal.com ou Calendly.
-            </p>
-            <CalendarConnection
-              clientServiceId={item.clientServiceId}
-              calendar={item.calendar}
-            />
+            <p className="mt-1 mb-3 text-sm text-muted-foreground">{t("calendar.description")}</p>
+            {canManage ? (
+              <CalendarConnection
+                clientServiceId={item.clientServiceId}
+                calendar={item.calendar}
+              />
+            ) : (
+              <ManagersOnlyNote />
+            )}
           </div>
         )}
 
         {waitingOnAutomerio && (
           <p className="text-sm text-muted-foreground">
-            Rien à faire de votre côté : l&apos;équipe Automerio termine la mise
-            en service et vous prévient dès que votre solution est active.
+            {t("waiting")}
           </p>
         )}
     </>
@@ -284,7 +280,7 @@ export function ServiceSetupCard({
   return (
     <Card id={SETUP_ANCHOR} className="scroll-mt-24">
       <CardHeader>
-        <CardTitle as="h2" className="text-base">Mise en service</CardTitle>
+        <CardTitle as="h2" className="text-base">{t("title")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">
         {content}

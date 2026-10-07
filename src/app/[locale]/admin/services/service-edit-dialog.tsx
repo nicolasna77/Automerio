@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,8 +23,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CATEGORY_LABELS, CATEGORY_ORDER, type ServiceCategory } from "@/lib/catalog";
-import { formatUsageCap, readUsageCap, type UsageUnit } from "@/lib/usage-cap";
+import { CATEGORY_ORDER, type ServiceCategory } from "@/lib/catalog";
+import { readUsageCap, type UsageUnit } from "@/lib/usage-cap";
+import { usePriceFormatter } from "@/hooks/use-price-formatter";
 import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
 import { updateServiceAction } from "./actions";
@@ -42,20 +44,10 @@ export type EditableService = {
   isActive: boolean;
 };
 
-const USAGE_UNIT_LABELS: Record<UsageUnit | "none", string> = {
-  none: "Aucun plafond",
-  CALL: "Appels",
-  MINUTE: "Minutes",
-  MESSAGE: "Réponses (prix par 100)",
-};
+const USAGE_UNITS = ["none", "MINUTE", "CALL", "MESSAGE"] as const;
 
 function centsToEurosInput(cents: number | null): string {
   return cents === null ? "" : String(Math.round(cents) / 100);
-}
-
-function usageCapPreview(service: EditableService): string | null {
-  const cap = readUsageCap(service);
-  return cap ? `Affiché au client : « ${formatUsageCap(cap)} »` : null;
 }
 
 export function ServiceEditDialog({
@@ -67,8 +59,21 @@ export function ServiceEditDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const t = useTranslations("Admin.services.editDialog");
+  const tCatalog = useTranslations("Catalog");
+  const tCommon = useTranslations("Common");
+  const tActions = useTranslations("Actions");
+  const price = usePriceFormatter();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Erreur de saisie affichée sous la quantité incluse, qui reçoit le focus.
+  const [includedError, setIncludedError] = useState<string | null>(null);
+
+  const categoryLabels = Object.fromEntries(
+    CATEGORY_ORDER.map((category) => [category, tCatalog(`categories.${category}`)])
+  );
+  const usageUnitLabels = Object.fromEntries(USAGE_UNITS.map((unit) => [unit, t(`units.${unit}`)]));
+  const capPreview = service ? readUsageCap(service) : null;
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -80,6 +85,13 @@ export function ServiceEditDialog({
     const includedUnitsRaw = String(formData.get("includedUsageUnits") ?? "").trim();
     const overageRaw = String(formData.get("overageUnitEuros") ?? "").trim();
     const hasCap = usageUnitRaw === "CALL" || usageUnitRaw === "MINUTE" || usageUnitRaw === "MESSAGE";
+
+    setIncludedError(null);
+    if (hasCap && !includedUnitsRaw) {
+      setIncludedError(tActions("adminServiceCapIncomplete"));
+      document.getElementById("service-included-units")?.focus();
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -95,29 +107,30 @@ export function ServiceEditDialog({
           sortOrder: Number(formData.get("sortOrder") ?? service.sortOrder),
         })
       );
-      toast.success(`« ${service.name} » a été mise à jour.`);
+      toast.success(t("saved", { name: service.name }));
       onOpenChange(false);
       router.refresh();
     } catch (err) {
-      toast.error(getErrorMessage(err, "Impossible de mettre à jour la solution."));
+      toast.error(getErrorMessage(err, t("saveError")));
     } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) setIncludedError(null);
+        onOpenChange(next);
+      }}
+    >
       <DialogContent className="sm:max-w-lg">
         {service && (
           <>
             <DialogHeader>
-              <DialogTitle>
-                Modifier « {service.name} »
-              </DialogTitle>
-              <DialogDescription>
-                Ces changements s&apos;appliquent au site public et au
-                tableau de bord client.
-              </DialogDescription>
+              <DialogTitle>{t("title", { name: service.name })}</DialogTitle>
+              <DialogDescription>{t("description")}</DialogDescription>
             </DialogHeader>
 
             <form
@@ -126,12 +139,12 @@ export function ServiceEditDialog({
               className="space-y-4"
             >
               <div className="space-y-2">
-                <Label htmlFor="service-name">Nom</Label>
+                <Label htmlFor="service-name">{t("name")}</Label>
                 <Input id="service-name" name="name" defaultValue={service.name} required />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="service-description">Description</Label>
+                <Label htmlFor="service-description">{t("descriptionLabel")}</Label>
                 <Textarea
                   id="service-description"
                   name="description"
@@ -143,11 +156,11 @@ export function ServiceEditDialog({
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="service-category">Catégorie</Label>
+                  <Label htmlFor="service-category">{t("category")}</Label>
                   <Select
                     name="category"
                     defaultValue={service.category}
-                    items={CATEGORY_LABELS}
+                    items={categoryLabels}
                   >
                     <SelectTrigger id="service-category" className="w-full">
                       <SelectValue />
@@ -155,14 +168,14 @@ export function ServiceEditDialog({
                     <SelectContent>
                       {CATEGORY_ORDER.map((category) => (
                         <SelectItem key={category} value={category}>
-                          {CATEGORY_LABELS[category]}
+                          {categoryLabels[category]}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="service-sort-order">Ordre d&apos;affichage</Label>
+                  <Label htmlFor="service-sort-order">{t("sortOrder")}</Label>
                   <Input
                     id="service-sort-order"
                     name="sortOrder"
@@ -174,9 +187,7 @@ export function ServiceEditDialog({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="service-monthly-price">
-                  Abonnement mensuel TTC (€)
-                </Label>
+                <Label htmlFor="service-monthly-price">{t("monthlyPrice")}</Label>
                 <Input
                   id="service-monthly-price"
                   name="monthlyPriceEuros"
@@ -188,63 +199,73 @@ export function ServiceEditDialog({
                   aria-describedby="service-monthly-price-help"
                 />
                 <p id="service-monthly-price-help" className="text-xs text-muted-foreground">
-                  Les solutions ne se vendent qu&apos;en abonnement : pas de frais de mise en place.
+                  {t("monthlyPriceHelp")}
                 </p>
               </div>
 
               <fieldset className="space-y-2">
                 <legend className="text-sm font-medium text-foreground">
-                  Plafond d&apos;usage{" "}
-                  <span className="font-normal text-muted-foreground">(optionnel)</span>
+                  {t("usageCap")}{" "}
+                  <span className="font-normal text-muted-foreground">{t("optional")}</span>
                 </legend>
                 <div className="grid gap-4 sm:grid-cols-3">
                   <div className="space-y-2">
-                    <Label htmlFor="service-usage-unit">Unité</Label>
+                    <Label htmlFor="service-usage-unit">{t("unit")}</Label>
                     <Select
                       name="usageUnit"
                       defaultValue={service.usageUnit ?? "none"}
-                      items={USAGE_UNIT_LABELS}
+                      items={usageUnitLabels}
+                      onValueChange={() => setIncludedError(null)}
                     >
                       <SelectTrigger id="service-usage-unit" className="w-full">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {(["none", "MINUTE", "CALL", "MESSAGE"] as const).map((unit) => (
+                        {USAGE_UNITS.map((unit) => (
                           <SelectItem key={unit} value={unit}>
-                            {USAGE_UNIT_LABELS[unit]}
+                            {usageUnitLabels[unit]}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="service-included-units">Quantité incluse</Label>
+                    <Label htmlFor="service-included-units">{t("included")}</Label>
                     <Input
                       id="service-included-units"
                       name="includedUsageUnits"
                       type="number"
                       min="1"
                       step="1"
-                      placeholder="Ex. 150"
+                      placeholder={t("includedPlaceholder")}
                       defaultValue={service.includedUsageUnits ?? ""}
+                      onChange={() => setIncludedError(null)}
+                      aria-invalid={includedError ? true : undefined}
+                      aria-describedby={includedError ? "service-included-units-error" : undefined}
                     />
+                    {includedError && (
+                      <p id="service-included-units-error" className="text-sm text-destructive">
+                        {includedError}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="service-overage-price">Dépassement (€)</Label>
+                    <Label htmlFor="service-overage-price">{t("overage")}</Label>
                     <Input
                       id="service-overage-price"
                       name="overageUnitEuros"
                       type="number"
                       step="0.01"
                       min="0"
-                      placeholder="Ex. 0,30"
+                      placeholder={t("overagePlaceholder")}
                       defaultValue={centsToEurosInput(service.overageUnitPriceCents)}
                     />
                   </div>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {usageCapPreview(service) ??
-                    "Laissez « Aucun plafond » pour une solution sans quota d’usage."}
+                  {capPreview
+                    ? t("capPreview", { cap: price.usageCap(capPreview) })
+                    : t("noCapHint")}
                 </p>
               </fieldset>
 
@@ -255,10 +276,10 @@ export function ServiceEditDialog({
                   onClick={() => onOpenChange(false)}
                   disabled={isSubmitting}
                 >
-                  Annuler
+                  {tCommon("cancel")}
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Enregistrement…" : "Enregistrer"}
+                  {isSubmitting ? tCommon("saving") : tCommon("save")}
                 </Button>
               </DialogFooter>
             </form>

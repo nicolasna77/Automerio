@@ -1,11 +1,13 @@
+import { useTranslations } from "next-intl";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function StatsSkeleton() {
+  const t = useTranslations("Admin.skeletons");
   return (
     <div
       role="status"
-      aria-label="Chargement des statistiques…"
+      aria-label={t("stats")}
       className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
     >
       {Array.from({ length: 4 }).map((_, i) => (
@@ -24,8 +26,9 @@ export function StatsSkeleton() {
 }
 
 export function ClientsSectionSkeleton() {
+  const t = useTranslations("Admin.skeletons");
   return (
-    <Card role="status" aria-label="Chargement des clients…">
+    <Card role="status" aria-label={t("clients")}>
       <CardHeader className="space-y-5">
         {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} className="flex items-center justify-between gap-4">
@@ -42,8 +45,9 @@ export function ClientsSectionSkeleton() {
 }
 
 export function HelpRequestsSectionSkeleton() {
+  const t = useTranslations("Admin.skeletons");
   return (
-    <div role="status" aria-label="Chargement des demandes…" className="space-y-4">
+    <div role="status" aria-label={t("helpRequests")} className="space-y-4">
       {Array.from({ length: 3 }).map((_, i) => (
         <Card key={i}>
           <CardHeader>

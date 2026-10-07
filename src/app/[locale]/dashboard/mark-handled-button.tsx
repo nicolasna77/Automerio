@@ -1,9 +1,10 @@
 "use client";
 
 import { useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Check } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
@@ -19,6 +20,7 @@ export function MarkHandledButton({
   label: string;
 }) {
   const router = useRouter();
+  const t = useTranslations("Dashboard.overview.callbacks");
   const [isPending, startTransition] = useTransition();
 
   return (
@@ -27,20 +29,20 @@ export function MarkHandledButton({
       variant="outline"
       size="sm"
       disabled={isPending}
-      aria-label={`Marquer comme traité : ${label}`}
+      aria-label={t("markHandledLabel", { label })}
       onClick={() =>
         startTransition(async () => {
           try {
             unwrap(await setCallHandledAction(clientServiceId, callId, true));
             router.refresh();
           } catch (err) {
-            toast.error(getErrorMessage(err, "L'appel n'a pas pu être mis à jour."));
+            toast.error(getErrorMessage(err, t("updateError")));
           }
         })
       }
     >
       <Check aria-hidden="true" data-icon="inline-start" />
-      Traité
+      {t("markHandled")}
     </Button>
   );
 }

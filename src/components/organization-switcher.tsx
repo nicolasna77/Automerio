@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Check, ChevronsUpDown, Plus, Settings2 } from "lucide-react";
 import {
   DropdownMenu,
@@ -34,6 +35,7 @@ export function OrganizationSwitcher({
   organizations: OrganizationSummary[];
 }) {
   const { isMobile } = useSidebar();
+  const t = useTranslations("Workspace.organization");
   const [createOpen, setCreateOpen] = useState(false);
   const [manageOpen, setManageOpen] = useState(false);
   const { switchTo: handleSwitch, switchingId } = useSwitchOrganization(active.id);
@@ -47,7 +49,7 @@ export function OrganizationSwitcher({
               render={
                 <SidebarMenuButton
                   size="lg"
-                  aria-label={`${active.name}, changer d'entreprise`}
+                  aria-label={t("switchLabel", { name: active.name })}
                   tooltip={active.name}
                   className="data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground"
                 />
@@ -75,7 +77,7 @@ export function OrganizationSwitcher({
               className="w-64"
             >
               <DropdownMenuGroup>
-                <DropdownMenuLabel>Organisations</DropdownMenuLabel>
+                <DropdownMenuLabel>{t("listLabel")}</DropdownMenuLabel>
                 {organizations.map((organization) => (
                   <DropdownMenuItem
                     key={organization.id}
@@ -95,7 +97,7 @@ export function OrganizationSwitcher({
                     {organization.id === active.id && (
                       <>
                         <Check className="ml-auto size-4 text-primary" aria-hidden="true" />
-                        <span className="sr-only">, entreprise actuelle</span>
+                        <span className="sr-only">{t("current")}</span>
                       </>
                     )}
                   </DropdownMenuItem>
@@ -105,11 +107,11 @@ export function OrganizationSwitcher({
               <DropdownMenuGroup>
                 <DropdownMenuItem onClick={() => setCreateOpen(true)}>
                   <Plus aria-hidden="true" />
-                  Créer une organisation
+                  {t("create")}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setManageOpen(true)}>
                   <Settings2 aria-hidden="true" />
-                  Gérer « {active.name} »
+                  {t("manage", { name: active.name })}
                 </DropdownMenuItem>
               </DropdownMenuGroup>
             </DropdownMenuContent>

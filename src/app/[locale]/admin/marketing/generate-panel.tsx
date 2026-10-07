@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Sparkles } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import type { MarketingChannel } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,6 +22,7 @@ const CHANNELS = Object.keys(CHANNEL_RULES) as MarketingChannel[];
 const COUNTS = [1, 2, 3, 4, 5];
 
 export function GeneratePanel() {
+  const t = useTranslations("Admin.marketing");
   const [channel, setChannel] = useState<MarketingChannel>("LINKEDIN");
   const [count, setCount] = useState(2);
   const [pending, startTransition] = useTransition();
@@ -29,11 +31,9 @@ export function GeneratePanel() {
     startTransition(async () => {
       try {
         await generatePostsAction(channel, count);
-        toast.success(
-          count > 1 ? `${count} propositions ajoutées à relire.` : "Proposition ajoutée à relire."
-        );
+        toast.success(t("generated", { count }));
       } catch {
-        toast.error("La génération a échoué. Réessayez.");
+        toast.error(t("generateError"));
       }
     });
   }
@@ -44,7 +44,7 @@ export function GeneratePanel() {
     <Card>
       <CardContent className="flex flex-col gap-4 sm:flex-row sm:items-end">
         <div className="flex-1 space-y-2">
-          <Label htmlFor="channel">Réseau</Label>
+          <Label htmlFor="channel">{t("network")}</Label>
           <Select
             value={channel}
             onValueChange={(value) => setChannel(value as MarketingChannel)}
@@ -64,7 +64,7 @@ export function GeneratePanel() {
         </div>
 
         <div className="space-y-2 sm:w-32">
-          <Label htmlFor="count">Propositions</Label>
+          <Label htmlFor="count">{t("count")}</Label>
           <Select value={String(count)} onValueChange={(value) => setCount(Number(value))}>
             <SelectTrigger id="count">
               <SelectValue />
@@ -81,16 +81,16 @@ export function GeneratePanel() {
 
         <Button onClick={handleGenerate} disabled={pending} className="sm:mb-0">
           <Sparkles data-icon="inline-start" />
-          {pending ? "Rédaction…" : "Proposer"}
+          {pending ? t("generating") : t("generate")}
         </Button>
       </CardContent>
 
       <CardContent className="pt-0">
         <p className="text-sm text-muted-foreground">
-          Sur {rule.label}, on s&apos;adresse à {rule.audience}.{" "}
+          {t("ruleIntro", { network: rule.label, audience: t(`audience.${channel}`) })}{" "}
           {rule.needsImage
-            ? "Ce réseau exige une image : l'agent décrit le visuel à produire."
-            : `Environ ${rule.targetChars} caractères.`}
+            ? t("needsImage")
+            : t("targetChars", { count: String(rule.targetChars) })}
         </p>
       </CardContent>
     </Card>

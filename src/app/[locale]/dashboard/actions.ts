@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { CLEARED_META_CONNECTION, isUniqueViolation } from "@/lib/meta-connection";
+import { getTranslations } from "next-intl/server";
 import { settingsHiddenKeys } from "./field-categories";
 import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
@@ -15,6 +17,8 @@ import {
 } from "@/lib/catalog";
 import { logServiceEvent } from "@/lib/service-events";
 import {
+  isFrenchE164,
+  PhoneNumberUnavailableError,
   purchasePhoneNumber,
   releasePhoneNumber,
   searchAvailableNumbers,
@@ -26,6 +30,7 @@ import {
 } from "@/lib/whatsapp";
 import { exchangeMetaEmbeddedSignupCode } from "@/lib/meta";
 import { fetchManagedPage, subscribePageToApp } from "@/lib/messenger";
+import { whatsAppNumberBelongsToToken } from "@/lib/meta-accounts";
 import { sendServiceCanceledEmail } from "@/lib/email/notifications";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { sealSecret } from "@/lib/secret-box";
@@ -40,7 +45,7 @@ import {
 } from "@/lib/scheduling/types";
 import { validatePromoCodeForService } from "@/lib/stripe-promo-codes";
 import { applyDiscount, describeDiscount, firstPaymentCents } from "@/lib/promo-codes";
-import { ActionError, runAction } from "@/lib/run-action";
+import { ActionError, actionError, runAction } from "@/lib/run-action";
 import {
   getOrCreateOrganizationCustomer,
   organizationCustomerId,
@@ -60,13 +65,10 @@ import { createBillingPortalUrl, getIncludedVatRateId } from "@/lib/stripe-billi
 
 const CHECKOUT_INTEGRATION_ID = "automerio-activation-qkzmtwph";
 
-const TOO_MANY_ATTEMPTS = "Trop d'essais. Réessayez dans quelques minutes.";
-const CHECKOUT_UNAVAILABLE =
-  "Le paiement n'a pas pu être préparé. Réessayez depuis « Mes solutions ».";
 
 async function requireUserId() {
   const session = await getSession();
-  if (!session) throw new ActionError("Votre session a expiré. Reconnectez-vous.");
+  if (!session) throw actionError("sessionExpired");
   return session.user.id;
 }
 
@@ -86,7 +88,7 @@ async function requireMemberOn(
   userId: string
 ) {
   if (!canReadClientService(clientService, await viewerOf(userId))) {
-    throw new ActionError("Cette solution n'appartient pas à votre organisation.");
+    throw actionError("notYourService");
   }
 }
 
@@ -96,12 +98,10 @@ async function requireBillingRoleOn(
 ) {
   const viewer = await viewerOf(userId);
   if (!canReadClientService(clientService, viewer)) {
-    throw new ActionError("Cette solution n'appartient pas à votre organisation.");
+    throw actionError("notYourService");
   }
   if (!canManageClientServiceBilling(clientService, viewer)) {
-    throw new ActionError(
-      "Seuls les responsables de l'organisation peuvent effectuer cette action."
-    );
+    throw actionError("managersOnly");
   }
 }
 
@@ -121,10 +121,12 @@ function isPromotionError(err: unknown): boolean {
   );
 }
 
-function promotionErrorMessage(err: unknown): string {
-  return (err as { code?: string }).code === "promotion_code_customer_not_first_time"
-    ? "Ce code est réservé aux nouveaux clients. Retirez-le pour payer au tarif normal."
-    : "Ce code ne peut pas être utilisé avec votre compte. Retirez-le pour payer au tarif normal.";
+function promotionError(err: unknown) {
+  return actionError(
+    (err as { code?: string }).code === "promotion_code_customer_not_first_time"
+      ? "promoNewCustomersOnly"
+      : "promoNotAllowed"
+  );
 }
 
 async function createCheckoutSession(
@@ -144,7 +146,7 @@ async function createCheckoutSession(
   );
   const vatRateId = await getIncludedVatRateId();
   if (service.monthlyPriceCents === null) {
-    throw new ActionError("Cette solution n'a pas encore de prix. Contactez-nous pour l'activer.");
+    throw actionError("noPrice");
   }
 
   const checkoutSession = await stripeClient.checkout.sessions.create({
@@ -188,7 +190,7 @@ export async function activateService(
   return runAction(async () => {
     const userId = await requireUserId();
     if (!(await checkRateLimit("service-activation", userId, "10 m", 10))) {
-      throw new ActionError(TOO_MANY_ATTEMPTS);
+      throw actionError("tooManyAttempts");
     }
     const [service, user] = await Promise.all([
       db.service.findUniqueOrThrow({ where: { id: serviceId } }),
@@ -198,7 +200,7 @@ export async function activateService(
 
     const trimmedName = name.trim();
     if (!trimmedName) {
-      throw new ActionError("Merci de donner un nom à cette activation.");
+      throw actionError("activationNameRequired");
     }
 
     const tier = readSubscriptionTier(service);
@@ -207,7 +209,7 @@ export async function activateService(
     if (tier) {
       const units = chosenUnits ?? tier.minUnits;
       if (!isValidUnitSelection(tier, units)) {
-        throw new ActionError("Ce volume n'est pas proposé pour cette solution.");
+        throw actionError("volumeNotOffered");
       }
       includedUsageUnits = units;
       monthlyPriceCents = calculateMonthlyPriceCents(tier, units);
@@ -219,7 +221,7 @@ export async function activateService(
     );
     const missing = findMissingRequiredField(configFields, configuration);
     if (missing) {
-      throw new ActionError(`Le champ « ${missing.label} » est requis.`);
+      throw actionError("fieldRequired", { label: missing.label });
     }
 
     let promotion: { promotionCodeId: string; code: string } | null = null;
@@ -246,9 +248,7 @@ export async function activateService(
       });
     } catch (err) {
       if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
-        throw new ActionError(
-          `Vous avez déjà une solution nommée « ${trimmedName} » pour ce service dans cette organisation.`
-        );
+        throw actionError("duplicateName", { name: trimmedName });
       }
       throw err;
     }
@@ -268,11 +268,11 @@ export async function activateService(
     } catch (err) {
       if (promotion && isPromotionError(err)) {
         await db.clientService.delete({ where: { id: clientService.id } });
-        throw new ActionError(promotionErrorMessage(err));
+        throw promotionError(err);
       }
       console.error("[paiement] session Checkout impossible à créer :", err);
       revalidateDashboard(clientService.id);
-      throw new ActionError(CHECKOUT_UNAVAILABLE);
+      throw actionError("checkoutUnavailable");
     }
   });
 }
@@ -292,12 +292,12 @@ export async function resumeServiceCheckout(
 
     await requireBillingRoleOn(clientService, userId);
     if (clientService.status !== "PENDING_PAYMENT" && clientService.status !== "CANCELED") {
-      throw new ActionError("Cette solution est déjà active.");
+      throw actionError("alreadyActive");
     }
 
     const explicitCode = newPromoCode?.trim() || null;
     if (explicitCode && !(await checkRateLimit("promo-code-preview", userId, "10 m", 20))) {
-      throw new ActionError(TOO_MANY_ATTEMPTS);
+      throw actionError("tooManyAttempts");
     }
 
     const user = await db.user.findUniqueOrThrow({ where: { id: userId } });
@@ -332,10 +332,10 @@ export async function resumeServiceCheckout(
     } catch (err) {
       if (!promotion || !isPromotionError(err)) {
         console.error("[paiement] session Checkout impossible à créer :", err);
-        throw new ActionError(CHECKOUT_UNAVAILABLE);
+        throw actionError("checkoutUnavailable");
       }
       await db.clientService.update({ where: { id: clientServiceId }, data: { promoCode: null } });
-      if (explicitCode) throw new ActionError(promotionErrorMessage(err));
+      if (explicitCode) throw promotionError(err);
       checkoutUrl = await createCheckoutSession(
         clientService.id,
         clientService.organizationId,
@@ -360,13 +360,14 @@ export type PromoPreview =
 
 export async function previewPromoCode(serviceId: string, code: string): Promise<PromoPreview> {
   const session = await getSession();
-  if (!session) return { ok: false, reason: "Votre session a expiré. Reconnectez-vous." };
+  const t = await getTranslations("Actions");
+  if (!session) return { ok: false, reason: t("sessionExpired") };
   if (!(await checkRateLimit("promo-code-preview", session.user.id, "10 m", 20))) {
-    return { ok: false, reason: TOO_MANY_ATTEMPTS };
+    return { ok: false, reason: t("tooManyAttempts") };
   }
 
   const service = await db.service.findUnique({ where: { id: serviceId } });
-  if (!service) return { ok: false, reason: "Cette solution n'existe plus." };
+  if (!service) return { ok: false, reason: t("serviceGone") };
   const result = await validatePromoCodeForService(code, service.slug);
   if (!result.ok) return result;
 
@@ -402,15 +403,15 @@ export async function updateServiceConfiguration(
     );
     const missing = findMissingRequiredField(configFields, configuration);
     if (missing) {
-      throw new ActionError(`Le champ « ${missing.label} » est requis.`);
+      throw actionError("fieldRequired", { label: missing.label });
     }
 
     const trimmedName = name?.trim();
     if (name !== undefined && !trimmedName) {
-      throw new ActionError("Merci de donner un nom à cette solution.");
+      throw actionError("serviceNameRequired");
     }
     if (trimmedName && trimmedName.length > 80) {
-      throw new ActionError("Le nom de la solution ne doit pas dépasser 80 caractères.");
+      throw actionError("serviceNameTooLong");
     }
     try {
       await db.clientService.update({
@@ -422,9 +423,7 @@ export async function updateServiceConfiguration(
       });
     } catch (err) {
       if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
-        throw new ActionError(
-          `Vous avez déjà une solution nommée « ${trimmedName} » pour ce service dans cette organisation.`
-        );
+        throw actionError("duplicateName", { name: trimmedName ?? "" });
       }
       throw err;
     }
@@ -455,10 +454,10 @@ export async function disconnectCalendar(clientServiceId: string) {
 }
 
 async function readSchedulingAccount(provider: string, token: string): Promise<ProviderAccount> {
-  if (!isSchedulingProvider(provider)) throw new ActionError("Outil d'agenda inconnu.");
+  if (!isSchedulingProvider(provider)) throw actionError("unknownCalendarTool");
   const trimmed = token.trim();
   if (trimmed.length < 10 || trimmed.length > 2000) {
-    throw new ActionError("Collez la clé complète, telle que l'outil l'affiche.");
+    throw actionError("pasteFullKey");
   }
   try {
     return provider === "calcom"
@@ -467,9 +466,7 @@ async function readSchedulingAccount(provider: string, token: string): Promise<P
   } catch (err) {
     if (err instanceof SchedulingError) throw new ActionError(err.message);
     console.error(`[agenda] ${provider} : lecture du compte échouée`, err);
-    throw new ActionError(
-      `${PROVIDER_LABELS[provider]} ne répond pas pour l'instant. Réessayez dans quelques minutes.`
-    );
+    throw actionError("calendarToolDown", { provider: PROVIDER_LABELS[provider] });
   }
 }
 
@@ -487,14 +484,12 @@ export async function previewSchedulingAccount(
     ]);
     await requireMemberOn(clientService, userId);
     if (!(await checkRateLimit("scheduling-preview", userId, "10 m", 20))) {
-      throw new ActionError("Trop de tentatives. Réessayez dans quelques minutes.");
+      throw actionError("tooManyTries");
     }
 
     const account = await readSchedulingAccount(provider, token);
     if (account.eventTypes.length === 0) {
-      throw new ActionError(
-        "Ce compte n'a aucun type de rendez-vous actif. Créez-en un dans l'outil, puis réessayez."
-      );
+      throw actionError("noEventType");
     }
     return account;
   });
@@ -516,12 +511,12 @@ export async function connectSchedulingTool(
     ]);
     await requireMemberOn(clientService, userId);
     if (!(await checkRateLimit("scheduling-connect", userId, "10 m", 10))) {
-      throw new ActionError("Trop de tentatives. Réessayez dans quelques minutes.");
+      throw actionError("tooManyTries");
     }
 
     const account = await readSchedulingAccount(provider, token);
     const eventType = account.eventTypes.find((option) => option.id === eventTypeId);
-    if (!eventType) throw new ActionError("Choisissez un type de rendez-vous de la liste.");
+    if (!eventType) throw actionError("chooseEventType");
 
     const data = {
       provider,
@@ -560,22 +555,35 @@ export async function completeWhatsAppEmbeddedSignup(
       requireUserId(),
       db.clientService.findUniqueOrThrow({ where: { id: clientServiceId } }),
     ]);
-    await requireMemberOn(clientService, userId);
+    await requireBillingRoleOn(clientService, userId);
 
     const accessToken = await exchangeMetaEmbeddedSignupCode(code);
+    if (!(await whatsAppNumberBelongsToToken(wabaId, phoneNumberId, accessToken))) {
+      throw actionError("whatsappAccountMismatch");
+    }
+    const alreadyUsed = await db.clientService.findFirst({
+      where: { whatsappPhoneNumberId: phoneNumberId, id: { not: clientServiceId } },
+      select: { id: true },
+    });
+    if (alreadyUsed) throw actionError("whatsappNumberInUse");
+
     await subscribeAppToWaba(wabaId, accessToken);
     await registerPhoneNumber(phoneNumberId, accessToken);
     const displayNumber = await fetchDisplayPhoneNumber(phoneNumberId, accessToken);
 
-    await db.clientService.update({
-      where: { id: clientServiceId },
-      data: {
-        whatsappPhoneNumberId: phoneNumberId,
-        whatsappBusinessAccountId: wabaId,
-        whatsappAccessToken: accessToken,
-        whatsappDisplayNumber: displayNumber,
-      },
-    });
+    await db.clientService
+      .update({
+        where: { id: clientServiceId },
+        data: {
+          whatsappPhoneNumberId: phoneNumberId,
+          whatsappBusinessAccountId: wabaId,
+          whatsappAccessToken: accessToken,
+          whatsappDisplayNumber: displayNumber,
+        },
+      })
+      .catch((err) => {
+        throw isUniqueViolation(err) ? actionError("whatsappNumberInUse") : err;
+      });
     await logServiceEvent(clientServiceId, "WHATSAPP_CONNECTED", displayNumber);
     revalidateDashboard(clientServiceId);
   });
@@ -587,7 +595,7 @@ export async function disconnectWhatsApp(clientServiceId: string) {
       requireUserId(),
       db.clientService.findUniqueOrThrow({ where: { id: clientServiceId } }),
     ]);
-    await requireMemberOn(clientService, userId);
+    await requireBillingRoleOn(clientService, userId);
 
     await db.clientService.update({
       where: { id: clientServiceId },
@@ -609,25 +617,34 @@ export async function completeMessengerConnection(clientServiceId: string, code:
       requireUserId(),
       db.clientService.findUniqueOrThrow({ where: { id: clientServiceId } }),
     ]);
-    await requireMemberOn(clientService, userId);
+    await requireBillingRoleOn(clientService, userId);
 
+    // La Page est lue dans /me/accounts du jeton obtenu auprès de Meta : elle
+    // ne vient jamais du navigateur, son appartenance est donc garantie.
     const userAccessToken = await exchangeMetaEmbeddedSignupCode(code);
     const page = await fetchManagedPage(userAccessToken);
     if (!page) {
-      throw new ActionError(
-        "Aucune Page Facebook trouvée. Vérifiez que vous en gérez au moins une."
-      );
+      throw actionError("noFacebookPage");
     }
+    const alreadyUsed = await db.clientService.findFirst({
+      where: { facebookPageId: page.id, id: { not: clientServiceId } },
+      select: { id: true },
+    });
+    if (alreadyUsed) throw actionError("facebookPageInUse");
     await subscribePageToApp(page.id, page.access_token);
 
-    await db.clientService.update({
-      where: { id: clientServiceId },
-      data: {
-        facebookPageId: page.id,
-        facebookPageAccessToken: page.access_token,
-        facebookPageName: page.name,
-      },
-    });
+    await db.clientService
+      .update({
+        where: { id: clientServiceId },
+        data: {
+          facebookPageId: page.id,
+          facebookPageAccessToken: page.access_token,
+          facebookPageName: page.name,
+        },
+      })
+      .catch((err) => {
+        throw isUniqueViolation(err) ? actionError("facebookPageInUse") : err;
+      });
     await logServiceEvent(clientServiceId, "FACEBOOK_CONNECTED", page.name);
     revalidateDashboard(clientServiceId);
   });
@@ -639,7 +656,7 @@ export async function disconnectMessenger(clientServiceId: string) {
       requireUserId(),
       db.clientService.findUniqueOrThrow({ where: { id: clientServiceId } }),
     ]);
-    await requireMemberOn(clientService, userId);
+    await requireBillingRoleOn(clientService, userId);
 
     await db.clientService.update({
       where: { id: clientServiceId },
@@ -660,7 +677,7 @@ export async function disconnectInstagram(clientServiceId: string) {
       requireUserId(),
       db.clientService.findUniqueOrThrow({ where: { id: clientServiceId } }),
     ]);
-    await requireMemberOn(clientService, userId);
+    await requireBillingRoleOn(clientService, userId);
 
     await db.clientService.update({
       where: { id: clientServiceId },
@@ -686,21 +703,30 @@ async function requireOwnedTelephonyService(
   });
   await requireBillingRoleOn(clientService, userId);
   if (!TELEPHONY_SERVICE_SLUGS.has(clientService.service.slug)) {
-    throw new ActionError("Cette solution ne prend pas de numéro de téléphone.");
+    throw actionError("noPhoneForService");
   }
   if (clientService.status !== "CONFIGURING" && clientService.status !== "ACTIVE") {
-    throw new ActionError("La solution doit être payée avant de choisir un numéro.");
+    throw actionError("payBeforeNumber");
   }
   if (clientService.externalPhoneNumber) {
-    throw new ActionError("Un numéro est déjà assigné à cette solution.");
+    throw actionError("numberAlreadyAssigned");
   }
   return clientService;
 }
+
+const PHONE_SEARCHES_PER_HOUR_PER_USER = 30;
+const PHONE_PURCHASES_PER_DAY_PER_ORGANIZATION = 3;
+const PHONE_PURCHASE_ATTEMPTS_PER_HOUR_PER_ORGANIZATION = 10;
+const MAX_PHONE_NUMBERS_PER_ORGANIZATION = 10;
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 export async function searchPhoneNumbers(clientServiceId: string) {
   return runAction(async () => {
     const userId = await requireUserId();
     await requireOwnedTelephonyService(clientServiceId, userId);
+    if (!(await checkRateLimit("phone-search", userId, "1 h", PHONE_SEARCHES_PER_HOUR_PER_USER))) {
+      throw actionError("tooManyNumberSearches");
+    }
     return searchAvailableNumbers();
   });
 }
@@ -711,9 +737,51 @@ export async function purchasePhoneNumberForService(
 ) {
   return runAction(async () => {
     const userId = await requireUserId();
-    await requireOwnedTelephonyService(clientServiceId, userId);
+    if (!isFrenchE164(phoneNumber)) throw actionError("frenchNumberOnly");
+    const clientService = await requireOwnedTelephonyService(clientServiceId, userId);
+    const { organizationId } = clientService;
 
-    const purchased = await purchasePhoneNumber(phoneNumber);
+    // Un numéro par solution (externalPhoneNumber), et un plafond global par
+    // organisation : chaque numéro est facturé tous les mois par Twilio.
+    const numbersInOrganization = await db.clientService.count({
+      where: { organizationId, externalPhoneNumber: { not: null } },
+    });
+    if (numbersInOrganization >= MAX_PHONE_NUMBERS_PER_ORGANIZATION) {
+      throw actionError("phoneNumberCapReached", { max: MAX_PHONE_NUMBERS_PER_ORGANIZATION });
+    }
+    // Le quota quotidien compte les achats réussis (événements PHONE_ASSIGNED
+    // des dernières 24 h), pas les tentatives : un numéro parti entre-temps ou
+    // une erreur Twilio ne doit pas bloquer l'organisation pour la journée.
+    const purchasesToday = await db.serviceEvent.count({
+      where: {
+        type: "PHONE_ASSIGNED",
+        createdAt: { gte: new Date(Date.now() - DAY_MS) },
+        clientService: { organizationId },
+      },
+    });
+    if (purchasesToday >= PHONE_PURCHASES_PER_DAY_PER_ORGANIZATION) {
+      throw actionError("tooManyNumberPurchases");
+    }
+    // Garde-fou contre le martèlement de l'API Twilio, large pour laisser
+    // plusieurs essais après des numéros devenus indisponibles.
+    if (
+      !(await checkRateLimit(
+        "phone-purchase-attempt",
+        organizationId,
+        "1 h",
+        PHONE_PURCHASE_ATTEMPTS_PER_HOUR_PER_ORGANIZATION
+      ))
+    ) {
+      throw actionError("tooManyNumberPurchases");
+    }
+
+    let purchased: Awaited<ReturnType<typeof purchasePhoneNumber>>;
+    try {
+      purchased = await purchasePhoneNumber(phoneNumber);
+    } catch (err) {
+      if (err instanceof PhoneNumberUnavailableError) throw actionError("numberNoLongerAvailable");
+      throw err;
+    }
 
     const { count } = await db.clientService.updateMany({
       where: { id: clientServiceId, externalPhoneNumber: null },
@@ -724,7 +792,7 @@ export async function purchasePhoneNumberForService(
     });
     if (count === 0) {
       await releasePhoneNumber(purchased.sid);
-      throw new ActionError("Un numéro a déjà été assigné à cette solution entre-temps.");
+      throw actionError("numberAssignedMeanwhile");
     }
     await logServiceEvent(clientServiceId, "PHONE_ASSIGNED", purchased.phoneNumber);
 
@@ -762,6 +830,9 @@ export async function cancelService(clientServiceId: string) {
         canceledAt: new Date(),
         externalPhoneNumber: null,
         externalPhoneNumberSid: null,
+        // Libère le numéro WhatsApp, la page ou le compte Instagram : ils
+        // pourront être reliés à une nouvelle solution (identifiants uniques).
+        ...CLEARED_META_CONNECTION,
       },
     });
     await logServiceEvent(clientServiceId, "CANCELED");
@@ -785,9 +856,7 @@ export async function openBillingPortal(organizationId: string) {
 
     const customerId = await organizationCustomerId(organizationId);
     if (!customerId) {
-      throw new ActionError(
-        "Aucun moyen de paiement n'est encore enregistré pour cette entreprise."
-      );
+      throw actionError("noPaymentMethod");
     }
     const url = await createBillingPortalUrl(customerId, `${appUrl()}/dashboard/payments`);
     return { url };
@@ -800,7 +869,7 @@ export async function setOverageAllowed(clientServiceId: string, allowed: boolea
   return runAction(async () => {
     const userId = await requireUserId();
     if (!(await checkRateLimit("overage-change", userId, "10 m", 10))) {
-      throw new ActionError(TOO_MANY_ATTEMPTS);
+      throw actionError("tooManyAttempts");
     }
 
     const clientService = await db.clientService.findUniqueOrThrow({
@@ -827,7 +896,7 @@ export async function changeSubscriptionQuota(
   return runAction(async () => {
     const userId = await requireUserId();
     if (!(await checkRateLimit("quota-change", userId, "10 m", 10))) {
-      throw new ActionError(TOO_MANY_ATTEMPTS);
+      throw actionError("tooManyAttempts");
     }
 
     const clientService = await db.clientService.findUniqueOrThrow({
@@ -837,20 +906,18 @@ export async function changeSubscriptionQuota(
     await requireBillingRoleOn(clientService, userId);
 
     if (clientService.status !== "ACTIVE" && clientService.status !== "CONFIGURING") {
-      throw new ActionError(
-        "Seule une solution en service peut changer de volume."
-      );
+      throw actionError("volumeOnlyActive");
     }
     if (!clientService.stripeSubscriptionId) {
-      throw new ActionError("Cette solution n'a pas d'abonnement en cours.");
+      throw actionError("noSubscription");
     }
 
     const tier = readSubscriptionTier(clientService.service);
     if (!tier) {
-      throw new ActionError("Le volume de cette solution n'est pas modifiable.");
+      throw actionError("volumeNotAdjustable");
     }
     if (!isValidUnitSelection(tier, units)) {
-      throw new ActionError("Ce volume n'est pas proposé pour cette solution.");
+      throw actionError("volumeNotOffered");
     }
 
     const current = clientService.includedUsageUnits ?? tier.minUnits;

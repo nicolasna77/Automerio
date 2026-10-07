@@ -8,11 +8,11 @@ import {
   sendHelpRequestClientReplyInternalEmail,
   sendNewHelpRequestInternalEmail,
 } from "@/lib/email/notifications";
-import { ActionError, runAction } from "@/lib/run-action";
+import { actionError, runAction } from "@/lib/run-action";
 
 async function requireSession() {
   const session = await getSession();
-  if (!session) throw new ActionError("Votre session a expiré. Reconnectez-vous.");
+  if (!session) throw actionError("sessionExpired");
   return session;
 }
 
@@ -28,7 +28,7 @@ export async function submitHelpRequest(input: {
     const subject = input.subject.trim();
     const message = input.message.trim();
     if (!subject || !message) {
-      throw new ActionError("Merci de renseigner un objet et un message.");
+      throw actionError("helpFieldsRequired");
     }
 
     let clientService: { organizationId: string; name: string } | null = null;
@@ -38,7 +38,7 @@ export async function submitHelpRequest(input: {
         select: { organizationId: true, name: true },
       });
       if (!clientService || clientService.organizationId !== active.id) {
-        throw new ActionError("Solution introuvable.");
+        throw actionError("serviceNotFound");
       }
     }
 
@@ -71,14 +71,14 @@ export async function replyToHelpRequest(helpRequestId: string, body: string) {
     const { active } = await requireActiveOrganization();
 
     const trimmed = body.trim();
-    if (!trimmed) throw new ActionError("Le message ne peut pas être vide.");
+    if (!trimmed) throw actionError("emptyMessage");
 
     const helpRequest = await db.helpRequest.findUnique({
       where: { id: helpRequestId },
       select: { id: true, subject: true, status: true, organizationId: true },
     });
     if (!helpRequest || helpRequest.organizationId !== active.id) {
-      throw new ActionError("Demande introuvable.");
+      throw actionError("requestNotFound");
     }
 
     await db.helpRequestMessage.create({

@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { toast } from "sonner";
-import { Loader2, Send } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { toast } from "@/lib/toast";
+import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { unwrap } from "@/lib/action-result";
@@ -16,6 +17,7 @@ export function HelpRequestReplyForm({
   helpRequestId: string;
   resolved: boolean;
 }) {
+  const t = useTranslations("Dashboard.help.reply");
   const [body, setBody] = useState("");
   const [isPending, startTransition] = useTransition();
 
@@ -24,9 +26,7 @@ export function HelpRequestReplyForm({
       try {
         unwrap(await replyToHelpRequest(helpRequestId, body));
         toast.success(
-          resolved
-            ? "Message envoyé. Votre demande est rouverte."
-            : "Message envoyé à l'équipe Automerio."
+          resolved ? t("reopened") : t("sent")
         );
         setBody("");
       } catch (err) {
@@ -38,16 +38,12 @@ export function HelpRequestReplyForm({
   return (
     <div className="mt-4 space-y-2">
       <label className="sr-only" htmlFor={`reply-${helpRequestId}`}>
-        Répondre à l&apos;équipe Automerio
+        {t("label")}
       </label>
       <Textarea
         id={`reply-${helpRequestId}`}
         rows={3}
-        placeholder={
-          resolved
-            ? "Une question de plus ? Écrivez ici pour rouvrir la demande…"
-            : "Ajouter une précision, relancer…"
-        }
+        placeholder={resolved ? t("reopenPlaceholder") : t("placeholder")}
         value={body}
         onChange={(e) => setBody(e.target.value)}
         disabled={isPending}
@@ -57,15 +53,11 @@ export function HelpRequestReplyForm({
         size="sm"
         variant="outline"
         onClick={handleSubmit}
-        disabled={isPending || !body.trim()}
-        aria-busy={isPending}
+        disabled={!body.trim()}
+        loading={isPending}
       >
-        {isPending ? (
-          <Loader2 className="animate-spin" aria-hidden="true" data-icon="inline-start" />
-        ) : (
-          <Send aria-hidden="true" data-icon="inline-start" />
-        )}
-        Envoyer
+        {!isPending && <Send aria-hidden="true" data-icon="inline-start" />}
+        {t("send")}
       </Button>
     </div>
   );

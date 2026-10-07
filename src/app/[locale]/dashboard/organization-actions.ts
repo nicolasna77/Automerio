@@ -1,43 +1,48 @@
 "use server";
 
-import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { auth } from "@/lib/auth";
 import { requireUser } from "@/lib/session";
-import { ActionError, runAction } from "@/lib/run-action";
+import { actionError, runAction } from "@/lib/run-action";
+import { hasOrganizationRole } from "@/lib/organization-roles";
 
 const BLOCKING_STATUSES = ["PENDING_PAYMENT", "CONFIGURING", "ACTIVE"] as const;
+
 
 export async function deleteOrganizationAction(organizationId: string) {
   return runAction(async () => {
     const session = await requireUser();
 
-    const [membership, organizationCount, blockingCount] = await Promise.all([
+    const [membership, organizationCount] = await Promise.all([
       db.member.findFirst({ where: { organizationId, userId: session.user.id } }),
       db.member.count({ where: { userId: session.user.id } }),
-      db.clientService.count({
-        where: { organizationId, status: { in: [...BLOCKING_STATUSES] } },
-      }),
     ]);
 
-    if (!membership) throw new ActionError("Vous n'avez pas accès à cette organisation.");
-    if (organizationCount <= 1) {
-      throw new ActionError("Vous devez conserver au moins une organisation.");
-    }
-    if (blockingCount > 0) {
-      throw new ActionError(
-        "Impossible de supprimer une organisation avec des solutions en cours. Résiliez-les d'abord."
-      );
-    }
+    if (!membership) throw actionError("noOrganizationAccess");
+    // Vérifié avant toute écriture : un simple membre ne doit rien pouvoir
+    // effacer, pas même l'historique des solutions résiliées.
+    if (!hasOrganizationRole(membership.role, "owner")) throw actionError("organizationDeleteOwnerOnly");
+    if (organizationCount <= 1) throw actionError("keepOneOrganization");
 
-    await db.clientService.deleteMany({
-      where: { organizationId, status: "CANCELED" },
-    });
+    // ClientService.organization est en onDelete: Restrict : les solutions
+    // résiliées doivent partir avec l'organisation. Tout se fait dans une
+    // seule transaction (relecture des solutions en cours comprise), pour
+    // qu'un échec n'efface jamais l'historique d'une organisation qui reste.
+    // Les membres et invitations suivent par cascade ; une session dont
+    // l'organisation active disparaît retombe sur la première organisation
+    // restante (getActiveOrganizationContext).
+    await db.$transaction(async (tx) => {
+      const blockingCount = await tx.clientService.count({
+        where: { organizationId, status: { in: [...BLOCKING_STATUSES] } },
+      });
+      if (blockingCount > 0) throw actionError("organizationHasServices");
 
-    await auth.api.deleteOrganization({
-      body: { organizationId },
-      headers: await headers(),
+      await tx.clientService.deleteMany({ where: { organizationId, status: "CANCELED" } });
+      await tx.session.updateMany({
+        where: { activeOrganizationId: organizationId },
+        data: { activeOrganizationId: null },
+      });
+      await tx.organization.delete({ where: { id: organizationId } });
     });
 
     revalidatePath("/dashboard", "layout");

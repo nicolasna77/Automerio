@@ -2,8 +2,9 @@
 
 import { Link } from "@/i18n/navigation";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { ArrowLeft, MailCheck } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +13,9 @@ import { authClient } from "@/lib/auth-client";
 const RESEND_DELAY_SECONDS = 30;
 
 export function ForgotPasswordForm() {
+  const t = useTranslations("Auth.forgotPassword");
+  const tShared = useTranslations("Auth.shared");
+  const tCommon = useTranslations("Common");
   const [loading, setLoading] = useState(false);
   const [sentTo, setSentTo] = useState<string | null>(null);
   const [cooldown, setCooldown] = useState(0);
@@ -41,7 +45,7 @@ export function ForgotPasswordForm() {
   async function handleResend() {
     if (!sentTo || cooldown > 0) return;
     await requestLink(sentTo);
-    toast.success("Nouveau lien envoyé.");
+    toast.success(tShared("newLinkSent"));
   }
 
   if (sentTo) {
@@ -49,16 +53,16 @@ export function ForgotPasswordForm() {
       <div>
         <MailCheck className="size-6 text-primary" aria-hidden="true" />
         <h1 className="mt-3 text-2xl font-semibold tracking-tight text-foreground">
-          Vérifiez votre boîte mail
+          {tShared("checkInbox")}
         </h1>
         <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-          Si un compte existe pour{" "}
-          <span className="font-medium text-foreground">{sentTo}</span>, un lien
-          pour choisir un nouveau mot de passe vient de lui être envoyé. Il
-          expire dans une heure.
+          {t.rich("sentMessage", {
+            email: sentTo,
+            strong: (chunks) => <span className="font-medium text-foreground">{chunks}</span>,
+          })}
         </p>
         <p className="mt-4 text-sm text-muted-foreground">
-          Rien reçu ? Regardez dans les indésirables avant de redemander un lien.
+          {t("notReceived")}
         </p>
 
         <div className="mt-8 space-y-3">
@@ -68,7 +72,9 @@ export function ForgotPasswordForm() {
             onClick={handleResend}
             disabled={cooldown > 0}
           >
-            {cooldown > 0 ? `Renvoyer le lien (${cooldown} s)` : "Renvoyer le lien"}
+            {cooldown > 0
+              ? tShared("resendLinkCooldown", { seconds: cooldown })
+              : tShared("resendLink")}
           </Button>
           <Button
             variant="ghost"
@@ -78,7 +84,7 @@ export function ForgotPasswordForm() {
               setCooldown(0);
             }}
           >
-            Utiliser une autre adresse
+            {t("useAnotherAddress")}
           </Button>
         </div>
 
@@ -87,7 +93,7 @@ export function ForgotPasswordForm() {
           className="mt-6 inline-flex items-center gap-1.5 rounded-sm text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:focus-ring"
         >
           <ArrowLeft className="size-4" aria-hidden="true" />
-          Retour à la connexion
+          {tShared("backToLogin")}
         </Link>
       </div>
     );
@@ -96,28 +102,27 @@ export function ForgotPasswordForm() {
   return (
     <div>
       <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-        Mot de passe oublié
+        {t("title")}
       </h1>
       <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-        Indiquez votre e-mail : nous vous envoyons un lien pour en choisir un
-        nouveau.
+        {t("subtitle")}
       </p>
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="email">E-mail</Label>
+          <Label htmlFor="email">{tShared("emailLabel")}</Label>
           <Input
             id="email"
             name="email"
             type="email"
             autoComplete="email"
-            placeholder="vous@entreprise.fr"
+            placeholder={tShared("emailPlaceholder")}
             autoFocus
             required
           />
         </div>
-        <Button type="submit" className="w-full" disabled={loading} aria-busy={loading}>
-          {loading ? "Envoi…" : "Envoyer le lien"}
+        <Button type="submit" className="w-full" loading={loading}>
+          {loading ? tCommon("sending") : t("submit")}
         </Button>
       </form>
 
@@ -126,7 +131,7 @@ export function ForgotPasswordForm() {
         className="mt-6 inline-flex items-center gap-1.5 rounded-sm text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:focus-ring"
       >
         <ArrowLeft className="size-4" aria-hidden="true" />
-        Retour à la connexion
+        {tShared("backToLogin")}
       </Link>
     </div>
   );

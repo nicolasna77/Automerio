@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   addDays,
   addMonths,
@@ -45,13 +46,9 @@ export type UnscheduledBooking = {
 
 type ViewMode = "month" | "week" | "day";
 
-const VIEW_LABELS: Record<ViewMode, string> = {
-  month: "Mois",
-  week: "Semaine",
-  day: "Jour",
-};
+const VIEW_MODES: ViewMode[] = ["month", "week", "day"];
 
-const WEEKDAY_LABELS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+const WEEKDAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
 const MAX_CHIPS_PER_DAY = 3;
 const DEFAULT_DURATION_MIN = 30;
 const DEFAULT_START_HOUR = 8;
@@ -99,6 +96,7 @@ export function BookingsCalendar({
   scheduled: CalendarBooking[];
   unscheduled?: UnscheduledBooking[];
 }) {
+  const t = useTranslations("Workspace.calendar");
   const [view, setView] = useState<ViewMode>("month");
   const [cursor, setCursor] = useState(() => startOfDay(new Date()));
   const [detail, setDetail] = useState<CalendarBooking | null>(null);
@@ -162,7 +160,7 @@ export function BookingsCalendar({
     view === "month"
       ? format(cursor, "MMMM yyyy", { locale: fr })
       : view === "week"
-        ? `Semaine du ${format(startOfWeek(cursor, WEEK_OPTS), "d MMMM", { locale: fr })}`
+        ? t("weekOf", { date: format(startOfWeek(cursor, WEEK_OPTS), "d MMMM", { locale: fr }) })
         : format(cursor, "EEEE d MMMM yyyy", { locale: fr });
 
   return (
@@ -174,7 +172,7 @@ export function BookingsCalendar({
             variant="ghost"
             size="icon-sm"
             onClick={() => shift(-1)}
-            aria-label="Période précédente"
+            aria-label={t("previous")}
           >
             <ChevronLeft aria-hidden="true" />
           </Button>
@@ -184,14 +182,14 @@ export function BookingsCalendar({
             size="sm"
             onClick={() => setCursor(startOfDay(new Date()))}
           >
-            Aujourd&apos;hui
+            {t("today")}
           </Button>
           <Button
             type="button"
             variant="ghost"
             size="icon-sm"
             onClick={() => shift(1)}
-            aria-label="Période suivante"
+            aria-label={t("next")}
           >
             <ChevronRight aria-hidden="true" />
           </Button>
@@ -209,11 +207,11 @@ export function BookingsCalendar({
               onClick={() => setShowOrders(true)}
             >
               <ShoppingBag aria-hidden="true" data-icon="inline-start" />
-              {unscheduled.length} sans horaire
+              {t("unscheduledCount", { count: unscheduled.length })}
             </Button>
           )}
           <div className="flex shrink-0 items-center gap-0.5 rounded-4xl border border-border p-0.5">
-            {(Object.keys(VIEW_LABELS) as ViewMode[]).map((mode) => (
+            {VIEW_MODES.map((mode) => (
               <Button
                 key={mode}
                 type="button"
@@ -223,7 +221,7 @@ export function BookingsCalendar({
                 aria-pressed={view === mode}
                 onClick={() => setView(mode)}
               >
-                {VIEW_LABELS[mode]}
+                {t(`views.${mode}`)}
               </Button>
             ))}
           </div>
@@ -232,7 +230,7 @@ export function BookingsCalendar({
 
       {scheduled.length === 0 && unscheduled.length === 0 && (
         <p className="mb-3 shrink-0 text-sm text-muted-foreground">
-          Aucun rendez-vous ni commande pris par téléphone pour l&apos;instant.
+          {t("empty")}
         </p>
       )}
 
@@ -241,7 +239,7 @@ export function BookingsCalendar({
           className="grid min-h-0 flex-1 grid-cols-7 gap-px overflow-hidden rounded-2xl border border-border bg-border text-xs"
           style={{ gridTemplateRows: `auto repeat(${monthDays.length / 7}, minmax(0, 1fr))` }}
         >
-          {WEEKDAY_LABELS.map((label) => (
+          {WEEKDAYS.map((day) => t(`weekdays.${day}`)).map((label) => (
             <div
               key={label}
               className="bg-muted px-2 py-1.5 text-center font-medium text-muted-foreground"
@@ -258,9 +256,7 @@ export function BookingsCalendar({
                 type="button"
                 // Le nom dit le jour complet et le nombre de rendez-vous : les
                 // pastilles, tronquées ou masquées sur mobile, ne suffisent pas.
-                aria-label={`${format(day, "EEEE d MMMM", { locale: fr })}, ${
-                  items.length === 0 ? "aucun rendez-vous" : `${items.length} rendez-vous`
-                }`}
+                aria-label={t("dayLabel", { date: format(day, "EEEE d MMMM", { locale: fr }), count: items.length })}
                 aria-current={isToday(day) ? "date" : undefined}
                 onClick={() => {
                   setCursor(startOfDay(day));
@@ -417,7 +413,7 @@ export function BookingsCalendar({
                 <DialogTitle>{detail.title}</DialogTitle>
                 <DialogDescription className="capitalize">
                   {format(detail.date, "EEEE d MMMM", { locale: fr })} ·{" "}
-                  de {format(detail.date, "HH:mm")} à {format(bookingEnd(detail), "HH:mm")}
+                  {t("timeRange", { start: format(detail.date, "HH:mm"), end: format(bookingEnd(detail), "HH:mm") })}
                 </DialogDescription>
               </DialogHeader>
               {detail.subtitle && (
@@ -431,7 +427,7 @@ export function BookingsCalendar({
               {!detail.synced && (
                 <p className="flex items-center gap-1.5 text-sm text-destructive">
                   <CalendarClock className="size-4 shrink-0" aria-hidden="true" />
-                  Non synchronisé à l&apos;agenda
+                  {t("notSynced")}
                 </p>
               )}
             </>
@@ -442,11 +438,8 @@ export function BookingsCalendar({
       <Dialog open={showOrders} onOpenChange={setShowOrders}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Sans horaire</DialogTitle>
-            <DialogDescription>
-              Commandes prises par téléphone. Elles n&apos;occupent pas de
-              créneau et n&apos;apparaissent donc pas dans la grille.
-            </DialogDescription>
+            <DialogTitle>{t("unscheduledTitle")}</DialogTitle>
+            <DialogDescription>{t("unscheduledDescription")}</DialogDescription>
           </DialogHeader>
           <ul className="max-h-80 space-y-1.5 overflow-y-auto">
             {unscheduled.map((item) => (

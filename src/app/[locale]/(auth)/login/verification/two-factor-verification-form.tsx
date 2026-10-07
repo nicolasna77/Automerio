@@ -2,6 +2,7 @@
 
 import { Link } from "@/i18n/navigation";
 import { useId, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { ArrowLeft, CircleAlert } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -13,6 +14,8 @@ import { authClient } from "@/lib/auth-client";
 import { redirectAfterSignIn } from "../redirect-after-sign-in";
 
 export function TwoFactorVerificationForm({ next }: { next: string | null }) {
+  const t = useTranslations("Auth.verification");
+  const tShared = useTranslations("Auth.shared");
   const router = useRouter();
   const codeId = useId();
   const trustId = useId();
@@ -37,10 +40,10 @@ export function TwoFactorVerificationForm({ next }: { next: string | null }) {
       setLoading(false);
       setError(
         error.status === 401 && error.code?.includes("COOKIE")
-          ? "La vérification a expiré. Reconnectez-vous."
+          ? t("errors.expired")
           : useBackupCode
-            ? "Ce code de secours n'est pas valable."
-            : "Code incorrect. Vérifiez que l'heure de votre téléphone est à jour, puis réessayez."
+            ? t("errors.invalidBackupCode")
+            : t("errors.invalidCode")
       );
       return;
     }
@@ -51,17 +54,17 @@ export function TwoFactorVerificationForm({ next }: { next: string | null }) {
   return (
     <div>
       <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-        Vérification en deux étapes
+        {t("title")}
       </h1>
       <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
         {useBackupCode
-          ? "Saisissez l'un des codes de secours obtenus à l'activation."
-          : "Saisissez le code à 6 chiffres affiché dans votre application d'authentification."}
+          ? t("descriptionBackup")
+          : t("descriptionTotp")}
       </p>
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-4">
         <div className="space-y-2">
-          <Label htmlFor={codeId}>{useBackupCode ? "Code de secours" : "Code"}</Label>
+          <Label htmlFor={codeId}>{useBackupCode ? t("backupCodeLabel") : t("codeLabel")}</Label>
           <Input
             id={codeId}
             value={code}
@@ -81,7 +84,7 @@ export function TwoFactorVerificationForm({ next }: { next: string | null }) {
             checked={trustDevice}
             onCheckedChange={(checked) => setTrustDevice(checked === true)}
           />
-          Ne plus demander sur cet appareil pendant 30 jours
+          {t("trustDevice")}
         </label>
 
         {error && (
@@ -94,10 +97,10 @@ export function TwoFactorVerificationForm({ next }: { next: string | null }) {
         <Button
           type="submit"
           className="w-full"
-          disabled={loading || !code.trim()}
-          aria-busy={loading}
+          disabled={!code.trim()}
+          loading={loading}
         >
-          {loading ? "Vérification…" : "Valider"}
+          {loading ? t("submitting") : t("submit")}
         </Button>
         <Button
           type="button"
@@ -109,7 +112,7 @@ export function TwoFactorVerificationForm({ next }: { next: string | null }) {
             setError(null);
           }}
         >
-          {useBackupCode ? "Utiliser mon application" : "Utiliser un code de secours"}
+          {useBackupCode ? t("useApp") : t("useBackupCode")}
         </Button>
       </form>
 
@@ -118,7 +121,7 @@ export function TwoFactorVerificationForm({ next }: { next: string | null }) {
         className="mt-6 inline-flex items-center gap-1.5 rounded-sm text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:focus-ring"
       >
         <ArrowLeft className="size-4" aria-hidden="true" />
-        Revenir à la connexion
+        {tShared("returnToLogin")}
       </Link>
     </div>
   );

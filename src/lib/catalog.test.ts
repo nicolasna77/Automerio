@@ -204,6 +204,7 @@ describe("carte produits", () => {
 
   it("accompagne chaque blocage d'un intitulé d'action pour le bouton", () => {
     expect(setupAction(ordering)).toEqual({
+      id: "productCatalog",
       hint: "Ajoutez votre carte pour que l'assistant prenne les commandes",
       cta: "Ajouter ma carte",
     });

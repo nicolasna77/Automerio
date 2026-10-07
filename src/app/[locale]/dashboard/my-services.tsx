@@ -1,19 +1,18 @@
 "use client";
 
+import { useLabels } from "@/hooks/use-labels";
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Search, Sparkles } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import {
-  STATUS_LABELS,
-  type ClientServiceStatus,
-  type MyServiceDTO,
-} from "@/lib/catalog";
-import { MyServiceRow, SOLUTION_COLUMNS } from "./my-service-row";
+import { type ClientServiceStatus, type MyServiceDTO } from "@/lib/catalog";
+import { SolutionsTable } from "./solutions-table";
 import { CATALOGUE_PATH } from "./services/paths";
+import type { QuotaState } from "./quota-meter";
 
 const STATUS_ORDER: ClientServiceStatus[] = [
   "PENDING_PAYMENT",
@@ -27,7 +26,15 @@ const SEARCH_THRESHOLD = 6;
 
 type StatusFilter = ClientServiceStatus | "all";
 
-export function MyServices({ items }: { items: MyServiceDTO[] }) {
+export function MyServices({
+  items,
+  quotas,
+}: {
+  items: MyServiceDTO[];
+  quotas: Record<string, QuotaState>;
+}) {
+  const t = useTranslations("Dashboard.services.list");
+  const labels = useLabels();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
 
@@ -56,10 +63,10 @@ export function MyServices({ items }: { items: MyServiceDTO[] }) {
   });
 
   const filters: { value: StatusFilter; label: string; count: number }[] = [
-    { value: "all", label: "Toutes", count: items.length },
+    { value: "all", label: t("all"), count: items.length },
     ...STATUS_ORDER.filter((status) => counts.has(status)).map((status) => ({
       value: status,
-      label: STATUS_LABELS[status],
+      label: labels.status(status),
       count: counts.get(status) ?? 0,
     })),
   ];
@@ -75,13 +82,13 @@ export function MyServices({ items }: { items: MyServiceDTO[] }) {
   return (
     <section aria-labelledby="my-services-heading">
       <h2 id="my-services-heading" className="sr-only">
-        Mes solutions
+        {t("heading")}
       </h2>
 
       {(showStatusFilters || showSearch) && (
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           {showStatusFilters && (
-            <div role="group" aria-label="Filtrer par statut" className="flex flex-wrap gap-1.5">
+            <div role="group" aria-label={t("filterLabel")} className="flex flex-wrap gap-1.5">
               {filters.map((filter) => {
                 const active = statusFilter === filter.value;
                 return (
@@ -122,8 +129,8 @@ export function MyServices({ items }: { items: MyServiceDTO[] }) {
                 type="search"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Rechercher une solution…"
-                aria-label="Rechercher parmi mes solutions"
+                placeholder={t("searchPlaceholder")}
+                aria-label={t("searchLabel")}
                 className="pl-9"
               />
             </div>
@@ -134,11 +141,11 @@ export function MyServices({ items }: { items: MyServiceDTO[] }) {
       {items.length === 0 ? (
         <EmptyState
           icon={Sparkles}
-          title="Vous n'avez encore activé aucune solution"
-          description="Choisissez une automatisation dans le catalogue pour démarrer."
+          title={t("emptyTitle")}
+          description={t("emptyDescription")}
           action={
             <Link href={CATALOGUE_PATH} className={buttonVariants({ variant: "outline", size: "sm" })}>
-              Voir le catalogue
+              {t("seeCatalog")}
             </Link>
           }
         />
@@ -146,33 +153,16 @@ export function MyServices({ items }: { items: MyServiceDTO[] }) {
         <EmptyState
           icon={Search}
           tone="neutral"
-          title="Aucune solution ne correspond à ces filtres"
-          description="Essayez un autre nom ou un autre statut."
+          title={t("noMatchTitle")}
+          description={t("noMatchDescription")}
           action={
             <Button variant="outline" size="sm" onClick={resetFilters}>
-              Réinitialiser
+              {t("reset")}
             </Button>
           }
         />
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border bg-card">
-          <div
-            aria-hidden="true"
-            className="hidden border-b border-border bg-muted/40 px-5 py-2.5 text-xs font-medium text-muted-foreground md:grid md:grid-cols-(--solution-cols) md:gap-6"
-            style={{ "--solution-cols": SOLUTION_COLUMNS } as React.CSSProperties}
-          >
-            <span className="pl-9">Solution</span>
-            <span>Statut</span>
-            <span>Numéro</span>
-            <span className="text-right">Tarif</span>
-            <span />
-          </div>
-          <ul className="divide-y divide-border">
-            {filtered.map((item) => (
-              <MyServiceRow key={item.clientServiceId} item={item} />
-            ))}
-          </ul>
-        </div>
+        <SolutionsTable items={filtered} quotas={quotas} />
       )}
     </section>
   );

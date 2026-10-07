@@ -8,6 +8,12 @@ export const TEST_SIP_HEADER = "X-Automerio-Test";
 
 export const TEST_CALLS_PER_DAY = 5;
 
+export const TEST_CALLS_PER_DAY_PER_USER = 10;
+
+export const TEST_CALLS_PER_DAY_PER_ORGANIZATION = 20;
+
+const DEFAULT_TEST_CALLS_GLOBAL_PER_DAY = 200;
+
 const DEFAULT_PER_IP_PER_DAY = 2;
 const DEFAULT_PER_DAY = 30;
 
@@ -21,6 +27,12 @@ export function demoCallLimits() {
     perIpPerDay: positiveIntFromEnv("DEMO_CALLS_PER_IP_PER_DAY", DEFAULT_PER_IP_PER_DAY),
     perDay: positiveIntFromEnv("DEMO_CALLS_PER_DAY", DEFAULT_PER_DAY),
   };
+}
+
+// Plafond quotidien de tous les tests d'appel confondus, comme pour l'essai
+// public : borne la facture Twilio/OpenAI même si de nombreux comptes s'y mettent.
+export function testCallsGlobalPerDay(): number {
+  return positiveIntFromEnv("TEST_CALLS_PER_DAY_GLOBAL", DEFAULT_TEST_CALLS_GLOBAL_PER_DAY);
 }
 
 export function isDemoCallDryRun(): boolean {

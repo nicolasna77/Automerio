@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useTransition, type FormEvent } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import dynamic from "next/dynamic";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -37,15 +38,25 @@ export function TwoFactorSection({
   requiresPassword: boolean;
 }) {
   const router = useRouter();
+  const t = useTranslations("Dashboard.profile.twoFactor");
+  const tCommon = useTranslations("Common");
   const [step, setStep] = useState<Step>({ kind: "idle" });
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
+  // Erreur de saisie (mot de passe ou code) affichée sous le champ concerné.
+  const [fieldError, setFieldError] = useState<{ field: "two-factor-password" | "two-factor-code"; message: string } | null>(null);
+
+  function showFieldError(field: "two-factor-password" | "two-factor-code", message: string) {
+    setFieldError({ field, message });
+    document.getElementById(field)?.focus();
+  }
   const [isPending, startTransition] = useTransition();
 
   function close() {
     setStep({ kind: "idle" });
     setPassword("");
     setCode("");
+    setFieldError(null);
   }
 
   function handlePassword(event: FormEvent) {
@@ -57,11 +68,8 @@ export function TwoFactorSection({
       if (step.mode === "enable") {
         const { data, error } = await authClient.twoFactor.enable(credentials);
         if (error || !data) {
-          toast.error(
-            error?.status === 400 || error?.status === 401
-              ? "Mot de passe incorrect."
-              : "L'activation a échoué. Réessayez dans un instant."
-          );
+          if (error?.status === 400 || error?.status === 401) showFieldError("two-factor-password", t("wrongPassword"));
+          else toast.error(t("enableFailed"));
           return;
         }
         setPassword("");
@@ -71,14 +79,11 @@ export function TwoFactorSection({
 
       const { error } = await authClient.twoFactor.disable(credentials);
       if (error) {
-        toast.error(
-          error.status === 400 || error.status === 401
-            ? "Mot de passe incorrect."
-            : "La désactivation a échoué. Réessayez dans un instant."
-        );
+        if (error.status === 400 || error.status === 401) showFieldError("two-factor-password", t("wrongPassword"));
+        else toast.error(t("disableFailed"));
         return;
       }
-      toast.success("Double authentification désactivée.");
+      toast.success(t("disabled"));
       close();
       router.refresh();
     });
@@ -94,9 +99,7 @@ export function TwoFactorSection({
         code: code.replace(/\s+/g, ""),
       });
       if (error) {
-        toast.error(
-          "Code incorrect. Vérifiez que l'heure de votre téléphone est à jour, puis réessayez."
-        );
+        showFieldError("two-factor-code", t("wrongCode"));
         return;
       }
       setCode("");
@@ -108,20 +111,18 @@ export function TwoFactorSection({
   async function copyBackupCodes(codes: string[]) {
     try {
       await navigator.clipboard.writeText(codes.join("\n"));
-      toast.success("Codes copiés.");
+      toast.success(t("copied"));
     } catch {
-      toast.error("Copie impossible. Recopiez-les à la main.");
+      toast.error(t("copyFailed"));
     }
   }
 
-  const description = enabled
-    ? "Activée : un code de votre application vous est demandé à chaque connexion sur un nouvel appareil."
-    : "Ajoutez à votre mot de passe un code à 6 chiffres, généré par une application comme Google Authenticator ou 1Password.";
+  const description = enabled ? t("enabledDescription") : t("disabledDescription");
 
   return (
     <ProfileSection
       id="two-factor"
-      title="Double authentification"
+      title={t("title")}
       description={description}
       action={
         step.kind === "idle" && (
@@ -130,7 +131,7 @@ export function TwoFactorSection({
             variant="outline"
             onClick={() => setStep({ kind: "password", mode: enabled ? "disable" : "enable" })}
           >
-            {enabled ? "Désactiver" : "Activer"}
+            {enabled ? t("disable") : t("enable")}
           </Button>
         )
       }
@@ -139,7 +140,7 @@ export function TwoFactorSection({
         <form onSubmit={handlePassword} className="grid gap-4 sm:max-w-md">
           {requiresPassword ? (
             <div className="space-y-2">
-              <Label htmlFor="two-factor-password">Mot de passe</Label>
+              <Label htmlFor="two-factor-password">{t("password")}</Label>
               <Input
                 id="two-factor-password"
                 type="password"
@@ -147,22 +148,28 @@ export function TwoFactorSection({
                 autoFocus
                 autoComplete="current-password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (fieldError?.field === "two-factor-password") setFieldError(null);
+                }}
+                aria-invalid={fieldError?.field === "two-factor-password" ? true : undefined}
+                aria-describedby={fieldError?.field === "two-factor-password" ? "two-factor-password-error" : undefined}
               />
+              {fieldError?.field === "two-factor-password" && (
+                <p id="two-factor-password-error" className="text-sm text-destructive">{fieldError.message}</p>
+              )}
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
-              {step.mode === "enable"
-                ? "Vous allez associer une application d'authentification à votre compte."
-                : "Les connexions ne demanderont plus de code."}
+              {step.mode === "enable" ? t("enableIntro") : t("disableIntro")}
             </p>
           )}
           <div className="flex gap-2">
-            <Button type="submit" disabled={isPending} aria-busy={isPending}>
-              {isPending ? "Un instant…" : step.mode === "enable" ? "Continuer" : "Désactiver"}
+            <Button type="submit" loading={isPending}>
+              {isPending ? t("wait") : step.mode === "enable" ? tCommon("continue") : t("disable")}
             </Button>
             <Button type="button" variant="ghost" disabled={isPending} onClick={close}>
-              Annuler
+              {tCommon("cancel")}
             </Button>
           </div>
         </form>
@@ -171,37 +178,45 @@ export function TwoFactorSection({
       {step.kind === "scan" && (
         <form onSubmit={handleCode} className="grid gap-5 sm:max-w-md">
           <ol className="list-decimal space-y-1.5 pl-5 text-sm text-muted-foreground">
-            <li>Ouvrez votre application d&apos;authentification.</li>
-            <li>Scannez ce QR code, ou saisissez la clé à la main.</li>
-            <li>Entrez le code à 6 chiffres qu&apos;elle affiche.</li>
+            <li>{t("steps.open")}</li>
+            <li>{t("steps.scan")}</li>
+            <li>{t("steps.enter")}</li>
           </ol>
           <div className="w-fit rounded-2xl bg-white p-3">
             <QRCode value={step.totpURI} size={168} />
           </div>
           <div className="space-y-1">
-            <p className="text-xs text-muted-foreground">Clé à saisir à la main</p>
+            <p className="text-xs text-muted-foreground">{t("manualKey")}</p>
             <code className="block break-all rounded-xl bg-muted px-3 py-2 font-mono text-sm">
               {secretOf(step.totpURI)}
             </code>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="two-factor-code">Code affiché</Label>
+            <Label htmlFor="two-factor-code">{t("code")}</Label>
             <Input
               id="two-factor-code"
               inputMode="numeric"
               autoComplete="one-time-code"
               required
               value={code}
-              onChange={(e) => setCode(e.target.value)}
+              onChange={(e) => {
+                setCode(e.target.value);
+                if (fieldError?.field === "two-factor-code") setFieldError(null);
+              }}
+              aria-invalid={fieldError?.field === "two-factor-code" ? true : undefined}
+              aria-describedby={fieldError?.field === "two-factor-code" ? "two-factor-code-error" : undefined}
               className="tabular-nums tracking-widest"
             />
+            {fieldError?.field === "two-factor-code" && (
+              <p id="two-factor-code-error" className="text-sm text-destructive">{fieldError.message}</p>
+            )}
           </div>
           <div className="flex gap-2">
-            <Button type="submit" disabled={isPending || !code.trim()} aria-busy={isPending}>
-              {isPending ? "Vérification…" : "Vérifier et activer"}
+            <Button type="submit" disabled={!code.trim()} loading={isPending}>
+              {isPending ? t("verifying") : t("verify")}
             </Button>
             <Button type="button" variant="ghost" disabled={isPending} onClick={close}>
-              Annuler
+              {tCommon("cancel")}
             </Button>
           </div>
         </form>
@@ -210,9 +225,7 @@ export function TwoFactorSection({
       {step.kind === "backup" && (
         <div className="grid gap-4 sm:max-w-md">
           <p className="text-sm text-foreground">
-            Double authentification activée. Gardez ces codes de secours en lieu
-            sûr : chacun permet une connexion si vous perdez votre téléphone. Ils
-            ne seront plus affichés.
+            {t("backupIntro")}
           </p>
           <ul className="grid grid-cols-2 gap-2 rounded-2xl bg-muted p-4 font-mono text-sm">
             {step.backupCodes.map((backupCode) => (
@@ -221,10 +234,10 @@ export function TwoFactorSection({
           </ul>
           <div className="flex gap-2">
             <Button type="button" variant="outline" onClick={() => copyBackupCodes(step.backupCodes)}>
-              Copier les codes
+              {t("copyCodes")}
             </Button>
             <Button type="button" onClick={close}>
-              J&apos;ai conservé mes codes
+              {t("kept")}
             </Button>
           </div>
         </div>

@@ -1,19 +1,23 @@
 import { MessageCircle } from "lucide-react";
+import { useLabels } from "@/hooks/use-labels";
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { formatDate } from "@/lib/catalog";
-import { HELP_REQUEST_STATUS_LABELS, type HelpRequestDTO } from "@/lib/help";
+import { type HelpRequestDTO } from "@/lib/help";
 import { HelpRequestThread } from "@/components/help-request-thread";
 import { HelpRequestReplyForm } from "./help-request-reply-form";
 
 export function HelpRequestHistory({ items }: { items: HelpRequestDTO[] }) {
+  const t = useTranslations("Dashboard.help");
+  const labels = useLabels();
   return (
     <section aria-labelledby="help-history-heading" className="mt-10">
       <h2
         id="help-history-heading"
         className="mb-4 text-lg font-semibold text-foreground"
       >
-        Vos demandes
+        {t("history.title")}
       </h2>
 
       {items.length === 0 ? (
@@ -22,12 +26,8 @@ export function HelpRequestHistory({ items }: { items: HelpRequestDTO[] }) {
             <MessageCircle className="size-4" aria-hidden="true" />
           </span>
           <div>
-            <p className="font-medium text-foreground">
-              Vous n&apos;avez pas encore contacté l&apos;équipe
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Vos demandes s&apos;affichent ici une fois envoyées.
-            </p>
+            <p className="font-medium text-foreground">{t("history.emptyTitle")}</p>
+            <p className="text-sm text-muted-foreground">{t("history.emptyDescription")}</p>
           </div>
         </div>
       ) : (
@@ -41,18 +41,18 @@ export function HelpRequestHistory({ items }: { items: HelpRequestDTO[] }) {
                       {item.subject}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {item.service ? item.service.name : "Question générale"}
+                      {item.service ? item.service.name : t("form.general")}
                       {" · "}
                       {item.resolvedAt
-                        ? `Traité le ${formatDate(item.resolvedAt)}`
-                        : `Envoyée le ${formatDate(item.createdAt)}`}
+                        ? t("history.resolvedOn", { date: formatDate(item.resolvedAt) })
+                        : t("history.sentOn", { date: formatDate(item.createdAt) })}
                     </p>
                   </div>
                   <Badge
                     variant={item.status === "OPEN" ? "outline" : "secondary"}
                     className="shrink-0"
                   >
-                    {HELP_REQUEST_STATUS_LABELS[item.status]}
+                    {labels.helpStatus(item.status)}
                   </Badge>
                 </div>
               </CardHeader>

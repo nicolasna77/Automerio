@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { titleMetadata } from "@/i18n/metadata";
 import { Suspense } from "react";
 import { HelpRequestsSectionSkeleton } from "../admin-skeletons";
@@ -13,13 +14,13 @@ export default async function AdminAidePage({
 }: {
   searchParams: Promise<{ status?: string; page?: string }>;
 }) {
-  const params = await searchParams;
+  const [params, t] = await Promise.all([searchParams, getTranslations("Admin.help")]);
 
   return (
     <PageShell size="wide">
       <PageHeader
-        title="Centre d'aide"
-        description="Demandes envoyées par les clients depuis leur tableau de bord."
+        title={t("title")}
+        description={t("description")}
         actions={<LiveRefreshToggle />}
       />
 

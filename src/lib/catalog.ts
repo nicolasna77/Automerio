@@ -29,6 +29,12 @@ export const WHATSAPP_SERVICE_SLUG = "assistant-whatsapp";
 export const FACEBOOK_SERVICE_SLUG = "assistant-facebook";
 export const INSTAGRAM_SERVICE_SLUG = "assistant-instagram";
 
+export const MESSAGING_SERVICE_SLUGS: ReadonlySet<string> = new Set([
+  WHATSAPP_SERVICE_SLUG,
+  FACEBOOK_SERVICE_SLUG,
+  INSTAGRAM_SERVICE_SLUG,
+]);
+
 export const PRODUCT_CATALOG_FIELD_KEY = "productCatalog";
 
 export type WeekDay = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
@@ -139,7 +145,7 @@ export function formatPrice(monthlyPriceCents: number | null): string {
   return monthlyPriceCents === null ? "—" : `${formatCents(monthlyPriceCents)}/mois`;
 }
 
-// Le montant sans le symbole « € » : pour afficher le chiffre en Plex Mono et
+// Le montant sans le symbole « € » : pour afficher le chiffre en DM Mono et
 // l'unité en texte courant, sans l'espace insécable élargi par la chasse fixe.
 export function formatEuroAmount(cents: number): string {
   return formatCents(cents).replace(/\s€$/, "");
@@ -202,30 +208,6 @@ export type ServiceEventType =
   | "OVERAGE_ACCEPTED"
   | "OVERAGE_REFUSED"
   | "CANCELED";
-
-export const SERVICE_EVENT_LABELS: Record<ServiceEventType, string> = {
-  CREATED: "Demande d'activation envoyée",
-  PAYMENT_RECEIVED: "Paiement reçu",
-  PAYMENT_FAILED: "Paiement refusé",
-  ACTIVATED: "Solution vérifiée et activée",
-  NOTE_ADDED: "Note de l'équipe Automerio",
-  PHONE_ASSIGNED: "Numéro de téléphone attribué",
-  CALENDAR_CONNECTED: "Agenda connecté",
-  CALENDAR_DISCONNECTED: "Agenda déconnecté",
-  WHATSAPP_CONNECTED: "Compte WhatsApp connecté",
-  WHATSAPP_DISCONNECTED: "Compte WhatsApp déconnecté",
-  FACEBOOK_CONNECTED: "Page Facebook connectée",
-  FACEBOOK_DISCONNECTED: "Page Facebook déconnectée",
-  INSTAGRAM_CONNECTED: "Compte Instagram connecté",
-  INSTAGRAM_DISCONNECTED: "Compte Instagram déconnecté",
-  QUOTA_CHANGED: "Volume de l'abonnement modifié",
-  QUOTA_WARNING: "80 % du forfait consommé",
-  QUOTA_EXCEEDED: "Forfait dépassé",
-  OVERAGE_ACCEPTED: "Dépassement du forfait accepté",
-  OVERAGE_REFUSED: "Dépassement du forfait refusé",
-  CONFIGURATION_UPDATED: "Configuration mise à jour",
-  CANCELED: "Solution résiliée",
-};
 
 export type ServiceEventDTO = {
   id: string;
@@ -395,12 +377,15 @@ export function needsInstagramConnection(item: SetupSubject): boolean {
 
 export const SETUP_ANCHOR = "mise-en-service";
 
-export type SetupAction = { hint: string; cta: string };
+export type SetupActionId = "phoneNumber" | "whatsapp" | "facebook" | "instagram" | "productCatalog";
+
+export type SetupAction = { id: SetupActionId; hint: string; cta: string };
 
 const SETUP_ACTIONS: { needs: (item: SetupSubject) => boolean; action: SetupAction }[] = [
   {
     needs: needsPhoneNumber,
     action: {
+      id: "phoneNumber",
       hint: "Choisissez un numéro pour que l'assistant puisse décrocher",
       cta: "Choisir un numéro",
     },
@@ -408,6 +393,7 @@ const SETUP_ACTIONS: { needs: (item: SetupSubject) => boolean; action: SetupActi
   {
     needs: needsWhatsAppConnection,
     action: {
+      id: "whatsapp",
       hint: "Connectez votre compte WhatsApp pour que l'assistant puisse répondre",
       cta: "Connecter WhatsApp",
     },
@@ -415,6 +401,7 @@ const SETUP_ACTIONS: { needs: (item: SetupSubject) => boolean; action: SetupActi
   {
     needs: needsFacebookConnection,
     action: {
+      id: "facebook",
       hint: "Connectez votre Page Facebook pour que l'assistant puisse répondre",
       cta: "Connecter ma Page",
     },
@@ -422,6 +409,7 @@ const SETUP_ACTIONS: { needs: (item: SetupSubject) => boolean; action: SetupActi
   {
     needs: needsInstagramConnection,
     action: {
+      id: "instagram",
       hint: "Connectez votre compte Instagram pour que l'assistant puisse répondre",
       cta: "Connecter Instagram",
     },
@@ -429,6 +417,7 @@ const SETUP_ACTIONS: { needs: (item: SetupSubject) => boolean; action: SetupActi
   {
     needs: needsProductCatalog,
     action: {
+      id: "productCatalog",
       hint: "Ajoutez votre carte pour que l'assistant prenne les commandes",
       cta: "Ajouter ma carte",
     },

@@ -5,6 +5,7 @@ import { releasePhoneNumber } from "@/lib/twilio";
 import { logServiceEvent } from "@/lib/service-events";
 import { sendPaymentFailedEmail, sendServiceCanceledEmail } from "@/lib/email/notifications";
 import { billFinalOverage, billOverageOnInvoice } from "@/lib/overage-billing";
+import { CLEARED_META_CONNECTION } from "@/lib/meta-connection";
 
 function idOf(ref: string | { id: string } | null | undefined): string | null {
   if (!ref) return null;
@@ -113,6 +114,7 @@ async function endSubscription(subscriptionId: string) {
       paymentFailedAt: null,
       externalPhoneNumber: null,
       externalPhoneNumberSid: null,
+      ...CLEARED_META_CONNECTION,
     },
   });
   for (const clientService of affected) {

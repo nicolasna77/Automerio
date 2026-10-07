@@ -1,8 +1,10 @@
 "use client";
 
+import { useLabels } from "@/hooks/use-labels";
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,12 +28,7 @@ import {
 import { unwrap } from "@/lib/action-result";
 import { initialsOf } from "@/lib/initials";
 import { getErrorMessage } from "@/lib/utils";
-import {
-  INVITABLE_ROLES,
-  INVITABLE_ROLE_ITEMS,
-  ROLE_DESCRIPTIONS,
-  roleLabel,
-} from "@/lib/organization-roles";
+import { INVITABLE_ROLES } from "@/lib/organization-roles";
 import { changeMemberRoleAction, removeMemberAction, transferOwnershipAction } from "./actions";
 
 export type TeamMemberRow = {
@@ -55,6 +52,10 @@ export function TeamMembers({
   members: TeamMemberRow[];
 }) {
   const router = useRouter();
+  const t = useTranslations("Dashboard.organization.members");
+  const labels = useLabels();
+  const roleItems = Object.fromEntries(INVITABLE_ROLES.map((value) => [value, labels.role(value)]));
+  const tCommon = useTranslations("Common");
   const [pending, startTransition] = useTransition();
   const [toRemove, setToRemove] = useState<TeamMemberRow | null>(null);
   const [toPromote, setToPromote] = useState<TeamMemberRow | null>(null);
@@ -65,7 +66,7 @@ export function TeamMembers({
         await work();
         router.refresh();
       } catch (err) {
-        toast.error(getErrorMessage(err, "L'opération a échoué."));
+        toast.error(getErrorMessage(err, t("failed")));
       }
     });
   }
@@ -74,14 +75,14 @@ export function TeamMembers({
     if (role === member.role) return;
     run(async () => {
       unwrap(await changeMemberRoleAction(organizationId, member.id, role));
-      toast.success(`${member.name} est maintenant ${roleLabel(role).toLowerCase()}.`);
+      toast.success(t("roleChanged", { name: member.name, role: labels.role(role).toLowerCase() }));
     });
   }
 
   function handleTransfer(member: TeamMemberRow) {
     run(async () => {
       unwrap(await transferOwnershipAction(organizationId, member.id));
-      toast.success(`${member.name} est maintenant propriétaire. Vous restez responsable.`);
+      toast.success(t("transferred", { name: member.name }));
       setToPromote(null);
     });
   }
@@ -89,7 +90,7 @@ export function TeamMembers({
   function handleRemove(member: TeamMemberRow) {
     run(async () => {
       unwrap(await removeMemberAction(organizationId, member.id));
-      toast.success(`${member.name} n'a plus accès à cette entreprise.`);
+      toast.success(t("removed", { name: member.name }));
       setToRemove(null);
     });
   }
@@ -115,7 +116,7 @@ export function TeamMembers({
                     <span className="truncate">{member.name}</span>
                     {member.isMe && (
                       <Badge variant="outline" className="shrink-0 font-normal">
-                        vous
+                        {t("you")}
                       </Badge>
                     )}
                   </p>
@@ -123,8 +124,7 @@ export function TeamMembers({
                     {member.email}
                   </p>
                   <p className="mt-0.5 text-xs text-muted-foreground">
-                    {ROLE_DESCRIPTIONS[member.role] ??
-                      `Membre depuis le ${member.joinedAt}`}
+                    {labels.roleDescription(member.role) ?? t("since", { date: member.joinedAt })}
                   </p>
                 </div>
 
@@ -132,26 +132,26 @@ export function TeamMembers({
                   {editable ? (
                     <Select
                       value={member.role}
-                      items={INVITABLE_ROLE_ITEMS}
+                      items={roleItems}
                       onValueChange={(role) => role && handleRoleChange(member, role)}
                       disabled={pending}
                     >
                       <SelectTrigger
                         className="w-40"
-                        aria-label={`Rôle de ${member.name}`}
+                        aria-label={t("roleOf", { name: member.name })}
                       >
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         {INVITABLE_ROLES.map((role) => (
                           <SelectItem key={role} value={role}>
-                            {roleLabel(role)}
+                            {labels.role(role)}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   ) : (
-                    <Badge variant="secondary">{roleLabel(member.role)}</Badge>
+                    <Badge variant="secondary">{labels.role(member.role)}</Badge>
                   )}
 
                   {canTransfer && !isOwner && !member.isMe && (
@@ -161,7 +161,7 @@ export function TeamMembers({
                       disabled={pending}
                       onClick={() => setToPromote(member)}
                     >
-                      Transmettre la propriété
+                      {t("transfer")}
                     </Button>
                   )}
                   {editable && (
@@ -171,7 +171,7 @@ export function TeamMembers({
                       disabled={pending}
                       onClick={() => setToRemove(member)}
                     >
-                      Retirer
+                      {t("remove")}
                     </Button>
                   )}
                 </div>
@@ -187,20 +187,16 @@ export function TeamMembers({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Transmettre la propriété à {toPromote?.name} ?</AlertDialogTitle>
-            <AlertDialogDescription>
-              {toPromote?.name} deviendra propriétaire de l&apos;entreprise, et sera la seule
-              personne à pouvoir la transmettre à nouveau. Vous resterez responsable : vous
-              gardez la gestion de l&apos;équipe, des solutions et des paiements.
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t("transferTitle", { name: toPromote?.name ?? "" })}</AlertDialogTitle>
+            <AlertDialogDescription>{t("transferBody", { name: toPromote?.name ?? "" })}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={pending}>Annuler</AlertDialogCancel>
+            <AlertDialogCancel disabled={pending}>{tCommon("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               disabled={pending}
               onClick={() => toPromote && handleTransfer(toPromote)}
             >
-              {pending ? "Transmission…" : "Transmettre"}
+              {pending ? t("transferring") : t("transferConfirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -212,20 +208,16 @@ export function TeamMembers({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Retirer {toRemove?.name} ?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Cette personne perdra l&apos;accès aux solutions de cette
-              entreprise, à leurs journaux d&apos;appels et à leur configuration.
-              Vous pourrez l&apos;inviter à nouveau.
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t("removeTitle", { name: toRemove?.name ?? "" })}</AlertDialogTitle>
+            <AlertDialogDescription>{t("removeBody")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={pending}>Annuler</AlertDialogCancel>
+            <AlertDialogCancel disabled={pending}>{tCommon("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               disabled={pending}
               onClick={() => toRemove && handleRemove(toRemove)}
             >
-              {pending ? "Retrait…" : "Retirer"}
+              {pending ? t("removing") : t("remove")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

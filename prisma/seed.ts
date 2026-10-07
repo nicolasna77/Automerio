@@ -4,6 +4,7 @@ import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { CATALOG, catalogSyncFields } from "../src/lib/catalog-data";
 import { slugify } from "../src/lib/utils";
+import { readSubscriptionTier } from "../src/lib/subscription-pricing";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const db = new PrismaClient({ adapter });
@@ -132,7 +133,7 @@ async function main() {
   );
   console.log(`Catalogue synchronisé : ${services.length} prestations.`);
 
-  const serviceIdBySlug = new Map(services.map((s) => [s.slug, s.id]));
+  const serviceBySlug = new Map(services.map((s) => [s.slug, s]));
 
   const adminEmail = "equipe@automerio.test";
   const legacyAdminEmail = "equipe@noveris.test";
@@ -193,8 +194,8 @@ async function main() {
     }
 
     for (const sub of client.subscriptions) {
-      const serviceId = serviceIdBySlug.get(sub.slug);
-      if (!serviceId) {
+      const service = serviceBySlug.get(sub.slug);
+      if (!service) {
         console.warn(`Service introuvable pour le slug « ${sub.slug} », ignoré.`);
         continue;
       }
@@ -202,6 +203,11 @@ async function main() {
       const createdAt = new Date(Date.now() - sub.daysAgo * 24 * 60 * 60 * 1000);
       const activatedAt = sub.status === "ACTIVE" ? createdAt : null;
       const canceledAt = sub.status === "CANCELED" ? new Date() : null;
+      const serviceId = service.id;
+      // Volume de base, comme une activation depuis le tableau de bord : sans
+      // lui, une messagerie passe pour souscrite avant les quotas, sans jauge
+      // ni réglage du volume.
+      const includedUsageUnits = readSubscriptionTier(service)?.minUnits ?? null;
 
       await db.clientService.upsert({
         where: {
@@ -219,6 +225,7 @@ async function main() {
           status: sub.status,
           configuration: sub.configuration ?? {},
           adminNote: sub.adminNote ?? null,
+          includedUsageUnits,
           createdAt,
           activatedAt,
           canceledAt,
@@ -227,6 +234,7 @@ async function main() {
           status: sub.status,
           configuration: sub.configuration ?? {},
           adminNote: sub.adminNote ?? null,
+          includedUsageUnits,
           activatedAt,
           canceledAt,
         },

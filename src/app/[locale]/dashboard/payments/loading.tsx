@@ -1,13 +1,20 @@
+import { useTranslations } from "next-intl";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Card } from "@/components/ui/card";
 import { PageShell } from "@/components/page-shell";
 
 export default function Loading() {
+  const t = useTranslations("Dashboard.loading");
   return (
-    <PageShell size="wide" role="status" aria-label="Chargement des paiements…">
+    <PageShell size="wide" role="status" aria-label={t("payments")}>
       <Skeleton className="h-8 w-40" />
       <Skeleton className="mt-2 h-5 w-56" />
+      <div className="mt-6 mb-6 flex gap-6 border-b border-border pb-3">
+        <Skeleton className="h-5 w-24" />
+        <Skeleton className="h-5 w-16" />
+      </div>
 
-      <div className="mt-8 rounded-lg border border-border bg-card p-4">
+      <Card size="sm" className="px-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
@@ -21,7 +28,7 @@ export default function Loading() {
             <Skeleton className="h-4 w-16 shrink-0" />
           </div>
         ))}
-      </div>
+      </Card>
     </PageShell>
   );
 }

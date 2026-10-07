@@ -3,20 +3,21 @@
 import { useTranslations } from "next-intl";
 import { useEffect, useId, useRef, useState, useTransition } from "react";
 import { Link } from "@/i18n/navigation";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import {
   ArrowLeft,
   ArrowRight,
   Check,
   ClipboardCheck,
   CreditCard,
+  Lock,
   Package,
   PhoneForwarded,
   Pencil,
 } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Stepper, type StepperStep } from "@/components/stepper";
-import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -33,17 +34,20 @@ import {
   type ServiceDTO,
 } from "@/lib/catalog";
 import { unwrap } from "@/lib/action-result";
-import { formatUsageCap } from "@/lib/usage-cap";
 import { SubscriptionMinutesSlider } from "@/components/subscription/subscription-minutes-slider";
 import { MonthlyPrice } from "@/components/monthly-price";
 import { usePriceFormatter } from "@/hooks/use-price-formatter";
 import { calculateMonthlyPriceCents } from "@/lib/subscription-pricing";
-import { formatCentsWithVat } from "@/lib/vat";
 import { getErrorMessage } from "@/lib/utils";
 import { activateService, previewPromoCode, type PromoPreview } from "@/app/[locale]/dashboard/actions";
 import { ConfigFieldsForm } from "@/app/[locale]/dashboard/config-fields";
 import { VoicePreview } from "@/app/[locale]/dashboard/voice-preview";
-import { buildFieldCategories, settingsHiddenKeys, type FieldCategory } from "@/app/[locale]/dashboard/field-categories";
+import {
+  buildFieldCategories,
+  settingsHiddenKeys,
+  useDescribeCategory,
+  type FieldCategory,
+} from "@/app/[locale]/dashboard/field-categories";
 
 type AppliedPreview = Extract<PromoPreview, { ok: true }>;
 
@@ -60,18 +64,6 @@ type FlowStep =
   | { kind: "fields"; category: FieldCategory }
   | { kind: "summary" };
 
-const PLAN_STEP = {
-  title: "Formule",
-  description: "Le volume et le nom qui distingue cette activation.",
-  icon: Package,
-};
-const SUMMARY_STEP = {
-  title: "Récapitulatif",
-  description: "Vérifiez vos réponses avant de payer.",
-  icon: ClipboardCheck,
-};
-// Montrée pour que le client sache ce qui l'attend ; elle se passe sur Stripe.
-const PAYMENT_STEP: StepperStep = { title: "Paiement", description: "Sécurisé par Stripe", icon: CreditCard };
 
 export function ActivationFlow({
   service,
@@ -86,7 +78,13 @@ export function ActivationFlow({
 }) {
   const tSimulator = useTranslations("PriceSimulator");
   const t = useTranslations("Dashboard.activation");
+  const tCommon = useTranslations("Common");
+  const describeCategory = useDescribeCategory();
   const price = usePriceFormatter();
+  const PLAN_STEP = { title: t("steps.plan.title"), description: t("steps.plan.description"), icon: Package };
+  const SUMMARY_STEP = { title: t("steps.summary.title"), description: t("steps.summary.description"), icon: ClipboardCheck };
+  // Montrée pour que le client sache ce qui l'attend ; elle se passe sur Stripe.
+  const PAYMENT_STEP: StepperStep = { title: t("steps.payment.title"), description: t("steps.payment.description"), icon: CreditCard };
   const nameFieldId = useId();
   const promoFieldId = useId();
   const promoMessageId = useId();
@@ -116,9 +114,9 @@ export function ActivationFlow({
     if (initialUnits === null && draft.chosenUnits !== null) setChosenUnits(draft.chosenUnits);
     setStepIndex(draft.stepIndex);
     /* eslint-enable react-hooks/set-state-in-effect */
-    toast("Vos réponses précédentes ont été reprises.", {
+    toast(t("draftRestored"), {
       action: {
-        label: "Recommencer",
+        label: t("restart"),
         onClick: () => {
           clearDraft(draftKey);
           setName(service.name);
@@ -128,7 +126,7 @@ export function ActivationFlow({
         },
       },
     });
-  }, [draftKey, initialUnits, service.name, service.tier?.minUnits]);
+  }, [draftKey, initialUnits, service.name, service.tier?.minUnits, t]);
 
   // Rien n'est gardé tant que le formulaire est dans son état initial : sans
   // cela, une simple visite laisserait un brouillon vide, repris à tort au
@@ -160,10 +158,12 @@ export function ActivationFlow({
     ? calculateMonthlyPriceCents(service.tier, chosenUnits)
     : service.monthlyPriceCents;
 
-  const categories = buildFieldCategories(service.configFields, values, [
-    PRODUCT_CATALOG_FIELD_KEY,
-    ...settingsHiddenKeys(service.slug),
-  ]);
+  const categories = buildFieldCategories(
+    service.configFields,
+    values,
+    [PRODUCT_CATALOG_FIELD_KEY, ...settingsHiddenKeys(service.slug)],
+    describeCategory
+  );
   const steps: FlowStep[] = [
     { kind: "plan" },
     ...categories.map((category) => ({ kind: "fields" as const, category })),
@@ -203,7 +203,7 @@ export function ActivationFlow({
     if (step.kind === "fields") {
       const badHours = findInvalidWeeklyHours(step.category.fields, values);
       if (badHours) {
-        toast.error(`« ${badHours.label} » : une heure de fermeture vient avant l'ouverture.`);
+        toast.error(t("invalidHours", { label: badHours.label }));
         document.getElementById(badHours.key)?.scrollIntoView({ block: "center" });
         return;
       }
@@ -251,7 +251,7 @@ export function ActivationFlow({
       setPromo(result.ok ? { status: "applied", preview: result } : { status: "error", reason: result.reason });
       return result;
     } catch {
-      const reason = "La vérification du code a échoué. Réessayez.";
+      const reason = t("promoCheckFailed");
       setPromo({ status: "error", reason });
       return { ok: false, reason };
     }
@@ -287,29 +287,21 @@ export function ActivationFlow({
     });
   }
 
+  // Disposition d'une page de paiement : les étapes à gauche, la commande à
+  // droite, visible à chaque étape (sous le parcours sur mobile).
   return (
     <div className="mt-8 space-y-6">
-      <div className="rounded-lg border border-border bg-card px-2 py-6 sm:px-6">
+      <Card className="px-2 py-6 sm:px-6">
         <Stepper
-          label="Étapes de l'activation"
+          label={t("steps.label")}
           steps={stepperSteps}
           current={stepIndex}
           onStepClick={goToStep}
         />
-      </div>
+      </Card>
 
-      <div key={stepIndex} className="space-y-6 animate-in fade-in duration-150 motion-reduce:animate-none">
-        {step.kind === "plan" && TELEPHONY_SERVICE_SLUGS.has(service.slug) && (
-          <div className="flex items-start gap-3 rounded-lg border border-border bg-muted/40 p-4 text-sm">
-            <PhoneForwarded className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-            <p className="text-muted-foreground">
-              <span className="font-medium text-foreground">Vous gardez votre numéro actuel.</span>{" "}
-              Un numéro dédié à l&apos;IA vous est attribué, et un simple renvoi d&apos;appel, gratuit
-              et réversible, y dirige vos clients une fois la solution active.
-            </p>
-          </div>
-        )}
-
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <div key={stepIndex} className="min-w-0 space-y-6 animate-in fade-in duration-150 motion-reduce:animate-none">
         <Card>
           <CardHeader>
             <div className="flex items-start gap-3">
@@ -333,23 +325,23 @@ export function ActivationFlow({
             {step.kind === "plan" && (
               <>
                 {service.tier && (
-                  <div className="space-y-3 rounded-lg border border-border p-4">
+                  <div className="space-y-3 border-b border-border pb-6">
                     <SubscriptionMinutesSlider
                       tier={service.tier}
                       value={chosenUnits}
                       onChange={setChosenUnits}
                       label={tSimulator("question", { unit: service.tier.unit })}
                       disabled={isPending}
+                      showPrice={false}
                     />
                     <p className="text-sm text-muted-foreground">
-                      Au-delà de ce quota, la consommation est facturée au tarif de
-                      dépassement. L&apos;acheter à l&apos;avance revient moins cher.
+                      {t("overage")}
                     </p>
                   </div>
                 )}
 
                 <div className="space-y-2">
-                  <Label htmlFor={nameFieldId}>Nom de cette activation</Label>
+                  <Label htmlFor={nameFieldId}>{t("nameLabel")}</Label>
                   <Input
                     id={nameFieldId}
                     value={name}
@@ -358,12 +350,12 @@ export function ActivationFlow({
                     aria-describedby={`${nameFieldId}-help`}
                   />
                   <p id={`${nameFieldId}-help`} className="text-xs text-muted-foreground">
-                    Utile si vous activez la même solution plusieurs fois, pour plusieurs boutiques par exemple.
+                    {t("nameHelp")}
                   </p>
                 </div>
 
                 <p className="text-xs text-muted-foreground">
-                  Tous ces réglages restent modifiables une fois la solution activée.
+                  {t("editableLater")}
                 </p>
               </>
             )}
@@ -382,8 +374,7 @@ export function ActivationFlow({
                 )}
                 {takesOrders && step.category.id === "need" && (
                   <p className="rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
-                    Vous ajouterez votre carte après le paiement, depuis la page de la solution : une photo
-                    ou un PDF suffit.
+                    {t("catalogLater")}
                   </p>
                 )}
               </>
@@ -391,15 +382,15 @@ export function ActivationFlow({
 
             {step.kind === "summary" && (
               <div className="divide-y divide-border">
-                <SummarySection title="Formule" onEdit={() => goToStep(0)}>
-                  <SummaryRow label="Solution">{service.name}</SummaryRow>
-                  <SummaryRow label="Nom de l'activation">{name.trim()}</SummaryRow>
+                <SummarySection title={PLAN_STEP.title} onEdit={() => goToStep(0)}>
+                  <SummaryRow label={t("summary.solution")}>{service.name}</SummaryRow>
+                  <SummaryRow label={t("summary.name")}>{name.trim()}</SummaryRow>
                   {service.tier && (
-                    <SummaryRow label="Volume">
-                      <span className="font-mono tabular-nums">
-                        {price.usageUnits(chosenUnits, service.tier.unit)}
-                      </span>{" "}
-                      par mois
+                    <SummaryRow label={t("summary.volume")}>
+                      {t.rich("summary.perMonth", {
+                        units: price.usageUnits(chosenUnits, service.tier.unit),
+                        volume: (chunks) => <span className="font-mono tabular-nums">{chunks}</span>,
+                      })}
                     </SummaryRow>
                   )}
                 </SummarySection>
@@ -431,31 +422,13 @@ export function ActivationFlow({
         {step.kind === "summary" && (
           <Card>
             <CardHeader>
-              <h2 className="text-base font-semibold text-foreground">Paiement</h2>
-              <CardDescription>
-                Paiement sécurisé par Stripe. Prélèvement au montant TTC, sans engagement.
-              </CardDescription>
+              <h2 className="text-base font-semibold text-foreground">{t("payment.title")}</h2>
             </CardHeader>
             <CardContent className="space-y-5">
-              <dl className="space-y-2 text-sm">
-                {monthlyPriceCents !== null && (
-                  <div className="flex justify-between gap-4">
-                    <dt className="text-muted-foreground">Abonnement</dt>
-                    <dd>
-                      <MonthlyPrice cents={monthlyPriceCents} className="text-right" />
-                    </dd>
-                  </div>
-                )}
-                {service.usageCap && (
-                  <p className="text-xs text-muted-foreground">
-                    {formatUsageCap(service.usageCap)}
-                  </p>
-                )}
-              </dl>
-
-              <div className="space-y-2 border-t border-border pt-5">
+              <div className="space-y-2">
                 <Label htmlFor={promoFieldId}>
-                  Code promo <span className="font-normal text-muted-foreground">(facultatif)</span>
+                  {t("payment.promoLabel")}{" "}
+                  <span className="font-normal text-muted-foreground">{t("payment.optional")}</span>
                 </Label>
                 <div className="flex gap-2">
                   <Input
@@ -484,7 +457,7 @@ export function ActivationFlow({
                     onClick={() => void checkPromo()}
                     disabled={!promoInput.trim() || promo.status === "checking" || isPending}
                   >
-                    {promo.status === "checking" ? "Vérification…" : "Appliquer"}
+                    {promo.status === "checking" ? t("payment.checking") : t("payment.apply")}
                   </Button>
                 </div>
                 <div id={promoMessageId} aria-live="polite">
@@ -492,15 +465,19 @@ export function ActivationFlow({
                     <p className="flex items-start gap-1.5 text-sm text-foreground">
                       <Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
                       <span>
-                        {promo.preview.description}. Premier paiement :{" "}
-                        <span className="font-medium tabular-nums">
-                          {formatCentsWithVat(promo.preview.discountedFirstPaymentCents)}
-                        </span>{" "}
-                        au lieu de{" "}
-                        <span className="text-muted-foreground tabular-nums line-through">
-                          {formatCents(promo.preview.firstPaymentCents)}
-                        </span>
-                        .
+                        {t.rich("payment.promoApplied", {
+                          description: promo.preview.description,
+                          discounted: () => (
+                            <span className="font-medium tabular-nums">
+                              {price.withVat(promo.preview.discountedFirstPaymentCents)}
+                            </span>
+                          ),
+                          original: () => (
+                            <span className="text-muted-foreground tabular-nums line-through">
+                              {formatCents(promo.preview.firstPaymentCents)}
+                            </span>
+                          ),
+                        })}
                       </span>
                     </p>
                   )}
@@ -509,20 +486,22 @@ export function ActivationFlow({
               </div>
 
               <p className="text-xs text-muted-foreground">
-                En payant, vous acceptez nos{" "}
-                <Link href="/terms" target="_blank" className="underline underline-offset-4 hover:text-foreground">
-                  conditions générales de vente
-                </Link>
-                .
+                {t.rich("payment.terms", {
+                  link: (chunks) => (
+                    <Link href="/terms" target="_blank" className="underline underline-offset-4 hover:text-foreground">
+                      {chunks}
+                    </Link>
+                  ),
+                })}
               </p>
             </CardContent>
           </Card>
         )}
 
-        <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="sticky bottom-0 z-20 -mx-4 flex flex-wrap items-center justify-between gap-2 border-t border-border bg-background/95 px-4 py-3 backdrop-blur-sm sm:-mx-6 sm:px-6 lg:bottom-4 lg:mx-0 lg:rounded-lg lg:border lg:px-4 lg:shadow-sm">
           {stepIndex === 0 ? (
             <Link href="/dashboard/services/catalog" className={buttonVariants({ variant: "outline" })}>
-              Annuler
+              {tCommon("cancel")}
             </Link>
           ) : (
             <Button
@@ -532,15 +511,15 @@ export function ActivationFlow({
               disabled={isPending}
             >
               <ArrowLeft aria-hidden="true" data-icon="inline-start" />
-              Retour
+              {tCommon("back")}
             </Button>
           )}
 
           {step.kind === "summary" ? (
-            <Button type="button" onClick={handlePay} disabled={isPending} aria-busy={isPending}>
+            <Button type="button" onClick={handlePay} loading={isPending}>
               {isPending
-                ? "Redirection vers le paiement…"
-                : `Payer ${formatPrice(monthlyPriceCents)} TTC`}
+                ? t("payment.redirecting")
+                : t("payment.pay", { amount: formatPrice(monthlyPriceCents) })}
             </Button>
           ) : (
             <div className="flex flex-wrap items-center gap-2">
@@ -550,14 +529,118 @@ export function ActivationFlow({
                 </Button>
               )}
               <Button type="button" onClick={handleContinue}>
-                {isLastBeforeSummary ? "Voir le récapitulatif" : "Continuer"}
+                {isLastBeforeSummary ? t("toSummary") : tCommon("continue")}
                 <ArrowRight aria-hidden="true" data-icon="inline-end" />
               </Button>
             </div>
           )}
         </div>
       </div>
+
+      <OrderSummary
+        serviceName={service.name}
+        units={service.tier ? price.usageUnits(chosenUnits, service.tier.unit) : null}
+        monthlyPriceCents={monthlyPriceCents}
+        usageCap={
+          service.usageCap
+            ? // Le volume inclus est celui choisi au curseur, pas celui du catalogue.
+              price.usageCap({ ...service.usageCap, includedUnits: service.tier ? chosenUnits : service.usageCap.includedUnits })
+            : null
+        }
+        keepsNumber={TELEPHONY_SERVICE_SLUGS.has(service.slug)}
+        discountedFirstPaymentCents={
+          promo.status === "applied" ? promo.preview.discountedFirstPaymentCents : null
+        }
+      />
+      </div>
     </div>
+  );
+}
+
+// La commande, toujours visible : ce que le client achète et ce qu'il
+// paiera, mis à jour à chaque changement de volume.
+function OrderSummary({
+  serviceName,
+  units,
+  monthlyPriceCents,
+  usageCap,
+  keepsNumber,
+  discountedFirstPaymentCents,
+}: {
+  serviceName: string;
+  units: string | null;
+  monthlyPriceCents: number | null;
+  usageCap: string | null;
+  keepsNumber: boolean;
+  // Code promo appliqué : le premier prélèvement, réduit.
+  discountedFirstPaymentCents: number | null;
+}) {
+  const t = useTranslations("Dashboard.activation");
+  const price = usePriceFormatter();
+  return (
+    <aside aria-labelledby="order-summary-title" className="lg:sticky lg:top-20">
+      <Card size="sm">
+        <CardHeader>
+          <CardTitle as="h2" id="order-summary-title" className="text-base">
+            {t("order.title")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <dl className="space-y-3 text-sm">
+            <div className="flex justify-between gap-4">
+              <dt className="text-muted-foreground">{t("summary.solution")}</dt>
+              <dd className="text-right text-foreground">{serviceName}</dd>
+            </div>
+            {units && (
+              <div className="flex justify-between gap-4">
+                <dt className="text-muted-foreground">{t("summary.volume")}</dt>
+                <dd className="text-right text-foreground">
+                  {t.rich("summary.perMonth", {
+                    units,
+                    volume: (chunks) => <span className="font-mono tabular-nums">{chunks}</span>,
+                  })}
+                </dd>
+              </div>
+            )}
+            {monthlyPriceCents !== null && (
+              <div className="flex items-baseline justify-between gap-4 border-t border-border pt-3">
+                <dt className="font-medium text-foreground">{t("payment.subscription")}</dt>
+                <dd>
+                  <span role="status" aria-atomic="true">
+                    <MonthlyPrice cents={monthlyPriceCents} className="text-right" />
+                  </span>
+                </dd>
+              </div>
+            )}
+            {discountedFirstPaymentCents !== null && (
+              <div className="flex items-baseline justify-between gap-4">
+                <dt className="text-muted-foreground">{t("order.firstPayment")}</dt>
+                <dd className="text-right font-medium text-primary tabular-nums">
+                  {price.amountWithVat(discountedFirstPaymentCents)}
+                </dd>
+              </div>
+            )}
+          </dl>
+          {usageCap && <p className="text-xs text-muted-foreground">{usageCap}</p>}
+
+          <ul className="space-y-2.5 border-t border-border pt-4 text-xs text-muted-foreground">
+            {keepsNumber && (
+              <li className="flex items-start gap-2">
+                <PhoneForwarded className="mt-px size-3.5 shrink-0" aria-hidden="true" />
+                <span>
+                  <span className="font-medium text-foreground">{t("keepNumber.title")}</span>{" "}
+                  {t("keepNumber.body")}
+                </span>
+              </li>
+            )}
+            <li className="flex items-start gap-2">
+              <Lock className="mt-px size-3.5 shrink-0" aria-hidden="true" />
+              <span>{t("payment.description")}</span>
+            </li>
+          </ul>
+        </CardContent>
+      </Card>
+    </aside>
   );
 }
 
@@ -617,13 +700,15 @@ function SummarySection({
   onEdit: () => void;
   children: React.ReactNode;
 }) {
+  const t = useTranslations("Dashboard.activation.summary");
   return (
     <section className="py-4 first:pt-0 last:pb-0">
       <div className="mb-1 flex items-center justify-between gap-3">
         <h3 className="text-sm font-semibold text-foreground">{title}</h3>
         <Button type="button" variant="ghost" size="sm" onClick={onEdit}>
           <Pencil aria-hidden="true" data-icon="inline-start" />
-          Modifier<span className="sr-only"> : {title}</span>
+          {t("edit")}
+          <span className="sr-only">{t("editSection", { title })}</span>
         </Button>
       </div>
       <dl className="text-sm">{children}</dl>

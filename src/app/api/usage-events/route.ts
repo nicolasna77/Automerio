@@ -1,6 +1,16 @@
+import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { recordUsageEvent } from "@/lib/usage-events";
+import { parseUsageEventBody } from "@/lib/usage-event-body";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+
+function isAuthorized(request: Request): boolean {
+  const secret = process.env.USAGE_EVENTS_API_KEY;
+  if (!secret) return false;
+  const received = Buffer.from(request.headers.get("x-api-key") ?? "");
+  const expected = Buffer.from(secret);
+  return received.length === expected.length && timingSafeEqual(received, expected);
+}
 
 export async function POST(request: Request) {
   const allowed = await checkRateLimit("usage-events", await getClientIp(), "1 m", 60);
@@ -8,51 +18,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   }
 
-  const apiKey = request.headers.get("x-api-key");
-  if (!apiKey || apiKey !== process.env.USAGE_EVENTS_API_KEY) {
+  if (!isAuthorized(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = await request.json().catch(() => null);
-  const clientServiceId =
-    body && typeof body.clientServiceId === "string"
-      ? body.clientServiceId
-      : null;
-  if (!clientServiceId) {
-    return NextResponse.json(
-      { error: "clientServiceId is required" },
-      { status: 400 }
-    );
+  const parsed = parseUsageEventBody(await request.json().catch(() => null));
+  if (!parsed.ok) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 });
   }
-
-  const occurredAt =
-    body && typeof body.occurredAt === "string"
-      ? new Date(body.occurredAt)
-      : new Date();
-  if (Number.isNaN(occurredAt.getTime())) {
-    return NextResponse.json({ error: "Invalid occurredAt" }, { status: 400 });
-  }
-
-  const externalId =
-    body && typeof body.externalId === "string" ? body.externalId : null;
-  const status: "in_progress" | "completed" =
-    body?.status === "in_progress" ? "in_progress" : "completed";
-  const durationSec =
-    body && typeof body.durationSec === "number" ? body.durationSec : null;
-  const metadata =
-    body && typeof body.metadata === "object" && body.metadata !== null
-      ? body.metadata
-      : undefined;
 
   try {
-    const { count } = await recordUsageEvent({
-      clientServiceId,
-      externalId,
-      status,
-      occurredAt,
-      durationSec,
-      metadata,
-    });
+    const { count } = await recordUsageEvent(parsed.value);
     return NextResponse.json({ count }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Unknown clientServiceId" }, { status: 404 });

@@ -29,12 +29,18 @@ export function isInvitableRole(role: string): role is InvitableRole {
   return (INVITABLE_ROLES as readonly string[]).includes(role);
 }
 
+// Le champ `role` de better-auth peut cumuler plusieurs rôles, séparés par
+// des virgules (« owner,admin ») : seule cette fonction le découpe.
+export function hasOrganizationRole(role: string, expected: string): boolean {
+  return role.split(",").some((part) => part.trim() === expected);
+}
+
 export function isOrganizationManager(role: string): boolean {
   return role.split(",").some((part) => MANAGER_ROLES.has(part.trim()));
 }
 
 function isOwner(member: TeamMember): boolean {
-  return member.role.split(",").some((part) => part.trim() === "owner");
+  return hasOrganizationRole(member.role, "owner");
 }
 
 function ownerCount(team: TeamMember[]): number {

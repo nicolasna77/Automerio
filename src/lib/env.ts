@@ -153,6 +153,13 @@ export function inspectEnv(source: Source): EnvReport {
     if (invalid) problems.push(`${rule.name} ${invalid}`);
   }
 
+  const tokenKey = read(source, "TOKEN_ENCRYPTION_KEY");
+  if (tokenKey !== null && Buffer.from(tokenKey.trim(), "base64").length !== 32) {
+    problems.push(
+      "TOKEN_ENCRYPTION_KEY doit faire 32 octets encodés en base64 : `openssl rand -base64 32`"
+    );
+  }
+
   const warnings: string[] = [];
   if (isProduction(source)) {
     for (const { name, reason } of PRODUCTION_REQUIRED) {
@@ -170,6 +177,11 @@ export function inspectEnv(source: Source): EnvReport {
     if (productionHost && appUrl && toOrigin(appUrl) !== toOrigin(productionHost)) {
       warnings.push(
         `NEXT_PUBLIC_APP_URL (${appUrl}) ne correspond pas au domaine de production (${productionHost}) : les liens des e-mails et les retours de paiement pointent vers une autre adresse.`
+      );
+    }
+    if (tokenKey === null) {
+      warnings.push(
+        "TOKEN_ENCRYPTION_KEY est manquante : toute lecture ou écriture d'un jeton d'intégration (WhatsApp, Messenger, Instagram, Google) échouera. Générez-la avec `openssl rand -base64 32`."
       );
     }
     if (read(source, "UPSTASH_REDIS_REST_URL") === null) {
@@ -233,4 +245,30 @@ export function requireEnv(name: string, feature?: string): string {
     );
   }
   return value;
+}
+
+// Serveur de production en service : `next start` ou Vercel, mais pas
+// `next build`, qui évalue les modules sans forcément disposer des secrets.
+export function isProductionRuntime(source: Source = process.env): boolean {
+  return source.NODE_ENV === "production" && source.NEXT_PHASE !== "phase-production-build";
+}
+
+// Première variable renseignée parmi `names` ; à défaut, `devFallback` en
+// développement et en test, une erreur explicite en production plutôt qu'une
+// valeur factice qui casserait les paiements ou les liens en silence.
+export function envWithDevFallback(
+  names: string[],
+  devFallback: string,
+  source: Source = process.env
+): string {
+  for (const name of names) {
+    const value = read(source, name);
+    if (value !== null) return value;
+  }
+  if (isProductionRuntime(source)) {
+    throw new Error(
+      `${names.join(" ou ")} manquante en production. Renseignez-la dans Settings > Environment Variables sur Vercel.`
+    );
+  }
+  return devFallback;
 }

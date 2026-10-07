@@ -1,5 +1,7 @@
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { cva, type VariantProps } from "class-variance-authority"
+import { Loader2 } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { cn } from "cn"
 
 const buttonStyles = cva(
@@ -45,14 +47,37 @@ function Button({
   className,
   variant = "default",
   size = "default",
+  loading = false,
+  disabled,
+  children,
   ...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonStyles>) {
+}: ButtonPrimitive.Props &
+  VariantProps<typeof buttonStyles> & {
+    // Requête en cours : bouton désactivé, aria-busy et indicateur qui tourne.
+    // Le libellé reste celui de l'action (« Envoi… » se passe en children).
+    loading?: boolean
+  }) {
   return (
     <ButtonPrimitive
       data-slot="button"
       className={buttonVariants({ variant, size, className })}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
       {...props}
-    />
+    >
+      {loading && <ButtonSpinner />}
+      {children}
+    </ButtonPrimitive>
+  )
+}
+
+function ButtonSpinner() {
+  const t = useTranslations("Common")
+  return (
+    <>
+      <Loader2 data-icon="inline-start" className="animate-spin motion-reduce:animate-none" aria-hidden="true" />
+      <span className="sr-only">{t("loading")}</span>
+    </>
   )
 }
 

@@ -1,4 +1,5 @@
 import { titleMetadata } from "@/i18n/metadata";
+import { getTranslations } from "next-intl/server";
 import { db } from "@/lib/db";
 import { requireActiveOrganization } from "@/lib/organization";
 import {
@@ -16,7 +17,7 @@ export const generateMetadata = titleMetadata("help");
 export default async function AidePage() {
   const { active: organization } = await requireActiveOrganization();
 
-  const [clientServices, helpRequests] = await Promise.all([
+  const [clientServices, helpRequests, t] = await Promise.all([
     db.clientService.findMany({
       where: { organizationId: organization.id },
       select: { id: true, name: true, service: { select: { name: true } } },
@@ -33,6 +34,7 @@ export default async function AidePage() {
       },
       orderBy: { createdAt: "desc" },
     }),
+    getTranslations("Dashboard.help"),
   ]);
 
   const serviceOptions: HelpRequestServiceOption[] = clientServices.map(
@@ -59,15 +61,15 @@ export default async function AidePage() {
   return (
     <PageShell size="wide">
       <PageHeader
-        title="Aide"
-        description="Une question sur une solution, un souci technique ? L'équipe vous répond ici."
+        title={t("title")}
+        description={t("description")}
       />
 
       {historyItems.length > 0 && <HelpRequestHistory items={historyItems} />}
 
       <section aria-labelledby="new-request-heading" className="mt-10">
         <h2 id="new-request-heading" className="mb-4 text-lg font-semibold text-foreground">
-          Nouvelle demande
+          {t("newRequest")}
         </h2>
         <div className="grid gap-8 lg:grid-cols-[1fr_20rem] lg:gap-12">
           <HelpRequestForm services={serviceOptions} />

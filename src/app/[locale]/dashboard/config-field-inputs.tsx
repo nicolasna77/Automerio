@@ -1,5 +1,6 @@
 "use client";
 
+import { useLabels } from "@/hooks/use-labels";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { format, parseISO } from "date-fns";
@@ -19,7 +20,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import {
   CALL_TEMPLATES,
   COMMON_CALL_REASONS,
@@ -29,12 +30,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import {
-  WEEK_DAYS,
-  WEEK_DAY_LABELS,
-  type RuleRow,
-  type WeeklyHours,
-} from "@/lib/catalog";
+import { WEEK_DAYS, type RuleRow, type WeeklyHours } from "@/lib/catalog";
 
 export function DateField({
   id,
@@ -49,6 +45,7 @@ export function DateField({
   hasError?: boolean;
   onChange: (value: string) => void;
 }) {
+  const t = useTranslations("Dashboard.fields.date");
   const [open, setOpen] = useState(false);
   const selected = value ? parseISO(value) : undefined;
 
@@ -66,7 +63,7 @@ export function DateField({
             <CalendarDays className="text-muted-foreground" data-icon="inline-start" />
             {selected
               ? format(selected, "d MMMM yyyy", { locale: fr })
-              : (placeholder ?? "Choisir une date")}
+              : (placeholder ?? t("placeholder"))}
           </Button>
         }
       />
@@ -97,6 +94,7 @@ export function TagsField({
   placeholder?: string;
   onChange: (value: string[]) => void;
 }) {
+  const t = useTranslations("Dashboard.fields.tags");
   function addTag(raw: string) {
     const tag = raw.trim();
     if (tag && !value.includes(tag)) onChange([...value, tag]);
@@ -112,7 +110,7 @@ export function TagsField({
               <button
                 type="button"
                 data-icon="inline-end"
-                aria-label={`Retirer « ${tag} »`}
+                aria-label={t("remove", { tag })}
                 onClick={() => onChange(value.filter((t) => t !== tag))}
               >
                 <X />
@@ -123,7 +121,7 @@ export function TagsField({
       )}
       <Input
         id={id}
-        placeholder={placeholder ?? "Ajouter puis Entrée"}
+        placeholder={placeholder ?? t("placeholder")}
         onKeyDown={(e) => {
           if (e.key !== "Enter" && e.key !== ",") return;
           e.preventDefault();
@@ -197,6 +195,7 @@ function TimePicker({
   invalid?: boolean;
   onChange: (value: string) => void;
 }) {
+  const t = useTranslations("Dashboard.fields.time");
   const [open, setOpen] = useState(false);
 
   return (
@@ -207,7 +206,7 @@ function TimePicker({
             type="button"
             variant="outline"
             size="sm"
-            aria-label={`${label} : ${value}`}
+            aria-label={t("label", { label, value })}
             aria-invalid={invalid || undefined}
             className="w-24 justify-between font-mono font-normal tabular-nums"
           >
@@ -247,10 +246,10 @@ const WEEKDAYS: Day[] = ["mon", "tue", "wed", "thu", "fri"];
 
 // Raccourcis pour les horaires les plus courants : on part de là, puis on
 // ajuste un jour si besoin.
-const HOUR_PRESETS: { label: string; days: Day[] }[] = [
-  { label: "Du lundi au vendredi, 9 h à 18 h", days: WEEKDAYS },
-  { label: "Du lundi au samedi, 9 h à 18 h", days: [...WEEKDAYS, "sat"] },
-  { label: "Tous les jours, 9 h à 18 h", days: [...WEEK_DAYS] },
+const HOUR_PRESETS: { key: "weekdays" | "weekdaysSaturday" | "everyDay"; days: Day[] }[] = [
+  { key: "weekdays", days: WEEKDAYS },
+  { key: "weekdaysSaturday", days: [...WEEKDAYS, "sat"] },
+  { key: "everyDay", days: [...WEEK_DAYS] },
 ];
 
 export function WeeklyHoursField({
@@ -269,6 +268,8 @@ export function WeeklyHoursField({
   onChange: (value: WeeklyHours) => void;
 }) {
   const t = useTranslations("Dashboard.weeklyHours");
+  const tHours = useTranslations("Dashboard.fields.hours");
+  const labels = useLabels();
 
   function updateDay(day: Day, patch: Partial<WeeklyHours[Day]>) {
     onChange({ ...value, [day]: { ...value[day], ...patch } });
@@ -299,16 +300,16 @@ export function WeeklyHoursField({
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap gap-1.5" role="group" aria-label="Horaires courants">
+      <div className="flex flex-wrap gap-1.5" role="group" aria-label={tHours("presetsLabel")}>
         {HOUR_PRESETS.map((preset) => (
           <Button
-            key={preset.label}
+            key={preset.key}
             type="button"
             variant="outline"
             size="sm"
             onClick={() => applyPreset(preset.days)}
           >
-            {preset.label}
+            {tHours(`presets.${preset.key}`)}
           </Button>
         ))}
       </div>
@@ -339,7 +340,7 @@ export function WeeklyHoursField({
                     onCheckedChange={(open) => updateDay(day, { closed: !open })}
                   />
                   <label htmlFor={switchId} className="text-sm font-medium text-foreground">
-                    {WEEK_DAY_LABELS[day]}
+                    {labels.weekDay(day)}
                   </label>
                 </div>
                 {hours.closed ? (
@@ -348,16 +349,16 @@ export function WeeklyHoursField({
                   <div className="flex items-center gap-2">
                     <TimePicker
                       value={hours.open}
-                      label={`Ouverture ${WEEK_DAY_LABELS[day]}`}
+                      label={tHours("opening", { day: labels.weekDay(day) })}
                       invalid={invalid}
                       onChange={(open) => updateDay(day, { open })}
                     />
                     <span aria-hidden="true" className="text-muted-foreground">
-                      à
+                      {tHours("to")}
                     </span>
                     <TimePicker
                       value={hours.close}
-                      label={`Fermeture ${WEEK_DAY_LABELS[day]}`}
+                      label={tHours("closing", { day: labels.weekDay(day) })}
                       invalid={invalid}
                       onChange={(close) => updateDay(day, { close })}
                     />
@@ -366,7 +367,7 @@ export function WeeklyHoursField({
               </div>
               {invalid && (
                 <p role="alert" className="mt-1.5 text-xs text-destructive sm:pl-[10.25rem]">
-                  L&apos;heure de fermeture doit venir après l&apos;ouverture.
+                  {tHours("invalid")}
                 </p>
               )}
             </div>
@@ -383,7 +384,7 @@ export function WeeklyHoursField({
           className="h-auto min-h-8 whitespace-normal text-left"
         >
           <Copy aria-hidden="true" data-icon="inline-start" />
-          Copier le {WEEK_DAY_LABELS[firstOpen].toLowerCase()} sur tous les jours ouverts
+          {tHours("copyFirst", { day: labels.weekDay(firstOpen).toLowerCase() })}
         </Button>
       )}
     </div>
@@ -391,61 +392,16 @@ export function WeeklyHoursField({
 }
 
 // Colonnes des listes de règles, selon le champ : on nomme ce que le client
-// saisit plutôt qu'un « Condition / Action » abstrait.
-const RULE_COLUMNS: Record<
-  string,
-  {
-    trigger: string;
-    target: string;
-    triggerPlaceholder: string;
-    targetPlaceholder: string;
-    // « minutes » : la durée se choisit dans une liste au lieu d'un champ libre.
-    targetType?: "tel" | "minutes";
-    empty: string;
-    // Libellés propres au champ : bouton d'ajout et nom d'une ligne.
-    addLabel?: string;
-    rowLabel?: string;
-  }
-> = {
-  appointmentTypes: {
-    trigger: "Prestation",
-    target: "Durée",
-    triggerPlaceholder: "Coupe femme",
-    targetPlaceholder: "Durée",
-    targetType: "minutes",
-    empty: "Aucune prestation : l'assistant utilise la durée par défaut.",
-    addLabel: "Ajouter une prestation",
-    rowLabel: "prestation",
-  },
-  callRouting: {
-    trigger: "Motif de l'appel",
-    target: "Transférer vers",
-    triggerPlaceholder: "Urgence",
-    targetPlaceholder: "06 12 34 56 78",
-    targetType: "tel",
-    empty: "Aucune redirection : l'assistant prend un message pour chaque appel.",
-  },
-  sortingRules: {
-    trigger: "Si l'e-mail parle de",
-    target: "Alors",
-    triggerPlaceholder: "facture",
-    targetPlaceholder: "Transférer à la comptabilité",
-    empty: "Aucune règle : les e-mails restent dans la boîte de réception.",
-  },
+// saisit plutôt qu'un « Condition / Action » abstrait (textes dans
+// Dashboard.fields.rules). « minutes » : la durée se choisit dans une liste.
+const RULE_FIELDS = ["appointmentTypes", "callRouting", "sortingRules"] as const;
+type RuleField = (typeof RULE_FIELDS)[number] | "default";
+const RULE_TARGET_TYPES: Partial<Record<RuleField, "tel" | "minutes">> = {
+  appointmentTypes: "minutes",
+  callRouting: "tel",
 };
 
-const DEFAULT_RULE_COLUMNS = {
-  trigger: "Condition",
-  target: "Action",
-  triggerPlaceholder: "",
-  targetPlaceholder: "",
-  empty: "Aucune règle pour l'instant.",
-};
-
-const DURATION_OPTIONS = [15, 20, 30, 45, 60, 75, 90, 120, 150, 180].map((minutes) => ({
-  value: String(minutes),
-  label: minutes < 60 ? `${minutes} min` : `${Math.floor(minutes / 60)} h${minutes % 60 ? ` ${minutes % 60}` : ""}`,
-}));
+const DURATIONS = [15, 20, 30, 45, 60, 75, 90, 120, 150, 180];
 
 export function RulesListField({
   id,
@@ -460,8 +416,27 @@ export function RulesListField({
   value: RuleRow[];
   onChange: (value: RuleRow[]) => void;
 }) {
-  const columns = { ...DEFAULT_RULE_COLUMNS, ...RULE_COLUMNS[fieldKey] };
-  const rowLabel = columns.rowLabel ?? "règle";
+  const t = useTranslations("Dashboard.fields");
+  const ruleField: RuleField = (RULE_FIELDS as readonly string[]).includes(fieldKey) ? (fieldKey as RuleField) : "default";
+  const columns = {
+    trigger: t(`rules.${ruleField}.trigger`),
+    target: t(`rules.${ruleField}.target`),
+    triggerPlaceholder: t(`rules.${ruleField}.triggerPlaceholder`),
+    targetPlaceholder: t(`rules.${ruleField}.targetPlaceholder`),
+    empty: t(`rules.${ruleField}.empty`),
+    addLabel: t(`rules.${ruleField}.addLabel`),
+    targetType: RULE_TARGET_TYPES[ruleField],
+  };
+  const rowLabel = t(`rules.${ruleField}.rowLabel`);
+  const durationOptions = DURATIONS.map((minutes) => ({
+    value: String(minutes),
+    label:
+      minutes < 60
+        ? t("duration.minutes", { minutes })
+        : minutes % 60
+          ? t("duration.hoursMinutes", { hours: Math.floor(minutes / 60), minutes: minutes % 60 })
+          : t("duration.hours", { hours: minutes / 60 }),
+  }));
   const [keys, setKeys] = useState<string[]>(() => value.map(() => crypto.randomUUID()));
 
   function updateRow(index: number, patch: Partial<RuleRow>) {
@@ -517,25 +492,25 @@ export function RulesListField({
                 <Input
                   id={`${id}-trigger-${index}`}
                   placeholder={columns.triggerPlaceholder}
-                  aria-label={`${columns.trigger}, ${rowLabel} ${index + 1}`}
+                  aria-label={t("rules.cellLabel", { column: columns.trigger, row: rowLabel, index: index + 1 })}
                   value={row.trigger}
                   onChange={(e) => updateRow(index, { trigger: e.target.value })}
                 />
                 {columns.targetType === "minutes" ? (
                   <Select
                     value={row.target || null}
-                    items={DURATION_OPTIONS}
+                    items={durationOptions}
                     onValueChange={(next) => updateRow(index, { target: next ?? "" })}
                   >
                     <SelectTrigger
                       id={`${id}-target-${index}`}
-                      aria-label={`${columns.target}, ${rowLabel} ${index + 1}`}
+                      aria-label={t("rules.cellLabel", { column: columns.target, row: rowLabel, index: index + 1 })}
                       className="col-start-2 row-start-2 w-full sm:col-start-auto sm:row-start-auto"
                     >
-                      <SelectValue placeholder="Durée par défaut" />
+                      <SelectValue placeholder={t("duration.default")} />
                     </SelectTrigger>
                     <SelectContent>
-                      {DURATION_OPTIONS.map((option) => (
+                      {durationOptions.map((option) => (
                         <SelectItem key={option.value} value={option.value}>
                           {option.label}
                         </SelectItem>
@@ -549,7 +524,7 @@ export function RulesListField({
                     inputMode={columns.targetType === "tel" ? "tel" : undefined}
                     autoComplete={columns.targetType === "tel" ? "tel" : "off"}
                     placeholder={columns.targetPlaceholder}
-                    aria-label={`${columns.target}, ${rowLabel} ${index + 1}`}
+                    aria-label={t("rules.cellLabel", { column: columns.target, row: rowLabel, index: index + 1 })}
                     value={row.target}
                     onChange={(e) => updateRow(index, { target: e.target.value })}
                     className="col-start-2 row-start-2 sm:col-start-auto sm:row-start-auto"
@@ -559,7 +534,7 @@ export function RulesListField({
                   type="button"
                   variant="ghost"
                   size="icon-sm"
-                  aria-label={`Supprimer la ${rowLabel} ${index + 1}`}
+                  aria-label={t("rules.remove", { row: rowLabel, index: index + 1 })}
                   className="col-start-3 row-start-1 sm:col-start-auto sm:row-start-auto"
                   onClick={() => removeRow(index)}
                 >
@@ -573,11 +548,11 @@ export function RulesListField({
       <div className="flex flex-wrap items-center gap-1.5">
         <Button type="button" variant="outline" size="sm" onClick={() => addRow()}>
           <Plus aria-hidden="true" data-icon="inline-start" />
-          {columns.addLabel ?? "Ajouter une règle"}
+          {columns.addLabel}
         </Button>
         {suggestions.length > 0 && (
           <>
-            <span className="ml-1 text-xs text-muted-foreground">Motifs courants :</span>
+            <span className="ml-1 text-xs text-muted-foreground">{t("rules.commonReasons")}</span>
             {suggestions.map((reason) => (
               <Button
                 key={reason}
@@ -585,7 +560,7 @@ export function RulesListField({
                 variant="ghost"
                 size="sm"
                 onClick={() => addRow(reason)}
-                aria-label={`Ajouter une redirection pour le motif « ${reason} »`}
+                aria-label={t("rules.addReason", { reason })}
               >
                 <Plus aria-hidden="true" data-icon="inline-start" />
                 {reason}
@@ -611,12 +586,13 @@ export function TemplatePicker({
   companyName: string | undefined;
   onChange: (value: string) => void;
 }) {
+  const t = useTranslations("Dashboard.fields.templates");
   function apply(template: CallTemplate) {
     const previous = value;
     onChange(fillTemplate(template[part], companyName));
-    toast.success(`Modèle « ${template.sector} » appliqué. Adaptez-le à votre activité.`, {
+    toast.success(t("applied", { sector: template.sector }), {
       ...(previous.trim() && {
-        action: { label: "Annuler", onClick: () => onChange(previous) },
+        action: { label: t("undo"), onClick: () => onChange(previous) },
       }),
     });
   }
@@ -625,11 +601,11 @@ export function TemplatePicker({
     <DropdownMenu>
       <DropdownMenuTrigger render={<Button type="button" variant="ghost" size="sm" />}>
         <FileText aria-hidden="true" data-icon="inline-start" />
-        Partir d&apos;un modèle
+        {t("start")}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-auto min-w-64">
         <DropdownMenuGroup>
-          <DropdownMenuLabel>Votre secteur d&apos;activité</DropdownMenuLabel>
+          <DropdownMenuLabel>{t("sector")}</DropdownMenuLabel>
           {CALL_TEMPLATES.map((template) => (
             <DropdownMenuItem key={template.id} onClick={() => apply(template)}>
               {template.sector}

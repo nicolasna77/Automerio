@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -42,6 +43,8 @@ export function OrganizationManageDialog({
   onOpenChange: (open: boolean) => void;
 }) {
   const router = useRouter();
+  const t = useTranslations("Workspace.organization");
+  const tCommon = useTranslations("Common");
   const [isRenaming, setIsRenaming] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -59,11 +62,11 @@ export function OrganizationManageDialog({
     setIsRenaming(false);
 
     if (error) {
-      toast.error(error.message ?? "Impossible de renommer l'organisation.");
+      toast.error(error.message ?? t("renameError"));
       return;
     }
 
-    toast.success("Organisation renommée.");
+    toast.success(t("renamed"));
     router.refresh();
   }
 
@@ -71,12 +74,12 @@ export function OrganizationManageDialog({
     setIsDeleting(true);
     try {
       unwrap(await deleteOrganizationAction(organization.id));
-      toast.success(`« ${organization.name} » a été supprimée.`);
+      toast.success(t("deleted", { name: organization.name }));
       setConfirmDelete(false);
       onOpenChange(false);
       router.refresh();
     } catch (err) {
-      toast.error(getErrorMessage(err, "Impossible de supprimer l'organisation."));
+      toast.error(getErrorMessage(err, t("deleteError")));
     } finally {
       setIsDeleting(false);
     }
@@ -87,17 +90,13 @@ export function OrganizationManageDialog({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>
-              Gérer l&apos;organisation
-            </DialogTitle>
-            <DialogDescription>
-              Renommez ou supprimez « {organization.name} ».
-            </DialogDescription>
+            <DialogTitle>{t("manageTitle")}</DialogTitle>
+            <DialogDescription>{t("manageDescription", { name: organization.name })}</DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleRename} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="organization-name">Nom</Label>
+              <Label htmlFor="organization-name">{t("renameLabel")}</Label>
               <div className="flex gap-2">
                 <Input
                   key={open ? organization.id : "closed"}
@@ -107,7 +106,7 @@ export function OrganizationManageDialog({
                   required
                 />
                 <Button type="submit" variant="outline" disabled={isRenaming}>
-                  {isRenaming ? "…" : "Renommer"}
+                  {isRenaming ? tCommon("renaming") : tCommon("rename")}
                 </Button>
               </div>
             </div>
@@ -120,12 +119,12 @@ export function OrganizationManageDialog({
               disabled={!canDelete}
               onClick={() => setConfirmDelete(true)}
             >
-              Supprimer cette organisation
+              {t("deleteAction")}
             </Button>
           </DialogFooter>
           {!canDelete && (
             <p className="-mt-4 text-xs text-muted-foreground">
-              Vous devez conserver au moins une organisation.
+              {t("keepOne")}
             </p>
           )}
         </DialogContent>
@@ -134,24 +133,17 @@ export function OrganizationManageDialog({
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              Supprimer « {organization.name} » ?
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              Cette action est irréversible. Elle n&apos;est possible que si
-              aucune solution de cette organisation n&apos;est en cours
-              (payée, en configuration ou active).
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t("deleteTitle", { name: organization.name })}</AlertDialogTitle>
+            <AlertDialogDescription>{t("deleteDescription")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Annuler</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>{tCommon("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               onClick={handleDelete}
-              disabled={isDeleting}
-              aria-busy={isDeleting}
+              loading={isDeleting}
             >
-              {isDeleting ? "Suppression…" : "Supprimer"}
+              {isDeleting ? tCommon("deleting") : tCommon("delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

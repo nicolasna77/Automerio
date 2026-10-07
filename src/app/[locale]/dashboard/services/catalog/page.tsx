@@ -1,7 +1,9 @@
 import { titleMetadata } from "@/i18n/metadata";
+import { getTranslations } from "next-intl/server";
 import { db } from "@/lib/db";
 import { requireActiveOrganization } from "@/lib/organization";
 import { getCatalog } from "@/lib/get-catalog";
+import { isWaitlistMode } from "@/lib/launch-mode";
 import { PageHeader, PageShell } from "@/components/page-shell";
 import { ServiceCatalogGrid } from "../service-catalog-grid";
 import { SolutionsTabs } from "../solutions-tabs";
@@ -9,43 +11,33 @@ import { SolutionsTabs } from "../solutions-tabs";
 export const generateMetadata = titleMetadata("catalog");
 
 export default async function CataloguePage() {
-  const [{ active: organization }, services] = await Promise.all([
+  const [{ active: organization }, services, t] = await Promise.all([
     requireActiveOrganization(),
     getCatalog(),
+    getTranslations("Dashboard.services"),
   ]);
 
-  const clientServices = await db.clientService.findMany({
+  const activatedCount = await db.clientService.count({
     where: { organizationId: organization.id },
-    select: { serviceId: true, status: true },
-    orderBy: { createdAt: "asc" },
   });
-  const statusByServiceId = Object.fromEntries(
-    clientServices.map((cs) => [cs.serviceId, cs.status])
-  );
   const catalog = services.filter((s) => s.category === "COMMUNICATION");
-  const isFirst = clientServices.length === 0;
+  const isFirst = activatedCount === 0;
 
   return (
     <PageShell size="wide">
       <PageHeader
-        title="Solutions"
-        description={
-          isFirst
-            ? "Choisissez votre première automatisation : l'équipe l'installe pour vous."
-            : "Une même solution peut s'activer plusieurs fois, pour plusieurs boutiques."
-        }
+        title={t("title")}
+        description={isFirst ? t("catalog.firstDescription") : t("catalog.description")}
         className="mb-6"
       />
-      <SolutionsTabs myCount={clientServices.length} />
+      <SolutionsTabs myCount={activatedCount} />
 
       <section aria-labelledby="catalog-heading">
         <h2 id="catalog-heading" className="sr-only">
-          Catalogue
+          {t("catalog.heading")}
         </h2>
-        <p className="mb-4 text-sm text-muted-foreground">
-          Prix TTC, le montant hors taxes est rappelé dessous.
-        </p>
-        <ServiceCatalogGrid services={catalog} statusByServiceId={statusByServiceId} />
+        <p className="mb-4 text-sm text-muted-foreground">{t("catalog.vatNote")}</p>
+        <ServiceCatalogGrid services={catalog} showDetails={!isWaitlistMode()} />
       </section>
     </PageShell>
   );

@@ -1,25 +1,23 @@
-import { AlertTriangle, CalendarCheck2, Plug } from "lucide-react";
+import { AlertTriangle, CalendarCheck2, MessageCircle, Plug } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import type { MyServiceDTO } from "@/lib/catalog";
+import {
+  FACEBOOK_SERVICE_SLUG,
+  INSTAGRAM_SERVICE_SLUG,
+  WHATSAPP_SERVICE_SLUG,
+  type MyServiceDTO,
+} from "@/lib/catalog";
 import { CalendarConnection } from "./calendar-connection";
 import { CONNECTORS_SECTION_ID } from "./billing-section";
+import { InstagramConnection } from "./instagram-connection";
+import { MessengerConnection } from "./messenger-connection";
+import { WhatsAppConnection } from "./whatsapp-connection";
+import { ManagersOnlyNote } from "./managers-only-note";
 
-// Section « Connecteurs » des réglages d'une solution de prise de rendez-vous :
-// connecter, changer ou déconnecter l'agenda où l'assistant réserve. Comme
-// l'abonnement, ces actions s'appliquent tout de suite.
-export function ServiceConnectorsCard({
-  clientServiceId,
-  calendar,
-  takesAppointments,
-  connectionFailed = false,
-}: {
-  clientServiceId: string;
-  calendar: MyServiceDTO["calendar"];
-  takesAppointments: boolean;
-  // Retour de Google en échec (?calendar=error).
-  connectionFailed?: boolean;
-}) {
+// Carte « Connecteurs » commune à l'agenda et aux messageries.
+function ConnectorsShell({ children }: { children: React.ReactNode }) {
+  const t = useTranslations("Dashboard.settingsCards.connectors");
   return (
     <Card id={CONNECTORS_SECTION_ID} className="scroll-mt-24">
       <CardHeader>
@@ -29,43 +27,105 @@ export function ServiceConnectorsCard({
           </span>
           <div className="min-w-0">
             <CardTitle as="h2" className="text-base">
-              Connecteurs
+              {t("title")}
             </CardTitle>
-            <CardDescription>
-              Les outils reliés à votre assistant. Ces changements s&apos;appliquent tout de suite.
-            </CardDescription>
+            <CardDescription>{t("description")}</CardDescription>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4">{children}</CardContent>
+    </Card>
+  );
+}
+
+// Section « Connecteurs » des réglages d'une solution de prise de rendez-vous :
+// connecter, changer ou déconnecter l'agenda où l'assistant réserve. Comme
+// l'abonnement, ces actions s'appliquent tout de suite.
+export function ServiceConnectorsCard({
+  clientServiceId,
+  calendar,
+  takesAppointments,
+  connectionFailed = false,
+  canManage,
+}: {
+  clientServiceId: string;
+  // Propriétaire ou administrateur de l'entreprise : seul à pouvoir connecter.
+  canManage: boolean;
+  calendar: MyServiceDTO["calendar"];
+  takesAppointments: boolean;
+  // Retour de Google en échec (?calendar=error).
+  connectionFailed?: boolean;
+}) {
+  const t = useTranslations("Dashboard.settingsCards.connectors");
+  return (
+    <ConnectorsShell>
         {connectionFailed && !calendar && (
           <Alert variant="destructive">
             <AlertTriangle aria-hidden="true" />
-            <AlertTitle>Connexion à l&apos;agenda impossible</AlertTitle>
-            <AlertDescription>
-              La connexion à Google Agenda n&apos;a pas abouti. Réessayez avec le bouton Google Agenda ci-dessous, ou écrivez-nous depuis la rubrique Aide si le problème persiste.
-            </AlertDescription>
+            <AlertTitle>{t("errorTitle")}</AlertTitle>
+            <AlertDescription>{t("errorBody")}</AlertDescription>
           </Alert>
         )}
         <div className="rounded-lg border border-border p-4">
           <p className="flex items-center gap-2 text-sm font-medium text-foreground">
             <CalendarCheck2 className="size-4 text-muted-foreground" aria-hidden="true" />
-            Agenda
+            {t("calendar")}
           </p>
           <p className="mt-1 mb-4 text-sm text-muted-foreground">
-            {calendar
-              ? "L'assistant vérifie vos disponibilités et inscrit les rendez-vous dans cet agenda. Pour en changer, déconnectez-le puis choisissez-en un autre."
-              : "Choisissez l'agenda où l'assistant vérifie vos disponibilités et inscrit les rendez-vous : Google Agenda, Cal.com ou Calendly."}
+            {calendar ? t("connected") : t("notConnected")}
           </p>
-          <CalendarConnection clientServiceId={clientServiceId} calendar={calendar} fromSettings />
+          {canManage ? (
+            <CalendarConnection clientServiceId={clientServiceId} calendar={calendar} fromSettings />
+          ) : (
+            <ManagersOnlyNote />
+          )}
           {!takesAppointments && (
             <p className="mt-4 text-xs text-muted-foreground">
-              L&apos;agenda ne sert qu&apos;aux rendez-vous : cochez « Rendez-vous » dans l&apos;onglet
-              « Votre besoin » pour que l&apos;assistant en prenne.
+              {t("appointmentsOnly")}
             </p>
           )}
         </div>
-      </CardContent>
-    </Card>
+    </ConnectorsShell>
+  );
+}
+
+// Section « Connecteurs » d'une messagerie : le compte WhatsApp, la page
+// Facebook ou le compte Instagram sur lequel l'assistant répond, pour le
+// connecter, en changer ou le déconnecter.
+export function MessagingConnectorsCard({ item, canManage }: { item: MyServiceDTO; canManage: boolean }) {
+  const t = useTranslations("Dashboard.settingsCards.connectors");
+  const slug = item.service.slug;
+  return (
+    <ConnectorsShell>
+      <div className="rounded-lg border border-border p-4">
+        <p className="flex items-center gap-2 text-sm font-medium text-foreground">
+          <MessageCircle className="size-4 text-muted-foreground" aria-hidden="true" />
+          {t("messagingAccount")}
+        </p>
+        <p className="mt-1 mb-4 text-sm text-muted-foreground">{t("messagingDescription")}</p>
+        {!canManage && <ManagersOnlyNote />}
+        {canManage && slug === WHATSAPP_SERVICE_SLUG && (
+          <WhatsAppConnection
+            clientServiceId={item.clientServiceId}
+            connected={item.whatsappConnected}
+            displayNumber={item.whatsappDisplayNumber}
+          />
+        )}
+        {canManage && slug === FACEBOOK_SERVICE_SLUG && (
+          <MessengerConnection
+            clientServiceId={item.clientServiceId}
+            connected={item.facebookConnected}
+            pageName={item.facebookPageName}
+          />
+        )}
+        {canManage && slug === INSTAGRAM_SERVICE_SLUG && (
+          <InstagramConnection
+            clientServiceId={item.clientServiceId}
+            connected={item.instagramConnected}
+            username={item.instagramUsername}
+          />
+        )}
+      </div>
+    </ConnectorsShell>
   );
 }

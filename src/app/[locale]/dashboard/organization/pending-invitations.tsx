@@ -1,14 +1,15 @@
 "use client";
 
+import { useLabels } from "@/hooks/use-labels";
 import { useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { MailPlus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
-import { roleLabel } from "@/lib/organization-roles";
 import { cancelInvitationAction } from "./actions";
 
 export type PendingInvitation = {
@@ -28,16 +29,19 @@ export function PendingInvitations({
   invitations: PendingInvitation[];
 }) {
   const router = useRouter();
+  const t = useTranslations("Dashboard.organization.invitations");
+  const labels = useLabels();
+  const tCommon = useTranslations("Common");
   const [pending, startTransition] = useTransition();
 
   function handleCancel(invitation: PendingInvitation) {
     startTransition(async () => {
       try {
         unwrap(await cancelInvitationAction(organizationId, invitation.id));
-        toast.success(`Invitation de ${invitation.email} annulée.`);
+        toast.success(t("canceled", { email: invitation.email }));
         router.refresh();
       } catch (err) {
-        toast.error(getErrorMessage(err, "L'annulation a échoué."));
+        toast.error(getErrorMessage(err, t("failed")));
       }
     });
   }
@@ -59,13 +63,12 @@ export function PendingInvitations({
                 {invitation.email}
               </p>
               <p className="text-xs text-muted-foreground">
-                Invitation envoyée, en attente de réponse. Expire le{" "}
-                {invitation.expiresAt}
+                {t("waiting", { date: invitation.expiresAt })}
               </p>
             </div>
 
             <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-              <Badge variant="secondary">{roleLabel(invitation.role)}</Badge>
+              <Badge variant="secondary">{labels.role(invitation.role)}</Badge>
               {canManage && (
                 <Button
                   variant="ghost"
@@ -73,7 +76,7 @@ export function PendingInvitations({
                   disabled={pending}
                   onClick={() => handleCancel(invitation)}
                 >
-                  Annuler
+                  {tCommon("cancel")}
                 </Button>
               )}
             </div>

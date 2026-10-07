@@ -1,45 +1,47 @@
 import { useTranslations } from "next-intl";
+import { usePriceFormatter } from "@/hooks/use-price-formatter";
 import { cn } from "@/lib/utils";
-import { formatUsageUnits, overageUnits, usageRatio, type UsageCap, formatPerUnit } from "@/lib/usage-cap";
-import { formatCentsWithVat } from "@/lib/vat";
-import { QUOTA_WARNING_RATIO } from "@/lib/quota";
+import { overageUnits, usageRatio, type UsageCap } from "@/lib/usage-cap";
+import { isNearQuota } from "@/lib/quota";
 
 export function UsageGauge({
   cap,
   consumedUnits,
   overageCents,
-  pausesAtLimit,
+  pausesAtLimit = false,
 }: {
   cap: UsageCap;
   consumedUnits: number;
   overageCents: number;
   // Dépassement refusé : l'assistant se met en pause au lieu de facturer.
-  pausesAtLimit: boolean;
+  pausesAtLimit?: boolean;
 }) {
-  const t = useTranslations("Dashboard.overage");
+  const t = useTranslations("Dashboard.subscriptions.gauge");
+  const tOverage = useTranslations("Dashboard.overage");
+  const price = usePriceFormatter();
   const over = overageUnits(consumedUnits, cap);
   const ratio = usageRatio(consumedUnits, cap);
-  const consumed = formatUsageUnits(consumedUnits, cap.unit);
-  const included = formatUsageUnits(cap.includedUnits, cap.unit);
-  const nearLimit = over === 0 && consumedUnits >= cap.includedUnits * QUOTA_WARNING_RATIO;
+  const consumed = price.usageUnits(consumedUnits, cap.unit);
+  const included = price.usageUnits(cap.includedUnits, cap.unit);
+  const nearLimit = isNearQuota(consumedUnits, cap.includedUnits);
 
   return (
     <div>
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <span className="text-sm text-muted-foreground">Quota consommé</span>
+        <span className="text-sm text-muted-foreground">{t("consumed")}</span>
         <span className="text-sm tabular-nums text-foreground">
           <span className="font-medium">{consumed}</span>
-          <span className="text-muted-foreground"> / {included}</span>
+          <span className="text-muted-foreground">{t("of", { included })}</span>
         </span>
       </div>
 
       <div
         role="progressbar"
-        aria-label="Quota consommé sur la période"
+        aria-label={t("label")}
         aria-valuemin={0}
         aria-valuemax={cap.includedUnits}
         aria-valuenow={Math.min(consumedUnits, cap.includedUnits)}
-        aria-valuetext={`${consumed} sur ${included}`}
+        aria-valuetext={t("valueText", { consumed, included })}
         className="mt-2 h-2 overflow-hidden rounded-full bg-muted"
       >
         <div
@@ -53,36 +55,27 @@ export function UsageGauge({
 
       <p className="mt-2 text-xs text-muted-foreground">
         {pausesAtLimit && consumedUnits >= cap.includedUnits ? (
-          <span className="font-medium text-destructive">{t("paused")}</span>
+          <span className="font-medium text-destructive">{tOverage("paused")}</span>
         ) : pausesAtLimit && nearLimit ? (
           <>
             <span className="font-medium text-foreground">
-              {t("remaining", { remaining: formatUsageUnits(cap.includedUnits - consumedUnits, cap.unit) })}
+              {tOverage("remaining", { remaining: price.usageUnits(cap.includedUnits - consumedUnits, cap.unit) })}
             </span>{" "}
-            {t("pausesSoon")}
+            {tOverage("pausesSoon")}
           </>
-        ) : over > 0 ? (
-          <>
-            {formatUsageUnits(over, cap.unit)} au-delà du forfait :{" "}
-            <span className="font-medium text-foreground tabular-nums">
-              {formatCentsWithVat(overageCents)}
-            </span>{" "}
-            s&apos;ajouteront à la prochaine facture.
-          </>
-        ) : nearLimit && cap.overageUnitPriceCents > 0 ? (
-          <>
-            <span className="font-medium text-foreground">
-              Plus que {formatUsageUnits(cap.includedUnits - consumedUnits, cap.unit)}
-            </span>{" "}
-            sur cette période. Au-delà, la consommation est facturée{" "}
-            {formatPerUnit(cap.overageUnitPriceCents, cap.unit)}.
-          </>
-        ) : (
-          <>
-            Il vous reste {formatUsageUnits(cap.includedUnits - consumedUnits, cap.unit)}{" "}
-            sur cette période.
-          </>
-        )}
+        ) : over > 0
+          ? t.rich("over", {
+              units: price.usageUnits(over, cap.unit),
+              amount: price.withVat(overageCents),
+              em: (chunks) => <span className="font-medium text-foreground tabular-nums">{chunks}</span>,
+            })
+          : nearLimit && cap.overageUnitPriceCents > 0
+            ? t.rich("nearLimit", {
+                units: price.usageUnits(cap.includedUnits - consumedUnits, cap.unit),
+                price: price.perUnit(cap.overageUnitPriceCents, cap.unit),
+                strong: (chunks) => <span className="font-medium text-foreground">{chunks}</span>,
+              })
+            : t("remaining", { units: price.usageUnits(cap.includedUnits - consumedUnits, cap.unit) })}
       </p>
     </div>
   );

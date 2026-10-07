@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Check, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -26,6 +27,7 @@ export function Stepper({
   onStepClick?: (index: number) => void;
   label: string;
 }) {
+  const t = useTranslations("Common");
   const compact = steps.length >= COMPACT_FROM;
 
   return (
@@ -64,8 +66,9 @@ export function Stepper({
                   )}
                 >
                   <span className="sr-only">
-                    Étape {index + 1} sur {steps.length}
-                    {done ? ", terminée" : ""} :{" "}
+                    {t("stepPrefix", {
+                      step: t(done ? "stepOfDone" : "stepOf", { current: index + 1, total: steps.length }),
+                    })}
                   </span>
                   {step.title}
                 </span>
@@ -113,7 +116,7 @@ export function Stepper({
       {compact && steps[current] && (
         <p aria-hidden="true" className="mt-4 text-center text-sm sm:hidden">
           <span className="text-muted-foreground">
-            Étape {current + 1} sur {steps.length} :{" "}
+            {t("stepPrefix", { step: t("stepOf", { current: current + 1, total: steps.length }) })}
           </span>
           <span className="font-medium text-foreground">{steps[current].title}</span>
         </p>

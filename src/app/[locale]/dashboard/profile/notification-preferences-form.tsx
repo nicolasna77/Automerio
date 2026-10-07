@@ -1,15 +1,13 @@
 "use client";
 
+import { useLabels } from "@/hooks/use-labels";
 import { useState, useTransition } from "react";
-import { toast } from "sonner";
+import { useTranslations } from "next-intl";
+import { dismissErrorToasts, toast } from "@/lib/toast";
 import { Switch } from "@/components/ui/switch";
 import { getErrorMessage } from "@/lib/utils";
-import {
-  NOTIFICATION_TYPES,
-  NOTIFICATION_TYPE_DESCRIPTIONS,
-  NOTIFICATION_TYPE_LABELS,
-  type NotificationType,
-} from "@/lib/email/types";
+import { unwrap } from "@/lib/action-result";
+import { NOTIFICATION_TYPES, type NotificationType } from "@/lib/email/types";
 import type { NotificationPreferences } from "@/lib/email/preferences";
 import { setNotificationPreference } from "./actions";
 import { ProfileSection } from "./profile-section";
@@ -19,13 +17,14 @@ export function NotificationPreferencesForm({
 }: {
   initialPreferences: NotificationPreferences;
 }) {
+  const t = useTranslations("Dashboard.profile.notifications");
   return (
     <ProfileSection
-      title="E-mails que nous vous envoyons"
-      description="Les e-mails liés à votre compte et à vos paiements vous parviennent dans tous les cas."
+      title={t("title")}
+      description={t("description")}
       action={
         <p className="pt-1 text-xs text-muted-foreground">
-          Enregistré automatiquement
+          {t("autosave")}
         </p>
       }
     >
@@ -49,6 +48,7 @@ function NotificationToggleRow({
   type: NotificationType;
   initialEnabled: boolean;
 }) {
+  const labels = useLabels();
   const [enabled, setEnabled] = useState(initialEnabled);
   const [isPending, startTransition] = useTransition();
 
@@ -57,7 +57,8 @@ function NotificationToggleRow({
     setEnabled(checked);
     startTransition(async () => {
       try {
-        await setNotificationPreference(type, checked);
+        unwrap(await setNotificationPreference(type, checked));
+        dismissErrorToasts();
       } catch (err) {
         setEnabled(previous);
         toast.error(getErrorMessage(err));
@@ -69,17 +70,17 @@ function NotificationToggleRow({
     <li className="flex items-center justify-between gap-4 px-4 py-3">
       <div className="min-w-0">
         <p className="text-sm font-medium text-foreground">
-          {NOTIFICATION_TYPE_LABELS[type]}
+          {labels.notification(type)}
         </p>
         <p className="mt-0.5 text-xs text-muted-foreground">
-          {NOTIFICATION_TYPE_DESCRIPTIONS[type]}
+          {labels.notificationDescription(type)}
         </p>
       </div>
       <Switch
         checked={enabled}
         onCheckedChange={handleChange}
         disabled={isPending}
-        aria-label={NOTIFICATION_TYPE_LABELS[type]}
+        aria-label={labels.notification(type)}
       />
     </li>
   );

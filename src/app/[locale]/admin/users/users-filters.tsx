@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -10,14 +11,12 @@ import {
 } from "@/components/ui/select";
 import { useQueryParamFilters } from "@/hooks/use-query-param-filters";
 
-const ROLE_FILTER_LABELS = {
-  all: "Tous les rôles",
-  ADMIN: "Administrateurs",
-  CLIENT: "Clients",
-};
+const ROLE_FILTERS = ["all", "ADMIN", "CLIENT"] as const;
 
 export function UsersFilters() {
+  const t = useTranslations("Admin.users.filters");
   const { searchParams, updateParams } = useQueryParamFilters();
+  const roleFilterLabels = Object.fromEntries(ROLE_FILTERS.map((role) => [role, t(`roles.${role}`)]));
 
   return (
     <div className="mb-4 flex flex-wrap items-center gap-3">
@@ -31,13 +30,13 @@ export function UsersFilters() {
         className="min-w-48 flex-1"
       >
         <label htmlFor="admin-user-search" className="sr-only">
-          Rechercher un utilisateur
+          {t("searchLabel")}
         </label>
         <Input
           id="admin-user-search"
           name="q"
           type="search"
-          placeholder="Rechercher par nom, e-mail, entreprise…"
+          placeholder={t("searchPlaceholder")}
           defaultValue={searchParams.get("q") ?? ""}
         />
       </form>
@@ -47,13 +46,13 @@ export function UsersFilters() {
         onValueChange={(value) =>
           updateParams({ role: value === "all" ? null : value })
         }
-        items={ROLE_FILTER_LABELS}
+        items={roleFilterLabels}
       >
-        <SelectTrigger className="w-48" aria-label="Filtrer par rôle">
-          <SelectValue placeholder="Tous les rôles" />
+        <SelectTrigger className="w-48" aria-label={t("roleFilter")}>
+          <SelectValue placeholder={t("roles.all")} />
         </SelectTrigger>
         <SelectContent>
-          {Object.entries(ROLE_FILTER_LABELS).map(([value, label]) => (
+          {Object.entries(roleFilterLabels).map(([value, label]) => (
             <SelectItem key={value} value={value}>
               {label}
             </SelectItem>

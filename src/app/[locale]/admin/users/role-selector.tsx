@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { toast } from "sonner";
+import { useTranslations } from "next-intl";
+import { toast } from "@/lib/toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,6 +33,8 @@ export function RoleSelector({
   currentRole: "ADMIN" | "CLIENT";
   disabled?: boolean;
 }) {
+  const t = useTranslations("Admin.users");
+  const tCommon = useTranslations("Common");
   const [isPending, startTransition] = useTransition();
   const [pendingRole, setPendingRole] = useState<"ADMIN" | null>(null);
 
@@ -39,7 +42,7 @@ export function RoleSelector({
     startTransition(async () => {
       try {
         unwrap(await setUserRoleAction(userId, role));
-        toast.success(`Rôle mis à jour : ${role}.`);
+        toast.success(t("roleSelector.updated", { role: t(`role.${role}`) }));
       } catch (err) {
         toast.error(getErrorMessage(err));
       } finally {
@@ -62,15 +65,16 @@ export function RoleSelector({
     <>
       <Select
         value={currentRole}
+        items={{ CLIENT: t("role.CLIENT"), ADMIN: t("role.ADMIN") }}
         onValueChange={handleChange}
         disabled={disabled || isPending}
       >
-        <SelectTrigger className="w-40" aria-label="Rôle de l'utilisateur">
+        <SelectTrigger className="w-40" aria-label={t("roleSelector.label")}>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="CLIENT">CLIENT</SelectItem>
-          <SelectItem value="ADMIN">ADMIN</SelectItem>
+          <SelectItem value="CLIENT">{t("role.CLIENT")}</SelectItem>
+          <SelectItem value="ADMIN">{t("role.ADMIN")}</SelectItem>
         </SelectContent>
       </Select>
 
@@ -80,23 +84,17 @@ export function RoleSelector({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Promouvoir en ADMIN ?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Cette personne aura un accès total à tous les clients, tous les
-              paiements et le catalogue des prestations, au même titre
-              que vous. Cette portée d&apos;accès ne peut pas être restreinte
-              (il n&apos;existe pas de rôle intermédiaire).
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t("roleSelector.promoteTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("roleSelector.promoteDescription")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>Annuler</AlertDialogCancel>
+            <AlertDialogCancel disabled={isPending}>{tCommon("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               onClick={() => applyRole("ADMIN")}
-              disabled={isPending}
-              aria-busy={isPending}
+              loading={isPending}
             >
-              {isPending ? "Promotion…" : "Promouvoir en ADMIN"}
+              {isPending ? t("roleSelector.promoting") : t("roleSelector.promote")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

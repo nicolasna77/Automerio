@@ -286,6 +286,16 @@ async function seedDemoBookings(db: PrismaClient) {
 
 type Clip = { x: number; y: number; width: number; height: number };
 
+async function boxOf(locator: ReturnType<Page["locator"]>): Promise<Clip> {
+  const box = await locator.boundingBox();
+  if (!box) throw new Error("Zone à capturer introuvable à l'écran.");
+  return box;
+}
+
+function padded(box: Clip, by: number): Clip {
+  return { x: Math.max(box.x - by, 0), y: Math.max(box.y - by, 0), width: box.width + by * 2, height: box.height + by * 2 };
+}
+
 async function capture(
   page: Page,
   path: string,
@@ -293,6 +303,9 @@ async function capture(
   target: {
     cardHeading?: string;
     clip?: Clip;
+    // Fragment de l'interface (accueil, sous le hero) : la zone à capturer,
+    // calculée une fois la page prête et la zone visible à l'écran.
+    region?: (page: Page) => Promise<Clip>;
     // Fenêtre plus étroite que 1280 px : l'écran se met en page à cette
     // largeur, et le texte reste lisible une fois la capture réduite sur
     // l'accueil.
@@ -309,7 +322,11 @@ async function capture(
     // Masque l'indicateur de développement de Next (« N », « Compiling »).
     // L'en-tête collant recouvrirait le haut d'une carte capturée seule.
     await page.addStyleTag({
-      content: "nextjs-portal { display: none !important; } header { position: static !important; }",
+      // Animations et transitions coupées : une capture prise en plein fondu
+      // est floue ou à moitié transparente.
+      content:
+        "nextjs-portal { display: none !important; } header { position: static !important; } " +
+        "*, *::before, *::after { animation: none !important; transition: none !important; caret-color: transparent !important; }",
     });
     await page.waitForTimeout(800);
     if (target.prepare) {
@@ -317,13 +334,20 @@ async function capture(
       await page.waitForTimeout(400);
     }
     const { cardHeading, clip = { x: 0, y: 0, width: 1280, height: 800 } } = target;
-    const png = cardHeading
-      ? await page
-          .getByRole("heading", { name: cardHeading, exact: true })
-          .locator("xpath=ancestor::*[@data-slot='card'][1]")
-          .screenshot()
-      : await page.screenshot({ clip });
-    await sharp(png).webp({ quality: 82 }).toFile(`${OUT_DIR}/${name}-${theme}.webp`);
+    const card = cardHeading
+      ? page.getByRole("heading", { name: cardHeading, exact: true }).locator("xpath=ancestor::*[@data-slot='card'][1]")
+      : null;
+    // Les listes (appels, conversations) se chargent après la page : on
+    // attend que plus aucun squelette ne reste à l'écran.
+    await (card ?? page.locator("body"))
+      .locator('[data-slot="skeleton"]')
+      .first()
+      .waitFor({ state: "detached", timeout: 20_000 });
+    await page.evaluate(() => document.fonts.ready);
+    const png = card
+      ? await card.screenshot()
+      : await page.screenshot({ clip: target.region ? await target.region(page) : clip });
+    await sharp(png).webp({ quality: 92, effort: 6, smartSubsample: true }).toFile(`${OUT_DIR}/${name}-${theme}.webp`);
     console.info(`capture : ${OUT_DIR}/${name}-${theme}.webp`);
   }
   if (target.viewport) await page.setViewportSize({ width: 1280, height: 800 });
@@ -348,18 +372,57 @@ async function main() {
 
   // Le hero montre l'application entière, barre latérale comprise.
   await capture(page, "/dashboard", "dashboard-overview", { clip: { x: 0, y: 0, width: 1280, height: 800 } });
-  await capture(page, `/dashboard/services/${clientServiceId}`, "dashboard-calls", { cardHeading: "Appels reçus" });
-  await capture(page, "/dashboard/calendar", "dashboard-calendar", {
-    viewport: { width: 1024, height: 800 },
-    clip: { x: 256, y: 64, width: 768, height: 576 },
+  // Sous le hero, l'accueil montre des morceaux de l'interface plutôt que des
+  // pages entières : un appel ouvert, un fil de messages, quelques
+  // rendez-vous, les règles de transfert.
+  await capture(page, `/dashboard/services/${clientServiceId}`, "fragment-calls", {
+    prepare: (page) => page.getByRole("button", { name: /Devis chauffe-eau/ }).click(),
+    region: async (page) => {
+      const item = page.getByRole("button", { name: /Devis chauffe-eau/ }).locator("xpath=ancestor::li[1]");
+      await item.scrollIntoViewIfNeeded();
+      return padded(await boxOf(item), 1);
+    },
+  });
+  await capture(page, `/dashboard/services/${whatsappServiceId}`, "fragment-conversation", {
+    // Fenêtre large : le volet du fil s'élargit, le numéro n'est plus tronqué.
+    viewport: { width: 1600, height: 1000 },
+    region: async (page) => {
+      // Le début de l'échange, en entier : l'en-tête du contact puis les
+      // trois premiers messages, sans bulle coupée.
+      const log = page.locator('[role="log"]');
+      await log.evaluate((el) => el.scrollTo({ top: 0 }));
+      const header = log.locator("xpath=preceding-sibling::header[1]");
+      await header.scrollIntoViewIfNeeded();
+      const top = await boxOf(header);
+      // li 0 : séparateur « Aujourd'hui » ; 1 à 3 : les trois premiers messages.
+      const third = await boxOf(log.locator("li").nth(3));
+      return { x: top.x, y: top.y, width: top.width, height: third.y + third.height + 8 - top.y };
+    },
+  });
+  await capture(page, "/dashboard/calendar", "fragment-calendar", {
     prepare: (page) => page.getByRole("button", { name: "Semaine" }).click(),
+    region: async (page) => {
+      // Du lundi au jeudi, de 8 h à midi : assez pour lire les rendez-vous.
+      const header = page
+        .getByText("08:00", { exact: true })
+        .first()
+        .locator("xpath=ancestor::div[contains(@class,'rounded-2xl')][1]");
+      await header.scrollIntoViewIfNeeded();
+      const grid = await boxOf(header);
+      const noon = await boxOf(page.getByText("12:00", { exact: true }).first());
+      // Colonne des heures (w-14, 56 px) puis sept jours de même largeur :
+      // on coupe pile après le jeudi.
+      const day = (grid.width - 56) / 7;
+      return { x: grid.x, y: grid.y, width: Math.round(56 + day * 4), height: noon.y - grid.y };
+    },
   });
-  await capture(page, `/dashboard/services/${whatsappServiceId}`, "dashboard-conversations", {
-    cardHeading: "Conversations",
-  });
-  await capture(page, `/dashboard/services/${clientServiceId}/configuration`, "dashboard-settings", {
-    clip: { x: 256, y: 64, width: 1024, height: 640 },
+  await capture(page, `/dashboard/services/${clientServiceId}/configuration`, "fragment-rules", {
     prepare: (page) => page.getByRole("tab", { name: "Règles" }).click(),
+    region: async (page) => {
+      const card = page.getByRole("heading", { name: "Règles", exact: true }).locator("xpath=ancestor::*[@data-slot='card'][1]");
+      await card.scrollIntoViewIfNeeded();
+      return padded(await boxOf(card), 1);
+    },
   });
   await browser.close();
 }

@@ -1,6 +1,10 @@
 import { db } from "@/lib/db";
 import { requireEnv } from "@/lib/env";
-import { signOAuthState, verifyOAuthState } from "@/lib/oauth-state";
+import {
+  signOAuthState,
+  verifyOAuthState,
+  type OAuthStateExpectation,
+} from "@/lib/oauth-state";
 import { logServiceEvent } from "@/lib/service-events";
 
 const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
@@ -10,18 +14,25 @@ const GOOGLE_CALENDAR_SCOPE = "https://www.googleapis.com/auth/calendar.events";
 
 const FEATURE = "l'agenda Google";
 
-function signState(clientServiceId: string): string {
-  return signOAuthState(requireEnv("GOOGLE_OAUTH_STATE_SECRET", FEATURE), clientServiceId);
-}
-
 // Cookie posé quand la connexion part des réglages, pour y revenir ensuite.
 export const GOOGLE_RETURN_COOKIE = "google_calendar_return";
+// Cookie qui porte le nonce du state entre /connect et /callback.
+export const GOOGLE_NONCE_COOKIE = "google_calendar_oauth_nonce";
+export const GOOGLE_OAUTH_COOKIE_PATH = "/api/google-calendar";
 
-export function verifyState(state: string): string | null {
-  return verifyOAuthState(requireEnv("GOOGLE_OAUTH_STATE_SECRET", FEATURE), state);
+export function verifyState(state: string, expected: OAuthStateExpectation): string | null {
+  return verifyOAuthState(requireEnv("GOOGLE_OAUTH_STATE_SECRET", FEATURE), state, expected);
 }
 
-export function buildGoogleAuthUrl(clientServiceId: string): string {
+export function buildGoogleAuthUrl(
+  clientServiceId: string,
+  userId: string
+): { url: string; nonce: string } {
+  const { state, nonce } = signOAuthState(
+    requireEnv("GOOGLE_OAUTH_STATE_SECRET", FEATURE),
+    clientServiceId,
+    userId
+  );
   const params = new URLSearchParams({
     client_id: requireEnv("GOOGLE_CLIENT_ID", FEATURE),
     redirect_uri: requireEnv("GOOGLE_OAUTH_REDIRECT_URI", FEATURE),
@@ -29,9 +40,9 @@ export function buildGoogleAuthUrl(clientServiceId: string): string {
     scope: `${GOOGLE_CALENDAR_SCOPE} openid email`,
     access_type: "offline",
     prompt: "consent",
-    state: signState(clientServiceId),
+    state,
   });
-  return `${GOOGLE_AUTH_URL}?${params.toString()}`;
+  return { url: `${GOOGLE_AUTH_URL}?${params.toString()}`, nonce };
 }
 
 type GoogleTokenResponse = {

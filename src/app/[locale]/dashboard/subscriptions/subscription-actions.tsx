@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Settings } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,6 +33,9 @@ export function SubscriptionActions({
   running: boolean;
 }) {
   const router = useRouter();
+  const t = useTranslations("Dashboard.service.actions");
+  const tSubscriptions = useTranslations("Dashboard.subscriptions");
+  const tCommon = useTranslations("Common");
   const [isCanceling, startCancelTransition] = useTransition();
   const [confirmCancel, setConfirmCancel] = useState(false);
   const { status, name, clientServiceId } = subscription;
@@ -40,7 +44,7 @@ export function SubscriptionActions({
     startCancelTransition(async () => {
       try {
         unwrap(await cancelService(clientServiceId));
-        toast.success(`« ${name} » a été résiliée.`);
+        toast.success(t("canceled", { name }));
         setConfirmCancel(false);
         router.refresh();
       } catch (err) {
@@ -56,7 +60,7 @@ export function SubscriptionActions({
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Button variant="ghost" size="sm" onClick={() => setConfirmCancel(true)}>
-        Se désabonner
+        {t("unsubscribe")}
       </Button>
       {/* L'onglet Abonnement des réglages n'existe que si l'abonnement court. */}
       {running && (
@@ -65,29 +69,24 @@ export function SubscriptionActions({
           className={buttonVariants({ variant: "outline", size: "sm" })}
         >
           <Settings data-icon="inline-start" aria-hidden="true" />
-          Réglages
+          {tSubscriptions("settings")}
         </Link>
       )}
 
       <AlertDialog open={confirmCancel} onOpenChange={setConfirmCancel}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Résilier « {name} » ?</AlertDialogTitle>
-            <AlertDialogDescription>
-              L&apos;abonnement mensuel sera annulé immédiatement. Dans les 30
-              jours suivant votre premier paiement, il vous est remboursé sur
-              simple demande depuis la rubrique Aide.
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t("confirmTitle", { name })}</AlertDialogTitle>
+            <AlertDialogDescription>{t("confirmDescription")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isCanceling}>Annuler</AlertDialogCancel>
+            <AlertDialogCancel disabled={isCanceling}>{tCommon("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               onClick={handleUnsubscribe}
-              disabled={isCanceling}
-              aria-busy={isCanceling}
+              loading={isCanceling}
             >
-              {isCanceling ? "Résiliation…" : "Se désabonner"}
+              {isCanceling ? t("canceling") : t("unsubscribe")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

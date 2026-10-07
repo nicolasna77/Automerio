@@ -1,10 +1,13 @@
+import { useTranslations } from "next-intl";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Card } from "@/components/ui/card";
 import { PageShell } from "@/components/page-shell";
 
 // Reprend la disposition de la page : en-tête, onglets soulignés, tableau.
 export default function Loading() {
+  const t = useTranslations("Dashboard.loading");
   return (
-    <PageShell size="wide" role="status" aria-label="Chargement des solutions…">
+    <PageShell size="wide" role="status" aria-label={t("services")}>
       <Skeleton className="h-8 w-44" />
       <Skeleton className="mt-2 h-5 w-72" />
       <div className="mt-6 mb-6 flex gap-6 border-b border-border pb-3">
@@ -12,7 +15,7 @@ export default function Loading() {
         <Skeleton className="h-5 w-20" />
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-border bg-card">
+      <Card className="gap-0 py-0">
         <Skeleton className="h-10 w-full rounded-none" />
         <div className="divide-y divide-border">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -27,7 +30,7 @@ export default function Loading() {
             </div>
           ))}
         </div>
-      </div>
+      </Card>
     </PageShell>
   );
 }

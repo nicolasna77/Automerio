@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition, type FormEvent } from "react";
-import { toast } from "sonner";
+import { useTranslations } from "next-intl";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,27 +10,39 @@ import { authClient } from "@/lib/auth-client";
 import { ProfileSection } from "./profile-section";
 
 export function PasswordForm() {
+  const t = useTranslations("Dashboard.profile.password");
+  const tCommon = useTranslations("Common");
+  const tAccount = useTranslations("Dashboard.profile.account");
   const [open, setOpen] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isPending, startTransition] = useTransition();
+  // Erreur de saisie affichée sous le champ concerné, qui reçoit le focus.
+  const [fieldError, setFieldError] = useState<{ field: "newPassword" | "confirmPassword"; message: string } | null>(null);
 
   function reset() {
     setCurrentPassword("");
     setNewPassword("");
     setConfirmPassword("");
+    setFieldError(null);
+  }
+
+  function showFieldError(field: "newPassword" | "confirmPassword", message: string) {
+    setFieldError({ field, message });
+    document.getElementById(field)?.focus();
   }
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    setFieldError(null);
 
-    if (newPassword !== confirmPassword) {
-      toast.error("Les deux mots de passe ne correspondent pas.");
+    if (newPassword.length < 8) {
+      showFieldError("newPassword", t("tooShort"));
       return;
     }
-    if (newPassword.length < 8) {
-      toast.error("Le mot de passe doit contenir au moins 8 caractères.");
+    if (newPassword !== confirmPassword) {
+      showFieldError("confirmPassword", t("mismatch"));
       return;
     }
 
@@ -40,10 +53,10 @@ export function PasswordForm() {
         revokeOtherSessions: true,
       });
       if (error) {
-        toast.error(error.message ?? "Une erreur est survenue.");
+        toast.error(error.message ?? tAccount("error"));
         return;
       }
-      toast.success("Mot de passe mis à jour.");
+      toast.success(t("updated"));
       reset();
       setOpen(false);
     });
@@ -51,12 +64,12 @@ export function PasswordForm() {
 
   return (
     <ProfileSection
-      title="Mot de passe"
-      description="Le changer déconnecte vos autres appareils."
+      title={t("title")}
+      description={t("description")}
       action={
         !open && (
           <Button type="button" variant="outline" onClick={() => setOpen(true)}>
-            Changer le mot de passe
+            {t("change")}
           </Button>
         )
       }
@@ -64,7 +77,7 @@ export function PasswordForm() {
       {open && (
         <form onSubmit={handleSubmit} className="grid gap-4 sm:max-w-md">
           <div className="space-y-2">
-            <Label htmlFor="currentPassword">Mot de passe actuel</Label>
+            <Label htmlFor="currentPassword">{t("current")}</Label>
             <Input
               id="currentPassword"
               type="password"
@@ -76,7 +89,7 @@ export function PasswordForm() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="newPassword">Nouveau mot de passe</Label>
+            <Label htmlFor="newPassword">{t("new")}</Label>
             <Input
               id="newPassword"
               type="password"
@@ -84,24 +97,40 @@ export function PasswordForm() {
               minLength={8}
               autoComplete="new-password"
               value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
+              onChange={(e) => {
+                setNewPassword(e.target.value);
+                if (fieldError?.field === "newPassword") setFieldError(null);
+              }}
+              aria-invalid={fieldError?.field === "newPassword" ? true : undefined}
+              aria-describedby={fieldError?.field === "newPassword" ? "newPassword-hint newPassword-error" : "newPassword-hint"}
             />
-            <p className="text-xs text-muted-foreground">8 caractères minimum.</p>
+            <p id="newPassword-hint" className="text-xs text-muted-foreground">{t("minLength")}</p>
+            {fieldError?.field === "newPassword" && (
+              <p id="newPassword-error" className="text-sm text-destructive">{fieldError.message}</p>
+            )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirmer le nouveau mot de passe</Label>
+            <Label htmlFor="confirmPassword">{t("confirm")}</Label>
             <Input
               id="confirmPassword"
               type="password"
               required
               autoComplete="new-password"
               value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+                if (fieldError?.field === "confirmPassword") setFieldError(null);
+              }}
+              aria-invalid={fieldError?.field === "confirmPassword" ? true : undefined}
+              aria-describedby={fieldError?.field === "confirmPassword" ? "confirmPassword-error" : undefined}
             />
+            {fieldError?.field === "confirmPassword" && (
+              <p id="confirmPassword-error" className="text-sm text-destructive">{fieldError.message}</p>
+            )}
           </div>
           <div className="flex gap-2">
-            <Button type="submit" disabled={isPending} aria-busy={isPending}>
-              {isPending ? "Mise à jour…" : "Mettre à jour"}
+            <Button type="submit" loading={isPending}>
+              {isPending ? t("updating") : t("update")}
             </Button>
             <Button
               type="button"
@@ -112,7 +141,7 @@ export function PasswordForm() {
                 setOpen(false);
               }}
             >
-              Annuler
+              {tCommon("cancel")}
             </Button>
           </div>
         </form>

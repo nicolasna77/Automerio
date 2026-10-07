@@ -18,10 +18,35 @@ function getRedis(): Redis {
   return redisClient;
 }
 
+let warnedMemoryFallback = false;
+
+// En production, la mémoire du serveur est propre à chaque instance : la limite
+// réelle est multipliée par le nombre d'instances. Prévenu une seule fois.
+export function warnIfMemoryFallbackInProduction(): void {
+  if (warnedMemoryFallback || process.env.NODE_ENV !== "production") return;
+  warnedMemoryFallback = true;
+  console.warn(
+    "[rate-limit] UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN absents en production : limites tenues en mémoire, par instance."
+  );
+}
+
+function firstEntry(value: string | null): string | null {
+  return value?.split(",")[0]?.trim() || null;
+}
+
+// Sur Vercel, x-real-ip et x-vercel-forwarded-for sont posés par la plateforme ;
+// la première entrée de x-forwarded-for peut venir du client lui-même.
+export function clientIpFrom(headersList: Pick<Headers, "get">): string {
+  return (
+    firstEntry(headersList.get("x-real-ip")) ??
+    firstEntry(headersList.get("x-vercel-forwarded-for")) ??
+    firstEntry(headersList.get("x-forwarded-for")) ??
+    "unknown"
+  );
+}
+
 export async function getClientIp(): Promise<string> {
-  const headersList = await headers();
-  const forwardedFor = headersList.get("x-forwarded-for");
-  return forwardedFor?.split(",")[0]?.trim() || "unknown";
+  return clientIpFrom(await headers());
 }
 
 function windowToMs(window: Window): number {
@@ -29,22 +54,38 @@ function windowToMs(window: Window): number {
   return Number(amount) * UNIT_MS[unit];
 }
 
-const MAX_MEMORY_KEYS = 10_000;
-const memoryHits = new Map<string, number[]>();
+export const MAX_MEMORY_KEYS = 10_000;
+
+// Chaque clé garde sa propre fenêtre : une entrée n'expire qu'une fois son
+// dernier passage sorti de SA fenêtre (24 h pour un plafond quotidien), pas
+// au bout d'une durée fixe commune à toutes les limites.
+type MemoryEntry = { hits: number[]; windowMs: number };
+const memoryHits = new Map<string, MemoryEntry>();
+
+function expiresAt(entry: MemoryEntry): number {
+  return (entry.hits[entry.hits.length - 1] ?? 0) + entry.windowMs;
+}
 
 function pruneMemory(now: number) {
   if (memoryHits.size < MAX_MEMORY_KEYS) return;
-  for (const [key, hits] of memoryHits) {
-    if (hits.every((t) => now - t > UNIT_MS.h)) memoryHits.delete(key);
+  for (const [key, entry] of memoryHits) {
+    if (expiresAt(entry) <= now) memoryHits.delete(key);
   }
+  if (memoryHits.size < MAX_MEMORY_KEYS) return;
+  // Plafond dur : on évince d'abord les entrées qui expirent le plus tôt, et
+  // on descend à 90 % pour ne pas retrier la table à chaque appel.
+  const target = Math.floor(MAX_MEMORY_KEYS * 0.9);
+  const byExpiry = [...memoryHits].sort(([, a], [, b]) => expiresAt(a) - expiresAt(b));
+  for (const [key] of byExpiry.slice(0, memoryHits.size - target)) memoryHits.delete(key);
 }
 
 export function memoryRateLimit(key: string, windowMs: number, max: number, now = Date.now()): boolean {
   pruneMemory(now);
-  const hits = (memoryHits.get(key) ?? []).filter((t) => now - t < windowMs);
+  const hits = (memoryHits.get(key)?.hits ?? []).filter((t) => now - t < windowMs);
   const allowed = hits.length < max;
   if (allowed) hits.push(now);
-  memoryHits.set(key, hits);
+  if (hits.length > 0) memoryHits.set(key, { hits, windowMs });
+  else memoryHits.delete(key);
   return allowed;
 }
 
@@ -71,7 +112,10 @@ export async function checkRateLimit(
   max: number
 ): Promise<boolean> {
   const memoryKey = `${id}:${key}`;
-  if (!isRedisConfigured()) return memoryRateLimit(memoryKey, windowToMs(window), max);
+  if (!isRedisConfigured()) {
+    warnIfMemoryFallbackInProduction();
+    return memoryRateLimit(memoryKey, windowToMs(window), max);
+  }
 
   try {
     const { success } = await getLimiter(id, window, max).limit(key);
@@ -130,7 +174,10 @@ export const redisRateLimitStorage = {
     }
   },
   async consume(key: string, rule: { window: number; max: number }) {
-    if (!isRedisConfigured()) return memoryStorage.consume(key, rule);
+    if (!isRedisConfigured()) {
+      warnIfMemoryFallbackInProduction();
+      return memoryStorage.consume(key, rule);
+    }
     try {
       const count = await getRedis().incr(key);
       if (count === 1) await getRedis().expire(key, rule.window);

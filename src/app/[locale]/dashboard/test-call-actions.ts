@@ -2,11 +2,18 @@
 
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
-import { assertCanReadClientService } from "@/lib/client-service-access";
+import {
+  canManageClientServiceBilling,
+  canReadClientService,
+  viewerOf,
+} from "@/lib/client-service-access";
 import { TELEPHONY_SERVICE_SLUGS } from "@/lib/catalog";
 import {
   DEMO_TIME_LIMIT_SEC,
   TEST_CALLS_PER_DAY,
+  TEST_CALLS_PER_DAY_PER_ORGANIZATION,
+  TEST_CALLS_PER_DAY_PER_USER,
+  testCallsGlobalPerDay,
   TEST_SIP_HEADER,
   buildDemoTwiml,
   formatFrenchPhone,
@@ -14,7 +21,7 @@ import {
   isDemoCallDryRun,
   normalizeFrenchPhone,
 } from "@/lib/demo-call";
-import { ActionError, runAction } from "@/lib/run-action";
+import { actionError, runAction } from "@/lib/run-action";
 import { placeDemoCall } from "@/lib/twilio";
 
 const TESTABLE_STATUSES = new Set(["CONFIGURING", "ACTIVE"]);
@@ -22,38 +29,57 @@ const TESTABLE_STATUSES = new Set(["CONFIGURING", "ACTIVE"]);
 export async function requestTestCallAction(clientServiceId: string, phone: string) {
   return runAction(async () => {
     const session = await requireUser();
-    if (!(await assertCanReadClientService(clientServiceId, session.user.id))) {
-      throw new ActionError("Cette solution n'appartient pas à votre organisation.");
-    }
-
+    const userId = session.user.id;
     const clientService = await db.clientService.findUnique({
       where: { id: clientServiceId },
-      select: { status: true, service: { select: { slug: true } } },
+      select: { organizationId: true, status: true, service: { select: { slug: true } } },
     });
-    if (!clientService || !TELEPHONY_SERVICE_SLUGS.has(clientService.service.slug)) {
-      throw new ActionError("Seules les solutions téléphoniques se testent par un appel.");
+    const viewer = await viewerOf(userId);
+    if (!clientService || !canReadClientService(clientService, viewer)) {
+      throw actionError("notYourService");
+    }
+    // Un appel sortant coûte : seuls les responsables peuvent le déclencher.
+    if (!canManageClientServiceBilling(clientService, viewer)) {
+      throw actionError("managersOnly");
+    }
+    const { organizationId } = clientService;
+    if (!TELEPHONY_SERVICE_SLUGS.has(clientService.service.slug)) {
+      throw actionError("phoneOnlyTest");
     }
     if (!TESTABLE_STATUSES.has(clientService.status)) {
-      throw new ActionError("Le test est disponible une fois le paiement confirmé.");
+      throw actionError("testAfterPayment");
     }
 
     const to = normalizeFrenchPhone(phone);
     if (!to) {
-      throw new ActionError("Saisissez un numéro de mobile ou de fixe français, par exemple 06 12 34 56 78.");
+      throw actionError("frenchNumberRequired");
     }
     if (!isDemoCallAvailable()) {
-      throw new ActionError("Le test d'appel n'est pas disponible pour le moment. Réessayez plus tard.");
+      throw actionError("testUnavailable");
     }
 
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const { testCall, recent } = await db.$transaction(async (tx) => {
-      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${clientServiceId}))`;
-      const recent = await tx.testCall.count({ where: { clientServiceId, createdAt: { gte: since } } });
+      // Verrou par organisation : il couvre aussi le plafond par solution.
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`test-call:${organizationId}`}))`;
+      const recentWhere = { createdAt: { gte: since } };
+      const [recent, byOrganization, byUser, overall] = await Promise.all([
+        tx.testCall.count({ where: { ...recentWhere, clientServiceId } }),
+        tx.testCall.count({ where: { ...recentWhere, clientService: { organizationId } } }),
+        tx.testCall.count({ where: { ...recentWhere, requestedById: userId } }),
+        tx.testCall.count({ where: recentWhere }),
+      ]);
       if (recent >= TEST_CALLS_PER_DAY) {
-        throw new ActionError(`Vous avez fait ${TEST_CALLS_PER_DAY} tests aujourd'hui. Réessayez demain.`);
+        throw actionError("testLimit", { count: TEST_CALLS_PER_DAY });
+      }
+      if (byOrganization >= TEST_CALLS_PER_DAY_PER_ORGANIZATION || byUser >= TEST_CALLS_PER_DAY_PER_USER) {
+        throw actionError("testLimitAccount");
+      }
+      if (overall >= testCallsGlobalPerDay()) {
+        throw actionError("testUnavailable");
       }
       const testCall = await tx.testCall.create({
-        data: { clientServiceId, requestedById: session.user.id },
+        data: { clientServiceId, requestedById: userId },
       });
       return { testCall, recent };
     });
@@ -76,7 +102,7 @@ export async function requestTestCallAction(clientServiceId: string, phone: stri
       const code = err && typeof err === "object" && "code" in err ? err.code : "inconnu";
       console.error(`[test] échec de l'appel sortant ${testCall.id} (code Twilio ${code}).`);
       await db.testCall.delete({ where: { id: testCall.id } });
-      throw new ActionError("L'appel n'a pas pu être lancé. Vérifiez le numéro, puis réessayez.");
+      throw actionError("callFailed");
     }
 
     return { displayNumber: formatFrenchPhone(to), remaining: TEST_CALLS_PER_DAY - recent - 1 };

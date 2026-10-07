@@ -1,18 +1,16 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/session";
 import { logAdminAction } from "@/lib/audit";
-import { ActionError, runAction } from "@/lib/run-action";
+import { actionError, runAction } from "@/lib/run-action";
+import { getPriceFormatter } from "@/lib/price-format-server";
 import { formatCents, type ServiceCategory } from "@/lib/catalog";
-import { usageCapLabelOf, type UsageUnit } from "@/lib/usage-cap";
+import { readUsageCap, type UsageUnit } from "@/lib/usage-cap";
 
-function formatOptionalCents(cents: number | null): string {
-  return cents === null ? "aucun" : formatCents(cents);
-}
-
-function describeServiceChanges(
+async function describeServiceChanges(
   before: {
     name: string;
     description: string;
@@ -24,26 +22,38 @@ function describeServiceChanges(
     sortOrder: number;
   },
   after: typeof before
-): string {
+): Promise<string> {
+  const [t, price] = await Promise.all([
+    getTranslations("Admin.services.auditDetail"),
+    getPriceFormatter(),
+  ]);
+  const none = t("none");
+  const cents = (value: number | null) => (value === null ? none : formatCents(value));
+  const cap = (service: typeof before) => {
+    const usageCap = readUsageCap(service);
+    return usageCap ? price.usageCap(usageCap) : none;
+  };
+
   const changes: string[] = [];
-  if (before.name !== after.name) changes.push(`Nom : ${before.name} → ${after.name}`);
+  if (before.name !== after.name) changes.push(t("name", { before: before.name, after: after.name }));
   if (before.category !== after.category) {
-    changes.push(`Catégorie : ${before.category} → ${after.category}`);
+    changes.push(t("category", { before: before.category, after: after.category }));
   }
   if (before.monthlyPriceCents !== after.monthlyPriceCents) {
     changes.push(
-      `Abonnement : ${formatOptionalCents(before.monthlyPriceCents)} → ${formatOptionalCents(after.monthlyPriceCents)}`
+      t("subscription", {
+        before: cents(before.monthlyPriceCents),
+        after: cents(after.monthlyPriceCents),
+      })
     );
   }
-  const capBefore = usageCapLabelOf(before);
-  const capAfter = usageCapLabelOf(after);
-  if (capBefore !== capAfter) {
-    changes.push(`Plafond d'usage : ${capBefore ?? "aucun"} → ${capAfter ?? "aucun"}`);
-  }
+  const capBefore = cap(before);
+  const capAfter = cap(after);
+  if (capBefore !== capAfter) changes.push(t("usageCap", { before: capBefore, after: capAfter }));
   if (before.sortOrder !== after.sortOrder) {
-    changes.push(`Ordre : ${before.sortOrder} → ${after.sortOrder}`);
+    changes.push(t("order", { before: String(before.sortOrder), after: String(after.sortOrder) }));
   }
-  if (before.description !== after.description) changes.push("Description modifiée");
+  if (before.description !== after.description) changes.push(t("description"));
   return changes.join(" · ");
 }
 
@@ -67,21 +77,19 @@ export async function updateServiceAction(
 
     const name = input.name.trim();
     const description = input.description.trim();
-    if (!name) throw new ActionError("Le nom est requis.");
-    if (!description) throw new ActionError("La description est requise.");
+    if (!name) throw actionError("adminServiceNameRequired");
+    if (!description) throw actionError("adminServiceDescriptionRequired");
     if (input.monthlyPriceEuros === null || input.monthlyPriceEuros <= 0) {
-      throw new ActionError("Le prix de l'abonnement mensuel est requis.");
+      throw actionError("adminServicePriceRequired");
     }
 
     const includedUnits = input.includedUsageUnits;
     const hasCap = includedUnits !== null && input.usageUnit !== null;
     if (!hasCap && (includedUnits !== null || input.usageUnit !== null)) {
-      throw new ActionError(
-        "Un plafond d'usage demande à la fois une quantité incluse et une unité."
-      );
+      throw actionError("adminServiceCapIncomplete");
     }
     if (hasCap && includedUnits <= 0) {
-      throw new ActionError("La quantité incluse doit être supérieure à zéro.");
+      throw actionError("adminServiceCapPositive");
     }
 
     const before = await db.service.findUniqueOrThrow({ where: { id: serviceId } });
@@ -101,7 +109,7 @@ export async function updateServiceAction(
       },
     });
 
-    const changes = describeServiceChanges(before, after);
+    const changes = await describeServiceChanges(before, after);
     if (changes) {
       await logAdminAction({
         actor: session.user,

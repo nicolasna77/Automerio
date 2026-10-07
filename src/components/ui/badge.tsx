@@ -11,6 +11,8 @@ const badgeVariants = cva(
         default: "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
         secondary:
           "bg-secondary text-secondary-foreground [a]:hover:bg-secondary/80",
+        // À traiter : un rappel, une action qui attend le client (DESIGN.md).
+        attention: "bg-attention/10 text-attention dark:bg-attention/20 [a]:hover:bg-attention/20",
         destructive:
           "bg-destructive/10 text-destructive focus-visible:outline-destructive dark:bg-destructive/20 [a]:hover:bg-destructive/20",
         outline:

@@ -8,53 +8,48 @@ import { requireActiveOrganization } from "@/lib/organization";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { OverviewStats } from "./overview-stats";
+import { OverviewAttention } from "./overview-attention";
 import { OverviewServices } from "./overview-services";
 import { PendingCallbacks } from "./pending-callbacks";
 import { SpendChart } from "./spend-chart";
-import { OverviewStatsSkeleton, SpendChartSkeleton } from "./overview-skeletons";
+import { OverviewServicesSkeleton, OverviewStatsSkeleton, SpendChartSkeleton } from "./overview-skeletons";
 import { PageShell } from "@/components/page-shell";
 
 export const generateMetadata = titleMetadata("dashboard");
 
-const GETTING_STARTED = [
-  {
-    title: "Choisissez une solution",
-    description:
-      "Standard téléphonique, prise de rendez-vous ou de commande, assistants WhatsApp, Messenger ou Instagram.",
-  },
-  {
-    title: "Réglez-la et payez en ligne",
-    description: "Horaires, consignes, numéro : quelques minutes suffisent. Paiement sécurisé par Stripe.",
-  },
-  {
-    title: "L'équipe l'installe et la vérifie",
-    description: "La plupart des solutions sont actives en quelques jours. Vous suivez l'avancement ici.",
-  },
-];
+const GETTING_STARTED = ["choose", "configure", "install"] as const;
 
 export default async function DashboardPage() {
-  const [, { active: organization }, t] = await Promise.all([
+  const [, { active: organization }, t, tStart] = await Promise.all([
     requireUser(),
     requireActiveOrganization(),
     getTranslations("PageTitles"),
+    getTranslations("Dashboard.overview.gettingStarted"),
   ]);
   const hasEverActivated =
     (await db.clientService.count({ where: { organizationId: organization.id } })) > 0;
 
   return (
     <PageShell size="wide">
-      {/* Pas d'en-tête visible : la page s'ouvre directement sur l'activité. */}
+      {/* Pas d'en-tête visible : la page s'ouvre directement sur l'activité,
+          en commençant par ce qui demande une action (rappels, paiement
+          refusé, forfait presque consommé), puis les chiffres et les
+          solutions. Les blocs « À faire » n'existent que s'il y a quelque
+          chose à faire : pas de squelette qui disparaîtrait au chargement. */}
       <h1 className="sr-only">{t("dashboard")}</h1>
 
       {hasEverActivated ? (
-        <div className="space-y-4">
+        <div className="space-y-6">
           <Suspense fallback={null}>
             <PendingCallbacks organizationId={organization.id} />
+          </Suspense>
+          <Suspense fallback={null}>
+            <OverviewAttention organizationId={organization.id} />
           </Suspense>
           <Suspense fallback={<OverviewStatsSkeleton />}>
             <OverviewStats organizationId={organization.id} />
           </Suspense>
-          <Suspense fallback={null}>
+          <Suspense fallback={<OverviewServicesSkeleton />}>
             <OverviewServices organizationId={organization.id} />
           </Suspense>
           <Suspense fallback={<SpendChartSkeleton />}>
@@ -64,16 +59,13 @@ export default async function DashboardPage() {
       ) : (
         <Card className="max-w-3xl">
           <CardHeader>
-            <CardTitle as="h2" className="text-base">Mettez en place votre première automatisation</CardTitle>
-            <CardDescription>
-              Vos appels, vos rendez-vous et vos dépenses s&apos;afficheront ici dès qu&apos;une
-              solution sera active.
-            </CardDescription>
+            <CardTitle as="h2" className="text-base">{tStart("title")}</CardTitle>
+            <CardDescription>{tStart("description")}</CardDescription>
           </CardHeader>
           <CardContent>
             <ol className="space-y-5">
               {GETTING_STARTED.map((step, index) => (
-                <li key={step.title} className="flex gap-4">
+                <li key={step} className="flex gap-4">
                   <span
                     aria-hidden="true"
                     className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary tabular-nums"
@@ -81,14 +73,14 @@ export default async function DashboardPage() {
                     {index + 1}
                   </span>
                   <div>
-                    <p className="font-medium text-foreground">{step.title}</p>
-                    <p className="mt-0.5 text-sm text-muted-foreground">{step.description}</p>
+                    <p className="font-medium text-foreground">{tStart(`steps.${step}.title`)}</p>
+                    <p className="mt-0.5 text-sm text-muted-foreground">{tStart(`steps.${step}.description`)}</p>
                   </div>
                 </li>
               ))}
             </ol>
             <Link href="/dashboard/services/catalog" className={buttonVariants({ className: "mt-6" })}>
-              Voir le catalogue
+              {tStart("cta")}
             </Link>
           </CardContent>
         </Card>

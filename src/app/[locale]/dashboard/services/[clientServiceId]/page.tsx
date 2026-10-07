@@ -1,4 +1,7 @@
 import { titleMetadata } from "@/i18n/metadata";
+import { getLabels } from "@/lib/labels-server";
+import { getTranslations } from "next-intl/server";
+import { formatFrenchPhone } from "@/lib/phone-format";
 import { notFound } from "next/navigation";
 import { AlertTriangle, MessageSquareText, Plug } from "lucide-react";
 import { Link } from "@/i18n/navigation";
@@ -7,26 +10,18 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireUser } from "@/lib/session";
 import { requireActiveOrganization } from "@/lib/organization";
+import { canManageClientServiceBilling, viewerOf } from "@/lib/client-service-access";
 import { getMyService } from "@/app/[locale]/dashboard/get-my-service";
-import {
-  asStringArray,
-  describeServiceStatus,
-  FACEBOOK_SERVICE_SLUG,
-  INSTAGRAM_SERVICE_SLUG,
-  TELEPHONY_SERVICE_SLUGS,
-  WHATSAPP_SERVICE_SLUG,
-} from "@/lib/catalog";
+import { asStringArray, MESSAGING_SERVICE_SLUGS, TELEPHONY_SERVICE_SLUGS } from "@/lib/catalog";
 import { StatusBadge } from "@/components/status-badge";
 import { ServiceGlyphBadge } from "@/components/service-glyph";
 import { BookingsCalendar } from "@/components/bookings-calendar";
 import { toCalendarBookings } from "@/lib/bookings";
 import { ServiceProgress } from "@/app/[locale]/dashboard/service-progress";
-import { ServiceTimeline } from "@/app/[locale]/dashboard/service-timeline";
 import {
   hasLiveCalls,
   isLiveTelephony,
   ServiceCallsContent,
-  ServiceConfigurationCard,
   ServiceLiveCard,
 } from "@/app/[locale]/dashboard/service-detail-table";
 import { ServiceActivityTabs } from "@/app/[locale]/dashboard/service-activity-tabs";
@@ -41,31 +36,28 @@ import { getSubscriptionFor } from "@/lib/subscriptions";
 import { formatPriceWithVat } from "@/lib/vat";
 import { PageBreadcrumbs, PageShell } from "@/components/page-shell";
 
-const MESSAGING_SERVICE_SLUGS = new Set([
-  WHATSAPP_SERVICE_SLUG,
-  FACEBOOK_SERVICE_SLUG,
-  INSTAGRAM_SERVICE_SLUG,
-]);
-
 export const generateMetadata = titleMetadata("serviceDetail");
 
 // Disposition : ce qui demande une action ou montre l'activité occupe la
 // colonne principale (mise en service, appels, rendez-vous, conversations) ;
-// l'abonnement, l'essai, les réglages et l'historique vont dans la colonne
-// latérale. Sans activité à montrer, les cartes latérales passent sur deux
-// colonnes plutôt que de laisser un grand vide.
+// l'abonnement et l'essai vont dans la colonne latérale ; les réglages ont
+// leur propre page (bouton Réglages de l'en-tête). Sans activité à montrer,
+// les cartes latérales passent sur deux colonnes plutôt que de laisser un
+// grand vide.
 export default async function ServiceDetailPage({
   params,
   searchParams,
 }: {
   params: Promise<{ clientServiceId: string }>;
-  searchParams: Promise<{ calendar?: string }>;
+  searchParams: Promise<{ calendar?: string; instagram?: string }>;
 }) {
-  const [{ clientServiceId }, { calendar }, session] = await Promise.all([
+  const [{ clientServiceId }, { calendar, instagram }, session, { active: organization }, t, labels] = await Promise.all([
     params,
     searchParams,
     requireUser(),
     requireActiveOrganization(),
+    getTranslations("Dashboard.service"),
+    getLabels(),
   ]);
   // L'abonnement est lu en parallèle, mais rien n'est affiché avant que
   // getMyService ait vérifié que la solution appartient bien au client.
@@ -74,14 +66,18 @@ export default async function ServiceDetailPage({
     getSubscriptionFor(clientServiceId),
   ]);
   if (!item) notFound();
+  // Connexions et achat de numéro : réservés aux responsables (vérifié aussi
+  // côté serveur) ; les autres membres voient une explication à la place.
+  const canManage = canManageClientServiceBilling(
+    { organizationId: organization.id },
+    await viewerOf(session.user.id)
+  );
 
   const isLive = isLiveTelephony(item);
   const objectives = asStringArray(item.configuration.objectives);
   const showBookings =
     isLive && (objectives.includes("appointment") || objectives.includes("order"));
   const isMessaging = MESSAGING_SERVICE_SLUGS.has(item.service.slug);
-  // Téléphonie : l'historique n'est pas affiché ; l'activité (appels,
-  // rendez-vous) prime.
   const isTelephony = TELEPHONY_SERVICE_SLUGS.has(item.service.slug);
   const showSetup = !isSetupComplete(item);
   // Agenda facultatif : une fois la solution en service sans agenda, une
@@ -91,10 +87,14 @@ export default async function ServiceDetailPage({
   const hasMainColumn =
     showSetup || (isLive && Boolean(item.externalPhoneNumber)) || showBookings || isMessaging;
   const showProgress = item.status !== "ACTIVE" && item.status !== "CANCELED";
+  // Retour de Meta en échec (?instagram=error|in-use), tant que le compte
+  // n'est pas connecté.
+  const instagramFailure =
+    !item.instagramConnected && (instagram === "error" || instagram === "in-use") ? instagram : null;
 
   const { scheduled: scheduledBookings, unscheduled: unscheduledBookings } =
     toCalendarBookings(item.bookings, {
-      subtitle: (b) => b.customerPhone,
+      subtitle: (b) => formatFrenchPhone(b.customerPhone),
       isSynced: (b) =>
         !item.calendarConnected || Boolean(b.googleEventId || b.externalBookingId),
     });
@@ -108,12 +108,6 @@ export default async function ServiceDetailPage({
         />
       )}
       {isLive && isDemoCallAvailable() && <TestCallCard clientServiceId={item.clientServiceId} />}
-      {!isTelephony && (
-        <>
-          <ServiceConfigurationCard item={item} showUsageCap={!subscription?.cap} />
-          <ServiceTimeline events={item.events} />
-        </>
-      )}
     </>
   );
 
@@ -121,7 +115,7 @@ export default async function ServiceDetailPage({
     <PageShell size="wide">
       <PageBreadcrumbs
         items={[
-          { label: "Solutions", href: "/dashboard/services" },
+          { label: t("breadcrumb"), href: "/dashboard/services" },
           { label: item.name },
         ]}
       />
@@ -147,7 +141,7 @@ export default async function ServiceDetailPage({
           <p className="order-3 mt-2 max-w-2xl text-muted-foreground sm:col-start-1">{item.service.description}</p>
 
           <p className="order-5 mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm sm:col-start-1">
-            <span className="font-medium text-foreground">{describeServiceStatus(item)}</span>
+            <span className="font-medium text-foreground">{labels.serviceStatus(item)}</span>
             {!subscription && (
               <span className="tabular-nums text-muted-foreground">
                 {formatPriceWithVat(item.service.monthlyPriceCents)}
@@ -165,38 +159,45 @@ export default async function ServiceDetailPage({
       {suggestsCalendar && (
         <Alert className="mt-6">
           <Plug aria-hidden="true" />
-          <AlertTitle>Connectez un agenda pour que l&apos;assistant réserve</AlertTitle>
+          <AlertTitle>{t("calendarSuggestion.title")}</AlertTitle>
           <AlertDescription>
-            <p>
-              Facultatif. Sans agenda, l&apos;assistant prend les demandes de rendez-vous en message.
-              Avec Google Agenda, Cal.com ou Calendly, il réserve directement.
-            </p>
+            <p>{t("calendarSuggestion.description")}</p>
             <Link
               href={`/dashboard/services/${item.clientServiceId}/configuration#${CONNECTORS_SECTION_ID}`}
               className={buttonVariants({ variant: "outline", size: "sm", className: "mt-3" })}
             >
-              Connecter un agenda
+              {t("calendarSuggestion.cta")}
             </Link>
           </AlertDescription>
         </Alert>
       )}
 
-      {(calendar === "error" || item.adminNote) && (
+      {(calendar === "error" || instagramFailure || item.adminNote) && (
         <div className="mt-6 space-y-3">
           {calendar === "error" && (
             <Alert variant="destructive">
               <AlertTriangle aria-hidden="true" />
-              <AlertTitle>Connexion à l&apos;agenda impossible</AlertTitle>
+              <AlertTitle>{t("calendarError.title")}</AlertTitle>
+              <AlertDescription>{t("calendarError.description")}</AlertDescription>
+            </Alert>
+          )}
+          {instagramFailure && (
+            <Alert variant="destructive">
+              <AlertTriangle aria-hidden="true" />
+              <AlertTitle>
+                {instagramFailure === "in-use" ? t("instagramError.inUseTitle") : t("instagramError.title")}
+              </AlertTitle>
               <AlertDescription>
-                Réessayez depuis la carte Mise en service, ou contactez-nous si
-                le problème persiste.
+                {instagramFailure === "in-use"
+                  ? t("instagramError.inUseDescription")
+                  : t("instagramError.description")}
               </AlertDescription>
             </Alert>
           )}
           {item.adminNote && (
             <Alert role="note" className="border-primary/25 bg-primary/5">
               <MessageSquareText aria-hidden="true" className="text-primary" />
-              <AlertTitle>Note de l&apos;équipe Automerio</AlertTitle>
+              <AlertTitle>{t("teamNote")}</AlertTitle>
               <AlertDescription className="text-foreground">{item.adminNote}</AlertDescription>
             </Alert>
           )}
@@ -206,7 +207,7 @@ export default async function ServiceDetailPage({
       {hasMainColumn ? (
         <div className="mt-8 grid items-start gap-6 lg:grid-cols-3">
           <div className="min-w-0 space-y-6 lg:col-span-2">
-            {showSetup && <ServiceSetupCard item={item} />}
+            {showSetup && <ServiceSetupCard item={item} canManage={canManage} />}
             {/* Appels et calendrier ensemble : deux onglets d'une même carte. */}
             {showBookings && hasLiveCalls(item) ? (
               <ServiceActivityTabs
@@ -220,7 +221,7 @@ export default async function ServiceDetailPage({
               <Card>
                 <CardHeader>
                   <CardTitle as="h2" className="text-base">
-                    Rendez-vous et commandes reçus
+                    {t("bookings")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="h-[30rem] sm:h-[34rem]">
@@ -233,7 +234,7 @@ export default async function ServiceDetailPage({
             )}
             {isMessaging && <ConversationHistory clientServiceId={item.clientServiceId} />}
           </div>
-          <aside aria-label="Abonnement et réglages" className="min-w-0 space-y-6">
+          <aside aria-label={t("aside")} className="min-w-0 space-y-6">
             {sideCards}
           </aside>
         </div>

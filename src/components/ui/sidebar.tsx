@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useTranslations } from "next-intl"
 import { mergeProps } from "@base-ui/react/merge-props"
 import { useRender } from "@base-ui/react/use-render"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -156,6 +157,7 @@ function Sidebar({
   collapsible?: "offcanvas" | "icon" | "none"
 }) {
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
+  const t = useTranslations("Workspace.sidebar")
 
   if (collapsible === "none") {
     return (
@@ -189,10 +191,10 @@ function Sidebar({
           side={side}
         >
           <SheetHeader className="sr-only">
-            <SheetTitle>Navigation principale</SheetTitle>
-            <SheetDescription>Les pages de votre espace.</SheetDescription>
+            <SheetTitle>{t("mainNav")}</SheetTitle>
+            <SheetDescription>{t("mobileDescription")}</SheetDescription>
           </SheetHeader>
-          <nav aria-label="Navigation principale" className="flex h-full w-full flex-col">
+          <nav aria-label={t("mainNav")} className="flex h-full w-full flex-col">
             {children}
           </nav>
         </SheetContent>
@@ -233,7 +235,7 @@ function Sidebar({
         {...props}
       >
         <nav
-          aria-label="Navigation principale"
+          aria-label={t("mainNav")}
           data-sidebar="sidebar"
           data-slot="sidebar-inner"
           className="flex size-full flex-col bg-sidebar group-data-[variant=floating]:rounded-2xl group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1 group-data-[variant=floating]:ring-sidebar-border"
@@ -251,6 +253,7 @@ function SidebarTrigger({
   ...props
 }: React.ComponentProps<typeof Button>) {
   const { toggleSidebar, open, openMobile, isMobile } = useSidebar()
+  const t = useTranslations("Workspace.sidebar")
 
   return (
     <Button
@@ -267,22 +270,23 @@ function SidebarTrigger({
       {...props}
     >
       <PanelLeftIcon aria-hidden="true" />
-      <span className="sr-only">Afficher ou masquer la barre latérale</span>
+      <span className="sr-only">{t("toggle")}</span>
     </Button>
   )
 }
 
 function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
   const { toggleSidebar } = useSidebar()
+  const t = useTranslations("Workspace.sidebar")
 
   return (
     <button
       data-sidebar="rail"
       data-slot="sidebar-rail"
-      aria-label="Afficher ou masquer la barre latérale"
+      aria-label={t("toggle")}
       tabIndex={-1}
       onClick={toggleSidebar}
-      title="Afficher ou masquer la barre latérale"
+      title={t("toggle")}
       className={cn(
         "absolute inset-y-0 z-20 hidden w-4 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:start-1/2 after:w-[2px] hover:after:bg-sidebar-border sm:flex ltr:-translate-x-1/2 rtl:-translate-x-1/2",
         "in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize",
@@ -359,7 +363,7 @@ function SidebarSeparator({
     <Separator
       data-slot="sidebar-separator"
       data-sidebar="separator"
-      className={cn("mx-2 w-auto bg-sidebar-border", className)}
+      className={cn("mx-2 bg-sidebar-border data-[orientation=horizontal]:w-auto", className)}
       {...props}
     />
   )

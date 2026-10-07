@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { StatusBadge } from "@/components/status-badge";
 import { formatDate, formatPrice, type ClientServiceStatus } from "@/lib/catalog";
 import { formatPriceExcludingVat } from "@/lib/vat";
@@ -24,6 +25,7 @@ export function ClientServiceCard({
     };
   };
 }) {
+  const t = useTranslations("Admin");
   return (
     <li className="rounded-2xl border border-border p-4">
       <div className="flex items-start justify-between gap-3">
@@ -41,15 +43,15 @@ export function ClientServiceCard({
 
       <dl className="mt-3 space-y-1 text-sm">
         <div className="flex gap-2">
-          <dt className="shrink-0 text-muted-foreground">Demandée le</dt>
+          <dt className="shrink-0 text-muted-foreground">{t("clientService.requestedOn")}</dt>
           <dd className="ml-auto text-foreground">{formatDate(cs.createdAt)}</dd>
         </div>
         <div className="flex gap-2">
-          <dt className="shrink-0 text-muted-foreground">Prix</dt>
+          <dt className="shrink-0 text-muted-foreground">{t("clientService.price")}</dt>
           <dd className="ml-auto text-right text-foreground">
-            {formatPrice(cs.service.monthlyPriceCents)} TTC
+            {t("price.withVat", { amount: formatPrice(cs.service.monthlyPriceCents) })}
             <span className="block text-xs text-muted-foreground">
-              soit {formatPriceExcludingVat(cs.service.monthlyPriceCents)} HT
+              {t("price.excludingVat", { amount: formatPriceExcludingVat(cs.service.monthlyPriceCents) })}
             </span>
           </dd>
         </div>
@@ -68,11 +70,11 @@ export function ClientServiceCard({
 
       <div className="mt-4 space-y-3 border-t border-border pt-3">
         <div>
-          <p className="mb-1 text-xs text-muted-foreground">Note pour le client</p>
+          <p className="mb-1 text-xs text-muted-foreground">{t("clientService.note")}</p>
           <NoteCell cs={cs} />
         </div>
         <div>
-          <p className="mb-1 text-xs text-muted-foreground">Connexion externe</p>
+          <p className="mb-1 text-xs text-muted-foreground">{t("clientService.connection")}</p>
           <ConnectionCell cs={cs} />
         </div>
         {cs.status === "CONFIGURING" && <MarkActiveButton clientServiceId={cs.id} />}

@@ -8,6 +8,7 @@ import {
   Target,
   type LucideIcon,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { isFieldVisible, type ConfigField, type Configuration } from "@/lib/catalog";
 
 export type FieldCategory = {
@@ -20,47 +21,29 @@ export type FieldCategory = {
 
 type CategoryDef = Omit<FieldCategory, "fields">;
 
+type KnownCategoryId = "need" | "hours" | "preferences" | "messages" | "rules" | "voice";
+
+// Titre et description d'une catégorie connue (Dashboard.fieldCategories).
+export type DescribeCategory = (id: KnownCategoryId) => { title: string; description: string };
+
 // Catégories des réglages d'une solution, dans l'ordre : étapes de l'activation
 // et cartes de la page de configuration. « Votre besoin » passe en premier :
-// ses choix font apparaître d'autres champs.
+// ses choix font apparaître d'autres champs. Les textes sont posés par
+// buildFieldCategories.
+const known = (id: KnownCategoryId, icon: LucideIcon): CategoryDef => ({ id, title: "", description: "", icon });
 const CATEGORIES = {
-  need: {
-    id: "need",
-    title: "Votre besoin",
-    description: "Ce que l'assistant doit faire pour vous.",
-    icon: Target,
-  },
-  hours: {
-    id: "hours",
-    title: "Horaires",
-    description: "Les jours et heures d'ouverture de votre activité.",
-    icon: Clock,
-  },
-  preferences: {
-    id: "preferences",
-    title: "Préférences",
-    description: "Les réglages de fonctionnement de la solution.",
-    icon: Settings2,
-  },
-  messages: {
-    id: "messages",
-    title: "Instructions",
-    description: "Ce que l'assistant dit à vos clients et les consignes qu'il suit.",
-    icon: MessageSquareText,
-  },
-  rules: {
-    id: "rules",
-    title: "Règles",
-    description: "Qui reçoit quoi, selon la demande du client.",
-    icon: Split,
-  },
-  voice: {
-    id: "voice",
-    title: "Voix",
-    description: "Comment l'assistant parle au téléphone.",
-    icon: AudioLines,
-  },
-} satisfies Record<string, CategoryDef>;
+  need: known("need", Target),
+  hours: known("hours", Clock),
+  preferences: known("preferences", Settings2),
+  messages: known("messages", MessageSquareText),
+  rules: known("rules", Split),
+  voice: known("voice", AudioLines),
+} satisfies Record<KnownCategoryId, CategoryDef>;
+
+export function useDescribeCategory(): DescribeCategory {
+  const t = useTranslations("Dashboard.fieldCategories");
+  return (id) => ({ title: t(`${id}.title`), description: t(`${id}.description`) });
+}
 
 const CATEGORY_BY_TYPE: Record<ConfigField["type"], CategoryDef> = {
   multiselect: CATEGORIES.need,
@@ -127,7 +110,8 @@ function categoryOf(field: ConfigField): CategoryDef {
 export function buildFieldCategories(
   fields: ConfigField[],
   values: Configuration,
-  omitKeys: string[] = []
+  omitKeys: string[] = [],
+  describe?: DescribeCategory
 ): FieldCategory[] {
   const byId = new Map<string, FieldCategory>();
   for (const field of fields) {
@@ -135,6 +119,8 @@ export function buildFieldCategories(
     const def = categoryOf(field);
     const category = byId.get(def.id);
     if (category) category.fields.push(field);
+    else if (describe && def.id in CATEGORIES)
+      byId.set(def.id, { ...def, ...describe(def.id as KnownCategoryId), fields: [field] });
     else byId.set(def.id, { ...def, fields: [field] });
   }
   const rank = (id: string) => {

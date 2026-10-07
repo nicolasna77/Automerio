@@ -1,6 +1,8 @@
 import { titleMetadata } from "@/i18n/metadata";
+import { getPriceFormatter } from "@/lib/price-format-server";
 import { Link } from "@/i18n/navigation";
-import { CalendarClock, CreditCard, Layers, TriangleAlert, Wallet } from "lucide-react";
+import { getTranslations } from "next-intl/server";
+import { CalendarClock, CreditCard, Layers, Wallet } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { StatStrip, type Stat } from "@/components/stat-strip";
 import { EmptyState } from "@/components/empty-state";
@@ -14,18 +16,22 @@ import {
   nextRenewal,
 } from "@/lib/subscriptions";
 import { BillingPortalButton } from "../payments/billing-portal-button";
+import { PaymentFailedAlert } from "../payments/payment-failed-alert";
+import { BillingTabs } from "../billing-tabs";
 import { SubscriptionCard } from "./subscription-card";
-import { excludingVatSuffix } from "@/lib/vat";
 import { PageHeader, PageShell } from "@/components/page-shell";
 
 export const generateMetadata = titleMetadata("subscriptions");
 
 export default async function AbonnementsPage() {
   const { active: organization } = await requireActiveOrganization();
-  const [subscriptions, customerId] = await Promise.all([
+  const [subscriptions, customerId, t, tBilling] = await Promise.all([
     getMySubscriptions(organization.id),
     organizationCustomerId(organization.id),
+    getTranslations("Dashboard.subscriptions"),
+    getTranslations("Dashboard.billing"),
   ]);
+  const price = await getPriceFormatter();
 
   const running = subscriptions.filter(isRunning);
   const stopped = subscriptions.filter((subscription) => !isRunning(subscription));
@@ -36,20 +42,20 @@ export default async function AbonnementsPage() {
   const stats: Stat[] = [
     {
       icon: Layers,
-      label: "Abonnements en cours",
+      label: t("stats.running"),
       value: String(running.length),
     },
     {
       icon: Wallet,
-      label: "Total mensuel",
+      label: t("stats.total"),
       value: formatEuroAmount(total),
-      unit: "€ TTC/mois",
-      note: excludingVatSuffix(total),
+      unit: t("stats.totalUnit"),
+      note: price.excludingVatSuffix(total),
     },
     {
       icon: CalendarClock,
-      label: "Prochain prélèvement",
-      value: renewal ? formatDate(renewal) : "Aucun",
+      label: t("stats.nextCharge"),
+      value: renewal ? formatDate(renewal) : t("stats.none"),
       mono: false,
     },
   ];
@@ -57,45 +63,33 @@ export default async function AbonnementsPage() {
   return (
     <PageShell size="content">
       <PageHeader
-        title="Abonnements"
-        description="Ce qui vous est prélevé chaque mois, et ce que vous avez consommé sur la période en cours."
+        title={tBilling("title")}
+        description={tBilling("description")}
         actions={customerId && <BillingPortalButton organizationId={organization.id} />}
+        className="mb-6"
       />
+      <BillingTabs />
 
-      {failing.length > 0 && (
-        <div
-          role="alert"
-          className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-destructive/30 bg-destructive/5 p-4"
-        >
-          <p className="flex items-start gap-2 text-sm text-foreground">
-            <TriangleAlert
-              className="mt-0.5 size-4 shrink-0 text-destructive"
-              aria-hidden="true"
-            />
-            <span>
-              Le dernier paiement de{" "}
-              {failing.map((subscription) => `« ${subscription.name} »`).join(", ")} a
-              été refusé. Mettez à jour votre moyen de paiement pour éviter une
-              interruption.
-            </span>
-          </p>
-          {customerId && (
-            <BillingPortalButton organizationId={organization.id} variant="default" />
-          )}
-        </div>
-      )}
+      <div className="mb-8 empty:hidden">
+        <PaymentFailedAlert
+          names={failing.map((subscription) => subscription.name)}
+          organizationId={organization.id}
+          canOpenPortal={Boolean(customerId)}
+        />
+      </div>
+      <p className="mb-4 text-sm text-muted-foreground">{t("description")}</p>
 
       {subscriptions.length === 0 ? (
         <EmptyState
           icon={CreditCard}
-          title="Vous n'avez aucun abonnement"
-          description="Les solutions facturées au mois apparaîtront ici, avec leur quota d'usage."
+          title={t("empty.title")}
+          description={t("empty.description")}
           action={
             <Link
               href="/dashboard/services/catalog"
               className={buttonVariants({ variant: "outline", size: "sm" })}
             >
-              Voir le catalogue
+              {t("empty.cta")}
             </Link>
           }
         />
@@ -109,7 +103,7 @@ export default async function AbonnementsPage() {
                 id="active-subscriptions"
                 className="text-lg font-semibold text-foreground"
               >
-                En cours
+                {t("running")}
               </h2>
               {running.map((subscription) => (
                 <SubscriptionCard
@@ -127,11 +121,9 @@ export default async function AbonnementsPage() {
                   id="inactive-subscriptions"
                   className="text-lg font-semibold text-foreground"
                 >
-                  Inactifs
+                  {t("stopped")}
                 </h2>
-                <p className="text-sm text-muted-foreground">
-                  Résiliés ou jamais démarrés : aucun prélèvement en cours.
-                </p>
+                <p className="text-sm text-muted-foreground">{t("stoppedDescription")}</p>
               </div>
               {stopped.map((subscription) => (
                 <SubscriptionCard
@@ -142,16 +134,6 @@ export default async function AbonnementsPage() {
             </section>
           )}
 
-          <p className="text-sm text-muted-foreground">
-            Le détail de chaque prélèvement et vos factures se trouvent dans{" "}
-            <Link
-              href="/dashboard/payments"
-              className="text-primary underline underline-offset-4"
-            >
-              Paiements
-            </Link>
-            .
-          </p>
         </div>
       )}
     </PageShell>

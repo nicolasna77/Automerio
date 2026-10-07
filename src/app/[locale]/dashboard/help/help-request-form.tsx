@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useTransition, type FormEvent } from "react";
-import { toast } from "sonner";
-import { Loader2, Send } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { toast } from "@/lib/toast";
+import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -32,6 +33,8 @@ export function HelpRequestForm({
 }: {
   services: HelpRequestServiceOption[];
 }) {
+  const t = useTranslations("Dashboard.help.form");
+  const tCommon = useTranslations("Common");
   const [isPending, startTransition] = useTransition();
   const [values, setValues] = useState(EMPTY_VALUES);
 
@@ -49,7 +52,7 @@ export function HelpRequestForm({
                 : values.clientServiceId,
           })
         );
-        toast.success("Votre demande a été envoyée à l'équipe Automerio.");
+        toast.success(t("sent"));
         setValues(EMPTY_VALUES);
       } catch (err) {
         toast.error(getErrorMessage(err));
@@ -59,10 +62,10 @@ export function HelpRequestForm({
 
   const serviceLabel = (service: (typeof services)[number]) =>
     service.name !== service.serviceName
-      ? `${service.name} (${service.serviceName})`
+      ? t("serviceLabel", { name: service.name, service: service.serviceName })
       : service.name;
   const serviceItems = {
-    [NO_SERVICE_VALUE]: "Question générale",
+    [NO_SERVICE_VALUE]: t("general"),
     ...Object.fromEntries(services.map((s) => [s.clientServiceId, serviceLabel(s)])),
   };
 
@@ -71,7 +74,7 @@ export function HelpRequestForm({
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="help-service">Solution concernée</Label>
+            <Label htmlFor="help-service">{t("service")}</Label>
             <Select
               value={values.clientServiceId}
               onValueChange={(value) =>
@@ -86,9 +89,7 @@ export function HelpRequestForm({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={NO_SERVICE_VALUE}>
-                  Question générale
-                </SelectItem>
+                <SelectItem value={NO_SERVICE_VALUE}>{t("general")}</SelectItem>
                 {services.map((service) => (
                   <SelectItem
                     key={service.clientServiceId}
@@ -102,11 +103,11 @@ export function HelpRequestForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="help-subject">Objet</Label>
+            <Label htmlFor="help-subject">{t("subject")}</Label>
             <Input
               id="help-subject"
               required
-              placeholder="Ex. Numéro de téléphone injoignable"
+              placeholder={t("subjectPlaceholder")}
               value={values.subject}
               onChange={(e) =>
                 setValues((prev) => ({ ...prev, subject: e.target.value }))
@@ -115,11 +116,11 @@ export function HelpRequestForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="help-message">Message</Label>
+            <Label htmlFor="help-message">{t("message")}</Label>
             {/* La consigne reste visible pendant la saisie : un placeholder
                 disparaîtrait à la première lettre. */}
             <p id="help-message-hint" className="text-sm text-muted-foreground">
-              Que se passe-t-il, et depuis quand ? Plus c&apos;est précis, plus vite nous pourrons vous aider.
+              {t("messageHint")}
             </p>
             <Textarea
               id="help-message"
@@ -133,20 +134,11 @@ export function HelpRequestForm({
             />
           </div>
 
-          <Button type="submit" disabled={isPending} aria-busy={isPending}>
-            {isPending ? (
-              <>
-                <Loader2
-                  className="animate-spin"
-                  aria-hidden="true"
-                  data-icon="inline-start"
-                />
-                Envoi…
-              </>
-            ) : (
+          <Button type="submit" loading={isPending}>
+            {isPending ? tCommon("sending") : (
               <>
                 <Send aria-hidden="true" data-icon="inline-start" />
-                Envoyer ma demande
+                {t("submit")}
               </>
             )}
           </Button>

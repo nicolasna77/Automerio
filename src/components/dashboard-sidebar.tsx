@@ -1,12 +1,12 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   CalendarDays,
   CreditCard,
   LayoutDashboard,
   Layers,
   LifeBuoy,
-  Receipt,
   ShieldCheck,
   UserRound,
   Users,
@@ -33,6 +33,7 @@ export function DashboardSidebar({
   organizations,
   openHelpRequestCount,
   pendingCallbackCount = 0,
+  showCalendar = true,
   name,
   email,
 }: {
@@ -41,9 +42,13 @@ export function DashboardSidebar({
   organizations: OrganizationSummary[];
   openHelpRequestCount: number;
   pendingCallbackCount?: number;
+  // Le calendrier ne sert qu'aux solutions de téléphonie (rendez-vous pris
+  // par l'assistant) : masqué pour un client qui n'en a aucune.
+  showCalendar?: boolean;
   name: string;
   email: string;
 }) {
+  const t = useTranslations("Dashboard.nav");
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
@@ -59,36 +64,38 @@ export function DashboardSidebar({
           root={ROOT}
           groups={[
             {
-              label: "Pilotage",
+              label: t("groups.pilot"),
               items: [
                 {
                   href: ROOT,
-                  label: "Vue d'ensemble",
+                  label: t("overview"),
                   icon: LayoutDashboard,
                   badge: pendingCallbackCount,
-                  badgeLabel: "appels à rappeler",
+                  badgeLabel: t("callbacksBadge"),
                 },
                 {
                   href: "/dashboard/services",
-                  label: "Solutions",
+                  label: t("services"),
                   icon: Layers,
                   matches: ["/dashboard/services"],
                 },
-                { href: "/dashboard/calendar", label: "Calendrier", icon: CalendarDays },
+                ...(showCalendar
+                  ? [{ href: "/dashboard/calendar", label: t("calendar"), icon: CalendarDays }]
+                  : []),
+                // Abonnements et factures : deux onglets d'une même page.
+                {
+                  href: "/dashboard/subscriptions",
+                  label: t("billing"),
+                  icon: CreditCard,
+                  matches: ["/dashboard/payments"],
+                },
               ],
             },
             {
-              label: "Facturation",
+              label: t("groups.account"),
               items: [
-                { href: "/dashboard/subscriptions", label: "Abonnements", icon: CreditCard },
-                { href: "/dashboard/payments", label: "Paiements", icon: Receipt },
-              ],
-            },
-            {
-              label: "Compte",
-              items: [
-                { href: "/dashboard/organization", label: "Organisation", icon: Users },
-                { href: "/dashboard/profile", label: "Profil", icon: UserRound },
+                { href: "/dashboard/organization", label: t("organization"), icon: Users },
+                { href: "/dashboard/profile", label: t("profile"), icon: UserRound },
               ],
             },
           ]}
@@ -100,12 +107,12 @@ export function DashboardSidebar({
           items={[
             {
               href: "/dashboard/help",
-              label: "Aide",
+              label: t("help"),
               icon: LifeBuoy,
               badge: openHelpRequestCount,
             },
             ...(isAdmin
-              ? [{ href: "/admin", label: "Administration", icon: ShieldCheck }]
+              ? [{ href: "/admin", label: t("admin"), icon: ShieldCheck }]
               : []),
           ]}
         />

@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -25,6 +26,8 @@ export function OrganizationCreateDialog({
   onOpenChange: (open: boolean) => void;
 }) {
   const router = useRouter();
+  const t = useTranslations("Workspace.organization");
+  const tCommon = useTranslations("Common");
   const [name, setName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -48,11 +51,11 @@ export function OrganizationCreateDialog({
 
     if (error) {
       console.error("[organisation] création refusée :", error);
-      toast.error("Impossible de créer l'organisation. Rechargez la page puis réessayez.");
+      toast.error(t("createError"));
       return;
     }
 
-    toast.success(`« ${trimmedName} » a été créée.`);
+    toast.success(t("created", { name: trimmedName }));
     handleOpenChange(false);
     router.refresh();
   }
@@ -61,23 +64,18 @@ export function OrganizationCreateDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            Créer une organisation
-          </DialogTitle>
-          <DialogDescription>
-            Une organisation regroupe les solutions d&apos;une même
-            entreprise.
-          </DialogDescription>
+          <DialogTitle>{t("create")}</DialogTitle>
+          <DialogDescription>{t("createDescription")}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="new-organization-name">Nom de l&apos;organisation</Label>
+            <Label htmlFor="new-organization-name">{t("nameLabel")}</Label>
             <Input
               id="new-organization-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Dupont Coiffure"
+              placeholder={t("namePlaceholder")}
               autoFocus
               required
             />
@@ -90,10 +88,10 @@ export function OrganizationCreateDialog({
               onClick={() => handleOpenChange(false)}
               disabled={isSubmitting}
             >
-              Annuler
+              {tCommon("cancel")}
             </Button>
             <Button type="submit" disabled={isSubmitting || !name.trim()}>
-              {isSubmitting ? "Création…" : "Créer"}
+              {isSubmitting ? tCommon("creating") : tCommon("create")}
             </Button>
           </DialogFooter>
         </form>

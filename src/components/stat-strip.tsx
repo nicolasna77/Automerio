@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 export type Stat = {
   icon: LucideIcon;
   label: string;
-  /** La donnée elle-même, en Plex Mono (DESIGN.md, Typographie). */
+  /** La donnée elle-même, en DM Mono (DESIGN.md, Typographie). */
   value: string;
   /** false pour une valeur écrite en toutes lettres (une date), en texte courant. */
   mono?: boolean;
@@ -27,14 +27,16 @@ export function StatStrip({ title, stats }: { title?: string; stats: Stat[] }) {
         </CardHeader>
       )}
       <CardContent>
-        <dl className="grid grid-cols-1 divide-y divide-border sm:grid-flow-col sm:auto-cols-fr sm:divide-x sm:divide-y-0">
+        {/* Deux rangées partagées (sous-grille) : un libellé sur deux lignes
+            n'abaisse plus sa valeur, tous les chiffres restent alignés. */}
+        <dl className="grid grid-cols-1 divide-y divide-border sm:grid-flow-col sm:auto-cols-fr sm:grid-rows-[auto_auto] sm:divide-x sm:divide-y-0">
           {stats.map((stat) => (
             <div
               key={stat.label}
-              className="py-3 first:pt-0 last:pb-0 sm:px-5 sm:py-0 sm:first:pl-0 sm:last:pr-0"
+              className="py-3 first:pt-0 last:pb-0 sm:row-span-2 sm:grid sm:grid-rows-subgrid sm:px-5 sm:py-0 sm:first:pl-0 sm:last:pr-0"
             >
-              <dt className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                <stat.icon className="size-4 shrink-0" aria-hidden="true" />
+              <dt className="flex items-start gap-1.5 text-sm text-muted-foreground">
+                <stat.icon className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
                 {stat.label}
               </dt>
               <dd className="mt-2">
