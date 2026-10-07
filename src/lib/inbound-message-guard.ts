@@ -6,15 +6,16 @@ import { claimInboundMessage, recordReply } from "@/lib/conversations";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { consumedUnits, storedPeriod } from "@/lib/subscriptions";
 import { pausesAtLimit, readClientUsageCap, type UsageCap, type UsageUnit } from "@/lib/usage-cap";
+import { LIVE_STATUSES } from "@/lib/catalog";
 
 // Messages entrants WhatsApp, Messenger et Instagram : chaque réponse coûte un
 // appel OpenAI et un envoi Meta à la plateforme. Ce module décide si
 // l'assistant répond, et orchestre l'enregistrement et la réponse.
 
-// Payée (CONFIGURING : le client teste sa messagerie avant la mise en service)
-// ou en service. Un paiement en échec (paymentFailedAt) laisse la période de
-// grâce annoncée au client ; PENDING_PAYMENT et CANCELED ne répondent pas.
-export const LIVE_STATUSES = ["CONFIGURING", "ACTIVE"] as const satisfies readonly ClientServiceStatus[];
+// LIVE_STATUSES (catalog.ts). Un paiement en échec (paymentFailedAt) laisse la
+// période de grâce annoncée au client ; PENDING_PAYMENT et CANCELED ne
+// répondent pas.
+export { LIVE_STATUSES };
 
 export function isLiveStatus(status: ClientServiceStatus): boolean {
   return (LIVE_STATUSES as readonly ClientServiceStatus[]).includes(status);

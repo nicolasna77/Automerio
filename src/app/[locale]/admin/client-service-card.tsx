@@ -38,7 +38,7 @@ export function ClientServiceCard({
             {cs.organization.name}
           </p>
         </div>
-        <StatusBadge status={cs.status as ClientServiceStatus} />
+        <StatusBadge status={cs.status as ClientServiceStatus} pausedAt={cs.pausedAt} />
       </div>
 
       <dl className="mt-3 space-y-1 text-sm">

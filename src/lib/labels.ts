@@ -46,6 +46,7 @@ export function createLabels(translate: LabelTranslator, locale: string) {
 
   return {
     status: (status: ClientServiceStatus) => t(`status.${status}`),
+    pausedStatus: () => t("pausedStatus"),
     serviceEvent: (type: ServiceEventType) => t(`serviceEvent.${type}`),
     weekDay: (day: WeekDay) => t(`weekDay.${day}`),
     role: (role: string) => (isRole(role) ? t(`role.${role}`) : role),

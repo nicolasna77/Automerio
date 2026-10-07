@@ -35,6 +35,19 @@ export const MESSAGING_SERVICE_SLUGS: ReadonlySet<string> = new Set([
   INSTAGRAM_SERVICE_SLUG,
 ]);
 
+// Payée (CONFIGURING : le client teste avant la mise en service) ou en
+// service : l'assistant décroche et répond.
+export const LIVE_STATUSES = ["CONFIGURING", "ACTIVE"] as const satisfies readonly ClientServiceStatus[];
+
+// Seuls le standard téléphonique et les messageries lisent la pause : c'est
+// là qu'un assistant répond à la place du client.
+export function canPauseService(item: { status: ClientServiceStatus; service: { slug: string } }): boolean {
+  return (
+    (LIVE_STATUSES as readonly ClientServiceStatus[]).includes(item.status) &&
+    (TELEPHONY_SERVICE_SLUGS.has(item.service.slug) || MESSAGING_SERVICE_SLUGS.has(item.service.slug))
+  );
+}
+
 export const PRODUCT_CATALOG_FIELD_KEY = "productCatalog";
 
 export type WeekDay = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";

@@ -12,8 +12,9 @@ import { requireUser } from "@/lib/session";
 import { requireActiveOrganization } from "@/lib/organization";
 import { canManageClientServiceBilling, viewerOf } from "@/lib/client-service-access";
 import { getMyService } from "@/app/[locale]/dashboard/get-my-service";
-import { asStringArray, MESSAGING_SERVICE_SLUGS, TELEPHONY_SERVICE_SLUGS } from "@/lib/catalog";
+import { asStringArray, canPauseService, MESSAGING_SERVICE_SLUGS, TELEPHONY_SERVICE_SLUGS } from "@/lib/catalog";
 import { StatusBadge } from "@/components/status-badge";
+import { PauseSwitch } from "@/app/[locale]/dashboard/pause-switch";
 import { ServiceGlyphBadge } from "@/components/service-glyph";
 import { BookingsCalendar } from "@/components/bookings-calendar";
 import { toCalendarBookings } from "@/lib/bookings";
@@ -51,13 +52,14 @@ export default async function ServiceDetailPage({
   params: Promise<{ clientServiceId: string }>;
   searchParams: Promise<{ calendar?: string; instagram?: string }>;
 }) {
-  const [{ clientServiceId }, { calendar, instagram }, session, { active: organization }, t, labels] = await Promise.all([
+  const [{ clientServiceId }, { calendar, instagram }, session, { active: organization }, t, labels, tPause] = await Promise.all([
     params,
     searchParams,
     requireUser(),
     requireActiveOrganization(),
     getTranslations("Dashboard.service"),
     getLabels(),
+    getTranslations("Dashboard.services.list.pause"),
   ]);
   // L'abonnement est lu en parallèle, mais rien n'est affiché avant que
   // getMyService ait vérifié que la solution appartient bien au client.
@@ -129,7 +131,17 @@ export default async function ServiceDetailPage({
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">
               {item.name}
             </h1>
-            <StatusBadge status={item.status} />
+            <StatusBadge status={item.status} pausedAt={item.pausedAt} />
+            {canManage && canPauseService(item) && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <PauseSwitch
+                  clientServiceId={item.clientServiceId}
+                  name={item.name}
+                  paused={item.pausedAt !== null}
+                />
+                <span aria-hidden="true">{tPause("label")}</span>
+              </div>
+            )}
           </div>
           <div className="order-4 mt-3 sm:order-none sm:col-start-2 sm:row-start-1 sm:mt-0">
             <ServiceDetailActions item={item} />

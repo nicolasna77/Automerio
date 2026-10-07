@@ -112,6 +112,7 @@ async function endSubscription(subscriptionId: string) {
       status: "CANCELED",
       canceledAt: new Date(),
       paymentFailedAt: null,
+      pausedAt: null,
       externalPhoneNumber: null,
       externalPhoneNumberSid: null,
       ...CLEARED_META_CONNECTION,

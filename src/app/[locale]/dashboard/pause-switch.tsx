@@ -3,7 +3,6 @@
 import { useTranslations } from "next-intl";
 import { useOptimistic, useTransition } from "react";
 import { toast } from "sonner";
-import { useRouter } from "@/i18n/navigation";
 import { Switch } from "@/components/ui/switch";
 import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
@@ -21,7 +20,6 @@ export function PauseSwitch({
   paused: boolean;
 }) {
   const t = useTranslations("Dashboard.services.list.pause");
-  const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [optimisticPaused, setOptimisticPaused] = useOptimistic(paused);
 
@@ -30,8 +28,8 @@ export function PauseSwitch({
       setOptimisticPaused(!running);
       try {
         unwrap(await setServicePaused(clientServiceId, !running));
+        // revalidatePath, dans l'action, renvoie déjà la page à jour.
         toast.success(running ? t("resumedToast", { name }) : t("pausedToast", { name }));
-        router.refresh();
       } catch (err) {
         toast.error(getErrorMessage(err, t("error")));
       }

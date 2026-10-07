@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { isOrganizationManager } from "@/lib/organization-roles";
+import { getSession } from "@/lib/session";
 
 export type Membership = { organizationId: string; role: string };
 export type Viewer = { memberships: Membership[] };
@@ -23,6 +24,14 @@ export function canManageClientServiceBilling(
       m.organizationId === clientService.organizationId &&
       isOrganizationManager(m.role)
   );
+}
+
+// L'utilisateur connecté est-il responsable de cette organisation ? Sert à
+// n'afficher que les commandes que le serveur acceptera.
+export async function canManageOrganization(organizationId: string): Promise<boolean> {
+  const session = await getSession();
+  if (!session) return false;
+  return canManageClientServiceBilling({ organizationId }, await viewerOf(session.user.id));
 }
 
 export async function viewerOf(userId: string): Promise<Viewer> {

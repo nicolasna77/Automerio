@@ -2,12 +2,11 @@ import { useTranslations } from "next-intl";
 import { useLabels } from "@/hooks/use-labels";
 import { Link } from "@/i18n/navigation";
 import { MessageSquareText, Phone, TriangleAlert } from "lucide-react";
-import { SETUP_ANCHOR, TELEPHONY_SERVICE_SLUGS, type MyServiceDTO } from "@/lib/catalog";
+import { SETUP_ANCHOR, TELEPHONY_SERVICE_SLUGS, canPauseService, formatDate, type MyServiceDTO } from "@/lib/catalog";
 import { buttonVariants } from "@/components/ui/button";
 import { formatFrenchPhone } from "@/lib/phone-format";
 import { MonthlyPrice } from "@/components/monthly-price";
 import { StatusBadge } from "@/components/status-badge";
-import { Badge } from "@/components/ui/badge";
 import { ServiceGlyph } from "@/components/service-glyph";
 import { ResumeCheckoutButton } from "./resume-checkout-button";
 import { ServiceActionsMenu } from "./service-detail-actions";
@@ -27,10 +26,13 @@ export const SOLUTION_COLUMNS = "minmax(0,1fr) 10.5rem 12rem 8.5rem 4.75rem";
 export function MyServiceRow({
   item,
   quota,
+  canManage,
   showPaymentIssue = true,
 }: {
   item: MyServiceDTO;
   quota: QuotaState | null;
+  // Responsable de l'organisation : lui seul peut mettre l'assistant en pause.
+  canManage: boolean;
   // false sur la vue d'ensemble, où une alerte en tête le signale déjà.
   showPaymentIssue?: boolean;
 }) {
@@ -41,9 +43,8 @@ export function MyServiceRow({
   const hint = setup?.hint ?? null;
   const paymentFailed = showPaymentIssue && item.paymentFailedAt !== null;
   const canResume = status === "PENDING_PAYMENT" || status === "CANCELED";
-  // Payée ou en service : le client peut couper l'assistant à la main.
-  const canPause = status === "ACTIVE" || status === "CONFIGURING";
-  const paused = canPause && item.pausedAt !== null;
+  const pausable = canPauseService(item);
+  const paused = pausable && item.pausedAt !== null;
   // Sans quota (téléphonie souscrite avant les forfaits), on garde le simple
   // compteur d'appels du mois.
   const showCallCount =
@@ -76,7 +77,10 @@ export function MyServiceRow({
               </h3>
               <p className="mt-0.5 text-sm text-muted-foreground">
                 {item.name !== service.name ? t("serviceNamePrefix", { name: service.name }) : ""}
-                {labels.serviceStatus(item)}
+                {/* En service depuis… ne vaut plus pendant une pause ; une
+                    mise en service à terminer reste signalée. */}
+                {paused && item.pausedAt && t("pause.pausedSince", { date: formatDate(item.pausedAt) })}
+                {paused && status === "ACTIVE" ? null : labels.serviceStatus(item)}
               </p>
               {item.externalPhoneNumber && (
                 <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -93,14 +97,10 @@ export function MyServiceRow({
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pl-9 md:contents">
           <div className="flex items-center gap-2.5">
-            {canPause && (
+            {pausable && canManage && (
               <PauseSwitch clientServiceId={item.clientServiceId} name={item.name} paused={paused} />
             )}
-            {paused ? (
-              <Badge variant="outline">{t("pause.paused")}</Badge>
-            ) : (
-              <StatusBadge status={status} />
-            )}
+            <StatusBadge status={status} pausedAt={item.pausedAt} />
           </div>
 
           {/* Colonne Quota : alignée d'une ligne à l'autre sur ordinateur ; sur
