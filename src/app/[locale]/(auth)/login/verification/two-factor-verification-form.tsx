@@ -97,8 +97,8 @@ export function TwoFactorVerificationForm({ next }: { next: string | null }) {
         <Button
           type="submit"
           className="w-full"
-          disabled={loading || !code.trim()}
-          aria-busy={loading}
+          disabled={!code.trim()}
+          loading={loading}
         >
           {loading ? t("submitting") : t("submit")}
         </Button>

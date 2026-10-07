@@ -3,7 +3,7 @@
 import { useEffect, useRef, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "@/lib/toast";
-import { Loader2, MessageCircle } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
@@ -116,14 +116,9 @@ export function WhatsAppConnection({
         variant="outline"
         size="sm"
         onClick={handleConnect}
-        disabled={isPending}
-        aria-busy={isPending}
+        loading={isPending}
       >
-        {isPending ? (
-          <Loader2 className="animate-spin" aria-hidden="true" data-icon="inline-start" />
-        ) : (
-          <MessageCircle aria-hidden="true" data-icon="inline-start" />
-        )}
+        {!isPending && <MessageCircle aria-hidden="true" data-icon="inline-start" />}
         {t("whatsapp.connect")}
       </Button>
     );
@@ -139,14 +134,9 @@ export function WhatsAppConnection({
         variant="ghost"
         size="xs"
         onClick={handleDisconnect}
-        disabled={isPending}
-        aria-busy={isPending}
+        loading={isPending}
       >
-        {isPending ? (
-          <Loader2 className="animate-spin" aria-hidden="true" />
-        ) : (
-          t("disconnect")
-        )}
+        {!isPending && t("disconnect")}
       </Button>
     </div>
   );

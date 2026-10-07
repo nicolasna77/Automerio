@@ -3,7 +3,7 @@
 import { useId, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "@/lib/toast";
-import { CalendarCheck2, ExternalLink, Loader2 } from "lucide-react";
+import { CalendarCheck2, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -71,10 +71,9 @@ export function CalendarConnection({
           variant="ghost"
           size="xs"
           onClick={handleDisconnect}
-          disabled={isPending}
-          aria-busy={isPending}
+          loading={isPending}
         >
-          {isPending ? <Loader2 className="animate-spin" aria-hidden="true" /> : t("disconnect")}
+          {!isPending && t("disconnect")}
         </Button>
       </div>
     );
@@ -252,8 +251,7 @@ function SchedulingDialog({
 
       <DialogFooter>
         {account === null ? (
-          <Button onClick={handleCheck} disabled={!token.trim() || isPending} aria-busy={isPending}>
-            {isPending && <Loader2 className="animate-spin" aria-hidden="true" data-icon="inline-start" />}
+          <Button onClick={handleCheck} disabled={!token.trim()} loading={isPending}>
             {t("check")}
           </Button>
         ) : (
@@ -261,8 +259,7 @@ function SchedulingDialog({
             <Button variant="outline" onClick={() => setAccount(null)} disabled={isPending}>
               {t("changeKey")}
             </Button>
-            <Button onClick={handleConnect} disabled={!eventTypeId || isPending} aria-busy={isPending}>
-              {isPending && <Loader2 className="animate-spin" aria-hidden="true" data-icon="inline-start" />}
+            <Button onClick={handleConnect} disabled={!eventTypeId} loading={isPending}>
               {t("connect")}
             </Button>
           </>

@@ -165,7 +165,7 @@ export function TwoFactorSection({
             </p>
           )}
           <div className="flex gap-2">
-            <Button type="submit" disabled={isPending} aria-busy={isPending}>
+            <Button type="submit" loading={isPending}>
               {isPending ? t("wait") : step.mode === "enable" ? tCommon("continue") : t("disable")}
             </Button>
             <Button type="button" variant="ghost" disabled={isPending} onClick={close}>
@@ -212,7 +212,7 @@ export function TwoFactorSection({
             )}
           </div>
           <div className="flex gap-2">
-            <Button type="submit" disabled={isPending || !code.trim()} aria-busy={isPending}>
+            <Button type="submit" disabled={!code.trim()} loading={isPending}>
               {isPending ? t("verifying") : t("verify")}
             </Button>
             <Button type="button" variant="ghost" disabled={isPending} onClick={close}>

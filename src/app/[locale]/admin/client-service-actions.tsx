@@ -3,7 +3,6 @@
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "@/lib/toast";
-import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn, getErrorMessage } from "@/lib/utils";
@@ -69,14 +68,9 @@ function InlineFieldEditor({
         size="xs"
         variant="outline"
         onClick={handleSave}
-        disabled={isPending}
-        aria-busy={isPending}
+        loading={isPending}
       >
-        {isPending ? (
-          <Loader2 className="animate-spin" aria-hidden="true" />
-        ) : (
-          t("ok")
-        )}
+        {!isPending && t("ok")}
         <span className="sr-only">{t(`${messages}.save`)}</span>
       </Button>
     </div>
@@ -198,17 +192,9 @@ export function MarkActiveButton({
       size="sm"
       variant="outline"
       onClick={handleActivate}
-      disabled={isPending}
-      aria-busy={isPending}
+      loading={isPending}
     >
-      {isPending ? (
-        <>
-          <Loader2 className="animate-spin" aria-hidden="true" data-icon="inline-start" />
-          {t("activating")}
-        </>
-      ) : (
-        t("markActive")
-      )}
+      {isPending ? t("activating") : t("markActive")}
     </Button>
   );
 }

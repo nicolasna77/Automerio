@@ -3,7 +3,6 @@
 import { useId, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "@/lib/toast";
-import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -52,15 +51,9 @@ export function ResumeCheckoutButton({
         className={cn(fullWidth && "w-full")}
         variant={status === "CANCELED" ? "outline" : "default"}
         onClick={() => resume(null)}
-        disabled={isPending}
-        aria-busy={isPending}
+        loading={isPending}
       >
-        {isPending ? (
-          <>
-            <Loader2 className="animate-spin" aria-hidden="true" data-icon="inline-start" />
-            {t("redirecting")}
-          </>
-        ) : status === "CANCELED" ? (
+        {isPending ? t("redirecting") : status === "CANCELED" ? (
           t("reactivate")
         ) : (
           t("resume")
@@ -115,7 +108,7 @@ export function ResumeCheckoutButton({
               >
                 {tCommon("cancel")}
               </Button>
-              <Button type="submit" disabled={isPending || !code.trim()} aria-busy={isPending}>
+              <Button type="submit" disabled={!code.trim()} loading={isPending}>
                 {isPending ? t("redirecting") : t("payWithCode")}
               </Button>
             </DialogFooter>

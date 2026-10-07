@@ -2073,7 +2073,8 @@
     "showPassword": "Afficher le mot de passe",
     "hidePassword": "Masquer le mot de passe",
     "capsLock": "Verr. Maj est activé.",
-    "pollingStalled": "Actualisation interrompue : nouvelle tentative automatique en cours."
+    "pollingStalled": "Actualisation interrompue : nouvelle tentative automatique en cours.",
+    "loading": "Chargement en cours"
   },
   "Actions": {
     "generic": "Une erreur est survenue. Réessayez dans un instant.",

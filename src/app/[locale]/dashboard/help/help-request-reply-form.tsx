@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "@/lib/toast";
-import { Loader2, Send } from "lucide-react";
+import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { unwrap } from "@/lib/action-result";
@@ -53,14 +53,10 @@ export function HelpRequestReplyForm({
         size="sm"
         variant="outline"
         onClick={handleSubmit}
-        disabled={isPending || !body.trim()}
-        aria-busy={isPending}
+        disabled={!body.trim()}
+        loading={isPending}
       >
-        {isPending ? (
-          <Loader2 className="animate-spin" aria-hidden="true" data-icon="inline-start" />
-        ) : (
-          <Send aria-hidden="true" data-icon="inline-start" />
-        )}
+        {!isPending && <Send aria-hidden="true" data-icon="inline-start" />}
         {t("send")}
       </Button>
     </div>

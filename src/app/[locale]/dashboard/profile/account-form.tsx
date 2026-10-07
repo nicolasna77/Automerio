@@ -207,7 +207,7 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
                   onChange={(e) => setName(e.target.value)}
                   className="min-w-48 flex-1"
                 />
-                <Button onClick={handleSave} disabled={!isDirty || isPending} aria-busy={isPending}>
+                <Button onClick={handleSave} disabled={!isDirty} loading={isPending}>
                   {isPending ? tCommon("saving") : tCommon("save")}
                 </Button>
               </div>
@@ -247,7 +247,7 @@ export function AccountForm({ initialAccount }: { initialAccount: InitialAccount
                     <p id="new-email-error" className="text-sm text-destructive">{emailError}</p>
                   )}
                   <div className="flex flex-wrap gap-2">
-                    <Button type="submit" disabled={isRequestingEmail} aria-busy={isRequestingEmail}>
+                    <Button type="submit" loading={isRequestingEmail}>
                       {isRequestingEmail ? tCommon("sending") : t("sendLink")}
                     </Button>
                     <Button
