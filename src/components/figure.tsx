@@ -10,7 +10,7 @@ export function splitFigure(text: string): [figure: string, unit: string] | null
 }
 
 // Une donnée déjà formatée (« 150 min », « 25 € TTC ») : le nombre en
-// Plex Mono, l'unité en texte courant. En chasse fixe, les espaces insécables
+// DM Mono, l'unité en texte courant. En chasse fixe, les espaces insécables
 // de l'unité s'élargiraient autant qu'un chiffre.
 export function Figure({
   text,

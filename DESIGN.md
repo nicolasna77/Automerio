@@ -48,9 +48,13 @@ Nulle part ailleurs.
 ## Typographie
 
 Deux polices de la même famille, chargées par `next/font` :
-- **IBM Plex Sans** (400, 500, 600) pour les titres et le texte ;
-- **IBM Plex Mono** (400, 500), classe `font-mono`, seulement pour les données :
+- **DM Sans** (400, 500, 600) pour les titres et le texte ;
+- **DM Mono** (400, 500), classe `font-mono`, seulement pour les données :
   prix, durées, horaires, numéros de téléphone, codes, numéros d'étape.
+
+DM Sans est celle de Volubile, notre référence la plus proche : ronde, lisible
+et chaleureuse pour des artisans. On écarte les polices des modèles de pages
+génériques (Inter, Geist), qui font « site généré ».
 
 Les chiffres de données sont tabulaires (`tabular-nums`). Pas de petites
 étiquettes en capitales espacées.
@@ -63,7 +67,7 @@ Les chiffres de données sont tabulaires (`tabular-nums`). Pas de petites
 | Titre de section (`h2`) | 30 px, 36 px dès `sm` | 600 |
 | Sous-titre (`h3`) | 18 à 20 px | 600 |
 | Texte courant | 16 px, 18 px pour les chapeaux | 400 |
-| Donnée (Plex Mono) | taille du texte voisin | 400 ou 500 |
+| Donnée (DM Mono) | taille du texte voisin | 400 ou 500 |
 | Légende, aide | 14 px | 400 |
 | Mention légale, note | 13 px | 400 |
 
@@ -166,7 +170,7 @@ reste affichée jusqu'à ce qu'on la ferme.
 - Une capture n'est jamais agrandie au-delà de sa taille réelle ; elle est
   servie en qualité 90 (le texte fin reste net).
 - Les faits commerciaux (prix, engagement, garantie) se présentent en fiche
-  technique : libellé à gauche, valeur en Plex Mono à droite, filets entre les
+  technique : libellé à gauche, valeur en DM Mono à droite, filets entre les
   lignes.
 - Les maquettes dessinées (illustrations des pages solutions) restent pour ce
   qu'une capture ne peut pas montrer (un appel en cours, un message reçu).

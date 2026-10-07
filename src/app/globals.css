@@ -44,10 +44,10 @@
   --sidebar-accent-foreground: oklch(0.1898 0.0094 255.6333);
   --sidebar-border: oklch(0.9142 0.0081 253.8565);
   --sidebar-ring: oklch(0.5273 0.1371 150.0693);
-  --font-sans: var(--font-plex-sans), ui-sans-serif, sans-serif, system-ui;
-  --font-serif: var(--font-plex-sans), ui-sans-serif, sans-serif;
-  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
-  --font-heading: var(--font-plex-sans), ui-sans-serif, sans-serif;
+  --app-font-sans: var(--font-dm-sans), ui-sans-serif, sans-serif, system-ui;
+  --app-font-serif: var(--font-dm-sans), ui-sans-serif, sans-serif;
+  --app-font-mono: var(--font-dm-mono), ui-monospace, monospace;
+  --app-font-heading: var(--font-dm-sans), ui-sans-serif, sans-serif;
   --radius: 0.5rem;
   --shadow-x: 0px;
   --shadow-y: 4px;
@@ -105,10 +105,10 @@
   --sidebar-accent-foreground: oklch(0.9545 0.0046 258.3249);
   --sidebar-border: oklch(0.3032 0.0145 256.7851);
   --sidebar-ring: oklch(0.7007 0.1804 148.9872);
-  --font-sans: var(--font-plex-sans), ui-sans-serif, sans-serif, system-ui;
-  --font-serif: var(--font-plex-sans), ui-sans-serif, sans-serif;
-  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
-  --font-heading: var(--font-plex-sans), ui-sans-serif, sans-serif;
+  --app-font-sans: var(--font-dm-sans), ui-sans-serif, sans-serif, system-ui;
+  --app-font-serif: var(--font-dm-sans), ui-sans-serif, sans-serif;
+  --app-font-mono: var(--font-dm-mono), ui-monospace, monospace;
+  --app-font-heading: var(--font-dm-sans), ui-sans-serif, sans-serif;
   --radius: 0.5rem;
   --shadow-x: 0px;
   --shadow-y: 10px;
@@ -166,10 +166,13 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
-  --font-serif: var(--font-serif);
-  --font-heading: var(--font-heading);
+  /* Noms distincts de ceux de :root : « --font-sans: var(--font-sans) » se
+     référençait lui-même ; en développement, la variable devenait vide et le
+     navigateur affichait Times New Roman. */
+  --font-sans: var(--app-font-sans);
+  --font-mono: var(--app-font-mono);
+  --font-serif: var(--app-font-serif);
+  --font-heading: var(--app-font-heading);
 
   --radius-xs: var(--radius);
   --radius-sm: var(--radius);
@@ -218,7 +221,7 @@
   h1,
   h2,
   h3 {
-    font-family: var(--font-heading);
+    font-family: var(--app-font-heading);
   }
 }
 
