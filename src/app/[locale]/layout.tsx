@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
+import { DM_Mono, DM_Sans } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { NextIntlClientProvider } from "next-intl";
 import { locale as rootLocale } from "next/root-params";
@@ -14,15 +14,17 @@ import { siteOpenGraph } from "@/lib/site-metadata";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
-const plexSans = IBM_Plex_Sans({
-  variable: "--font-plex-sans",
-  subsets: ["latin"],
+// DM Sans pour le texte et les titres, DM Mono (même famille) pour les
+// données : prix, horaires, numéros (DESIGN.md, Typographie).
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
+  subsets: ["latin", "latin-ext"],
   weight: ["400", "500", "600"],
 });
 
-const plexMono = IBM_Plex_Mono({
-  variable: "--font-plex-mono",
-  subsets: ["latin"],
+const dmMono = DM_Mono({
+  variable: "--font-dm-mono",
+  subsets: ["latin", "latin-ext"],
   weight: ["400", "500"],
 });
 
@@ -58,8 +60,8 @@ export default async function RootLayout({
       className={cn(
         "h-full",
         "antialiased",
-        plexSans.variable,
-        plexMono.variable,
+        dmSans.variable,
+        dmMono.variable,
         "font-sans",
       )}
     >

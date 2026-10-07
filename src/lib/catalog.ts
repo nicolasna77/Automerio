@@ -145,7 +145,7 @@ export function formatPrice(monthlyPriceCents: number | null): string {
   return monthlyPriceCents === null ? "—" : `${formatCents(monthlyPriceCents)}/mois`;
 }
 
-// Le montant sans le symbole « € » : pour afficher le chiffre en Plex Mono et
+// Le montant sans le symbole « € » : pour afficher le chiffre en DM Mono et
 // l'unité en texte courant, sans l'espace insécable élargi par la chasse fixe.
 export function formatEuroAmount(cents: number): string {
   return formatCents(cents).replace(/\s€$/, "");

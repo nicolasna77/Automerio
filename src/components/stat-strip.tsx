@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 export type Stat = {
   icon: LucideIcon;
   label: string;
-  /** La donnée elle-même, en Plex Mono (DESIGN.md, Typographie). */
+  /** La donnée elle-même, en DM Mono (DESIGN.md, Typographie). */
   value: string;
   /** false pour une valeur écrite en toutes lettres (une date), en texte courant. */
   mono?: boolean;

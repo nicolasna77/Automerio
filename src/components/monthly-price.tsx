@@ -3,7 +3,7 @@ import { usePriceFormatter } from "@/hooks/use-price-formatter";
 import { formatEuroAmount } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
 
-// Prix mensuel d'une solution : le montant en Plex Mono, l'unité en texte
+// Prix mensuel d'une solution : le montant en DM Mono, l'unité en texte
 // courant, le hors taxes rappelé dessous (DESIGN.md, Typographie).
 export function MonthlyPrice({
   cents,
