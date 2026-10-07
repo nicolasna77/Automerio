@@ -6,6 +6,8 @@ export type ServiceBenefit = { title: string; description: string };
 export type ServiceUseCase = { audience: string; scenario: string };
 
 export type ServiceCopy = {
+  // Une ligne, pour le menu Solutions de l'en-tête.
+  tagline: string;
   intro: string;
   benefits: ServiceBenefit[];
   useCases?: ServiceUseCase[];

@@ -184,7 +184,10 @@ export type ServiceDTO = {
   sortOrder: number;
 };
 
-export type ServiceMenuItem = Pick<ServiceDTO, "slug" | "name" | "category">;
+export type ServiceMenuItem = Pick<ServiceDTO, "slug" | "name" | "category"> & {
+  // Accroche d'une ligne (service-copy) ; null pour une solution sans texte.
+  tagline: string | null;
+};
 
 export type BookingDTO = {
   id: string;

@@ -31,7 +31,7 @@ export function SiteMobileNav({
   loggedIn,
   waitlist = false,
 }: {
-  services: ServiceMenuItem[];
+  services: Omit<ServiceMenuItem, "tagline">[];
   industries: IndustryMenuItem[];
   loggedIn: boolean;
   waitlist?: boolean;
