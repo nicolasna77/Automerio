@@ -1,6 +1,10 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
+// Captures d'interface : du texte fin, que la compression par défaut (75)
+// rend flou. 90 doit figurer dans images.qualities (next.config.ts).
+const IMAGE_QUALITY = 90;
+
 export function ProductScreenshot({
   name,
   width,
@@ -9,7 +13,6 @@ export function ProductScreenshot({
   caption,
   priority = false,
   sizes,
-  windowUrl,
   captionClassName,
   className,
   showcase = false,
@@ -21,7 +24,6 @@ export function ProductScreenshot({
   caption: string;
   priority?: boolean;
   sizes: string;
-  windowUrl?: string;
   captionClassName?: string;
   className?: string;
   // Hero de l'accueil : double cadre, et la capture s'efface vers le bas. La
@@ -30,18 +32,6 @@ export function ProductScreenshot({
 }) {
   const frame = (
     <div className="overflow-hidden rounded-lg border border-border bg-card shadow-md">
-      {windowUrl && (
-        <div aria-hidden="true" className="flex items-center gap-3 border-b border-border bg-muted px-3 py-2">
-          <span className="flex gap-1.5">
-            <span className="size-2 rounded-full bg-border" />
-            <span className="size-2 rounded-full bg-border" />
-            <span className="size-2 rounded-full bg-border" />
-          </span>
-          <span className="flex-1 truncate rounded-sm bg-background px-2 py-0.5 text-center font-mono text-xs text-muted-foreground">
-            {windowUrl}
-          </span>
-        </div>
-      )}
       <Image
         src={`/screenshots/${name}-light.webp`}
         width={width}
@@ -49,6 +39,7 @@ export function ProductScreenshot({
         alt={alt}
         sizes={sizes}
         priority={priority}
+        quality={IMAGE_QUALITY}
         className="h-auto w-full dark:hidden"
       />
       <Image
@@ -57,6 +48,7 @@ export function ProductScreenshot({
         height={height}
         alt={alt}
         sizes={sizes}
+        quality={IMAGE_QUALITY}
         className={cn("hidden h-auto w-full dark:block")}
       />
     </div>

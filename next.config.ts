@@ -34,6 +34,10 @@ const LEGACY_PATHS: [string, string][] = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  images: {
+    // 90 : captures d'interface de l'accueil (product-screenshot.tsx).
+    qualities: [75, 90],
+  },
   async redirects() {
     return LEGACY_PATHS.flatMap(([source, destination]) => [
       { source, destination, permanent: true },
