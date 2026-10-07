@@ -60,34 +60,15 @@ const HERO_TRACES = [
 const HEAD_PX = 44;
 const TAIL_PX = 150;
 
-// Rayon des virages : le trait ne casse pas à angle droit, il tourne en arc.
-const TURN_RADIUS_PX = 20;
-
+// Le tracé reste sur les lignes de la trame : il tourne à angle droit, pile
+// sur un croisement, comme on suit les carreaux d'une feuille.
 function traceGeometry(points: readonly (readonly [number, number])[]) {
   const px = points.map(([column, row]) => [column * CELL_PX, row * CELL_PX] as const);
-  const r = TURN_RADIUS_PX;
-  let d = `M${px[0][0]} ${px[0][1]}`;
-  let length = 0;
-  for (let i = 1; i < px.length; i++) {
-    const [x0, y0] = px[i - 1];
-    const [x, y] = px[i];
-    const segment = Math.abs(x - x0) + Math.abs(y - y0);
-    const next = px[i + 1];
-    if (!next) {
-      d += ` L${x} ${y}`;
-      length += segment - (i > 1 ? r : 0);
-      continue;
-    }
-    // Virage en (x, y) : on s'arrête r pixels avant le croisement, puis un
-    // quart de cercle rejoint la ligne suivante r pixels après.
-    const inX = Math.sign(x - x0);
-    const inY = Math.sign(y - y0);
-    const outX = Math.sign(next[0] - x);
-    const outY = Math.sign(next[1] - y);
-    const sweep = inX * outY - inY * outX > 0 ? 1 : 0;
-    d += ` L${x - inX * r} ${y - inY * r} A${r} ${r} 0 0 ${sweep} ${x + outX * r} ${y + outY * r}`;
-    length += segment - r - (i > 1 ? r : 0) + (Math.PI * r) / 2;
-  }
+  const d = px.map(([x, y], index) => `${index === 0 ? "M" : "L"}${x} ${y}`).join(" ");
+  const length = px.slice(1).reduce((sum, [x, y], index) => {
+    const [x0, y0] = px[index];
+    return sum + Math.abs(x - x0) + Math.abs(y - y0);
+  }, 0);
   return { d, length };
 }
 
@@ -137,6 +118,8 @@ function HeroGrid() {
                 stroke="var(--primary)"
                 strokeOpacity={layer.opacity}
                 strokeWidth={1}
+                strokeLinejoin="miter"
+                strokeLinecap="butt"
                 strokeDasharray={`${layer.dash} ${travel + TAIL_PX}`}
                 style={
                   {
