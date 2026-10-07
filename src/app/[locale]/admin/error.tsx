@@ -1,10 +1,10 @@
 "use client";
 
-import { WorkspaceError } from "@/components/workspace-error";
+import { ErrorPanel } from "@/components/error-panel";
 
 export default function AdminError(props: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  return <WorkspaceError {...props} />;
+  return <ErrorPanel {...props} namespace="Errors.workspace" />;
 }

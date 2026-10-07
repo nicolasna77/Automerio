@@ -6,19 +6,21 @@ import { AlertTriangle } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Button, buttonVariants } from "@/components/ui/button";
 
-// Erreur d'une page du tableau de bord ou de l'admin : rendue dans la mise en
-// page, la barre latérale reste en place et l'utilisateur peut réessayer ou
-// aller ailleurs sans recharger toute l'application.
-export function WorkspaceError({
+// Contenu commun des pages d'erreur : le titre reçoit le focus pour que le
+// lecteur d'écran annonce l'erreur, la référence aide l'équipe à la retrouver
+// dans les journaux, « Réessayer » relance le rendu du segment.
+export function ErrorPanel({
   error,
   reset,
-  helpHref,
+  namespace,
+  link,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
-  helpHref?: string;
+  namespace: "Errors.generic" | "Errors.workspace";
+  link?: { href: string; label: string };
 }) {
-  const t = useTranslations("Errors.workspace");
+  const t = useTranslations(namespace);
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -29,7 +31,7 @@ export function WorkspaceError({
   return (
     <div className="mx-auto flex max-w-lg flex-col items-center px-4 py-24 text-center">
       <AlertTriangle className="size-8 text-destructive" aria-hidden="true" />
-      <h1 ref={headingRef} tabIndex={-1} className="mt-4 text-2xl font-semibold tracking-tight text-foreground outline-none">
+      <h1 ref={headingRef} tabIndex={-1} className="mt-4 text-2xl font-semibold tracking-tight text-foreground outline-none sm:text-3xl">
         {t("heading")}
       </h1>
       <p className="mt-3 text-muted-foreground">{t("lead")}</p>
@@ -40,9 +42,9 @@ export function WorkspaceError({
       )}
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Button onClick={() => reset()}>{t("retry")}</Button>
-        {helpHref && (
-          <Link href={helpHref} className={buttonVariants({ variant: "outline" })}>
-            {t("help")}
+        {link && (
+          <Link href={link.href} className={buttonVariants({ variant: "outline" })}>
+            {link.label}
           </Link>
         )}
       </div>
