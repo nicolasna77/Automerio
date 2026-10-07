@@ -16,6 +16,7 @@ export function ProductScreenshot({
   captionClassName,
   className,
   showcase = false,
+  fragment = false,
 }: {
   name: string;
   width: number;
@@ -29,6 +30,9 @@ export function ProductScreenshot({
   // Hero de l'accueil : double cadre, et la capture s'efface vers le bas. La
   // légende reste hors du fondu, toujours lisible (DESIGN.md, Images).
   showcase?: boolean;
+  // Morceau de l'interface (onglets sous le hero) : posé sur un fond
+  // pointillé, comme sur un plan de travail, avec une ombre qui le détache.
+  fragment?: boolean;
 }) {
   const frame = (
     <div className="overflow-hidden rounded-lg border border-border bg-card shadow-md">
@@ -56,7 +60,18 @@ export function ProductScreenshot({
 
   return (
     <figure className={className}>
-      {showcase ? (
+      {fragment ? (
+        // Sur mobile, le morceau garde au moins 80 % de sa taille réelle pour
+        // rester lisible : il part de la gauche et le fond le coupe à droite.
+        <div className="flex justify-start overflow-hidden rounded-lg border border-border bg-muted/40 bg-[radial-gradient(var(--border)_1px,transparent_1px)] [background-size:14px_14px] p-4 sm:justify-center sm:p-10">
+          <div
+            className="w-[max(100%,calc(var(--fragment-width)*0.8))] shrink-0 overflow-hidden rounded-lg shadow-lg sm:w-full sm:shrink"
+            style={{ maxWidth: width, "--fragment-width": `${width}px` } as React.CSSProperties}
+          >
+            {frame}
+          </div>
+        </div>
+      ) : showcase ? (
         <div className="rounded-lg border border-border bg-muted/50 p-1.5 shadow-sm [mask-image:linear-gradient(to_bottom,black_60%,transparent)] sm:p-2">
           {frame}
         </div>
