@@ -842,10 +842,10 @@
   "Screenshots": {
     "demoCaption": "Exemple avec des données de démonstration.",
     "overviewAlt": "Tableau de bord Automerio : les appels à rappeler, le nombre d'appels du mois et la dépense mensuelle.",
-    "callsAlt": "Récapitulatif des appels d'un standard téléphonique : motif, nom de l'appelant, issue de l'appel et appels à rappeler.",
-    "conversationsAlt": "Boîte de conversations WhatsApp : trois contacts, les réponses de l'assistant et une conversation reprise en main par le client.",
-    "calendarAlt": "Calendrier de la semaine avec les rendez-vous pris par téléphone : nom du client, heure et solution utilisée.",
-    "settingsAlt": "Réglages du standard téléphonique : motifs d'appel et numéro vers lequel transférer chacun."
+    "callsAlt": "Un appel ouvert dans le tableau de bord : motif « Devis chauffe-eau », nom de l'appelante, résumé de la demande, rappel à faire et boutons Rappeler et Marquer comme traité.",
+    "conversationsAlt": "Début d'une conversation WhatsApp : un client demande si l'entreprise intervient le samedi et l'assistant lui répond avec les horaires.",
+    "calendarAlt": "Quatre jours du calendrier, de 8 h à midi, avec les rendez-vous pris par téléphone : heure et nom du client.",
+    "settingsAlt": "Règles de transfert du standard téléphonique : trois motifs d'appel, chacun avec le numéro vers lequel transférer."
   },
   "Waitlist": {
     "heading": "Soyez parmi les premiers à confier vos appels à Automerio",

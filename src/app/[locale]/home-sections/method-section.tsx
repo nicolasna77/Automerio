@@ -24,14 +24,15 @@ const COLUMNS = [
   },
 ] as const;
 
-// Vues du tableau de bord, dans l'ordre des onglets : les échanges avec les
-// clients d'abord, puis l'agenda et les réglages. Dimensions réelles des
+// Morceaux du tableau de bord, dans l'ordre des onglets : un appel ouvert, un
+// fil de messages, quelques rendez-vous, les règles de transfert. Le hero
+// montre la page entière ; ici, on montre le détail. Dimensions réelles des
 // captures (px CSS), pour ne jamais les agrandir.
 const SHOTS = [
-  { key: "calls", name: "dashboard-calls", width: 632, height: 650, alt: "callsAlt" },
-  { key: "conversations", name: "dashboard-conversations", width: 632, height: 762, alt: "conversationsAlt" },
-  { key: "calendar", name: "dashboard-calendar", width: 1024, height: 640, alt: "calendarAlt" },
-  { key: "settings", name: "dashboard-settings", width: 1024, height: 640, alt: "settingsAlt" },
+  { key: "calls", name: "fragment-calls", width: 586, height: 287, alt: "callsAlt" },
+  { key: "conversations", name: "fragment-conversation", width: 523, height: 350, alt: "conversationsAlt" },
+  { key: "calendar", name: "fragment-calendar", width: 573, height: 254, alt: "calendarAlt" },
+  { key: "settings", name: "fragment-rules", width: 714, height: 469, alt: "settingsAlt" },
 ] as const;
 
 export async function MethodSection() {

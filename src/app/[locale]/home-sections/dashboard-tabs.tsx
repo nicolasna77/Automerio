@@ -99,16 +99,17 @@ export function DashboardTabs({
               <h4 className="text-xl font-semibold tracking-tight text-foreground">{shot.title}</h4>
               <p className="mt-2 leading-relaxed text-muted-foreground">{shot.description}</p>
             </div>
-            {/* Jamais agrandie au-delà de sa taille réelle : étiré, le texte de
-                la capture deviendrait flou. */}
-            <div className="min-w-0 justify-self-center lg:justify-self-start" style={{ width: "100%", maxWidth: shot.width }}>
+            {/* Le fond occupe la colonne ; le morceau d'interface garde sa
+                taille réelle, jamais agrandi (étiré, son texte deviendrait flou). */}
+            <div className="min-w-0">
               <ProductScreenshot
                 name={shot.name}
                 width={shot.width}
                 height={shot.height}
                 alt={shot.alt}
                 caption={caption}
-                sizes={`(min-width: 1152px) ${Math.min(shot.width, 720)}px, 100vw`}
+                sizes={`(min-width: 1152px) ${shot.width}px, 100vw`}
+                fragment
               />
             </div>
           </div>
