@@ -53,31 +53,44 @@ export function isFrenchE164(phoneNumber: unknown): phoneNumber is string {
   return typeof phoneNumber === "string" && FRENCH_E164.test(phoneNumber);
 }
 
-export function isOffered(offered: { phoneNumber: string }[], phoneNumber: string): boolean {
-  return offered.some((n) => n.phoneNumber === phoneNumber);
+// « PhoneNumber is not available » : le numéro n'appartient pas (ou plus) au
+// stock achetable de Twilio — https://www.twilio.com/docs/api/errors/21422
+export const TWILIO_NUMBER_NOT_AVAILABLE = 21422;
+
+export class PhoneNumberUnavailableError extends Error {
+  constructor(phoneNumber: string) {
+    super(`Numéro ${phoneNumber} plus disponible chez Twilio`);
+    this.name = "PhoneNumberUnavailableError";
+  }
 }
 
-// Le numéro vient du navigateur : on redemande à Twilio s'il figure toujours
-// parmi les numéros français disponibles avant de l'acheter.
-export async function isNumberStillAvailable(phoneNumber: string): Promise<boolean> {
-  if (!isFrenchE164(phoneNumber)) return false;
-  const matches = await getTwilioClient()
-    .availablePhoneNumbers("FR")
-    .local.list({ contains: phoneNumber.slice(1), limit: 5 });
-  return isOffered(matches, phoneNumber);
+function twilioErrorCode(err: unknown): number | null {
+  if (typeof err !== "object" || err === null || !("code" in err)) return null;
+  const code = Number((err as { code: unknown }).code);
+  return Number.isFinite(code) ? code : null;
 }
 
+// Pas de vérification préalable de disponibilité : la recherche Twilio par
+// motif n'est pas exacte et le numéro peut partir entre-temps. On tente
+// l'achat, et Twilio répond 21422 si le numéro n'est plus achetable.
 export async function purchasePhoneNumber(
   phoneNumber: string
 ): Promise<{ sid: string; phoneNumber: string }> {
   if (!isFrenchE164(phoneNumber)) {
     throw new Error("Numéro refusé : seul un numéro français au format E.164 peut être acheté");
   }
-  const purchased = await getTwilioClient().incomingPhoneNumbers.create({
-    phoneNumber,
-    voiceUrl: voiceWebhookUrl(),
-  });
-  return { sid: purchased.sid, phoneNumber: purchased.phoneNumber };
+  try {
+    const purchased = await getTwilioClient().incomingPhoneNumbers.create({
+      phoneNumber,
+      voiceUrl: voiceWebhookUrl(),
+    });
+    return { sid: purchased.sid, phoneNumber: purchased.phoneNumber };
+  } catch (err) {
+    if (twilioErrorCode(err) === TWILIO_NUMBER_NOT_AVAILABLE) {
+      throw new PhoneNumberUnavailableError(phoneNumber);
+    }
+    throw err;
+  }
 }
 
 export async function releasePhoneNumber(sid: string): Promise<void> {

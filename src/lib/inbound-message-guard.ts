@@ -150,6 +150,85 @@ export async function handleInboundMessage(input: InboundMessage): Promise<void>
   }).catch((err) => console.error(`${log} échec d'enregistrement du message ${externalId} :`, err));
 }
 
+// Message extrait d'un webhook Meta, avant toute requête en base.
+export type PendingInboundMessage = {
+  // Compte Meta destinataire : numéro WhatsApp, page Facebook ou compte Instagram.
+  accountId: string;
+  contactId: string;
+  text: string;
+  externalId: string;
+};
+
+// Regroupe les messages par conversation (compte destinataire + expéditeur), en
+// gardant l'ordre de réception dans chaque groupe et l'ordre de première
+// apparition entre groupes. Un compte correspond à une seule prestation.
+export function groupByConversation<T extends Pick<PendingInboundMessage, "accountId" | "contactId">>(
+  messages: readonly T[]
+): T[][] {
+  const groups = new Map<string, T[]>();
+  for (const message of messages) {
+    const key = JSON.stringify([message.accountId, message.contactId]);
+    const group = groups.get(key);
+    if (group) group.push(message);
+    else groups.set(key, [message]);
+  }
+  return [...groups.values()];
+}
+
+export type InboundBatch = {
+  channel: MessagingChannel;
+  usageType: string;
+  messages: readonly PendingInboundMessage[];
+  send: (clientService: LiveClientService, message: PendingInboundMessage, replyText: string) => Promise<boolean>;
+};
+
+// Traite un envoi de Meta après la réponse 200 (after()) : les conversations
+// avancent en parallèle, les messages d'une même conversation un par un pour
+// garder l'ordre des réponses. Ne lève jamais : les erreurs sont journalisées.
+export async function processInboundBatch(batch: InboundBatch): Promise<void> {
+  const { channel, usageType, messages, send } = batch;
+  if (messages.length === 0) return;
+  const log = `[${channel.toLowerCase()}]`;
+
+  const accountIds = [...new Set(messages.map((m) => m.accountId))];
+  const services = new Map<string, LiveClientService | null>(
+    await Promise.all(
+      accountIds.map(async (accountId) => {
+        const service = await findLiveClientService(channel, accountId).catch((err) => {
+          console.error(`${log} échec de recherche de la prestation du compte ${accountId} :`, err);
+          return null;
+        });
+        return [accountId, service] as const;
+      })
+    )
+  );
+
+  const results = await Promise.allSettled(
+    groupByConversation(messages).map(async (group) => {
+      for (const message of group) {
+        const clientService = services.get(message.accountId);
+        if (!clientService) continue;
+        try {
+          await handleInboundMessage({
+            clientService,
+            channel,
+            contactId: message.contactId,
+            text: message.text,
+            externalId: message.externalId,
+            usageType,
+            send: (replyText) => send(clientService, message, replyText),
+          });
+        } catch (err) {
+          console.error(`${log} échec de traitement du message ${message.externalId} :`, err);
+        }
+      }
+    })
+  );
+  for (const result of results) {
+    if (result.status === "rejected") console.error(`${log} échec de traitement d'une conversation :`, result.reason);
+  }
+}
+
 // Corps JSON d'un webhook Meta ; null s'il est illisible (réponse 400).
 export function parseWebhookBody<T>(rawBody: string): T | null {
   try {

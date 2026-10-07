@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { canManageClientServiceBilling, viewerOf } from "@/lib/client-service-access";
 import {
   completeInstagramConnection,
+  InstagramAccountInUseError,
   INSTAGRAM_NONCE_COOKIE,
   INSTAGRAM_OAUTH_COOKIE_PATH,
   verifyInstagramState,
@@ -45,8 +46,9 @@ export async function GET(request: Request) {
 
   try {
     await completeInstagramConnection(clientServiceId, code);
-  } catch {
-    return redirectTo(`/dashboard/services/${clientServiceId}?instagram=error`);
+  } catch (err) {
+    const status = err instanceof InstagramAccountInUseError ? "in-use" : "error";
+    return redirectTo(`/dashboard/services/${clientServiceId}?instagram=${status}`);
   }
 
   return redirectTo(`/dashboard/services/${clientServiceId}?instagram=connected`);

@@ -27,10 +27,12 @@ vi.mock("@/lib/usage-events", () => ({ recordUsageEvent: mocks.recordUsageEvent 
 import {
   decideAiReply,
   findLiveClientService,
+  groupByConversation,
   handleInboundMessage,
   isLiveStatus,
   isQuotaExhausted,
   parseWebhookBody,
+  processInboundBatch,
   type InboundMessage,
 } from "./inbound-message-guard";
 import { validateInstagramSignature, validateMetaSignature } from "./meta";
@@ -165,6 +167,70 @@ describe("handleInboundMessage", () => {
     await handleInboundMessage(input());
     expect(mocks.checkRateLimit).not.toHaveBeenCalled();
     expect(mocks.generateMessagingReply).not.toHaveBeenCalled();
+  });
+});
+
+describe("groupByConversation", () => {
+  const m = (accountId: string, contactId: string, externalId: string) => ({ accountId, contactId, externalId });
+
+  it("regroupe par compte et expéditeur en gardant l'ordre de réception", () => {
+    const groups = groupByConversation([
+      m("page_1", "alice", "1"),
+      m("page_1", "bob", "2"),
+      m("page_1", "alice", "3"),
+      m("page_2", "alice", "4"),
+      m("page_1", "bob", "5"),
+    ]);
+    expect(groups.map((g) => g.map((x) => x.externalId))).toEqual([["1", "3"], ["2", "5"], ["4"]]);
+  });
+
+  it("ne confond pas deux clés dont la concaténation coïncide", () => {
+    expect(groupByConversation([m("a:b", "c", "1"), m("a", "b:c", "2")])).toHaveLength(2);
+  });
+
+  it("renvoie une liste vide sans message", () => {
+    expect(groupByConversation([])).toEqual([]);
+  });
+});
+
+describe("processInboundBatch", () => {
+  it("traite chaque conversation dans l'ordre et ignore un compte sans prestation en service", async () => {
+    mocks.findFirst.mockImplementation(async ({ where }: { where: { facebookPageId: string } }) =>
+      where.facebookPageId === "page_1" ? clientService() : null
+    );
+    mocks.claimInboundMessage.mockImplementation(async ({ externalId }: { externalId: string }) => ({
+      id: `conv_${externalId}`,
+      humanTakeover: false,
+    }));
+    const send = vi.fn().mockResolvedValue(true);
+    await processInboundBatch({
+      channel: "MESSENGER",
+      usageType: "messenger_message",
+      send,
+      messages: [
+        { accountId: "page_1", contactId: "alice", text: "a", externalId: "m1" },
+        { accountId: "page_2", contactId: "bob", text: "b", externalId: "m2" },
+        { accountId: "page_1", contactId: "alice", text: "c", externalId: "m3" },
+      ],
+    });
+    expect(mocks.findFirst).toHaveBeenCalledTimes(2);
+    expect(mocks.claimInboundMessage.mock.calls.map(([arg]) => arg.externalId)).toEqual(["m1", "m3"]);
+    expect(send).toHaveBeenCalledTimes(2);
+  });
+
+  it("journalise une erreur sans la propager", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    mocks.findFirst.mockRejectedValue(new Error("base indisponible"));
+    await expect(
+      processInboundBatch({
+        channel: "WHATSAPP",
+        usageType: "whatsapp_message",
+        send: vi.fn(),
+        messages: [{ accountId: "num_1", contactId: "+33600000000", text: "a", externalId: "w1" }],
+      })
+    ).resolves.toBeUndefined();
+    expect(error).toHaveBeenCalled();
+    expect(mocks.claimInboundMessage).not.toHaveBeenCalled();
   });
 });
 

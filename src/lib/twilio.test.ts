@@ -1,14 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const list = vi.fn();
+const create = vi.fn();
 vi.mock("twilio", () => ({
   default: Object.assign(
-    () => ({ availablePhoneNumbers: () => ({ local: { list } }) }),
+    () => ({ incomingPhoneNumbers: { create } }),
     { validateRequest: () => true }
   ),
 }));
 
-import { isFrenchE164, isNumberStillAvailable, isOffered } from "./twilio";
+import { isFrenchE164, PhoneNumberUnavailableError, purchasePhoneNumber } from "./twilio";
 
 describe("isFrenchE164", () => {
   it("accepte les numéros français au format E.164", () => {
@@ -27,36 +27,37 @@ describe("isFrenchE164", () => {
   });
 });
 
-describe("isOffered", () => {
-  it("exige une correspondance exacte", () => {
-    const offered = [{ phoneNumber: "+33123456789" }];
-    expect(isOffered(offered, "+33123456789")).toBe(true);
-    expect(isOffered(offered, "+33123456780")).toBe(false);
-  });
-});
-
-describe("isNumberStillAvailable", () => {
+describe("purchasePhoneNumber", () => {
   beforeEach(() => {
     vi.stubEnv("TWILIO_ACCOUNT_SID", "AC00");
     vi.stubEnv("TWILIO_API_KEY_SID", "SK00");
     vi.stubEnv("TWILIO_API_KEY_SECRET", "secret");
-    list.mockReset();
+    create.mockReset();
   });
   afterEach(() => vi.unstubAllEnvs());
 
-  it("interroge Twilio et confirme un numéro toujours proposé", async () => {
-    list.mockResolvedValue([{ phoneNumber: "+33123456789" }]);
-    await expect(isNumberStillAvailable("+33123456789")).resolves.toBe(true);
-    expect(list).toHaveBeenCalledWith({ contains: "33123456789", limit: 5 });
+  it("achète le numéro demandé sans recherche préalable", async () => {
+    create.mockResolvedValue({ sid: "PN1", phoneNumber: "+33123456789" });
+    await expect(purchasePhoneNumber("+33123456789")).resolves.toEqual({
+      sid: "PN1",
+      phoneNumber: "+33123456789",
+    });
+    expect(create).toHaveBeenCalledWith(expect.objectContaining({ phoneNumber: "+33123456789" }));
   });
 
-  it("refuse un numéro que Twilio ne propose plus", async () => {
-    list.mockResolvedValue([{ phoneNumber: "+33123456780" }]);
-    await expect(isNumberStillAvailable("+33123456789")).resolves.toBe(false);
+  it("traduit l'erreur Twilio 21422 en numéro indisponible", async () => {
+    create.mockRejectedValue(Object.assign(new Error("PhoneNumber is not available"), { code: 21422 }));
+    await expect(purchasePhoneNumber("+33123456789")).rejects.toBeInstanceOf(PhoneNumberUnavailableError);
   });
 
-  it("refuse un numéro non français sans interroger Twilio", async () => {
-    await expect(isNumberStillAvailable("+442079460958")).resolves.toBe(false);
-    expect(list).not.toHaveBeenCalled();
+  it("laisse remonter les autres erreurs Twilio", async () => {
+    const other = Object.assign(new Error("Authenticate"), { code: 20003 });
+    create.mockRejectedValue(other);
+    await expect(purchasePhoneNumber("+33123456789")).rejects.toBe(other);
+  });
+
+  it("refuse un numéro non français sans appeler Twilio", async () => {
+    await expect(purchasePhoneNumber("+442079460958")).rejects.toThrow();
+    expect(create).not.toHaveBeenCalled();
   });
 });

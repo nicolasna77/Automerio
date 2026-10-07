@@ -1,12 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { sendMessengerMessage } from "@/lib/messenger";
 import { validateMetaSignature, verifyMetaWebhookChallenge } from "@/lib/meta";
-import {
-  findLiveClientService,
-  handleInboundMessage,
-  parseWebhookBody,
-  type LiveClientService,
-} from "@/lib/inbound-message-guard";
+import { parseWebhookBody, processInboundBatch, type PendingInboundMessage } from "@/lib/inbound-message-guard";
+
+// Les réponses (OpenAI, envoi Meta) partent après l'accusé de réception.
+export const maxDuration = 60;
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -43,35 +41,31 @@ export async function POST(request: Request) {
   if (!payload) return new NextResponse("Bad Request", { status: 400 });
 
   // Meta peut regrouper plusieurs comptes et plusieurs messages dans un envoi.
-  const services = new Map<string, LiveClientService | null>();
+  // Accusé de réception immédiat : Meta relivre l'envoi si la réponse tarde, et
+  // claimInboundMessage écarte les doublons par l'identifiant du message.
+  const messages: PendingInboundMessage[] = [];
   for (const entry of payload.entry ?? []) {
     for (const event of entry.messaging ?? []) {
       const pageId = event.recipient?.id;
       const senderId = event.sender?.id;
       const message = event.message;
       if (!pageId || !senderId || !message?.mid || !message.text || message.is_echo) continue;
-
-      if (!services.has(pageId)) {
-        services.set(pageId, await findLiveClientService("MESSENGER", pageId));
-      }
-      const clientService = services.get(pageId);
-      if (!clientService) continue;
-
-      await handleInboundMessage({
-        clientService,
-        channel: "MESSENGER",
-        contactId: senderId,
-        text: message.text,
-        externalId: message.mid,
-        usageType: "messenger_message",
-        send: async (replyText) => {
-          if (!clientService.facebookPageAccessToken) return false;
-          await sendMessengerMessage(pageId, senderId, replyText, clientService.facebookPageAccessToken);
-          return true;
-        },
-      });
+      messages.push({ accountId: pageId, contactId: senderId, text: message.text, externalId: message.mid });
     }
   }
+
+  after(() =>
+    processInboundBatch({
+      channel: "MESSENGER",
+      usageType: "messenger_message",
+      messages,
+      send: async (clientService, message, replyText) => {
+        if (!clientService.facebookPageAccessToken) return false;
+        await sendMessengerMessage(message.accountId, message.contactId, replyText, clientService.facebookPageAccessToken);
+        return true;
+      },
+    })
+  );
 
   return NextResponse.json({ received: true });
 }

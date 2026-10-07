@@ -54,22 +54,38 @@ function windowToMs(window: Window): number {
   return Number(amount) * UNIT_MS[unit];
 }
 
-const MAX_MEMORY_KEYS = 10_000;
-const memoryHits = new Map<string, number[]>();
+export const MAX_MEMORY_KEYS = 10_000;
+
+// Chaque clé garde sa propre fenêtre : une entrée n'expire qu'une fois son
+// dernier passage sorti de SA fenêtre (24 h pour un plafond quotidien), pas
+// au bout d'une durée fixe commune à toutes les limites.
+type MemoryEntry = { hits: number[]; windowMs: number };
+const memoryHits = new Map<string, MemoryEntry>();
+
+function expiresAt(entry: MemoryEntry): number {
+  return (entry.hits[entry.hits.length - 1] ?? 0) + entry.windowMs;
+}
 
 function pruneMemory(now: number) {
   if (memoryHits.size < MAX_MEMORY_KEYS) return;
-  for (const [key, hits] of memoryHits) {
-    if (hits.every((t) => now - t > UNIT_MS.h)) memoryHits.delete(key);
+  for (const [key, entry] of memoryHits) {
+    if (expiresAt(entry) <= now) memoryHits.delete(key);
   }
+  if (memoryHits.size < MAX_MEMORY_KEYS) return;
+  // Plafond dur : on évince d'abord les entrées qui expirent le plus tôt, et
+  // on descend à 90 % pour ne pas retrier la table à chaque appel.
+  const target = Math.floor(MAX_MEMORY_KEYS * 0.9);
+  const byExpiry = [...memoryHits].sort(([, a], [, b]) => expiresAt(a) - expiresAt(b));
+  for (const [key] of byExpiry.slice(0, memoryHits.size - target)) memoryHits.delete(key);
 }
 
 export function memoryRateLimit(key: string, windowMs: number, max: number, now = Date.now()): boolean {
   pruneMemory(now);
-  const hits = (memoryHits.get(key) ?? []).filter((t) => now - t < windowMs);
+  const hits = (memoryHits.get(key)?.hits ?? []).filter((t) => now - t < windowMs);
   const allowed = hits.length < max;
   if (allowed) hits.push(now);
-  memoryHits.set(key, hits);
+  if (hits.length > 0) memoryHits.set(key, { hits, windowMs });
+  else memoryHits.delete(key);
   return allowed;
 }
 

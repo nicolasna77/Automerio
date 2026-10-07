@@ -1406,7 +1406,13 @@
       "bookings": "Rendez-vous et commandes reçus",
       "aside": "Abonnement",
       "calls": "Appels reçus",
-      "forwarding": "Recevoir vos appels"
+      "forwarding": "Recevoir vos appels",
+      "instagramError": {
+        "title": "Connexion à Instagram impossible",
+        "description": "Réessayez depuis la carte Mise en service, ou contactez-nous si le problème persiste.",
+        "inUseTitle": "Compte Instagram déjà utilisé",
+        "inUseDescription": "Ce compte Instagram est déjà relié à une autre solution. Déconnectez-le de celle-ci, ou connectez un autre compte."
+      }
     },
     "facts": {
       "usageCap": "Plafond d'usage",
@@ -2143,7 +2149,8 @@
     "whatsappAccountMismatch": "Ce numéro WhatsApp n'appartient pas au compte Meta connecté. Recommencez la connexion.",
     "whatsappNumberInUse": "Ce numéro WhatsApp est déjà relié à une autre solution.",
     "facebookPageInUse": "Cette Page Facebook est déjà reliée à une autre solution.",
-    "avatarInvalid": "Cette photo n'est pas acceptée : choisissez une image JPEG, PNG ou WebP de moins de 150 Ko."
+    "avatarInvalid": "Cette photo n'est pas acceptée : choisissez une image JPEG, PNG ou WebP de moins de 150 Ko.",
+    "leaveSoleOwner": "Vous êtes le seul propriétaire de cette organisation et d'autres membres y restent. Transmettez-en la propriété à un membre (page Équipe) avant de la quitter."
   },
   "Labels": {
     "status": {

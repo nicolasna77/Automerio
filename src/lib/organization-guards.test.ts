@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   decideInvitation,
+  decideLeave,
   decideRemoval,
   decideRoleChange,
   type TeamRow,
@@ -75,5 +76,33 @@ describe("decideRemoval", () => {
 
   it("laisse better-auth répondre pour une cible inconnue", () => {
     expect(decideRemoval(team, admin.userId, "personne@x.fr")).toBeNull();
+  });
+});
+
+describe("decideLeave", () => {
+  it("laisse better-auth répondre quand le membre est inconnu", () => {
+    expect(decideLeave(team, "u-inconnu")).toBeNull();
+  });
+
+  it("refuse que le seul propriétaire quitte une organisation où d'autres restent", () => {
+    expect(decideLeave(team, owner.userId)).toEqual({ ok: false, key: "leaveSoleOwner" });
+    expect(decideLeave([{ ...owner, role: "owner,admin" }, member], owner.userId)).toEqual({
+      ok: false,
+      key: "leaveSoleOwner",
+    });
+  });
+
+  it("autorise un propriétaire à partir quand un autre propriétaire reste", () => {
+    const coOwner: TeamRow = { id: "m-owner2", userId: "u-owner2", role: "owner", email: "o2@x.fr" };
+    expect(decideLeave([...team, coOwner], owner.userId)).toEqual({ ok: true });
+  });
+
+  it("autorise un responsable ou un collaborateur à partir", () => {
+    expect(decideLeave(team, admin.userId)).toEqual({ ok: true });
+    expect(decideLeave(team, member.userId)).toEqual({ ok: true });
+  });
+
+  it("ne bloque pas le dernier membre (better-auth refuse lui-même le départ du seul propriétaire)", () => {
+    expect(decideLeave([owner], owner.userId)).toEqual({ ok: true });
   });
 });

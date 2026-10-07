@@ -4,12 +4,10 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import { actionError, runAction } from "@/lib/run-action";
+import { hasOrganizationRole } from "@/lib/organization-roles";
 
 const BLOCKING_STATUSES = ["PENDING_PAYMENT", "CONFIGURING", "ACTIVE"] as const;
 
-function isOwnerRole(role: string): boolean {
-  return role.split(",").some((part) => part.trim() === "owner");
-}
 
 export async function deleteOrganizationAction(organizationId: string) {
   return runAction(async () => {
@@ -23,7 +21,7 @@ export async function deleteOrganizationAction(organizationId: string) {
     if (!membership) throw actionError("noOrganizationAccess");
     // Vérifié avant toute écriture : un simple membre ne doit rien pouvoir
     // effacer, pas même l'historique des solutions résiliées.
-    if (!isOwnerRole(membership.role)) throw actionError("organizationDeleteOwnerOnly");
+    if (!hasOrganizationRole(membership.role, "owner")) throw actionError("organizationDeleteOwnerOnly");
     if (organizationCount <= 1) throw actionError("keepOneOrganization");
 
     // ClientService.organization est en onDelete: Restrict : les solutions

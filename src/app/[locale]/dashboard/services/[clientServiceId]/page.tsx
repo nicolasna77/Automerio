@@ -49,9 +49,9 @@ export default async function ServiceDetailPage({
   searchParams,
 }: {
   params: Promise<{ clientServiceId: string }>;
-  searchParams: Promise<{ calendar?: string }>;
+  searchParams: Promise<{ calendar?: string; instagram?: string }>;
 }) {
-  const [{ clientServiceId }, { calendar }, session, { active: organization }, t, labels] = await Promise.all([
+  const [{ clientServiceId }, { calendar, instagram }, session, { active: organization }, t, labels] = await Promise.all([
     params,
     searchParams,
     requireUser(),
@@ -87,6 +87,10 @@ export default async function ServiceDetailPage({
   const hasMainColumn =
     showSetup || (isLive && Boolean(item.externalPhoneNumber)) || showBookings || isMessaging;
   const showProgress = item.status !== "ACTIVE" && item.status !== "CANCELED";
+  // Retour de Meta en échec (?instagram=error|in-use), tant que le compte
+  // n'est pas connecté.
+  const instagramFailure =
+    !item.instagramConnected && (instagram === "error" || instagram === "in-use") ? instagram : null;
 
   const { scheduled: scheduledBookings, unscheduled: unscheduledBookings } =
     toCalendarBookings(item.bookings, {
@@ -168,13 +172,26 @@ export default async function ServiceDetailPage({
         </Alert>
       )}
 
-      {(calendar === "error" || item.adminNote) && (
+      {(calendar === "error" || instagramFailure || item.adminNote) && (
         <div className="mt-6 space-y-3">
           {calendar === "error" && (
             <Alert variant="destructive">
               <AlertTriangle aria-hidden="true" />
               <AlertTitle>{t("calendarError.title")}</AlertTitle>
               <AlertDescription>{t("calendarError.description")}</AlertDescription>
+            </Alert>
+          )}
+          {instagramFailure && (
+            <Alert variant="destructive">
+              <AlertTriangle aria-hidden="true" />
+              <AlertTitle>
+                {instagramFailure === "in-use" ? t("instagramError.inUseTitle") : t("instagramError.title")}
+              </AlertTitle>
+              <AlertDescription>
+                {instagramFailure === "in-use"
+                  ? t("instagramError.inUseDescription")
+                  : t("instagramError.description")}
+              </AlertDescription>
             </Alert>
           )}
           {item.adminNote && (

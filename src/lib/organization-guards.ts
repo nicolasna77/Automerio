@@ -7,6 +7,7 @@ import {
   canChangeRole,
   canInvite,
   canRemoveMember,
+  hasOrganizationRole,
   isInvitableRole,
   type TeamMember,
   type Verdict,
@@ -14,7 +15,7 @@ import {
 
 export type TeamRow = TeamMember & { id: string; email: string };
 
-export type GuardDecision = Verdict | { ok: false; key: "roleNotAllowed" };
+export type GuardDecision = Verdict | { ok: false; key: "roleNotAllowed" | "leaveSoleOwner" };
 
 // `null` : membre introuvable, better-auth répondra lui-même par son erreur.
 export function decideInvitation(actor: TeamMember | undefined, role: string): GuardDecision | null {
@@ -52,6 +53,20 @@ export function decideRemoval(
     : team.find((m) => m.id === memberIdOrEmail);
   if (!actor || !target) return null;
   return canRemoveMember(actor, target, team);
+}
+
+// Même règle que la suppression de compte (decideOrganizationDeletion dans
+// account-deletion.ts) : le seul propriétaire ne quitte pas une organisation
+// où d'autres membres restent sans en avoir transmis la propriété.
+export function decideLeave(team: TeamRow[], actorUserId: string): GuardDecision | null {
+  const actor = team.find((m) => m.userId === actorUserId);
+  if (!actor) return null;
+  const others = team.filter((m) => m.userId !== actorUserId);
+  const isOwner = (m: TeamRow) => hasOrganizationRole(m.role, "owner");
+  if (isOwner(actor) && others.length > 0 && !others.some(isOwner)) {
+    return { ok: false, key: "leaveSoleOwner" };
+  }
+  return { ok: true };
 }
 
 function splitRoles(role: string | string[]): string[] {

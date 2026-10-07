@@ -1,12 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { sendWhatsAppMessage } from "@/lib/whatsapp";
 import { validateMetaSignature, verifyMetaWebhookChallenge } from "@/lib/meta";
-import {
-  findLiveClientService,
-  handleInboundMessage,
-  parseWebhookBody,
-  type LiveClientService,
-} from "@/lib/inbound-message-guard";
+import { parseWebhookBody, processInboundBatch, type PendingInboundMessage } from "@/lib/inbound-message-guard";
+
+// Les réponses (OpenAI, envoi Meta) partent après l'accusé de réception.
+export const maxDuration = 60;
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -48,7 +46,9 @@ export async function POST(request: Request) {
   if (!payload) return new NextResponse("Bad Request", { status: 400 });
 
   // Meta peut regrouper plusieurs comptes et plusieurs messages dans un envoi.
-  const services = new Map<string, LiveClientService | null>();
+  // Accusé de réception immédiat : Meta relivre l'envoi si la réponse tarde, et
+  // claimInboundMessage écarte les doublons par l'identifiant du message.
+  const messages: PendingInboundMessage[] = [];
   for (const entry of payload.entry ?? []) {
     for (const change of entry.changes ?? []) {
       const phoneNumberId = change.value?.metadata?.phone_number_id;
@@ -56,28 +56,22 @@ export async function POST(request: Request) {
 
       for (const message of change.value?.messages ?? []) {
         if (message.type !== "text" || !message.text?.body || !message.id || !message.from) continue;
-
-        if (!services.has(phoneNumberId)) {
-          services.set(phoneNumberId, await findLiveClientService("WHATSAPP", phoneNumberId));
-        }
-        const clientService = services.get(phoneNumberId);
-        if (!clientService) continue;
-
-        await handleInboundMessage({
-          clientService,
-          channel: "WHATSAPP",
-          contactId: message.from,
-          text: message.text.body,
-          externalId: message.id,
-          usageType: "whatsapp_message",
-          send: async (replyText) => {
-            await sendWhatsAppMessage(phoneNumberId, message.from, replyText, clientService.whatsappAccessToken);
-            return true;
-          },
-        });
+        messages.push({ accountId: phoneNumberId, contactId: message.from, text: message.text.body, externalId: message.id });
       }
     }
   }
+
+  after(() =>
+    processInboundBatch({
+      channel: "WHATSAPP",
+      usageType: "whatsapp_message",
+      messages,
+      send: async (clientService, message, replyText) => {
+        await sendWhatsAppMessage(message.accountId, message.contactId, replyText, clientService.whatsappAccessToken);
+        return true;
+      },
+    })
+  );
 
   return NextResponse.json({ received: true });
 }

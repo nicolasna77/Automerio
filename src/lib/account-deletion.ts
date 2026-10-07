@@ -1,3 +1,4 @@
+import { hasOrganizationRole } from "@/lib/organization-roles";
 import { APIError } from "better-auth/api";
 import { getTranslations } from "next-intl/server";
 import { routing } from "@/i18n/routing";
@@ -26,10 +27,6 @@ export type OrganizationDeletionDecision =
   | { organizationId: string; action: "reassign"; newUserId: string }
   | { organizationId: string; action: "release" };
 
-function hasRole(role: string, expected: string): boolean {
-  return role.split(",").some((part) => part.trim() === expected);
-}
-
 // Successeur des solutions du compte supprimé : un propriétaire, sinon un
 // responsable, sinon le membre le plus ancien.
 export function chooseSuccessor(
@@ -40,8 +37,8 @@ export function chooseSuccessor(
     .filter((m) => m.userId !== departingUserId)
     .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
   return (
-    others.find((m) => hasRole(m.role, "owner")) ??
-    others.find((m) => hasRole(m.role, "admin")) ??
+    others.find((m) => hasOrganizationRole(m.role, "owner")) ??
+    others.find((m) => hasOrganizationRole(m.role, "admin")) ??
     others[0] ??
     null
   );
@@ -58,8 +55,8 @@ export function decideOrganizationDeletion(
 
   const isSoleOwner =
     departing !== undefined &&
-    hasRole(departing.role, "owner") &&
-    !others.some((m) => hasRole(m.role, "owner"));
+    hasOrganizationRole(departing.role, "owner") &&
+    !others.some((m) => hasOrganizationRole(m.role, "owner"));
   if (isSoleOwner) return { organizationId, action: "blocked" };
 
   const successor = chooseSuccessor(departingUserId, members);

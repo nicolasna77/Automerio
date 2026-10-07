@@ -1,8 +1,10 @@
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto";
 
 // Chiffrement transparent des jetons de tiers gardés en base (WhatsApp,
-// Messenger, Instagram, Google Agenda, connexion Google de better-auth) : une
-// fuite de la base ne doit pas donner accès aux comptes des clients.
+// Messenger, Instagram, Google Agenda) : une fuite de la base ne doit pas
+// donner accès aux comptes des clients. Les jetons de connexion Google de la
+// table Account sont chiffrés par better-auth lui-même
+// (`account.encryptOAuthTokens`), pas par ce module.
 //
 // AES-256-GCM, valeur stockée sous la forme `enc:v1:<iv>:<tag>:<chiffré>`
 // (base64url). Le préfixe permet de lire telle quelle une valeur encore en
@@ -19,7 +21,6 @@ export const ENCRYPTED_PREFIX = "enc:v1:";
 export const ENCRYPTED_FIELDS: Readonly<Record<string, readonly string[]>> = {
   ClientService: ["whatsappAccessToken", "facebookPageAccessToken", "instagramAccessToken"],
   CalendarConnection: ["accessToken", "refreshToken"],
-  Account: ["accessToken", "refreshToken", "idToken"],
 };
 
 type Source = Record<string, string | undefined>;
@@ -101,12 +102,16 @@ export function decryptToken(stored: string, key: Buffer = resolveTokenKey()): s
 
 // --- Parcours des arguments et des résultats Prisma -------------------------
 
-// Pour chaque modèle : ses champs chiffrés et ses relations (champ -> modèle
-// cible). Construit depuis `Prisma.dmmf` dans db.ts, à la main dans les tests.
-export type ModelSchema = Record<
-  string,
-  { encrypted: ReadonlySet<string>; relations: ReadonlyMap<string, string> }
->;
+// Pour chaque modèle : ses champs chiffrés, ses relations (champ -> modèle
+// cible) et, parmi elles, celles qui mènent à un champ chiffré (`descend`) :
+// seules ces dernières sont parcourues à la lecture. Construit depuis
+// `Prisma.dmmf` dans db.ts, à la main dans les tests.
+export type ModelDef = {
+  encrypted: ReadonlySet<string>;
+  relations: ReadonlyMap<string, string>;
+  descend: ReadonlyMap<string, string>;
+};
+export type ModelSchema = Record<string, ModelDef>;
 
 type DmmfModel = {
   name: string;
@@ -114,13 +119,21 @@ type DmmfModel = {
 };
 
 export function buildModelSchema(models: readonly DmmfModel[]): ModelSchema {
-  const schema: ModelSchema = {};
+  const base: Record<string, Omit<ModelDef, "descend">> = {};
   for (const model of models) {
-    schema[model.name] = {
+    base[model.name] = {
       encrypted: new Set(ENCRYPTED_FIELDS[model.name] ?? []),
       relations: new Map(
         model.fields.filter((f) => f.kind === "object").map((f) => [f.name, f.type])
       ),
+    };
+  }
+  const reaching = reachingModels(base);
+  const schema: ModelSchema = {};
+  for (const [name, def] of Object.entries(base)) {
+    schema[name] = {
+      ...def,
+      descend: new Map([...def.relations].filter(([, target]) => reaching.has(target))),
     };
   }
   return schema;
@@ -129,6 +142,10 @@ export function buildModelSchema(models: readonly DmmfModel[]): ModelSchema {
 // Modèles depuis lesquels un champ chiffré est atteignable (directement ou par
 // une relation incluse) : les autres requêtes ne sont pas parcourues.
 export function modelsReachingEncrypted(schema: ModelSchema): Set<string> {
+  return reachingModels(schema);
+}
+
+function reachingModels(schema: Record<string, Omit<ModelDef, "descend">>): Set<string> {
   const reaching = new Set(
     Object.keys(schema).filter((name) => schema[name].encrypted.size > 0)
   );
@@ -262,21 +279,51 @@ export function encryptWriteArgs<T>(
 
 // Déchiffre, en place, les champs chiffrés d'un résultat (et des relations
 // incluses). Les valeurs encore en clair sont laissées telles quelles.
+//
+// Seuls les champs chiffrés et les relations menant à un champ chiffré
+// (`descend`) présents dans la ligne sont visités : le coût ne dépend pas de la
+// largeur des lignes ni des relations sans jeton.
+//
+// Un jeton indéchiffrable (clé changée ou absente, préview partageant la base
+// avec une autre clé, valeur altérée) est rendu `null` : l'intégration apparaît
+// déconnectée au lieu de faire échouer toute requête qui touche la ligne
+// (tableaux de bord, webhooks, connexion). L'erreur est journalisée une fois
+// par modèle et champ, sans le contenu du jeton. L'écriture, elle, continue de
+// lever : un jeton ne doit jamais être stocké en clair faute de clé.
 export function decryptResult(schema: ModelSchema, model: string, result: unknown, key: () => Buffer): void {
   const def = schema[model];
-  if (!def) return;
+  if (!def || result === null || typeof result !== "object") return;
+  if (def.encrypted.size === 0 && def.descend.size === 0) return;
   eachItem(result, (row) => {
-    for (const [field, value] of Object.entries(row)) {
-      if (def.encrypted.has(field)) {
-        if (typeof value === "string" && isEncrypted(value)) row[field] = decryptToken(value, key());
-      } else if (def.relations.has(field)) {
-        decryptResult(schema, def.relations.get(field)!, value, key);
+    for (const field of def.encrypted) {
+      const value = row[field];
+      if (typeof value !== "string" || !isEncrypted(value)) continue;
+      try {
+        row[field] = decryptToken(value, key());
+      } catch (err) {
+        row[field] = null;
+        reportDecryptFailure(model, field, err);
       }
+    }
+    for (const [field, target] of def.descend) {
+      const value = row[field];
+      if (value !== null && typeof value === "object") decryptResult(schema, target, value, key);
     }
   });
 }
 
-// Test-only : réarme l'avertissement de clé de repli.
+const reportedFailures = new Set<string>();
+
+function reportDecryptFailure(model: string, field: string, err: unknown): void {
+  const id = `${model}.${field}`;
+  if (reportedFailures.has(id)) return;
+  reportedFailures.add(id);
+  const reason = err instanceof TokenEncryptionError ? err.message : "erreur inattendue";
+  console.error(`[encrypted-fields] ${id} illisible, renvoyé à null (intégration vue comme déconnectée) : ${reason}`);
+}
+
+// Test-only : réarme l'avertissement de clé de repli et les erreurs de lecture.
 export function resetFallbackWarningForTests(): void {
   warnedFallback = false;
+  reportedFailures.clear();
 }

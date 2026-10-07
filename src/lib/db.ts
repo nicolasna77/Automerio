@@ -12,7 +12,10 @@ import {
 // chiffrés à l'écriture et déchiffrés à la lecture par l'extension ci-dessous,
 // relations incluses : le reste du code les lit et les écrit en clair. Un
 // filtre `where` sur l'un de ces champs ne trouverait rien, et $queryRaw les
-// renvoie chiffrés.
+// renvoie chiffrés. Un jeton indéchiffrable est lu `null` (journalisé) au lieu
+// de faire échouer la requête ; une écriture sans clé utilisable, elle, échoue.
+// Les jetons de la table Account sont chiffrés par better-auth
+// (`account.encryptOAuthTokens`), pas ici.
 const schema = buildModelSchema(Prisma.dmmf.datamodel.models);
 const reaching = modelsReachingEncrypted(schema);
 

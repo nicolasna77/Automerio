@@ -1,6 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  ENCRYPTED_FIELDS,
   ENCRYPTED_PREFIX,
   buildModelSchema,
   decryptResult,
@@ -216,6 +217,65 @@ describe("decryptResult", () => {
       decryptResult(schema, "ClientService", { whatsappAccessToken: "clair" }, noKey)
     ).not.toThrow();
     expect(() => decryptResult(schema, "ClientService", null, noKey)).not.toThrow();
+  });
+});
+
+describe("decryptResult : jeton illisible", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    resetFallbackWarningForTests();
+  });
+
+  it("renvoie null au lieu de lever, et journalise une fois par champ sans le jeton", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const other = randomBytes(32);
+    const rows = [
+      { whatsappAccessToken: encryptToken("secret-1", other), instagramAccessToken: encryptToken("ig", key) },
+      { whatsappAccessToken: encryptToken("secret-2", other), instagramAccessToken: "clair" },
+    ];
+    expect(() => decryptResult(schema, "ClientService", rows, getKey)).not.toThrow();
+    expect(rows[0].whatsappAccessToken).toBeNull();
+    expect(rows[1].whatsappAccessToken).toBeNull();
+    expect(rows[0].instagramAccessToken).toBe("ig");
+    expect(error).toHaveBeenCalledTimes(1);
+    expect(String(error.mock.calls[0][0])).toContain("ClientService.whatsappAccessToken");
+    expect(String(error.mock.calls[0][0])).not.toContain("secret");
+  });
+
+  it("renvoie null aussi quand la clé elle-même est introuvable", () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const row = { calendarConnection: { accessToken: encryptToken("a", key) } };
+    const noKey = () => {
+      throw new Error("TOKEN_ENCRYPTION_KEY manquante");
+    };
+    expect(() => decryptResult(schema, "ClientService", row, noKey)).not.toThrow();
+    expect(row.calendarConnection.accessToken).toBeNull();
+  });
+});
+
+describe("decryptResult : parcours limité", () => {
+  it("ne lit ni les champs ordinaires ni les relations sans jeton", () => {
+    const row: Record<string, unknown> = { whatsappAccessToken: "clair" };
+    for (const name of ["id", "notes", "organization"]) {
+      Object.defineProperty(row, name, {
+        enumerable: true,
+        get() {
+          throw new Error(`champ ${name} lu`);
+        },
+      });
+    }
+    expect(() => decryptResult(schema, "ClientService", row, getKey)).not.toThrow();
+  });
+
+  it("ne descend que dans les relations qui mènent à un champ chiffré", () => {
+    expect([...schema.ClientService.descend.keys()].sort()).toEqual(["bookings", "calendarConnection"]);
+    expect([...schema.SchedulingConnection.descend.keys()]).toEqual([]);
+  });
+});
+
+describe("ENCRYPTED_FIELDS", () => {
+  it("laisse la table Account à better-auth (encryptOAuthTokens)", () => {
+    expect(ENCRYPTED_FIELDS).not.toHaveProperty("Account");
   });
 });
 

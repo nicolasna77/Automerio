@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { CLEARED_META_CONNECTION, isUniqueViolation } from "@/lib/meta-connection";
 import { getTranslations } from "next-intl/server";
 import { settingsHiddenKeys } from "./field-categories";
 import { Prisma } from "@prisma/client";
@@ -17,7 +18,7 @@ import {
 import { logServiceEvent } from "@/lib/service-events";
 import {
   isFrenchE164,
-  isNumberStillAvailable,
+  PhoneNumberUnavailableError,
   purchasePhoneNumber,
   releasePhoneNumber,
   searchAvailableNumbers,
@@ -102,10 +103,6 @@ async function requireBillingRoleOn(
   if (!canManageClientServiceBilling(clientService, viewer)) {
     throw actionError("managersOnly");
   }
-}
-
-function isUniqueViolation(err: unknown): boolean {
-  return err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002";
 }
 
 const appUrl = () =>
@@ -719,7 +716,9 @@ async function requireOwnedTelephonyService(
 
 const PHONE_SEARCHES_PER_HOUR_PER_USER = 30;
 const PHONE_PURCHASES_PER_DAY_PER_ORGANIZATION = 3;
+const PHONE_PURCHASE_ATTEMPTS_PER_HOUR_PER_ORGANIZATION = 10;
 const MAX_PHONE_NUMBERS_PER_ORGANIZATION = 10;
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 export async function searchPhoneNumbers(clientServiceId: string) {
   return runAction(async () => {
@@ -750,21 +749,39 @@ export async function purchasePhoneNumberForService(
     if (numbersInOrganization >= MAX_PHONE_NUMBERS_PER_ORGANIZATION) {
       throw actionError("phoneNumberCapReached", { max: MAX_PHONE_NUMBERS_PER_ORGANIZATION });
     }
+    // Le quota quotidien compte les achats réussis (événements PHONE_ASSIGNED
+    // des dernières 24 h), pas les tentatives : un numéro parti entre-temps ou
+    // une erreur Twilio ne doit pas bloquer l'organisation pour la journée.
+    const purchasesToday = await db.serviceEvent.count({
+      where: {
+        type: "PHONE_ASSIGNED",
+        createdAt: { gte: new Date(Date.now() - DAY_MS) },
+        clientService: { organizationId },
+      },
+    });
+    if (purchasesToday >= PHONE_PURCHASES_PER_DAY_PER_ORGANIZATION) {
+      throw actionError("tooManyNumberPurchases");
+    }
+    // Garde-fou contre le martèlement de l'API Twilio, large pour laisser
+    // plusieurs essais après des numéros devenus indisponibles.
     if (
       !(await checkRateLimit(
-        "phone-purchase",
+        "phone-purchase-attempt",
         organizationId,
-        "24 h",
-        PHONE_PURCHASES_PER_DAY_PER_ORGANIZATION
+        "1 h",
+        PHONE_PURCHASE_ATTEMPTS_PER_HOUR_PER_ORGANIZATION
       ))
     ) {
       throw actionError("tooManyNumberPurchases");
     }
-    if (!(await isNumberStillAvailable(phoneNumber))) {
-      throw actionError("numberNoLongerAvailable");
-    }
 
-    const purchased = await purchasePhoneNumber(phoneNumber);
+    let purchased: Awaited<ReturnType<typeof purchasePhoneNumber>>;
+    try {
+      purchased = await purchasePhoneNumber(phoneNumber);
+    } catch (err) {
+      if (err instanceof PhoneNumberUnavailableError) throw actionError("numberNoLongerAvailable");
+      throw err;
+    }
 
     const { count } = await db.clientService.updateMany({
       where: { id: clientServiceId, externalPhoneNumber: null },
@@ -813,6 +830,9 @@ export async function cancelService(clientServiceId: string) {
         canceledAt: new Date(),
         externalPhoneNumber: null,
         externalPhoneNumberSid: null,
+        // Libère le numéro WhatsApp, la page ou le compte Instagram : ils
+        // pourront être reliés à une nouvelle solution (identifiants uniques).
+        ...CLEARED_META_CONNECTION,
       },
     });
     await logServiceEvent(clientServiceId, "CANCELED");

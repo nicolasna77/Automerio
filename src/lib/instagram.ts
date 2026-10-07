@@ -6,6 +6,7 @@ import {
   type OAuthStateExpectation,
 } from "@/lib/oauth-state";
 import { logServiceEvent } from "@/lib/service-events";
+import { isUniqueViolation } from "@/lib/meta-connection";
 
 const INSTAGRAM_AUTH_URL = "https://www.instagram.com/oauth/authorize";
 const INSTAGRAM_TOKEN_URL = "https://api.instagram.com/oauth/access_token";
@@ -87,20 +88,39 @@ async function fetchInstagramUsername(userId: string, accessToken: string): Prom
   return data.username ?? null;
 }
 
+export class InstagramAccountInUseError extends Error {
+  constructor() {
+    super("Ce compte Instagram est déjà relié à une autre solution.");
+    this.name = "InstagramAccountInUseError";
+  }
+}
+
 export async function completeInstagramConnection(clientServiceId: string, code: string) {
   const shortLived = await exchangeShortLivedToken(code);
   const longLived = await exchangeForLongLivedToken(shortLived.access_token);
   const username = await fetchInstagramUsername(shortLived.user_id, longLived.access_token);
 
-  await db.clientService.update({
-    where: { id: clientServiceId },
-    data: {
-      instagramAccountId: shortLived.user_id,
-      instagramAccessToken: longLived.access_token,
-      instagramTokenExpiresAt: new Date(Date.now() + longLived.expires_in * 1000),
-      instagramUsername: username,
-    },
+  // Un compte Instagram ne sert qu'une solution à la fois (index unique) :
+  // contrôle préalable pour un message clair, et P2002 en cas de course.
+  const alreadyUsed = await db.clientService.findFirst({
+    where: { instagramAccountId: shortLived.user_id, id: { not: clientServiceId } },
+    select: { id: true },
   });
+  if (alreadyUsed) throw new InstagramAccountInUseError();
+
+  await db.clientService
+    .update({
+      where: { id: clientServiceId },
+      data: {
+        instagramAccountId: shortLived.user_id,
+        instagramAccessToken: longLived.access_token,
+        instagramTokenExpiresAt: new Date(Date.now() + longLived.expires_in * 1000),
+        instagramUsername: username,
+      },
+    })
+    .catch((err) => {
+      throw isUniqueViolation(err) ? new InstagramAccountInUseError() : err;
+    });
   await logServiceEvent(clientServiceId, "INSTAGRAM_CONNECTED", username);
 }
 

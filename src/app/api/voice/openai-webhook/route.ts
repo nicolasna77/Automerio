@@ -19,6 +19,7 @@ import { TEST_SIP_HEADER, readDemoCallId } from "@/lib/demo-call";
 import type { TranscriptTurn } from "@/lib/voice-agent/call-transcript";
 import { buildDemoPrompt } from "@/lib/voice-agent/demo-prompt";
 import { loadDemoCatalog } from "@/lib/voice-agent/demo-catalog";
+import { parseToolArguments } from "@/lib/messaging-agent";
 
 export const maxDuration = 800;
 
@@ -216,14 +217,7 @@ function listenToCall({
       if (!toolCallId || !toolName) return;
 
       const pending = (async () => {
-        let args: Record<string, unknown> = {};
-        try {
-          const parsed: unknown = JSON.parse(realtimeEvent.arguments || "{}");
-          if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-            args = parsed as Record<string, unknown>;
-          }
-        } catch {
-        }
+        const args = parseToolArguments(realtimeEvent.arguments);
 
         const result = await runTool(toolName, args, {
           clientServiceId,

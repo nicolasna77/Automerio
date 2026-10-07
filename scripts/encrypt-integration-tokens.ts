@@ -3,6 +3,13 @@
 //
 //   npx tsx scripts/encrypt-integration-tokens.ts --dry-run   # compte seulement
 //   npx tsx scripts/encrypt-integration-tokens.ts             # chiffre
+//   npx tsx scripts/encrypt-integration-tokens.ts --decrypt-account [--dry-run]
+//
+// `--decrypt-account` (ponctuel) : remet en clair les jetons de la table Account
+// qu'une version précédente avait chiffrés au format `enc:v1:` ; ces jetons
+// sont désormais chiffrés par better-auth (`account.encryptOAuthTokens`), qui
+// ne sait pas lire ce format. À lancer une fois par base, avec la clé qui a
+// servi à les chiffrer.
 //
 // Idempotent : une valeur déjà préfixée `enc:v1:` est ignorée. Chaque ligne est
 // mise à jour à condition que ses jetons n'aient pas changé entre-temps : une
@@ -17,6 +24,7 @@ import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import {
   ENCRYPTED_FIELDS,
+  decryptToken,
   encryptToken,
   isEncrypted,
   resolveTokenKey,
@@ -24,6 +32,8 @@ import {
 
 const BATCH_SIZE = 200;
 const dryRun = process.argv.includes("--dry-run");
+const decryptAccount = process.argv.includes("--decrypt-account");
+const ACCOUNT_TOKEN_FIELDS = ["accessToken", "refreshToken", "idToken"] as const;
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
@@ -44,12 +54,22 @@ function delegateFor(model: string): Delegate {
   return (prisma as unknown as Record<string, Delegate>)[name];
 }
 
+type Transform = { label: string; select: (value: string) => boolean; apply: (value: string) => string };
+
 async function encryptModel(model: string, fields: readonly string[], key: Buffer) {
+  await transformModel(model, fields, {
+    label: "chiffrée(s)",
+    select: (value) => !isEncrypted(value),
+    apply: (value) => encryptToken(value, key),
+  });
+}
+
+async function transformModel(model: string, fields: readonly string[], transform: Transform) {
   const delegate = delegateFor(model);
   const select = Object.fromEntries([["id", true], ...fields.map((f) => [f, true])]) as Record<string, true>;
   let lastId: string | undefined;
   let scanned = 0;
-  let toEncrypt = 0;
+  let toProcess = 0;
   let updated = 0;
   let conflicts = 0;
 
@@ -65,19 +85,19 @@ async function encryptModel(model: string, fields: readonly string[], key: Buffe
     scanned += rows.length;
 
     for (const row of rows) {
-      const plain = fields.filter((f) => {
+      const pending = fields.filter((f) => {
         const value = row[f];
-        return typeof value === "string" && value !== "" && !isEncrypted(value);
+        return typeof value === "string" && value !== "" && transform.select(value);
       });
-      if (plain.length === 0) continue;
-      toEncrypt++;
+      if (pending.length === 0) continue;
+      toProcess++;
       if (dryRun) continue;
 
       const where: Record<string, unknown> = { id: row.id };
       const data: Record<string, string> = {};
-      for (const f of plain) {
+      for (const f of pending) {
         where[f] = row[f];
-        data[f] = encryptToken(row[f]!, key);
+        data[f] = transform.apply(row[f]!);
       }
       const { count } = await delegate.updateMany({ where, data });
       if (count === 1) updated++;
@@ -86,13 +106,23 @@ async function encryptModel(model: string, fields: readonly string[], key: Buffe
   }
 
   console.log(
-    `${model} : ${scanned} ligne(s) parcourue(s), ${toEncrypt} avec un jeton en clair` +
-      (dryRun ? " (simulation, rien n'est écrit)" : `, ${updated} chiffrée(s), ${conflicts} modifiée(s) entre-temps (relancer)`)
+    `${model} : ${scanned} ligne(s) parcourue(s), ${toProcess} à traiter` +
+      (dryRun
+        ? " (simulation, rien n'est écrit)"
+        : `, ${updated} ${transform.label}, ${conflicts} modifiée(s) entre-temps (relancer)`)
   );
 }
 
 async function main() {
   const key = resolveTokenKey();
+  if (decryptAccount) {
+    await transformModel("Account", ACCOUNT_TOKEN_FIELDS, {
+      label: "remise(s) en clair",
+      select: isEncrypted,
+      apply: (value) => decryptToken(value, key),
+    });
+    return;
+  }
   for (const [model, fields] of Object.entries(ENCRYPTED_FIELDS)) {
     await encryptModel(model, fields, key);
   }
