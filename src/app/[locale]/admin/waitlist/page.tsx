@@ -1,4 +1,5 @@
 import { Download, ListChecks } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { titleMetadata } from "@/i18n/metadata";
 import { Link } from "@/i18n/navigation";
 import { db } from "@/lib/db";
@@ -15,6 +16,7 @@ export const generateMetadata = titleMetadata("adminWaitlist");
 
 export default async function AdminWaitlistPage() {
   await requireAdmin();
+  const t = await getTranslations("Admin.waitlist");
 
   const entries = await db.waitlistEntry.findMany({ orderBy: { createdAt: "desc" } });
   const callbacks = entries.filter((e) => e.wantsCallback).length;
@@ -23,41 +25,38 @@ export default async function AdminWaitlistPage() {
   return (
     <PageShell size="wide">
       <PageHeader
-        title="Liste d'attente"
+        title={t("title")}
         description={
           <>
-            {entries.length} inscrit{entries.length > 1 ? "s" : ""} : {callbacks} à recontacter,{" "}
-            {newsletter} pour l&apos;annonce du lancement.{" "}
-            {isWaitlistMode()
-              ? "Le site est en mode présentation : seule la page d'accueil est ouverte."
-              : "Le site est ouvert : le formulaire n'est plus affiché."}
+            {t("summary", { count: entries.length, callbacks, newsletter })}{" "}
+            {isWaitlistMode() ? t("waitlistMode") : t("openMode")}
           </>
         }
         actions={
           entries.length > 0 ? (
             <Link href="/admin/export/waitlist" prefetch={false} className={buttonVariants({ variant: "outline" })}>
               <Download data-icon="inline-start" aria-hidden="true" />
-              Exporter en CSV
+              {t("export")}
             </Link>
           ) : null
         }
       />
 
       {entries.length === 0 ? (
-        <EmptyState icon={ListChecks} tone="neutral" title="Personne pour l'instant" description="Les inscriptions du formulaire de la page d'accueil apparaîtront ici." />
+        <EmptyState icon={ListChecks} tone="neutral" title={t("emptyTitle")} description={t("emptyDescription")} />
       ) : (
         <Card>
           <CardContent className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Inscrit le</TableHead>
-                  <TableHead>E-mail</TableHead>
-                  <TableHead>Nom</TableHead>
-                  <TableHead>Entreprise</TableHead>
-                  <TableHead>Téléphone</TableHead>
-                  <TableHead>À recontacter</TableHead>
-                  <TableHead>Lancement</TableHead>
+                  <TableHead>{t("columns.createdAt")}</TableHead>
+                  <TableHead>{t("columns.email")}</TableHead>
+                  <TableHead>{t("columns.name")}</TableHead>
+                  <TableHead>{t("columns.company")}</TableHead>
+                  <TableHead>{t("columns.phone")}</TableHead>
+                  <TableHead>{t("columns.callback")}</TableHead>
+                  <TableHead>{t("columns.launch")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -74,8 +73,8 @@ export default async function AdminWaitlistPage() {
                     <TableCell className="font-mono tabular-nums">
                       {entry.phone ? <a href={`tel:${entry.phone}`}>{entry.phone}</a> : ""}
                     </TableCell>
-                    <TableCell>{entry.wantsCallback ? "Oui" : "Non"}</TableCell>
-                    <TableCell>{entry.wantsNewsletter ? "Oui" : "Non"}</TableCell>
+                    <TableCell>{entry.wantsCallback ? t("yes") : t("no")}</TableCell>
+                    <TableCell>{entry.wantsNewsletter ? t("yes") : t("no")}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

@@ -8,7 +8,7 @@ import { getCatalog } from "@/lib/get-catalog";
 import { generateMarketingPosts } from "@/lib/marketing/agent";
 import { exceedsChannelLimit } from "@/lib/marketing/channels";
 import { detectUnsupportedClaims } from "@/lib/marketing/claims";
-import { ActionError, runAction } from "@/lib/run-action";
+import { actionError, runAction } from "@/lib/run-action";
 
 const RECENT_ANGLES_WINDOW = 30;
 
@@ -53,9 +53,9 @@ export async function updatePostAction(id: string, body: string) {
     await requireAdmin();
 
     const post = await db.marketingPost.findUnique({ where: { id }, select: { channel: true } });
-    if (!post) throw new ActionError("Publication introuvable.");
+    if (!post) throw actionError("marketingPostNotFound");
     if (exceedsChannelLimit(post.channel, body)) {
-      throw new ActionError("Le texte dépasse la limite de ce réseau.");
+      throw actionError("marketingPostTooLong");
     }
 
     await db.marketingPost.update({

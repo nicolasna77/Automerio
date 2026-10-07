@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { ShieldAlert } from "lucide-react";
 import { AdminSidebar } from "@/components/admin-sidebar";
@@ -19,7 +20,10 @@ export default async function AdminLayout({
     where: { id: session.user.id },
     select: { notificationsSeenAt: true, twoFactorEnabled: true },
   });
-  const notifications = await getAdminNotifications(viewer?.notificationsSeenAt ?? null);
+  const [notifications, t] = await Promise.all([
+    getAdminNotifications(viewer?.notificationsSeenAt ?? null),
+    getTranslations("Admin.layout"),
+  ]);
 
   return (
     <WorkspaceLayout
@@ -37,14 +41,16 @@ export default async function AdminLayout({
           <p className="mx-auto flex max-w-6xl items-start gap-2 text-sm text-foreground">
             <ShieldAlert className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
             <span>
-              Votre compte donne accès à tous les clients et paiements.{" "}
-              <Link
-                href="/dashboard/profile#two-factor"
-                className="font-medium underline underline-offset-4"
-              >
-                Activez la double authentification
-              </Link>{" "}
-              pour le protéger.
+              {t.rich("twoFactorWarning", {
+                link: (chunks) => (
+                  <Link
+                    href="/dashboard/profile#two-factor"
+                    className="font-medium underline underline-offset-4"
+                  >
+                    {chunks}
+                  </Link>
+                ),
+              })}
             </span>
           </p>
         </div>

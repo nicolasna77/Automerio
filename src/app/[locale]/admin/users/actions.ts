@@ -2,15 +2,16 @@
 
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/session";
 import { logAdminAction } from "@/lib/audit";
-import { ActionError, runAction } from "@/lib/run-action";
+import { actionError, runAction, type TranslatedActionError } from "@/lib/run-action";
 
-async function requireAdminActingOnOther(userId: string, message: string) {
+async function requireAdminActingOnOther(userId: string, message: TranslatedActionError["key"]) {
   const session = await requireAdmin();
-  if (userId === session.user.id) throw new ActionError(message);
+  if (userId === session.user.id) throw actionError(message);
   return session;
 }
 
@@ -34,9 +35,9 @@ export async function setUserRoleAction(
   return runAction(async () => {
     const session = await requireAdminActingOnOther(
       userId,
-      "Vous ne pouvez pas modifier votre propre rôle."
+      "cannotChangeOwnRole"
     );
-    const label = await targetUserLabel(userId);
+    const [label, t] = await Promise.all([targetUserLabel(userId), getTranslations("Admin.users.audit")]);
 
     await auth.api.setRole({
       body: { userId, role },
@@ -47,7 +48,7 @@ export async function setUserRoleAction(
       actor: session.user,
       action: "USER_ROLE_CHANGED",
       target: { type: "user", id: userId, label },
-      detail: `Nouveau rôle : ${role}`,
+      detail: t("newRole", { role }),
     });
 
     revalidateUserPaths(userId);
@@ -58,9 +59,9 @@ export async function banUserAction(userId: string, banReason: string) {
   return runAction(async () => {
     const session = await requireAdminActingOnOther(
       userId,
-      "Vous ne pouvez pas vous bannir vous-même."
+      "cannotBanSelf"
     );
-    const label = await targetUserLabel(userId);
+    const [label, t] = await Promise.all([targetUserLabel(userId), getTranslations("Admin.users.audit")]);
     const reason = banReason.trim();
 
     await auth.api.banUser({
@@ -72,7 +73,7 @@ export async function banUserAction(userId: string, banReason: string) {
       actor: session.user,
       action: "USER_BANNED",
       target: { type: "user", id: userId, label },
-      detail: reason ? `Motif : ${reason}` : "Sans motif renseigné",
+      detail: reason ? t("reason", { reason }) : t("noReason"),
     });
 
     revalidateUserPaths(userId);
@@ -103,12 +104,10 @@ export async function setUserPasswordAction(userId: string, newPassword: string)
   return runAction(async () => {
     const session = await requireAdminActingOnOther(
       userId,
-      "Vous ne pouvez pas réinitialiser votre propre mot de passe ici."
+      "cannotResetOwnPassword"
     );
-    if (newPassword.length < 8) {
-      throw new ActionError("Le mot de passe doit contenir au moins 8 caractères.");
-    }
-    const label = await targetUserLabel(userId);
+    if (newPassword.length < 8) throw actionError("passwordTooShort");
+    const [label, t] = await Promise.all([targetUserLabel(userId), getTranslations("Admin.users.audit")]);
 
     await auth.api.setUserPassword({
       body: { userId, newPassword },
@@ -124,7 +123,7 @@ export async function setUserPasswordAction(userId: string, newPassword: string)
       actor: session.user,
       action: "USER_PASSWORD_RESET",
       target: { type: "user", id: userId, label },
-      detail: "Sessions existantes révoquées",
+      detail: t("sessionsRevoked"),
     });
   });
 }

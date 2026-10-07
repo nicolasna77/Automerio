@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "@/lib/toast";
 import { useRouter } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
@@ -8,6 +9,7 @@ import { authClient } from "@/lib/auth-client";
 // Change l'organisation active puis recharge les données de la page : la
 // barre latérale et la page Organisation passent par le même chemin.
 export function useSwitchOrganization(activeId: string) {
+  const t = useTranslations("Workspace.organization");
   const router = useRouter();
   const [switchingId, setSwitchingId] = useState<string | null>(null);
 
@@ -19,7 +21,7 @@ export function useSwitchOrganization(activeId: string) {
 
     if (error) {
       console.error("[organisation] changement refusé :", error);
-      toast.error("Impossible de changer d'organisation. Rechargez la page puis réessayez.");
+      toast.error(t("switchError"));
       return;
     }
     router.refresh();

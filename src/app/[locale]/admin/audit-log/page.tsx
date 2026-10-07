@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { titleMetadata } from "@/i18n/metadata";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +15,7 @@ import {
 import { PaginationNav } from "@/components/pagination-nav";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/session";
-import { AUDIT_ACTION_LABELS, SENSITIVE_AUDIT_ACTIONS } from "@/lib/audit";
+import { SENSITIVE_AUDIT_ACTIONS } from "@/lib/audit";
 import { PageHeader, PageShell } from "@/components/page-shell";
 
 export const generateMetadata = titleMetadata("adminAuditLog");
@@ -37,6 +38,7 @@ export default async function AdminJournalPage({
   searchParams: Promise<{ page?: string }>;
 }) {
   await requireAdmin();
+  const t = await getTranslations("Admin.auditLog");
   const { page: rawPage } = await searchParams;
   const page = Math.max(1, Number(rawPage) || 1);
 
@@ -54,29 +56,24 @@ export default async function AdminJournalPage({
   return (
     <PageShell size="wide">
       <PageHeader
-        title="Journal d'administration"
-        description="Qui a fait quoi sur les comptes et le catalogue. Les entrées ne sont ni modifiables ni supprimables depuis l'application."
+        title={t("title")}
+        description={t("description")}
       />
 
       <Card>
         <CardContent>
           {entries.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Aucune action enregistrée pour l&apos;instant. Un bannissement, un
-              changement de rôle ou une modification du catalogue apparaîtra ici.
-            </p>
+            <p className="text-sm text-muted-foreground">{t("empty")}</p>
           ) : (
             <Table>
-              <TableCaption className="sr-only">
-                Actions d&apos;administration, de la plus récente à la plus ancienne
-              </TableCaption>
+              <TableCaption className="sr-only">{t("caption")}</TableCaption>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Action</TableHead>
-                  <TableHead>Cible</TableHead>
-                  <TableHead>Détail</TableHead>
-                  <TableHead>Par</TableHead>
-                  <TableHead className="text-right">Quand</TableHead>
+                  <TableHead>{t("columns.action")}</TableHead>
+                  <TableHead>{t("columns.target")}</TableHead>
+                  <TableHead>{t("columns.detail")}</TableHead>
+                  <TableHead>{t("columns.actor")}</TableHead>
+                  <TableHead className="text-right">{t("columns.when")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -90,7 +87,7 @@ export default async function AdminJournalPage({
                             : "secondary"
                         }
                       >
-                        {AUDIT_ACTION_LABELS[entry.action]}
+                        {t(`actions.${entry.action}`)}
                       </Badge>
                     </TableCell>
                     <TableCell className="font-medium whitespace-normal">
@@ -127,7 +124,7 @@ export default async function AdminJournalPage({
         totalPages={totalPages}
         basePath="/admin/audit-log"
         params={{}}
-        label="Pagination du journal"
+        label={t("pagination")}
       />
     </PageShell>
   );

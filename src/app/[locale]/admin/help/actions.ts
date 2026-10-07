@@ -8,7 +8,7 @@ import {
   sendHelpRequestReplyEmail,
   sendHelpRequestResolvedEmail,
 } from "@/lib/email/notifications";
-import { ActionError, runAction } from "@/lib/run-action";
+import { actionError, runAction } from "@/lib/run-action";
 
 export async function setHelpRequestStatus(
   helpRequestId: string,
@@ -44,7 +44,7 @@ export async function replyToHelpRequest(helpRequestId: string, body: string) {
     const session = await requireAdmin();
 
     const trimmed = body.trim();
-    if (!trimmed) throw new ActionError("Le message ne peut pas être vide.");
+    if (!trimmed) throw actionError("emptyMessage");
 
     const helpRequest = await db.helpRequest.findUniqueOrThrow({
       where: { id: helpRequestId },

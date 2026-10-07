@@ -1,12 +1,14 @@
 import { CalendarCheck, PhoneCall, Send } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 const CAPABILITIES = [
-  { icon: PhoneCall, text: "Répond au téléphone et sur vos messageries" },
-  { icon: CalendarCheck, text: "Prend les rendez-vous dans votre agenda" },
-  { icon: Send, text: "Vous transmet l'essentiel, pas le reste" },
-];
+  { icon: PhoneCall, key: "phone" },
+  { icon: CalendarCheck, key: "booking" },
+  { icon: Send, key: "summary" },
+] as const;
 
 export function AuthAside() {
+  const t = useTranslations("Auth.aside");
   return (
     <aside className="relative isolate hidden overflow-hidden border-l border-border lg:flex lg:flex-col lg:justify-center lg:px-12 xl:px-16">
       <div aria-hidden="true" className="absolute inset-0 -z-20 overflow-hidden">
@@ -17,26 +19,24 @@ export function AuthAside() {
       </div>
       <p className="max-w-sm tracking-tight text-balance text-foreground">
         <span className="block text-xl font-medium leading-snug">
-          Votre entreprise tourne.
+          {t("line1")}
         </span>
         <span className="mt-1.5 block text-3xl font-semibold leading-tight tracking-tight">
-          Vos automatisations s&apos;occupent du reste.
+          {t("line2")}
         </span>
       </p>
 
       <ul className="mt-9 max-w-sm space-y-3.5">
-        {CAPABILITIES.map(({ icon: Icon, text }) => (
-          <li key={text} className="flex items-start gap-3 text-sm text-muted-foreground">
+        {CAPABILITIES.map(({ icon: Icon, key }) => (
+          <li key={key} className="flex items-start gap-3 text-sm text-muted-foreground">
             <Icon className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
-            {text}
+            {t(`capabilities.${key}`)}
           </li>
         ))}
       </ul>
 
       <p className="mt-9 max-w-sm border-t border-border pt-5 text-sm leading-relaxed text-balance text-muted-foreground">
-        Notre équipe l&apos;installe, la connecte à vos outils et la surveille
-        chaque mois. Sans engagement : votre abonnement est remboursé sous
-        30 jours si ça ne vous convient pas.
+        {t("guarantee")}
       </p>
     </aside>
   );

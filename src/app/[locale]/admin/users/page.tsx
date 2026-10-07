@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { titleMetadata } from "@/i18n/metadata";
 import { Suspense } from "react";
 import { Card, CardHeader } from "@/components/ui/card";
@@ -9,8 +11,9 @@ import { PageHeader, PageShell } from "@/components/page-shell";
 export const generateMetadata = titleMetadata("adminUsers");
 
 function UsersSectionSkeleton() {
+  const t = useTranslations("Admin.skeletons");
   return (
-    <Card role="status" aria-label="Chargement des utilisateurs…">
+    <Card role="status" aria-label={t("users")}>
       <CardHeader className="space-y-3">
         {Array.from({ length: 5 }).map((_, i) => (
           <Skeleton key={i} className="h-4 w-full rounded-md" />
@@ -25,13 +28,13 @@ export default async function AdminUsersPage({
 }: {
   searchParams: Promise<{ q?: string; role?: string; page?: string }>;
 }) {
-  const params = await searchParams;
+  const [params, t] = await Promise.all([searchParams, getTranslations("Admin.users")]);
 
   return (
     <PageShell size="wide">
       <PageHeader
-        title="Utilisateurs"
-        description="Gestion des comptes : rôles, bannissement, sessions."
+        title={t("title")}
+        description={t("description")}
       />
 
       <UsersFilters />

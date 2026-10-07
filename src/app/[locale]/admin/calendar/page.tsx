@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { titleMetadata } from "@/i18n/metadata";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/session";
@@ -9,6 +10,7 @@ export const generateMetadata = titleMetadata("adminCalendar");
 
 export default async function AdminCalendrierPage() {
   await requireAdmin();
+  const t = await getTranslations("Admin.calendar");
 
   const bookings = await db.booking.findMany({
     where: { OR: [{ startAt: calendarWindow() }, { startAt: null }] },
@@ -29,8 +31,8 @@ export default async function AdminCalendrierPage() {
   return (
     <PageShell size="full">
       <PageHeader
-        title="Calendrier"
-        description="Rendez-vous et commandes pris par téléphone, tous clients confondus."
+        title={t("title")}
+        description={t("description")}
         className="mb-5 shrink-0"
       />
 

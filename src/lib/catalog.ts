@@ -207,28 +207,6 @@ export type ServiceEventType =
   | "QUOTA_EXCEEDED"
   | "CANCELED";
 
-export const SERVICE_EVENT_LABELS: Record<ServiceEventType, string> = {
-  CREATED: "Demande d'activation envoyée",
-  PAYMENT_RECEIVED: "Paiement reçu",
-  PAYMENT_FAILED: "Paiement refusé",
-  ACTIVATED: "Solution vérifiée et activée",
-  NOTE_ADDED: "Note de l'équipe Automerio",
-  PHONE_ASSIGNED: "Numéro de téléphone attribué",
-  CALENDAR_CONNECTED: "Agenda connecté",
-  CALENDAR_DISCONNECTED: "Agenda déconnecté",
-  WHATSAPP_CONNECTED: "Compte WhatsApp connecté",
-  WHATSAPP_DISCONNECTED: "Compte WhatsApp déconnecté",
-  FACEBOOK_CONNECTED: "Page Facebook connectée",
-  FACEBOOK_DISCONNECTED: "Page Facebook déconnectée",
-  INSTAGRAM_CONNECTED: "Compte Instagram connecté",
-  INSTAGRAM_DISCONNECTED: "Compte Instagram déconnecté",
-  QUOTA_CHANGED: "Volume de l'abonnement modifié",
-  QUOTA_WARNING: "80 % du forfait consommé",
-  QUOTA_EXCEEDED: "Forfait dépassé",
-  CONFIGURATION_UPDATED: "Configuration mise à jour",
-  CANCELED: "Solution résiliée",
-};
-
 export type ServiceEventDTO = {
   id: string;
   type: ServiceEventType;

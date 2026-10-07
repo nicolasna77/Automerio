@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "@/lib/toast";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ export function HelpRequestStatusButton({
   helpRequestId: string;
   status: HelpRequestStatus;
 }) {
+  const t = useTranslations("Admin.help.status");
   const [isPending, startTransition] = useTransition();
   const nextStatus: HelpRequestStatus =
     status === "OPEN" ? "RESOLVED" : "OPEN";
@@ -25,9 +27,7 @@ export function HelpRequestStatusButton({
       try {
         unwrap(await setHelpRequestStatus(helpRequestId, nextStatus));
         toast.success(
-          nextStatus === "RESOLVED"
-            ? "Demande marquée comme traitée."
-            : "Demande rouverte."
+          nextStatus === "RESOLVED" ? t("resolved") : t("reopened")
         );
       } catch (err) {
         toast.error(getErrorMessage(err));
@@ -47,7 +47,7 @@ export function HelpRequestStatusButton({
       {isPending ? (
         <Loader2 className="animate-spin" aria-hidden="true" data-icon="inline-start" />
       ) : null}
-      {status === "OPEN" ? "Marquer comme traité" : "Rouvrir"}
+      {status === "OPEN" ? t("markResolved") : t("reopen")}
     </Button>
   );
 }

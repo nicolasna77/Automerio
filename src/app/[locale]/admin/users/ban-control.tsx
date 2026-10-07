@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "@/lib/toast";
 import {
   AlertDialog,
@@ -29,6 +30,8 @@ export function BanControl({
   banReason: string | null;
   disabled?: boolean;
 }) {
+  const t = useTranslations("Admin.users.ban");
+  const tCommon = useTranslations("Common");
   const [isPending, startTransition] = useTransition();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [reason, setReason] = useState("");
@@ -37,7 +40,7 @@ export function BanControl({
     startTransition(async () => {
       try {
         unwrap(await unbanUserAction(userId));
-        toast.success("Utilisateur débanni.");
+        toast.success(t("unbanned"));
       } catch (err) {
         toast.error(getErrorMessage(err));
       }
@@ -48,7 +51,7 @@ export function BanControl({
     startTransition(async () => {
       try {
         unwrap(await banUserAction(userId, reason));
-        toast.success("Utilisateur banni.");
+        toast.success(t("banned"));
         setConfirmOpen(false);
         setReason("");
       } catch (err) {
@@ -61,7 +64,7 @@ export function BanControl({
     return (
       <div className="space-y-1.5">
         {banReason && (
-          <p className="text-sm text-muted-foreground">Motif : {banReason}</p>
+          <p className="text-sm text-muted-foreground">{t("reason", { reason: banReason })}</p>
         )}
         <Button
           variant="outline"
@@ -70,7 +73,7 @@ export function BanControl({
           disabled={disabled || isPending}
           aria-busy={isPending}
         >
-          {isPending ? "Débannissement…" : "Débannir"}
+          {isPending ? t("unbanning") : t("unban")}
         </Button>
       </div>
     );
@@ -84,34 +87,29 @@ export function BanControl({
         onClick={() => setConfirmOpen(true)}
         disabled={disabled}
       >
-        Bannir
+        {t("ban")}
       </Button>
 
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              Bannir cet utilisateur ?
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              Toutes ses sessions actives seront révoquées et il ne pourra
-              plus se connecter.
-            </AlertDialogDescription>
+            <AlertDialogTitle>{t("title")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("description")}</AlertDialogDescription>
           </AlertDialogHeader>
           <Textarea
-            placeholder="Motif (optionnel)"
+            placeholder={t("reasonPlaceholder")}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
           />
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>Annuler</AlertDialogCancel>
+            <AlertDialogCancel disabled={isPending}>{tCommon("cancel")}</AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               onClick={handleBan}
               disabled={isPending}
               aria-busy={isPending}
             >
-              {isPending ? "Bannissement…" : "Bannir"}
+              {isPending ? t("banning") : t("ban")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
