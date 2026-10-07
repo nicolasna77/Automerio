@@ -56,7 +56,9 @@ export async function SiteHeader() {
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-1">
             <SiteMobileNav
-              services={services}
+              // Le menu mobile n'affiche pas les accroches : inutile de les
+              // envoyer deux fois au navigateur.
+              services={services.map(({ slug, name, category }) => ({ slug, name, category }))}
               industries={industries}
               loggedIn={!!user}
               waitlist={waitlist}
