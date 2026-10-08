@@ -17,7 +17,8 @@ import { asStringArray, canPauseService, MESSAGING_SERVICE_SLUGS, TELEPHONY_SERV
 import { StatusBadge } from "@/components/status-badge";
 import { PauseSwitch } from "@/app/[locale]/dashboard/pause-switch";
 import { QuotaMeter } from "@/app/[locale]/dashboard/quota-meter";
-import { MonthlyPrice } from "@/components/monthly-price";
+import { UsageNote } from "@/app/[locale]/dashboard/subscriptions/usage-gauge";
+import { pausesAtLimit } from "@/lib/usage-cap";
 import { ServiceGlyphBadge } from "@/components/service-glyph";
 import { BookingsCalendar } from "@/components/bookings-calendar";
 import { toCalendarBookings } from "@/lib/bookings";
@@ -34,9 +35,8 @@ import { isDemoCallAvailable } from "@/lib/demo-call";
 import { ConversationHistory } from "@/app/[locale]/dashboard/conversation-history";
 import { ServiceDetailActions } from "@/app/[locale]/dashboard/service-detail-actions";
 import { isSetupComplete, ServiceSetupCard } from "@/app/[locale]/dashboard/service-setup-card";
-import { BILLING_SECTION_ID, CONNECTORS_SECTION_ID } from "@/app/[locale]/dashboard/billing-section";
-import { getSubscriptionFor, isRunning } from "@/lib/subscriptions";
-import { formatPriceWithVat } from "@/lib/vat";
+import { CONNECTORS_SECTION_ID } from "@/app/[locale]/dashboard/billing-section";
+import { getSubscriptionFor } from "@/lib/subscriptions";
 import { PageBreadcrumbs, PageShell } from "@/components/page-shell";
 
 export const generateMetadata = titleMetadata("serviceDetail");
@@ -76,10 +76,16 @@ export default async function ServiceDetailPage({
     await viewerOf(session.user.id)
   );
 
-  const quota = subscription?.cap && subscription.usage
-    ? { cap: subscription.cap, consumedUnits: subscription.usage.consumedUnits }
-    : null;
-  const monthlyCents = subscription?.monthlyPriceCents ?? item.service.monthlyPriceCents;
+  // Quota affiché une fois la mise en service terminée (solution active).
+  const quota =
+    item.status === "ACTIVE" && subscription?.cap && subscription.usage
+      ? {
+          cap: subscription.cap,
+          consumedUnits: subscription.usage.consumedUnits,
+          overageCents: subscription.usage.overageCents,
+          overageAllowed: subscription.overageAllowed,
+        }
+      : null;
   const isLive = isLiveTelephony(item);
   const objectives = asStringArray(item.configuration.objectives);
   const showBookings =
@@ -121,88 +127,83 @@ export default async function ServiceDetailPage({
         ]}
       />
 
-      <header className="@container flex items-start gap-4">
-        <ServiceGlyphBadge slug={item.service.slug} size="lg" />
-        {/* Grille : quand l'en-tête a la place (requête de conteneur, pas
-            d'écran : la barre latérale réduit la largeur), les actions à
-            droite du titre ; sinon, sous le résumé, sans écraser le titre. */}
-        <div className="grid min-w-0 flex-1 gap-x-3 @4xl:grid-cols-[minmax(0,1fr)_auto]">
-          <div className="order-1 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 @4xl:col-start-1">
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-              {item.name}
-            </h1>
-            <StatusBadge status={item.status} pausedAt={item.pausedAt} />
+      {/* En-tête en deux colonnes à toutes les largeurs : le titre à gauche,
+          les actions en haut à droite. La place est mesurée sur l'en-tête
+          (requête de conteneur, la barre latérale réduit la largeur) : quand
+          elle manque, l'icône de la solution disparaît et les actions
+          perdent leur libellé visible. */}
+      <header className="@container/header">
+        <div className="flex items-start gap-4">
+          <div className="hidden @xl/header:block">
+            <ServiceGlyphBadge slug={item.service.slug} size="lg" />
           </div>
-          {/* L'interrupteur de pause rejoint les actions : il agit sur la
-              solution, comme les réglages et la résiliation. */}
-          <div className="order-4 mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 @4xl:order-none @4xl:col-start-2 @4xl:row-start-1 @4xl:mt-0 @4xl:justify-end">
-            {canManage && canPauseService(item) && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <PauseSwitch
-                  clientServiceId={item.clientServiceId}
-                  name={item.name}
-                  paused={item.pausedAt !== null}
-                />
-                <span aria-hidden="true">{tPause("label")}</span>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-3">
+              <h1 className="min-w-0 text-2xl font-semibold tracking-tight text-foreground [overflow-wrap:anywhere]">
+                {item.name}
+              </h1>
+              {/* Actions en haut à droite. Le badge de statut est posé
+                  au-dessus de l'interrupteur de pause : « Actif » ou
+                  « En pause » se lit juste à côté de ce qui le change. */}
+              <div className="flex shrink-0 items-start gap-x-3 @3xl/header:gap-x-4">
+                <div className="flex flex-col items-end gap-1.5">
+                  <StatusBadge status={item.status} pausedAt={item.pausedAt} />
+                  {canManage && canPauseService(item) && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span aria-hidden="true" className="hidden @3xl/header:inline">
+                        {tPause("label")}
+                      </span>
+                      <PauseSwitch
+                        clientServiceId={item.clientServiceId}
+                        name={item.name}
+                        paused={item.pausedAt !== null}
+                      />
+                    </div>
+                  )}
+                </div>
+                <ServiceDetailActions item={item} />
               </div>
-            )}
-            <ServiceDetailActions item={item} />
-          </div>
-
-          <p className="order-2 mt-1 max-w-2xl text-sm text-muted-foreground @4xl:col-start-1">
-            {item.name !== item.service.name && (
-              <span className="font-medium text-foreground">{item.service.name}. </span>
-            )}
-            {item.service.description}
-          </p>
-
-          {/* Sous-titre : où en est la solution, ce qu'elle coûte et, quand
-              elle a un forfait, ce qui en est consommé ce mois-ci. Trois
-              repères libellés, qui passent à la ligne sans séparateur
-              orphelin. */}
-          <dl
-            aria-label={t("summary.label")}
-            className="order-3 mt-4 flex flex-wrap gap-x-10 gap-y-3 text-sm @4xl:col-span-2 @4xl:col-start-1"
-          >
-            <div>
-              <dt className="text-xs text-muted-foreground">{t("summary.status")}</dt>
-              <dd className="mt-0.5 font-medium text-foreground">{labels.serviceStatus(item)}</dd>
             </div>
-            <div>
-              <dt className="text-xs text-muted-foreground">{t("summary.price")}</dt>
-              {/* TTC seul : le détail HT est dans la carte Abonnement. */}
-              <dd className="mt-0.5 text-foreground">
-                {monthlyCents === null ? (
-                  formatPriceWithVat(null)
-                ) : (
-                  <MonthlyPrice cents={monthlyCents} showExcludingVat={false} />
-                )}
-              </dd>
-              {subscription && isRunning(subscription) && (
-                <dd className="mt-0.5">
-                  <Link
-                    href={`/dashboard/services/${item.clientServiceId}/configuration#${BILLING_SECTION_ID}`}
-                    className="text-sm text-primary underline-offset-4 hover:underline focus-visible:focus-ring"
-                  >
-                    {t("subscription.adjust")}
-                  </Link>
-                </dd>
+
+            <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+              {item.name !== item.service.name && (
+                <span className="block font-medium text-foreground">{item.service.name}</span>
               )}
-            </div>
-            {quota && (
-              <div>
-                <dt className="text-xs text-muted-foreground">{t("summary.quota")}</dt>
-                <dd className="mt-1">
-                  <QuotaMeter cap={quota.cap} consumedUnits={quota.consumedUnits} variant="inline" />
-                </dd>
+              {item.service.description}
+            </p>
+
+            {/* Sous-titre : où en est la solution et, une fois la mise en
+                service terminée, ce qui est consommé du forfait sur la
+                période. Le tarif est dans les réglages. */}
+            <dl className="mt-4 flex flex-wrap gap-x-16 gap-y-3 text-sm">
+              <div className="min-w-0">
+                <dt className="text-xs text-muted-foreground">{t("summary.status")}</dt>
+                <dd className="mt-0.5 font-medium text-foreground">{labels.serviceStatus(item)}</dd>
+              </div>
+              {quota && (
+                <div className="min-w-0">
+                  <dt className="text-xs text-muted-foreground">{t("summary.quota")}</dt>
+                  <dd className="mt-1">
+                    <QuotaMeter cap={quota.cap} consumedUnits={quota.consumedUnits} variant="inline" />
+                  </dd>
+                  <dd>
+                    <UsageNote
+                      cap={quota.cap}
+                      consumedUnits={quota.consumedUnits}
+                      overageCents={quota.overageCents}
+                      pausesAtLimit={pausesAtLimit(quota.cap, quota.overageAllowed)}
+                      className="mt-1 max-w-xs"
+                    />
+                  </dd>
+                </div>
+              )}
+            </dl>
+            {showProgress && (
+              <div className="max-w-2xl">
+                <ServiceProgress status={item.status} />
               </div>
             )}
-          </dl>
-          {showProgress && (
-            <div className="order-5 max-w-2xl @4xl:col-start-1">
-              <ServiceProgress status={item.status} />
-            </div>
-          )}
+          </div>
         </div>
       </header>
 

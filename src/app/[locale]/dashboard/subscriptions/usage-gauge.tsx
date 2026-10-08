@@ -17,13 +17,11 @@ export function UsageGauge({
   pausesAtLimit?: boolean;
 }) {
   const t = useTranslations("Dashboard.subscriptions.gauge");
-  const tOverage = useTranslations("Dashboard.overage");
   const price = usePriceFormatter();
   const over = overageUnits(consumedUnits, cap);
   const ratio = usageRatio(consumedUnits, cap);
   const consumed = price.usageUnits(consumedUnits, cap.unit);
   const included = price.usageUnits(cap.includedUnits, cap.unit);
-  const nearLimit = isNearQuota(consumedUnits, cap.includedUnits);
 
   return (
     <div>
@@ -53,30 +51,63 @@ export function UsageGauge({
         />
       </div>
 
-      <p className="mt-2 text-xs text-muted-foreground">
-        {pausesAtLimit && consumedUnits >= cap.includedUnits ? (
-          <span className="font-medium text-destructive">{tOverage("paused")}</span>
-        ) : pausesAtLimit && nearLimit ? (
-          <>
-            <span className="font-medium text-foreground">
-              {tOverage("remaining", { remaining: price.usageUnits(cap.includedUnits - consumedUnits, cap.unit) })}
-            </span>{" "}
-            {tOverage("pausesSoon")}
-          </>
-        ) : over > 0
-          ? t.rich("over", {
-              units: price.usageUnits(over, cap.unit),
-              amount: price.withVat(overageCents),
-              em: (chunks) => <span className="font-medium text-foreground tabular-nums">{chunks}</span>,
-            })
-          : nearLimit && cap.overageUnitPriceCents > 0
-            ? t.rich("nearLimit", {
-                units: price.usageUnits(cap.includedUnits - consumedUnits, cap.unit),
-                price: price.perUnit(cap.overageUnitPriceCents, cap.unit),
-                strong: (chunks) => <span className="font-medium text-foreground">{chunks}</span>,
-              })
-            : t("remaining", { units: price.usageUnits(cap.includedUnits - consumedUnits, cap.unit) })}
-      </p>
+      <UsageNote
+        cap={cap}
+        consumedUnits={consumedUnits}
+        overageCents={overageCents}
+        pausesAtLimit={pausesAtLimit}
+        className="mt-2"
+      />
     </div>
+  );
+}
+
+// Ce que la consommation implique : reste à consommer, dépassement facturé
+// (montant), pause à venir ou en cours. Sous la jauge des abonnements et sous
+// le quota de la page d'une solution.
+export function UsageNote({
+  cap,
+  consumedUnits,
+  overageCents,
+  pausesAtLimit = false,
+  className,
+}: {
+  cap: UsageCap;
+  consumedUnits: number;
+  overageCents: number;
+  pausesAtLimit?: boolean;
+  className?: string;
+}) {
+  const t = useTranslations("Dashboard.subscriptions.gauge");
+  const tOverage = useTranslations("Dashboard.overage");
+  const price = usePriceFormatter();
+  const over = overageUnits(consumedUnits, cap);
+  const nearLimit = isNearQuota(consumedUnits, cap.includedUnits);
+
+  return (
+    <p className={cn("text-xs text-muted-foreground", className)}>
+      {pausesAtLimit && consumedUnits >= cap.includedUnits ? (
+        <span className="font-medium text-destructive">{tOverage("paused")}</span>
+      ) : pausesAtLimit && nearLimit ? (
+        <>
+          <span className="font-medium text-foreground">
+            {tOverage("remaining", { remaining: price.usageUnits(cap.includedUnits - consumedUnits, cap.unit) })}
+          </span>{" "}
+          {tOverage("pausesSoon")}
+        </>
+      ) : over > 0
+        ? t.rich("over", {
+            units: price.usageUnits(over, cap.unit),
+            amount: price.withVat(overageCents),
+            em: (chunks) => <span className="font-medium text-foreground tabular-nums">{chunks}</span>,
+          })
+        : nearLimit && cap.overageUnitPriceCents > 0
+          ? t.rich("nearLimit", {
+              units: price.usageUnits(cap.includedUnits - consumedUnits, cap.unit),
+              price: price.perUnit(cap.overageUnitPriceCents, cap.unit),
+              strong: (chunks) => <span className="font-medium text-foreground">{chunks}</span>,
+            })
+          : t("remaining", { units: price.usageUnits(cap.includedUnits - consumedUnits, cap.unit) })}
+    </p>
   );
 }

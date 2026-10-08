@@ -1383,15 +1383,13 @@
       },
       "actions": {
         "canceled": "« {name} » a été résiliée.",
-        "more": "Plus d'actions pour « {name} »",
         "unsubscribe": "Se désabonner",
         "confirmTitle": "Résilier « {name} » ?",
         "confirmDescription": "L'abonnement mensuel sera annulé immédiatement. Dans les 30 jours suivant votre premier paiement, il vous est remboursé sur simple demande depuis la rubrique Aide.",
         "canceling": "Résiliation…"
       },
       "subscription": {
-        "noQuota": "Cet abonnement n'a pas de quota d'usage : le montant mensuel ne bouge pas.",
-        "adjust": "Ajuster l'abonnement"
+        "noQuota": "Cet abonnement n'a pas de quota d'usage : le montant mensuel ne bouge pas."
       },
       "progress": {
         "label": "Étapes de la solution",
@@ -1410,10 +1408,9 @@
       },
       "breadcrumb": "Solutions",
       "summary": {
-        "label": "En bref",
         "status": "Mise en service",
         "price": "Tarif",
-        "quota": "Quota du mois"
+        "quota": "Quota de la période"
       },
       "calendarSuggestion": {
         "title": "Connectez un agenda pour que l'assistant réserve",
@@ -1683,7 +1680,9 @@
         "paymentMethod": "Moyen de paiement",
         "paymentMethodValue": "Carte ou prélèvement, géré de façon sécurisée par Stripe.",
         "invoicing": "Facturation",
-        "invoices": "Voir mes factures"
+        "invoices": "Voir mes factures",
+        "cancel": "Résiliation",
+        "cancelDescription": "L'assistant s'arrête et l'abonnement mensuel est annulé immédiatement."
       },
       "connectors": {
         "title": "Connecteurs",

@@ -75,7 +75,7 @@ export function QuotaMeter({
 
   if (inline) {
     return (
-      <div className="flex items-center gap-2.5 text-sm">
+      <div className="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1 text-sm">
         <span aria-hidden="true">{usage}</span>
         {bar}
         <span aria-hidden="true">{ratioLabel}</span>

@@ -4,7 +4,6 @@ import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { toast } from "@/lib/toast";
-import { Ellipsis, XCircle } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,12 +15,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
 import type { MyServiceDTO } from "@/lib/catalog";
@@ -29,15 +22,17 @@ import { cancelService } from "./actions";
 import { ResumeCheckoutButton } from "./resume-checkout-button";
 import { ServiceSettingsButton } from "./service-settings-button";
 
-// Actions secondaires d'une solution, rangées dans un menu « Plus
-// d'actions » : la résiliation ne doit pas peser autant que les réglages ou
-// l'action principale de la page.
-export function ServiceActionsMenu({
-  item,
-  className,
+// Résiliation d'une solution, après confirmation. Elle se fait depuis les
+// réglages (section Abonnement) et la page Abonnements, pas depuis la page de
+// la solution.
+export function CancelServiceButton({
+  clientServiceId,
+  name,
+  variant = "outline",
 }: {
-  item: MyServiceDTO;
-  className?: string;
+  clientServiceId: string;
+  name: string;
+  variant?: "outline" | "ghost";
 }) {
   const router = useRouter();
   const t = useTranslations("Dashboard.service.actions");
@@ -45,14 +40,11 @@ export function ServiceActionsMenu({
   const [isCanceling, startCancelTransition] = useTransition();
   const [confirmCancel, setConfirmCancel] = useState(false);
 
-  const canUnsubscribe = item.status === "ACTIVE" || item.status === "CONFIGURING";
-  if (!canUnsubscribe) return null;
-
   function handleUnsubscribe() {
     startCancelTransition(async () => {
       try {
-        unwrap(await cancelService(item.clientServiceId));
-        toast.success(t("canceled", { name: item.name }));
+        unwrap(await cancelService(clientServiceId));
+        toast.success(t("canceled", { name }));
         setConfirmCancel(false);
         router.refresh();
       } catch (err) {
@@ -63,40 +55,18 @@ export function ServiceActionsMenu({
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          render={
-            <Button
-              variant="ghost"
-              size="icon"
-              className={className}
-              aria-label={t("more", { name: item.name })}
-            />
-          }
-        >
-          <Ellipsis aria-hidden="true" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-auto min-w-56">
-          <DropdownMenuItem variant="destructive" onClick={() => setConfirmCancel(true)}>
-            <XCircle aria-hidden="true" />
-            {t("unsubscribe")}
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
+      <Button variant={variant} size="sm" onClick={() => setConfirmCancel(true)}>
+        {t("unsubscribe")}
+      </Button>
       <AlertDialog open={confirmCancel} onOpenChange={setConfirmCancel}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t("confirmTitle", { name: item.name })}</AlertDialogTitle>
+            <AlertDialogTitle>{t("confirmTitle", { name })}</AlertDialogTitle>
             <AlertDialogDescription>{t("confirmDescription")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isCanceling}>{tCommon("cancel")}</AlertDialogCancel>
-            <AlertDialogAction
-              variant="destructive"
-              onClick={handleUnsubscribe}
-              loading={isCanceling}
-            >
+            <AlertDialogAction variant="destructive" onClick={handleUnsubscribe} loading={isCanceling}>
               {isCanceling ? t("canceling") : t("unsubscribe")}
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -118,7 +88,6 @@ export function ServiceDetailActions({ item }: { item: MyServiceDTO }) {
         />
       )}
       <ServiceSettingsButton item={item} labeled />
-      <ServiceActionsMenu item={item} />
     </div>
   );
 }

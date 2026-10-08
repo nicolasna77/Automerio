@@ -9,7 +9,6 @@ import { MonthlyPrice } from "@/components/monthly-price";
 import { StatusBadge } from "@/components/status-badge";
 import { ServiceGlyph } from "@/components/service-glyph";
 import { ResumeCheckoutButton } from "./resume-checkout-button";
-import { ServiceActionsMenu } from "./service-detail-actions";
 import { ServiceSettingsButton } from "./service-settings-button";
 import { UsageCounter } from "./usage-counter";
 import { QuotaMeter, type QuotaState } from "./quota-meter";
@@ -131,7 +130,6 @@ export function MyServiceRow({
 
         <div className="absolute top-3 right-2 z-10 flex items-center gap-0.5 md:static md:justify-self-end">
           <ServiceSettingsButton item={item} />
-          <ServiceActionsMenu item={item} />
         </div>
       </div>
 
