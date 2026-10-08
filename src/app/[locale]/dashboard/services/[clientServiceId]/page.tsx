@@ -1,5 +1,4 @@
 import { titleMetadata } from "@/i18n/metadata";
-import { getLabels } from "@/lib/labels-server";
 import { getTranslations } from "next-intl/server";
 import { formatFrenchPhone } from "@/lib/phone-format";
 import { notFound } from "next/navigation";
@@ -11,9 +10,17 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireUser } from "@/lib/session";
 import { requireActiveOrganization } from "@/lib/organization";
-import { canManageClientServiceBilling, viewerOf } from "@/lib/client-service-access";
+import {
+  canManageClientServiceBilling,
+  viewerOf,
+} from "@/lib/client-service-access";
 import { getMyService } from "@/app/[locale]/dashboard/get-my-service";
-import { asStringArray, canPauseService, MESSAGING_SERVICE_SLUGS, TELEPHONY_SERVICE_SLUGS } from "@/lib/catalog";
+import {
+  asStringArray,
+  canPauseService,
+  MESSAGING_SERVICE_SLUGS,
+  TELEPHONY_SERVICE_SLUGS,
+} from "@/lib/catalog";
 import { StatusBadge } from "@/components/status-badge";
 import { PauseSwitch } from "@/app/[locale]/dashboard/pause-switch";
 import { QuotaMeter } from "@/app/[locale]/dashboard/quota-meter";
@@ -34,7 +41,10 @@ import { TestCallCard } from "@/app/[locale]/dashboard/test-call-card";
 import { isDemoCallAvailable } from "@/lib/demo-call";
 import { ConversationHistory } from "@/app/[locale]/dashboard/conversation-history";
 import { ServiceDetailActions } from "@/app/[locale]/dashboard/service-detail-actions";
-import { isSetupComplete, ServiceSetupCard } from "@/app/[locale]/dashboard/service-setup-card";
+import {
+  isSetupComplete,
+  ServiceSetupCard,
+} from "@/app/[locale]/dashboard/service-setup-card";
 import { CONNECTORS_SECTION_ID } from "@/app/[locale]/dashboard/billing-section";
 import { getSubscriptionFor } from "@/lib/subscriptions";
 import { PageBreadcrumbs, PageShell } from "@/components/page-shell";
@@ -53,13 +63,19 @@ export default async function ServiceDetailPage({
   params: Promise<{ clientServiceId: string }>;
   searchParams: Promise<{ calendar?: string; instagram?: string }>;
 }) {
-  const [{ clientServiceId }, { calendar, instagram }, session, { active: organization }, t, labels, tPause] = await Promise.all([
+  const [
+    { clientServiceId },
+    { calendar, instagram },
+    session,
+    { active: organization },
+    t,
+    tPause,
+  ] = await Promise.all([
     params,
     searchParams,
     requireUser(),
     requireActiveOrganization(),
     getTranslations("Dashboard.service"),
-    getLabels(),
     getTranslations("Dashboard.services.list.pause"),
   ]);
   // L'abonnement est lu en parallèle, mais rien n'est affiché avant que
@@ -73,7 +89,7 @@ export default async function ServiceDetailPage({
   // côté serveur) ; les autres membres voient une explication à la place.
   const canManage = canManageClientServiceBilling(
     { organizationId: organization.id },
-    await viewerOf(session.user.id)
+    await viewerOf(session.user.id),
   );
 
   // Quota affiché une fois la mise en service terminée (solution active).
@@ -89,34 +105,47 @@ export default async function ServiceDetailPage({
   const isLive = isLiveTelephony(item);
   const objectives = asStringArray(item.configuration.objectives);
   const showBookings =
-    isLive && (objectives.includes("appointment") || objectives.includes("order"));
+    isLive &&
+    (objectives.includes("appointment") || objectives.includes("order"));
   const isMessaging = MESSAGING_SERVICE_SLUGS.has(item.service.slug);
   const isTelephony = TELEPHONY_SERVICE_SLUGS.has(item.service.slug);
   const showSetup = !isSetupComplete(item);
   // Agenda facultatif : une fois la solution en service sans agenda, une
   // alerte propose de le connecter depuis l'onglet Connecteurs.
   const suggestsCalendar =
-    isTelephony && isLive && !showSetup && objectives.includes("appointment") && !item.calendarConnected;
+    isTelephony &&
+    isLive &&
+    !showSetup &&
+    objectives.includes("appointment") &&
+    !item.calendarConnected;
   const hasMainColumn =
-    showSetup || (isLive && Boolean(item.externalPhoneNumber)) || showBookings || isMessaging;
+    showSetup ||
+    (isLive && Boolean(item.externalPhoneNumber)) ||
+    showBookings ||
+    isMessaging;
   const showProgress = item.status !== "ACTIVE" && item.status !== "CANCELED";
   // Retour de Meta en échec (?instagram=error|in-use), tant que le compte
   // n'est pas connecté.
   const instagramFailure =
-    !item.instagramConnected && (instagram === "error" || instagram === "in-use") ? instagram : null;
+    !item.instagramConnected &&
+    (instagram === "error" || instagram === "in-use")
+      ? instagram
+      : null;
 
   const { scheduled: scheduledBookings, unscheduled: unscheduledBookings } =
     toCalendarBookings(item.bookings, {
       subtitle: (b) => formatFrenchPhone(b.customerPhone),
       isSynced: (b) =>
-        !item.calendarConnected || Boolean(b.googleEventId || b.externalBookingId),
+        !item.calendarConnected ||
+        Boolean(b.googleEventId || b.externalBookingId),
     });
 
   // Le tarif et le quota sont dans le sous-titre : seule la carte d'essai
   // reste à côté de l'activité.
-  const testCall = isLive && isDemoCallAvailable() ? (
-    <TestCallCard clientServiceId={item.clientServiceId} />
-  ) : null;
+  const testCall =
+    isLive && isDemoCallAvailable() ? (
+      <TestCallCard clientServiceId={item.clientServiceId} />
+    ) : null;
 
   return (
     <PageShell size="wide">
@@ -150,7 +179,10 @@ export default async function ServiceDetailPage({
                   <StatusBadge status={item.status} pausedAt={item.pausedAt} />
                   {canManage && canPauseService(item) && (
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <span aria-hidden="true" className="hidden @3xl/header:inline">
+                      <span
+                        aria-hidden="true"
+                        className="hidden @3xl/header:inline"
+                      >
                         {tPause("label")}
                       </span>
                       <PauseSwitch
@@ -167,7 +199,9 @@ export default async function ServiceDetailPage({
 
             <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
               {item.name !== item.service.name && (
-                <span className="block font-medium text-foreground">{item.service.name}</span>
+                <span className="block font-medium text-foreground">
+                  {item.service.name}
+                </span>
               )}
               {item.service.description}
             </p>
@@ -176,22 +210,27 @@ export default async function ServiceDetailPage({
                 service terminée, ce qui est consommé du forfait sur la
                 période. Le tarif est dans les réglages. */}
             <dl className="mt-5 flex flex-wrap gap-x-24 gap-y-5 text-sm">
-              <div className="min-w-0">
-                <dt className="text-xs text-muted-foreground">{t("summary.status")}</dt>
-                <dd className="mt-0.5 font-medium text-foreground">{labels.serviceStatus(item)}</dd>
-              </div>
               {quota && (
                 <div className="min-w-0">
-                  <dt className="text-xs text-muted-foreground">{t("summary.quota")}</dt>
-                  <dd className="mt-1">
-                    <QuotaMeter cap={quota.cap} consumedUnits={quota.consumedUnits} variant="inline" />
+                  <dt className="text-xs text-muted-foreground">
+                    {t("summary.quota")}
+                  </dt>
+                  <dd className="mt-1 ">
+                    <QuotaMeter
+                      cap={quota.cap}
+                      consumedUnits={quota.consumedUnits}
+                      variant="stacked"
+                    />
                   </dd>
                   <dd>
                     <UsageNote
                       cap={quota.cap}
                       consumedUnits={quota.consumedUnits}
                       overageCents={quota.overageCents}
-                      pausesAtLimit={pausesAtLimit(quota.cap, quota.overageAllowed)}
+                      pausesAtLimit={pausesAtLimit(
+                        quota.cap,
+                        quota.overageAllowed,
+                      )}
                       className="mt-1 max-w-xs"
                     />
                   </dd>
@@ -215,7 +254,11 @@ export default async function ServiceDetailPage({
             <p>{t("calendarSuggestion.description")}</p>
             <Link
               href={`/dashboard/services/${item.clientServiceId}/configuration#${CONNECTORS_SECTION_ID}`}
-              className={buttonVariants({ variant: "outline", size: "sm", className: "mt-3" })}
+              className={buttonVariants({
+                variant: "outline",
+                size: "sm",
+                className: "mt-3",
+              })}
             >
               {t("calendarSuggestion.cta")}
             </Link>
@@ -229,14 +272,18 @@ export default async function ServiceDetailPage({
             <Alert variant="destructive">
               <AlertTriangle aria-hidden="true" />
               <AlertTitle>{t("calendarError.title")}</AlertTitle>
-              <AlertDescription>{t("calendarError.description")}</AlertDescription>
+              <AlertDescription>
+                {t("calendarError.description")}
+              </AlertDescription>
             </Alert>
           )}
           {instagramFailure && (
             <Alert variant="destructive">
               <AlertTriangle aria-hidden="true" />
               <AlertTitle>
-                {instagramFailure === "in-use" ? t("instagramError.inUseTitle") : t("instagramError.title")}
+                {instagramFailure === "in-use"
+                  ? t("instagramError.inUseTitle")
+                  : t("instagramError.title")}
               </AlertTitle>
               <AlertDescription>
                 {instagramFailure === "in-use"
@@ -249,21 +296,35 @@ export default async function ServiceDetailPage({
             <Alert role="note" className="border-primary/25 bg-primary/5">
               <MessageSquareText aria-hidden="true" className="text-primary" />
               <AlertTitle>{t("teamNote")}</AlertTitle>
-              <AlertDescription className="text-foreground">{item.adminNote}</AlertDescription>
+              <AlertDescription className="text-foreground">
+                {item.adminNote}
+              </AlertDescription>
             </Alert>
           )}
         </div>
       )}
 
       {hasMainColumn ? (
-        <div className={cn("mt-8 grid items-start gap-6", testCall && "lg:grid-cols-3")}>
+        <div
+          className={cn(
+            "mt-8 grid items-start gap-6",
+            testCall && "lg:grid-cols-3",
+          )}
+        >
           <div className={cn("min-w-0 space-y-6", testCall && "lg:col-span-2")}>
-            {showSetup && <ServiceSetupCard item={item} canManage={canManage} />}
+            {showSetup && (
+              <ServiceSetupCard item={item} canManage={canManage} />
+            )}
             {/* Appels et calendrier ensemble : deux onglets d'une même carte. */}
             {showBookings && hasLiveCalls(item) ? (
               <ServiceActivityTabs
                 calls={<ServiceCallsContent item={item} />}
-                calendar={<BookingsCalendar scheduled={scheduledBookings} unscheduled={unscheduledBookings} />}
+                calendar={
+                  <BookingsCalendar
+                    scheduled={scheduledBookings}
+                    unscheduled={unscheduledBookings}
+                  />
+                }
               />
             ) : (
               <ServiceLiveCard item={item} />
@@ -283,7 +344,9 @@ export default async function ServiceDetailPage({
                 </CardContent>
               </Card>
             )}
-            {isMessaging && <ConversationHistory clientServiceId={item.clientServiceId} />}
+            {isMessaging && (
+              <ConversationHistory clientServiceId={item.clientServiceId} />
+            )}
           </div>
           {testCall && (
             <aside aria-label={t("aside")} className="min-w-0 space-y-6">

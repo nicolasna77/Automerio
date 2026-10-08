@@ -1121,7 +1121,9 @@
         "noQuota": "Pas de forfait pour cette solution",
         "pause": {
           "switch": "Assistant en service : {name}",
-          "label": "Assistant en service",
+          "label": "Assistant",
+          "on": "Activé",
+          "off": "Désactivé",
           "pausedSince": "En pause depuis le {date}. ",
           "pausedToast": "{name} est en pause : l'assistant ne répond plus.",
           "resumedToast": "{name} est de nouveau en service.",
