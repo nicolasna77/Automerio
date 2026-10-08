@@ -1121,7 +1121,9 @@
         "noQuota": "Pas de forfait pour cette solution",
         "pause": {
           "switch": "Assistant en service : {name}",
-          "label": "Assistant",
+          "cardTitle": "Assistant",
+          "cardOn": "Activé : il répond aux appels et aux messages.",
+          "cardOff": "Désactivé : il ne répond plus. Réactivez-le quand vous voulez.",
           "on": "Activé",
           "off": "Désactivé",
           "pausedSince": "En pause depuis le {date}. ",

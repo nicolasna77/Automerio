@@ -8,24 +8,14 @@ import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
 import { setServicePaused } from "@/app/[locale]/dashboard/actions";
 
-// Interrupteur « en service » d'une solution : coupé, l'assistant ne décroche
-// plus et ne répond plus aux messages. Le choix s'applique tout de suite.
-// L'état est écrit dans la piste (« Activé » / « Désactivé ») : il se lit sans
-// dépendre de la couleur ni de la position du curseur.
-export function PauseSwitch({
-  clientServiceId,
-  name,
-  paused,
-}: {
-  clientServiceId: string;
-  name: string;
-  paused: boolean;
-}) {
+// Mise en pause d'une solution, partagée par l'interrupteur du tableau et la
+// carte Assistant de la page : état optimiste, action serveur, toasts.
+export function usePauseToggle(clientServiceId: string, name: string, paused: boolean) {
   const t = useTranslations("Dashboard.services.list.pause");
   const [pending, startTransition] = useTransition();
   const [optimisticPaused, setOptimisticPaused] = useOptimistic(paused);
 
-  function handleChange(running: boolean) {
+  function setRunning(running: boolean) {
     startTransition(async () => {
       setOptimisticPaused(!running);
       try {
@@ -38,11 +28,30 @@ export function PauseSwitch({
     });
   }
 
+  return { paused: optimisticPaused, pending, setRunning };
+}
+
+// Interrupteur « en service » d'une solution, dans le tableau : coupé,
+// l'assistant ne décroche plus et ne répond plus aux messages. L'état est
+// écrit dans la piste (« Activé » / « Désactivé ») : il se lit sans dépendre
+// de la couleur ni de la position du curseur.
+export function PauseSwitch({
+  clientServiceId,
+  name,
+  paused,
+}: {
+  clientServiceId: string;
+  name: string;
+  paused: boolean;
+}) {
+  const t = useTranslations("Dashboard.services.list.pause");
+  const toggle = usePauseToggle(clientServiceId, name, paused);
+
   return (
     <SwitchPrimitive.Root
-      checked={!optimisticPaused}
-      onCheckedChange={handleChange}
-      disabled={pending}
+      checked={!toggle.paused}
+      onCheckedChange={toggle.setRunning}
+      disabled={toggle.pending}
       aria-label={t("switch", { name })}
       className="group/pause relative z-10 inline-flex h-7 w-24 shrink-0 items-center rounded-full border outline-none transition-colors focus-visible:focus-ring data-checked:border-primary data-checked:bg-primary data-unchecked:border-border data-unchecked:bg-muted data-disabled:cursor-progress data-disabled:opacity-70 motion-reduce:transition-none"
     >
