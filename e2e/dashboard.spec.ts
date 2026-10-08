@@ -35,7 +35,8 @@ test("le client suit le quota de ses abonnements en cours", async ({ page }) => 
 
   await running.getByRole("link", { name: "Standard téléphonique automatisé" }).click();
   await page.waitForURL(/\/dashboard\/services\/[^/]+$/);
-  await expect(page.getByText("Abonnement", { exact: true })).toBeVisible();
+  // Le quota est dans le sous-titre de la page ; le tarif est dans les réglages.
+  await expect(page.getByText("Quota de la période", { exact: true })).toBeVisible();
   await expect(page.locator('[role="progressbar"][aria-valuemax="150"]')).toBeVisible();
   await expect(page.getByText("Plafond d'usage")).toHaveCount(0);
 });
