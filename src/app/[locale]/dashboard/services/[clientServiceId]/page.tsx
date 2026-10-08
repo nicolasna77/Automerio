@@ -2,10 +2,11 @@ import { titleMetadata } from "@/i18n/metadata";
 import { getTranslations } from "next-intl/server";
 import { formatFrenchPhone } from "@/lib/phone-format";
 import { notFound } from "next/navigation";
-import { AlertTriangle, MessageSquareText, Plug } from "lucide-react";
-import { Link } from "@/i18n/navigation";
+import { cookies } from "next/headers";
+import { calendarSuggestionCookie } from "@/lib/dismissals";
+import { CalendarSuggestion } from "@/app/[locale]/dashboard/calendar-suggestion";
+import { AlertTriangle, MessageSquareText } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireUser } from "@/lib/session";
@@ -115,7 +116,9 @@ export default async function ServiceDetailPage({
     isLive &&
     !showSetup &&
     objectives.includes("appointment") &&
-    !item.calendarConnected;
+    !item.calendarConnected &&
+    // Facultative : le client a pu la refermer.
+    !(await cookies()).has(calendarSuggestionCookie(item.clientServiceId));
   const hasMainColumn =
     showSetup ||
     (isLive && Boolean(item.externalPhoneNumber)) ||
@@ -236,23 +239,10 @@ export default async function ServiceDetailPage({
       </header>
 
       {suggestsCalendar && (
-        <Alert className="mt-6">
-          <Plug aria-hidden="true" />
-          <AlertTitle>{t("calendarSuggestion.title")}</AlertTitle>
-          <AlertDescription>
-            <p>{t("calendarSuggestion.description")}</p>
-            <Link
-              href={`/dashboard/services/${item.clientServiceId}/configuration#${CONNECTORS_SECTION_ID}`}
-              className={buttonVariants({
-                variant: "outline",
-                size: "sm",
-                className: "mt-3",
-              })}
-            >
-              {t("calendarSuggestion.cta")}
-            </Link>
-          </AlertDescription>
-        </Alert>
+        <CalendarSuggestion
+          clientServiceId={item.clientServiceId}
+          connectorsHref={`/dashboard/services/${item.clientServiceId}/configuration#${CONNECTORS_SECTION_ID}`}
+        />
       )}
 
       {(calendar === "error" || instagramFailure || item.adminNote) && (
