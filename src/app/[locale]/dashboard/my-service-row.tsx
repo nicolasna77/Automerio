@@ -9,7 +9,6 @@ import { MonthlyPrice } from "@/components/monthly-price";
 import { StatusBadge } from "@/components/status-badge";
 import { ServiceGlyph } from "@/components/service-glyph";
 import { ResumeCheckoutButton } from "./resume-checkout-button";
-import { ServiceActionsMenu } from "./service-detail-actions";
 import { ServiceSettingsButton } from "./service-settings-button";
 import { UsageCounter } from "./usage-counter";
 import { QuotaMeter, type QuotaState } from "./quota-meter";
@@ -96,11 +95,13 @@ export function MyServiceRow({
         </div>
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pl-9 md:contents">
-          <div className="flex items-center gap-2.5">
+          {/* Le badge au-dessus de l'interrupteur, comme sur la page de la
+              solution. */}
+          <div className="flex flex-col items-start gap-1.5">
+            <StatusBadge status={status} pausedAt={item.pausedAt} />
             {pausable && canManage && (
               <PauseSwitch clientServiceId={item.clientServiceId} name={item.name} paused={paused} />
             )}
-            <StatusBadge status={status} pausedAt={item.pausedAt} />
           </div>
 
           {/* Colonne Quota : alignée d'une ligne à l'autre sur ordinateur ; sur
@@ -131,7 +132,6 @@ export function MyServiceRow({
 
         <div className="absolute top-3 right-2 z-10 flex items-center gap-0.5 md:static md:justify-self-end">
           <ServiceSettingsButton item={item} />
-          <ServiceActionsMenu item={item} />
         </div>
       </div>
 

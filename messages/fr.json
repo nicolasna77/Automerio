@@ -1121,7 +1121,11 @@
         "noQuota": "Pas de forfait pour cette solution",
         "pause": {
           "switch": "Assistant en service : {name}",
-          "label": "Assistant en service",
+          "cardTitle": "Assistant",
+          "cardOn": "Activé : il répond aux appels et aux messages.",
+          "cardOff": "Désactivé : il ne répond plus. Réactivez-le quand vous voulez.",
+          "on": "Activé",
+          "off": "Désactivé",
           "pausedSince": "En pause depuis le {date}. ",
           "pausedToast": "{name} est en pause : l'assistant ne répond plus.",
           "resumedToast": "{name} est de nouveau en service.",
@@ -1383,18 +1387,13 @@
       },
       "actions": {
         "canceled": "« {name} » a été résiliée.",
-        "more": "Plus d'actions pour « {name} »",
         "unsubscribe": "Se désabonner",
         "confirmTitle": "Résilier « {name} » ?",
         "confirmDescription": "L'abonnement mensuel sera annulé immédiatement. Dans les 30 jours suivant votre premier paiement, il vous est remboursé sur simple demande depuis la rubrique Aide.",
         "canceling": "Résiliation…"
       },
       "subscription": {
-        "title": "Abonnement",
-        "cap": "Plafond d'usage : {cap}",
-        "noQuota": "Cet abonnement n'a pas de quota d'usage : le montant mensuel ne bouge pas.",
-        "adjust": "Ajuster l'abonnement",
-        "manage": "Gérer mes abonnements"
+        "noQuota": "Cet abonnement n'a pas de quota d'usage : le montant mensuel ne bouge pas."
       },
       "progress": {
         "label": "Étapes de la solution",
@@ -1412,10 +1411,16 @@
         "calendar": "Calendrier"
       },
       "breadcrumb": "Solutions",
+      "summary": {
+        "status": "Mise en service",
+        "price": "Tarif",
+        "quota": "Quota de la période"
+      },
       "calendarSuggestion": {
         "title": "Connectez un agenda pour que l'assistant réserve",
         "description": "Facultatif. Sans agenda, l'assistant prend les demandes de rendez-vous en message. Avec Google Agenda, Cal.com ou Calendly, il réserve directement.",
-        "cta": "Connecter un agenda"
+        "cta": "Connecter un agenda",
+        "dismiss": "Masquer cette suggestion"
       },
       "calendarError": {
         "title": "Connexion à l'agenda impossible",
@@ -1680,7 +1685,9 @@
         "paymentMethod": "Moyen de paiement",
         "paymentMethodValue": "Carte ou prélèvement, géré de façon sécurisée par Stripe.",
         "invoicing": "Facturation",
-        "invoices": "Voir mes factures"
+        "invoices": "Voir mes factures",
+        "cancel": "Résiliation",
+        "cancelDescription": "L'assistant s'arrête et l'abonnement mensuel est annulé immédiatement."
       },
       "connectors": {
         "title": "Connecteurs",

@@ -11,6 +11,7 @@ import { ChangeQuotaDialog } from "./change-quota-dialog";
 import { OverageSwitch } from "./overage-switch";
 import { BillingPortalButton } from "./payments/billing-portal-button";
 import { BILLING_SECTION_ID } from "./billing-section";
+import { CancelServiceButton } from "./service-detail-actions";
 
 // Section « Abonnement » des réglages d'une solution : ajuster le volume et
 // gérer le moyen de paiement. Ces actions s'appliquent tout de suite, à la
@@ -136,6 +137,15 @@ export function ServiceBillingCard({
               {t("invoices")}
             </Link>
           </BillingRow>
+
+          {running && (
+            <BillingRow
+              label={t("cancel")}
+              action={<CancelServiceButton clientServiceId={subscription.clientServiceId} name={subscription.name} />}
+            >
+              <span className="text-muted-foreground">{t("cancelDescription")}</span>
+            </BillingRow>
+          )}
         </dl>
       </CardContent>
     </Card>

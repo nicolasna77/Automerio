@@ -9,8 +9,10 @@ import { canEditConfiguration, type MyServiceDTO } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
 
 // Accès direct aux réglages d'une solution : une icône avec infobulle dans les
-// listes, un bouton avec son libellé dans l'en-tête du détail. Rien quand la
-// solution ne se configure pas (résiliée, en attente de paiement, sans champ).
+// listes, un bouton avec son libellé dans l'en-tête du détail (libellé réservé
+// aux lecteurs d'écran quand l'en-tête est étroit, @container/header). Rien
+// quand la solution ne se configure pas (résiliée, en attente de paiement,
+// sans champ).
 export function ServiceSettingsButton({
   item,
   labeled = false,
@@ -26,9 +28,12 @@ export function ServiceSettingsButton({
 
   if (labeled) {
     return (
-      <Link href={href} className={buttonVariants({ variant: "outline", className })}>
+      <Link
+        href={href}
+        className={buttonVariants({ variant: "outline", className: cn("@max-3xl/header:px-2.5", className) })}
+      >
         <Settings aria-hidden="true" data-icon="inline-start" />
-        {t("label")}
+        <span className="@max-3xl/header:sr-only">{t("label")}</span>
       </Link>
     );
   }
