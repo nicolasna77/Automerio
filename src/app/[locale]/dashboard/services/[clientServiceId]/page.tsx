@@ -175,7 +175,7 @@ export default async function ServiceDetailPage({
             {/* Sous-titre : où en est la solution et, une fois la mise en
                 service terminée, ce qui est consommé du forfait sur la
                 période. Le tarif est dans les réglages. */}
-            <dl className="mt-4 flex flex-wrap gap-x-16 gap-y-3 text-sm">
+            <dl className="mt-5 flex flex-wrap gap-x-24 gap-y-5 text-sm">
               <div className="min-w-0">
                 <dt className="text-xs text-muted-foreground">{t("summary.status")}</dt>
                 <dd className="mt-0.5 font-medium text-foreground">{labels.serviceStatus(item)}</dd>
