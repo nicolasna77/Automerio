@@ -1,5 +1,7 @@
 export const MENU_IMPORT_MAX_FILES = 5;
-export const MENU_IMPORT_MAX_TOTAL_BYTES = 12 * 1024 * 1024;
+// Vercel refuse tout corps de requête au-delà de 4,5 Mo (erreur 413, avant
+// même l'action) : 4 Mo de fichiers laissent la marge de l'enveloppe multipart.
+export const MENU_IMPORT_MAX_TOTAL_BYTES = 4 * 1024 * 1024;
 
 export type MenuFileKind = "pdf" | "image";
 

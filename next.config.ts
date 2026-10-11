@@ -48,10 +48,11 @@ const nextConfig: NextConfig = {
     // Limite globale (Next ne permet pas de la fixer action par action) : la seule
     // Server Action qui reçoit un gros corps est l'import de carte
     // (`transcribeMenu`, src/app/[locale]/dashboard/menu-import-actions.ts),
-    // plafonnée à MENU_IMPORT_MAX_TOTAL_BYTES = 12 Mo (src/lib/menu-import.ts).
-    // 13 Mo = ces 12 Mo + la marge de l'enveloppe multipart. À ajuster avec ce
-    // plafond ; l'avatar passe par l'API better-auth, pas par une Server Action.
-    serverActions: { bodySizeLimit: "13mb" },
+    // plafonnée à MENU_IMPORT_MAX_TOTAL_BYTES = 4 Mo (src/lib/menu-import.ts).
+    // 4,5 Mo = ces 4 Mo + la marge de l'enveloppe multipart, et la limite de
+    // corps de requête d'une fonction Vercel : au-delà, Vercel répond 413 avant
+    // Next. L'avatar passe par l'API better-auth, pas par une Server Action.
+    serverActions: { bodySizeLimit: "4.5mb" },
   },
   async headers() {
     return [{ source: "/:path*", headers: SECURITY_HEADERS }];

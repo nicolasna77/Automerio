@@ -199,6 +199,9 @@ export async function activateService(
       db.user.findUniqueOrThrow({ where: { id: userId } }),
     ]);
     await requireBillingRoleOn({ organizationId }, userId);
+    // Une solution retirée du catalogue ne s'achète plus, même par un appel
+    // direct à l'action.
+    if (!service.isActive) throw actionError("serviceNotOffered");
 
     const trimmedName = name.trim();
     if (!trimmedName) {
@@ -296,6 +299,7 @@ export async function resumeServiceCheckout(
     if (clientService.status !== "PENDING_PAYMENT" && clientService.status !== "CANCELED") {
       throw actionError("alreadyActive");
     }
+    if (!clientService.service.isActive) throw actionError("serviceNotOffered");
 
     const explicitCode = newPromoCode?.trim() || null;
     if (explicitCode && !(await checkRateLimit("promo-code-preview", userId, "10 m", 20))) {
@@ -442,7 +446,7 @@ export async function disconnectCalendar(clientServiceId: string) {
       requireUserId(),
       db.clientService.findUniqueOrThrow({ where: { id: clientServiceId } }),
     ]);
-    await requireMemberOn(clientService, userId);
+    await requireBillingRoleOn(clientService, userId);
 
     const [google, scheduling] = await db.$transaction([
       db.calendarConnection.deleteMany({ where: { clientServiceId } }),
@@ -484,7 +488,7 @@ export async function previewSchedulingAccount(
       requireUserId(),
       db.clientService.findUniqueOrThrow({ where: { id: clientServiceId } }),
     ]);
-    await requireMemberOn(clientService, userId);
+    await requireBillingRoleOn(clientService, userId);
     if (!(await checkRateLimit("scheduling-preview", userId, "10 m", 20))) {
       throw actionError("tooManyTries");
     }
@@ -511,7 +515,7 @@ export async function connectSchedulingTool(
       requireUserId(),
       db.clientService.findUniqueOrThrow({ where: { id: clientServiceId } }),
     ]);
-    await requireMemberOn(clientService, userId);
+    await requireBillingRoleOn(clientService, userId);
     if (!(await checkRateLimit("scheduling-connect", userId, "10 m", 10))) {
       throw actionError("tooManyTries");
     }
@@ -802,6 +806,20 @@ export async function purchasePhoneNumberForService(
   });
 }
 
+// Un abonnement déjà terminé chez Stripe (résilié par le webhook, ou à une
+// tentative précédente) compte comme résilié ; toute autre erreur arrête la
+// résiliation.
+async function cancelStripeSubscription(subscriptionId: string): Promise<void> {
+  try {
+    await stripeClient.subscriptions.cancel(subscriptionId);
+  } catch (err) {
+    const current = await stripeClient.subscriptions.retrieve(subscriptionId).catch(() => null);
+    if (current?.status === "canceled") return;
+    console.error("[paiement] résiliation Stripe impossible :", err);
+    throw actionError("cancelRejected");
+  }
+}
+
 export async function cancelService(clientServiceId: string) {
   return runAction(async () => {
     const [userId, clientService] = await Promise.all([
@@ -813,16 +831,18 @@ export async function cancelService(clientServiceId: string) {
     ]);
     await requireBillingRoleOn(clientService, userId);
 
+    // Sans résiliation confirmée chez Stripe, rien ne change en base : une
+    // solution marquée résiliée continuerait sinon d'être prélevée.
     if (clientService.stripeSubscriptionId) {
-      try {
-        await stripeClient.subscriptions.cancel(clientService.stripeSubscriptionId);
-      } catch (err) {
-        console.error("[paiement] résiliation Stripe impossible :", err);
-      }
+      await cancelStripeSubscription(clientService.stripeSubscriptionId);
     }
 
+    // L'abonnement est arrêté : un échec Twilio ne doit pas laisser la
+    // solution active en base (même règle que endSubscription, stripe-webhooks.ts).
     if (clientService.externalPhoneNumberSid) {
-      await releasePhoneNumber(clientService.externalPhoneNumberSid);
+      await releasePhoneNumber(clientService.externalPhoneNumberSid).catch((err) =>
+        console.error("[résiliation] libération du numéro impossible :", err)
+      );
     }
 
     await db.clientService.update({
