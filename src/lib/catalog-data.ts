@@ -16,6 +16,10 @@ export type CatalogService = {
   extraUnitPriceCents?: number | null;
   configFields: ConfigField[];
   sortOrder: number;
+  // Absent : en vente. false : prévue pour plus tard (01-prd.md), absente du
+  // catalogue sur une base neuve. Seule la création l'applique : l'équipe
+  // active ou désactive ensuite depuis /admin/services.
+  isActive?: boolean;
 };
 
 export function catalogSyncFields(service: CatalogService) {
@@ -276,6 +280,7 @@ export const CATALOG: CatalogService[] = [
   },
   {
     slug: "reponses-emails",
+    isActive: false,
     name: "Réponses automatiques aux e-mails",
     description:
       "Votre boîte mail se trie et se priorise toute seule, avec des brouillons de réponse déjà prêts à envoyer.",
@@ -304,6 +309,7 @@ export const CATALOG: CatalogService[] = [
   },
   {
     slug: "prise-rdv-automatique",
+    isActive: false,
     name: "Prise de rendez-vous automatique",
     description:
       "Vos clients réservent en ligne sur vos créneaux réels : synchronisation directe avec votre agenda.",
@@ -334,6 +340,7 @@ export const CATALOG: CatalogService[] = [
 
   {
     slug: "resume-pdf",
+    isActive: false,
     name: "Résumé automatique de fichiers PDF",
     description:
       "Contrats, rapports, devis reçus : l'essentiel de vos documents longs en quelques lignes, sans tout relire.",
@@ -363,6 +370,7 @@ export const CATALOG: CatalogService[] = [
   },
   {
     slug: "resume-reunions",
+    isActive: false,
     name: "Résumé automatique de réunions",
     description:
       "Un compte-rendu structuré de chaque réunion, à partir d'un enregistrement ou d'une transcription. Plus besoin de prendre des notes.",
@@ -399,6 +407,7 @@ export const CATALOG: CatalogService[] = [
   },
   {
     slug: "ocr-lecture-automatique",
+    isActive: false,
     name: "OCR : lecture automatique de documents scannés",
     description:
       "Les données de vos PDF et factures scannées arrivent directement dans vos outils de gestion, sans ressaisie manuelle.",
@@ -421,6 +430,7 @@ export const CATALOG: CatalogService[] = [
 
   {
     slug: "support-prioritaire",
+    isActive: false,
     name: "Support prioritaire",
     description:
       "Accompagnement dédié, en plus du support déjà inclus dans chacune de vos solutions.",
