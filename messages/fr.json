@@ -1460,6 +1460,21 @@
         "title": "Connexion à l'agenda impossible",
         "description": "Réessayez depuis la carte Mise en service, ou contactez-nous si le problème persiste."
       },
+      "stats": {
+        "title": "Activité des 30 derniers jours",
+        "description": "Ce que votre assistant a traité, et quand vos clients appellent.",
+        "empty": "Aucun appel sur les 30 derniers jours. Les chiffres apparaîtront avec les premiers appels.",
+        "total": "Appels reçus",
+        "booked": "Avec rendez-vous ou commande",
+        "outOfHours": "Hors horaires d'ouverture",
+        "byHourTitle": "Appels par heure",
+        "busiest": "Heure la plus chargée : {from} h – {to} h.",
+        "hour": "{hour} h",
+        "hourColumn": "Heure",
+        "calls": "Appels",
+        "callsCount": "{count, plural, one {# appel} other {# appels}}",
+        "reasonsTitle": "Motifs les plus fréquents"
+      },
       "teamNote": "Note de l'équipe Automerio",
       "bookings": "Rendez-vous et commandes reçus",
       "aside": "Abonnement",
