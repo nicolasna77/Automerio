@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { unwrap } from "@/lib/action-result";
-import { MENU_IMPORT_MAX_FILES } from "@/lib/menu-import";
+import { MENU_IMPORT_MAX_FILES, MENU_IMPORT_MAX_TOTAL_BYTES } from "@/lib/menu-import";
 import { countCatalogItems, emptyCatalogItem, emptyCatalogSection, formatPriceInput, parsePriceInput, type CatalogItem, type CatalogSection } from "@/lib/product-catalog";
 import { cn, getErrorMessage } from "@/lib/utils";
 import { transcribeMenu } from "./menu-import-actions";
@@ -105,8 +105,18 @@ export function ProductCatalogEditor({
     setStatus({ tone: "info", message: t("reading") });
     startImport(async () => {
       try {
+        const shrunk = await Promise.all(files.map(shrinkImage));
+        // Vérifié ici aussi : au-delà de la limite, Vercel refuse la requête
+        // avant l'action, qui ne pourrait pas expliquer pourquoi.
+        if (shrunk.reduce((sum, file) => sum + file.size, 0) > MENU_IMPORT_MAX_TOTAL_BYTES) {
+          setStatus({
+            tone: "error",
+            message: t("filesTooLarge", { max: MENU_IMPORT_MAX_TOTAL_BYTES / 1024 / 1024 }),
+          });
+          return;
+        }
         const formData = new FormData();
-        for (const file of await Promise.all(files.map(shrinkImage))) {
+        for (const file of shrunk) {
           formData.append("files", file);
         }
         const sections = unwrap(await transcribeMenu(formData));
