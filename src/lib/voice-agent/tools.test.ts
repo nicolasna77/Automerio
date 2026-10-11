@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { Configuration } from "@/lib/catalog";
 
 const mocks = vi.hoisted(() => ({
   bookingCreate: vi.fn(),
@@ -341,7 +342,7 @@ describe("demande de devis", () => {
   };
 
   it("n'est proposée au standard que si le réglage est activé", () => {
-    const names = (config: Record<string, unknown>) =>
+    const names = (config: Configuration) =>
       getToolDefinitions("standard-telephonique-ia", config, false).map((tool) => tool.function.name);
     expect(names(configuration)).not.toContain("take_quote_request");
     expect(names(quoteConfiguration)).toContain("take_quote_request");
