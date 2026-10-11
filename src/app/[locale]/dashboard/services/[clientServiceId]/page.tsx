@@ -20,6 +20,10 @@ import {
   asStringArray,
   canPauseService,
   MESSAGING_SERVICE_SLUGS,
+  needsFacebookConnection,
+  needsInstagramConnection,
+  needsPhoneNumber,
+  needsWhatsAppConnection,
   TELEPHONY_SERVICE_SLUGS,
 } from "@/lib/catalog";
 import { AssistantToggle } from "@/app/[locale]/dashboard/assistant-toggle";
@@ -109,6 +113,13 @@ export default async function ServiceDetailPage({
   const isMessaging = MESSAGING_SERVICE_SLUGS.has(item.service.slug);
   const isTelephony = TELEPHONY_SERVICE_SLUGS.has(item.service.slug);
   const showSetup = !isSetupComplete(item);
+  // L'assistant ne peut répondre qu'une fois son canal en place : un numéro
+  // pour le téléphone, un compte relié pour une messagerie.
+  const channelReady =
+    !needsPhoneNumber(item) &&
+    !needsWhatsAppConnection(item) &&
+    !needsFacebookConnection(item) &&
+    !needsInstagramConnection(item);
   // Agenda facultatif : une fois la solution en service sans agenda, une
   // alerte propose de le connecter depuis l'onglet Connecteurs.
   const suggestsCalendar =
@@ -169,7 +180,7 @@ export default async function ServiceDetailPage({
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-3">
-              <h1 className="min-w-0 text-2xl font-semibold tracking-tight text-foreground [overflow-wrap:anywhere]">
+              <h1 className="min-w-0 text-2xl font-semibold tracking-tight text-balance text-foreground [overflow-wrap:anywhere]">
                 {item.name}
               </h1>
               {/* Actions en haut à droite ; l'état de l'assistant est dans
@@ -179,7 +190,7 @@ export default async function ServiceDetailPage({
               </div>
             </div>
 
-            <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+            <p className="mt-1 max-w-2xl text-sm text-pretty text-muted-foreground">
               {item.name !== item.service.name && (
                 <span className="block font-medium text-foreground">
                   {item.service.name}
@@ -188,36 +199,53 @@ export default async function ServiceDetailPage({
               {item.service.description}
             </p>
 
-            {/* Le quota de la période (une fois la mise en service
-                terminée) et l'état de l'assistant, côte à côte quand
-                l'en-tête a la place. Le tarif est dans les réglages. */}
+            {/* Où en est la solution, avant ce qu'elle consomme : la frise
+                tant qu'elle n'est pas active. */}
+            {showProgress && (
+              // mt-2 + la marge propre de la frise (mt-3) = l'écart de 20 px
+              // des autres blocs de l'en-tête.
+              <div className="mt-2 max-w-2xl">
+                <ServiceProgress status={item.status} />
+              </div>
+            )}
+
+            {/* Le quota de la période (une fois la mise en service terminée)
+                et l'état de l'assistant : deux cartes de même poids, côte à
+                côte quand l'en-tête a la place, l'une sous l'autre sinon. */}
             {(quota || pausable) && (
-              <div className="mt-5 grid grid-cols-2 a items-start gap-x-12 gap-y-5 @md/header:grid-cols-2">
+              <div
+                className={cn(
+                  "mt-5 grid items-stretch gap-4",
+                  quota && pausable ? "@2xl/header:grid-cols-2" : "max-w-md",
+                )}
+              >
                 {quota && (
-                  <dl className="min-w-0 text-sm">
-                    <dt className="text-sm font-semibold text-foreground">
-                      {t("summary.quota")}
-                    </dt>
-                    <dd className="mt-2">
-                      <QuotaMeter
-                        cap={quota.cap}
-                        consumedUnits={quota.consumedUnits}
-                        variant="stacked"
-                      />
-                    </dd>
-                    <dd>
-                      <UsageNote
-                        cap={quota.cap}
-                        consumedUnits={quota.consumedUnits}
-                        overageCents={quota.overageCents}
-                        pausesAtLimit={pausesAtLimit(
-                          quota.cap,
-                          quota.overageAllowed,
-                        )}
-                        className="mt-1.5"
-                      />
-                    </dd>
-                  </dl>
+                  <Card size="sm" className="h-full min-w-0 gap-2 px-(--card-spacing)">
+                    <dl className="min-w-0 text-sm">
+                      <dt className="text-sm font-semibold text-foreground">
+                        {t("summary.quota")}
+                      </dt>
+                      <dd className="mt-2">
+                        <QuotaMeter
+                          cap={quota.cap}
+                          consumedUnits={quota.consumedUnits}
+                          variant="stacked"
+                        />
+                      </dd>
+                      <dd>
+                        <UsageNote
+                          cap={quota.cap}
+                          consumedUnits={quota.consumedUnits}
+                          overageCents={quota.overageCents}
+                          pausesAtLimit={pausesAtLimit(
+                            quota.cap,
+                            quota.overageAllowed,
+                          )}
+                          className="mt-1.5"
+                        />
+                      </dd>
+                    </dl>
+                  </Card>
                 )}
                 {pausable && (
                   <AssistantToggle
@@ -225,13 +253,10 @@ export default async function ServiceDetailPage({
                     name={item.name}
                     paused={item.pausedAt !== null}
                     canManage={canManage}
+                    channel={isTelephony ? "calls" : "messages"}
+                    ready={channelReady}
                   />
                 )}
-              </div>
-            )}
-            {showProgress && (
-              <div className="max-w-2xl">
-                <ServiceProgress status={item.status} />
               </div>
             )}
           </div>
