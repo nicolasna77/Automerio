@@ -222,7 +222,11 @@ export function ConversationInbox({
         <div
           aria-busy={filtering}
           className={cn(
-            "grid h-[36rem] overflow-hidden rounded-lg border border-border transition-opacity duration-150 motion-reduce:transition-none md:grid-cols-[17rem_minmax(0,1fr)]",
+            "grid overflow-hidden rounded-lg border border-border transition-opacity duration-150 motion-reduce:transition-none md:h-[36rem] md:grid-cols-[17rem_minmax(0,1fr)]",
+            // Sur mobile, la liste seule prend la hauteur de ses fils (pas de
+            // grand vide sous trois conversations) ; un fil ouvert garde la
+            // hauteur fixe qui tient la zone de réponse en bas.
+            mobileView === "thread" ? "h-[36rem]" : "max-h-[36rem]",
             filtering && "opacity-60"
           )}
         >

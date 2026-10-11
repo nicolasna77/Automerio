@@ -2,7 +2,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Check } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import {
   asStringArray,
@@ -297,6 +297,10 @@ export function ServiceSetupCard({
     <Card id={SETUP_ANCHOR} className="scroll-mt-24">
       <CardHeader>
         <CardTitle as="h2" className="text-base">{t("title")}</CardTitle>
+        {/* Où en est le client, en un coup d'œil, avant le détail des étapes. */}
+        <CardDescription className="tabular-nums">
+          {t("progress", { done: steps.filter((step) => step.done).length, total: steps.length })}
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
         {content}

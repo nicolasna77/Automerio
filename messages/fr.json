@@ -1281,6 +1281,7 @@
         "verification": "Vérification par l'équipe Automerio"
       },
       "stepDone": "terminé",
+      "progress": "{done, plural, one {# étape sur {total} terminée} other {# étapes sur {total} terminées}}",
       "stepNext": "prochaine étape",
       "stepTodo": "à faire",
       "optional": " (facultatif)",
