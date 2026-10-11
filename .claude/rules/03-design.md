@@ -52,7 +52,7 @@ Thème clair et sombre (next-themes).
 - **Formulaire** : un `Label` par champ ; erreur sous le champ (`aria-invalid`,
   `aria-describedby`) et focus sur le champ.
 - **Interrupteur de l'assistant** : piste verte « Activé » / neutre
-  « Désactivé » (tableau) ; poignée à coche / croix (carte Assistant).
+  « Désactivé » (tableau) ; poignée à coche / croix (bloc Assistant).
 - **États vides** : `EmptyState`, une phrase qui dit quoi faire.
 - **Icônes** : lucide-react uniquement, 16 px dans le texte, 20 px en tête de bloc.
   Aucun emoji. Logos officiels pour WhatsApp, Messenger, Instagram, Google.
@@ -70,7 +70,7 @@ Thème clair et sombre (next-themes).
   (jamais dans la page), `PageHeader` (titre 24 px, description).
 - **Liste des solutions** : tableau Solution / Statut / Quota / Tarif / Réglages.
 - **Page d'une solution** : en-tête (nom, description, « Réglages » en haut à
-  droite), quota et carte Assistant côte à côte, puis activité ; colonne
+  droite), quota et bloc Assistant côte à côte, sans carte, puis activité ; colonne
   latérale seulement pour l'appel d'essai.
 - **Réglages** : onglets à gauche, fiches « libellé / valeur / action ».
 

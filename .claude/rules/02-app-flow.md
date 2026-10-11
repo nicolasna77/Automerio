@@ -70,7 +70,8 @@ numéro, connecter WhatsApp, Messenger, Instagram, agenda)
 
 ### Suivre une solution (page `/dashboard/services/[id]`)
 - En-tête : nom, description, bouton « Réglages » en haut à droite.
-- Quota de la période (solution active) et carte « Assistant » côte à côte.
+- Quota de la période (solution active) et bloc « Assistant » côte à côte,
+  sans carte ; l'un sous l'autre quand la place manque.
 - Pas encore active → frise Payé / En configuration / Actif.
 - Appels reçus, calendrier, conversations selon le type de solution.
 - Vide : « aucun appel ce mois-ci », état vide du calendrier, des conversations.
@@ -79,7 +80,7 @@ numéro, connecter WhatsApp, Messenger, Instagram, agenda)
   reste fermée (cookie).
 
 ### Désactiver l'assistant
-Carte « Assistant » ou interrupteur du tableau → bascule
+Bloc « Assistant » ou interrupteur du tableau → bascule
 - succès → toast, état « Désactivé » ; appels et messages ne reçoivent plus de réponse
 - non responsable → pas d'interrupteur, état affiché
 - solution non payée ou hors téléphonie / messagerie → interrupteur absent

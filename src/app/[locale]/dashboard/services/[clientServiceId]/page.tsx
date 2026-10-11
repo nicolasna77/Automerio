@@ -210,42 +210,40 @@ export default async function ServiceDetailPage({
             )}
 
             {/* Le quota de la période (une fois la mise en service terminée)
-                et l'état de l'assistant : deux cartes de même poids, côte à
-                côte quand l'en-tête a la place, l'une sous l'autre sinon. */}
+                et l'état de l'assistant, sans carte : côte à côte quand
+                l'en-tête a la place, l'un sous l'autre sinon. */}
             {(quota || pausable) && (
               <div
                 className={cn(
-                  "mt-5 grid items-stretch gap-4",
+                  "mt-5 grid items-start gap-x-12 gap-y-5",
                   quota && pausable ? "@2xl/header:grid-cols-2" : "max-w-md",
                 )}
               >
                 {quota && (
-                  <Card size="sm" className="h-full min-w-0 gap-2 px-(--card-spacing)">
-                    <dl className="min-w-0 text-sm">
-                      <dt className="text-sm font-semibold text-foreground">
-                        {t("summary.quota")}
-                      </dt>
-                      <dd className="mt-2">
-                        <QuotaMeter
-                          cap={quota.cap}
-                          consumedUnits={quota.consumedUnits}
-                          variant="stacked"
-                        />
-                      </dd>
-                      <dd>
-                        <UsageNote
-                          cap={quota.cap}
-                          consumedUnits={quota.consumedUnits}
-                          overageCents={quota.overageCents}
-                          pausesAtLimit={pausesAtLimit(
-                            quota.cap,
-                            quota.overageAllowed,
-                          )}
-                          className="mt-1.5"
-                        />
-                      </dd>
-                    </dl>
-                  </Card>
+                  <dl className="min-w-0 text-sm">
+                    <dt className="text-sm font-semibold text-foreground">
+                      {t("summary.quota")}
+                    </dt>
+                    <dd className="mt-2">
+                      <QuotaMeter
+                        cap={quota.cap}
+                        consumedUnits={quota.consumedUnits}
+                        variant="stacked"
+                      />
+                    </dd>
+                    <dd>
+                      <UsageNote
+                        cap={quota.cap}
+                        consumedUnits={quota.consumedUnits}
+                        overageCents={quota.overageCents}
+                        pausesAtLimit={pausesAtLimit(
+                          quota.cap,
+                          quota.overageAllowed,
+                        )}
+                        className="mt-1.5"
+                      />
+                    </dd>
+                  </dl>
                 )}
                 {pausable && (
                   <AssistantToggle

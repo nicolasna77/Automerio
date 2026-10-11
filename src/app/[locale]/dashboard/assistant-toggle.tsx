@@ -4,14 +4,13 @@ import { useId } from "react";
 import { useTranslations } from "next-intl";
 import { Check, X } from "lucide-react";
 import { Switch as SwitchPrimitive } from "@base-ui/react/switch";
-import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { usePauseToggle } from "./pause-switch";
 
-// Carte « Assistant » de la page d'une solution, à côté du quota, de haut en
-// bas : le titre, l'état en une phrase, puis l'interrupteur dont la poignée
-// porte une icône (coche activé, croix désactivé) qui se transforme au
-// basculement.
+// Bloc « Assistant » de la page d'une solution, à côté du quota (sans carte),
+// de haut en bas : le titre, l'état en une phrase, puis l'interrupteur dont
+// la poignée porte une icône (coche activé, croix désactivé) qui se
+// transforme au basculement.
 // Sans droit de gestion, la carte montre l'état sans interrupteur.
 // La phrase d'état dit ce que l'assistant fait sur ce canal (appels ou
 // messages) ; tant que la mise en service n'est pas finie (`ready` faux : pas
@@ -37,19 +36,17 @@ export function AssistantToggle({
   const running = !toggle.paused;
 
   return (
-    <Card size="sm" className="h-full min-w-0 items-start gap-3 px-(--card-spacing)">
-      <div className="min-w-0">
-        <p className="text-sm font-semibold text-foreground">{t("cardTitle")}</p>
-        <p id={descriptionId} className="mt-0.5 text-sm text-muted-foreground" aria-live="polite">
-          {!running
-            ? t("cardOff")
-            : !ready
-              ? t("cardWaiting")
-              : channel === "calls"
-                ? t("cardOnCalls")
-                : t("cardOnMessages")}
-        </p>
-      </div>
+    <div className="min-w-0">
+      <p className="text-sm font-semibold text-foreground">{t("cardTitle")}</p>
+      <p id={descriptionId} className="mt-0.5 text-sm text-muted-foreground" aria-live="polite">
+        {!running
+          ? t("cardOff")
+          : !ready
+            ? t("cardWaiting")
+            : channel === "calls"
+              ? t("cardOnCalls")
+              : t("cardOnMessages")}
+      </p>
       {canManage && (
         <SwitchPrimitive.Root
           checked={running}
@@ -57,15 +54,16 @@ export function AssistantToggle({
           disabled={toggle.pending}
           aria-label={t("switch", { name })}
           aria-describedby={descriptionId}
-          className="group/assistant relative inline-flex h-8 w-14 shrink-0 items-center rounded-full border outline-none transition-colors focus-visible:focus-ring data-checked:border-primary data-checked:bg-primary data-unchecked:border-border data-unchecked:bg-muted data-disabled:cursor-progress data-disabled:opacity-70 motion-reduce:transition-none"
+          className="group/assistant mt-3 inline-flex h-8 w-14 shrink-0 items-center rounded-full border p-0.5 outline-none transition-colors focus-visible:focus-ring data-checked:border-primary data-checked:bg-primary data-unchecked:border-border data-unchecked:bg-muted data-disabled:cursor-progress data-disabled:opacity-70 motion-reduce:transition-none"
         >
-          {/* Poignée : elle s'étire à l'appui puis glisse ; la coche et la
+          {/* Poignée dans le flux, déplacée par translation (comme le Switch
+              de components/ui) : 56 px de piste, 1 px de bordure et 2 px de
+              marge de chaque côté laissent 26 px de course. La coche et la
               croix se croisent en tournant. */}
           <SwitchPrimitive.Thumb
             className={cn(
-              "pointer-events-none absolute left-1 flex size-6 items-center justify-center rounded-full bg-background shadow-sm ring-1 ring-foreground/5",
-              "transition-[left,width] duration-200 ease-out data-checked:left-[calc(100%-1.75rem)]",
-              "group-active/assistant:w-7 group-active/assistant:data-checked:left-[calc(100%-2rem)]",
+              "pointer-events-none relative flex size-6 items-center justify-center rounded-full bg-background shadow-sm ring-1 ring-foreground/5",
+              "translate-x-0 transition-transform duration-200 ease-out data-checked:translate-x-6.5",
               "motion-reduce:transition-none"
             )}
           >
@@ -82,6 +80,6 @@ export function AssistantToggle({
           </SwitchPrimitive.Thumb>
         </SwitchPrimitive.Root>
       )}
-    </Card>
+    </div>
   );
 }
