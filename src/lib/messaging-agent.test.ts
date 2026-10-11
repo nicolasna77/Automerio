@@ -7,6 +7,7 @@ vi.mock("@/lib/openai", () => ({
 }));
 vi.mock("@/lib/db", () => ({ db: { booking: { create: mocks.bookingCreate } } }));
 vi.mock("@/lib/scheduling", () => ({ getScheduler: mocks.getScheduler }));
+vi.mock("@/lib/outgoing-webhook", () => ({ deliverWebhook: async () => {} }));
 
 import { generateMessagingReply, parseToolArguments } from "./messaging-agent";
 
@@ -31,6 +32,8 @@ function modelAnswers(toolCalls: unknown[]) {
 
 beforeEach(() => {
   for (const mock of Object.values(mocks)) mock.mockReset();
+  // Prisma renvoie la ligne créée : le webhook sortant l'annonce.
+  mocks.bookingCreate.mockImplementation(async ({ data }) => ({ id: "bk", startAt: null, endAt: null, notes: null, metadata: null, ...data }));
 });
 
 describe("generateMessagingReply", () => {

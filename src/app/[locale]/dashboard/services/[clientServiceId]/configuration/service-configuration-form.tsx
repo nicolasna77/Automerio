@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useRouter } from "@/i18n/navigation";
 import { toast } from "@/lib/toast";
-import { BadgeInfo, Check, CreditCard, History, PhoneForwarded, Plug, UtensilsCrossed, type LucideIcon } from "lucide-react";
+import { BadgeInfo, Check, CreditCard, History, PhoneForwarded, Plug, UtensilsCrossed, Webhook, type LucideIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -38,6 +38,7 @@ import {
   CONNECTORS_SECTION_ID,
   FORWARDING_SECTION_ID,
   HISTORY_SECTION_ID,
+  INTEGRATIONS_SECTION_ID,
 } from "@/app/[locale]/dashboard/billing-section";
 import { ProductCatalogEditor } from "@/app/[locale]/dashboard/product-catalog-editor";
 import { readProductCatalog, type CatalogSection } from "@/lib/product-catalog";
@@ -60,6 +61,7 @@ export function ServiceConfigurationForm({
   connectorsSection = null,
   forwardingSection = null,
   historySection = null,
+  integrationsSection = null,
 }: {
   clientServiceId: string;
   initialName: string;
@@ -77,6 +79,8 @@ export function ServiceConfigurationForm({
   forwardingSection?: React.ReactNode;
   // Section « Historique » : les étapes de la solution, en lecture seule.
   historySection?: React.ReactNode;
+  // Section « Intégrations » (webhook sortant) : actions immédiates.
+  integrationsSection?: React.ReactNode;
 }) {
   const configFields = allConfigFields.filter((field) => !hiddenKeys.includes(field.key));
   const router = useRouter();
@@ -205,6 +209,9 @@ export function ServiceConfigurationForm({
     ...(connectorsSection ? [{ id: CONNECTORS_SECTION_ID, title: t("tabs.connectors"), icon: Plug, keys: [] }] : []),
     ...(forwardingSection
       ? [{ id: FORWARDING_SECTION_ID, title: t("tabs.forwarding"), icon: PhoneForwarded, keys: [] }]
+      : []),
+    ...(integrationsSection
+      ? [{ id: INTEGRATIONS_SECTION_ID, title: t("tabs.integrations"), icon: Webhook, keys: [] }]
       : []),
     ...(billingSection ? [{ id: BILLING_SECTION_ID, title: t("tabs.billing"), icon: CreditCard, keys: [] }] : []),
     ...(historySection ? [{ id: HISTORY_SECTION_ID, title: t("tabs.history"), icon: History, keys: [] }] : []),
@@ -429,6 +436,17 @@ export function ServiceConfigurationForm({
           </div>
         )}
 
+        {integrationsSection && (
+          <div
+            id={`${INTEGRATIONS_SECTION_ID}-panel`}
+            role="tabpanel"
+            aria-labelledby={`${INTEGRATIONS_SECTION_ID}-tab`}
+            className={panelClass(INTEGRATIONS_SECTION_ID)}
+          >
+            {integrationsSection}
+          </div>
+        )}
+
         {billingSection && (
           <div
             id={`${BILLING_SECTION_ID}-panel`}
@@ -454,7 +472,7 @@ export function ServiceConfigurationForm({
         {/* Sur les onglets Abonnement et Connecteurs, dont les actions
             s'appliquent tout de suite, et sur ceux en lecture seule, la barre
             n'apparaît que s'il reste des changements ailleurs. */}
-        {(![BILLING_SECTION_ID, CONNECTORS_SECTION_ID, FORWARDING_SECTION_ID, HISTORY_SECTION_ID].includes(
+        {(![BILLING_SECTION_ID, CONNECTORS_SECTION_ID, FORWARDING_SECTION_ID, HISTORY_SECTION_ID, INTEGRATIONS_SECTION_ID].includes(
           current?.id ?? ""
         ) ||
           isDirty) && (

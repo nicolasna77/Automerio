@@ -8,11 +8,13 @@ const mocks = vi.hoisted(() => ({
   isSlotFree: vi.fn(),
   refer: vi.fn(),
   confirmSms: vi.fn(),
+  deliverWebhook: vi.fn(),
 }));
 
 vi.mock("@/lib/db", () => ({ db: { booking: { create: mocks.bookingCreate } } }));
 vi.mock("@/lib/scheduling", () => ({ getScheduler: mocks.getScheduler }));
 vi.mock("@/lib/booking-sms", () => ({ sendBookingConfirmationSms: mocks.confirmSms }));
+vi.mock("@/lib/outgoing-webhook", () => ({ deliverWebhook: mocks.deliverWebhook }));
 vi.mock("@/lib/openai", () => ({
   getOpenAIClient: () => ({ realtime: { calls: { refer: mocks.refer } } }),
 }));
@@ -49,6 +51,8 @@ function scheduler(fixedDurationMinutes: number | null = null) {
 beforeEach(() => {
   for (const mock of Object.values(mocks)) mock.mockReset();
   mocks.confirmSms.mockResolvedValue(true);
+  mocks.deliverWebhook.mockResolvedValue(undefined);
+  mocks.bookingCreate.mockImplementation(async ({ data }) => ({ id: "bk_1", startAt: null, endAt: null, notes: null, metadata: null, ...data }));
   // Les créneaux des tests (1er octobre 2026) sont à venir.
   vi.useFakeTimers({ now: new Date("2026-09-01T08:00:00Z"), toFake: ["Date"] });
   testContext = { clientServiceId: "cs_1", callId: "call_1", configuration, session: openSession(), testMode: true };
@@ -388,5 +392,22 @@ describe("demande de devis", () => {
     await runTool("take_quote_request", quote, { ...testContext, session });
     expect(mocks.bookingCreate).not.toHaveBeenCalled();
     expect(mocks.confirmSms).not.toHaveBeenCalled();
+  });
+});
+
+describe("webhook sortant", () => {
+  it("annonce chaque réservation créée, avec le canal", async () => {
+    const session = createToolSession(getToolDefinitions("standard-telephonique-ia", configuration, false));
+    await runTool("take_message", { customerName: "A", customerPhone: "0612345678", reason: "rappel" }, { ...realContext, session });
+    expect(mocks.deliverWebhook).toHaveBeenCalledWith(
+      "cs_1",
+      "booking.created",
+      expect.objectContaining({ bookingId: "bk_1", kind: "message", customerName: "A", channel: "phone" })
+    );
+  });
+
+  it("n'annonce rien en appel d'essai", async () => {
+    await runTool("take_message", { customerName: "A", customerPhone: "06", reason: "rappel" }, testContext);
+    expect(mocks.deliverWebhook).not.toHaveBeenCalled();
   });
 });
