@@ -57,7 +57,7 @@ export async function GET(
   const done = { handledAt: { not: null } } as const;
   const statusWhere = status === "todo" ? todo : status === "done" ? done : {};
   const summaryInclude = {
-    callSummary: { select: { reason: true, summary: true, followUp: true, callerName: true } },
+    callSummary: { select: { reason: true, summary: true, followUp: true, callerName: true, urgent: true } },
   } as const;
 
   const recentQuery = async () => {

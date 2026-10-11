@@ -2,6 +2,7 @@ import type { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { getOpenAIClient } from "@/lib/openai";
 import { sendCallSummaryEmail } from "@/lib/email/notifications";
+import { sendUrgentCallAlert } from "@/lib/urgent-alert";
 import {
   formatTranscriptForSummary,
   parseSummaryResponse,
@@ -11,7 +12,7 @@ import {
 
 const SUMMARY_MODEL = "gpt-5-mini";
 
-const EMPTY_FIELDS: CallSummaryFields = { reason: null, summary: null, followUp: null, callerName: null };
+const EMPTY_FIELDS: CallSummaryFields = { reason: null, summary: null, followUp: null, callerName: null, urgent: false };
 
 async function summarize(turns: TranscriptTurn[], companyName: string): Promise<CallSummaryFields> {
   const completion = await getOpenAIClient().chat.completions.create({
@@ -26,7 +27,8 @@ async function summarize(turns: TranscriptTurn[], companyName: string): Promise<
           '- "reason" : le motif de l\'appel en quelques mots (ex. « Fuite sous l\'évier, intervention urgente ») ;',
           '- "summary" : ce qui a été dit et convenu, en deux ou trois phrases ;',
           '- "followUp" : ce que le gérant doit faire ensuite (ex. « Rappeler avant 18 h »), ou "" s\'il n\'y a rien à faire ;',
-          '- "callerName" : le nom donné par l\'appelant, ou "" s\'il ne l\'a pas dit.',
+          '- "callerName" : le nom donné par l\'appelant, ou "" s\'il ne l\'a pas dit ;',
+          '- "urgent" : true si l\'appelant décrit une urgence qui demande une intervention rapide (fuite, panne, danger, client bloqué), sinon false.',
           "N'invente rien qui ne figure pas dans la transcription.",
         ].join("\n"),
       },
@@ -68,6 +70,15 @@ export async function finalizeCallSummary(input: {
     },
     update: { transcript: input.turns as unknown as Prisma.InputJsonValue, ...fields },
   });
+
+  if (fields.urgent) {
+    await sendUrgentCallAlert({
+      clientServiceId: input.clientServiceId,
+      usageEventId: usageEvent.id,
+      reason: fields.reason,
+      callerName: fields.callerName,
+    }).catch((err) => console.error(`[appel] alerte urgente impossible pour ${usageEvent.id} :`, err));
+  }
 
   if (!fields.summary) return;
 

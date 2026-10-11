@@ -117,7 +117,8 @@ Page d'une solution de messagerie → fil → reprendre la main → répondre
   « indisponible » ; sinon SIP vers OpenAI) → `/api/voice/openai-webhook` (même
   contrôle, `voice-agent/call-gate.ts`, sinon appel refusé ; outils :
   disponibilités, rendez-vous, commande, transfert, message) → fin : usage,
-  résumé, alertes de quota.
+  résumé, alertes de quota. Résumé « urgent » → SMS au mobile d'alerte de la
+  solution (`src/lib/urgent-alert.ts`), sans lui rien ne part.
 - **Message** : webhook Meta → 200 immédiat → `decideAiReply` (pause, limite par
   expéditeur, plafond quotidien, quota) → réponse OpenAI → envoi Meta.
 - **Paiement** : webhooks Stripe via better-auth (`/api/auth/stripe/webhook`) →

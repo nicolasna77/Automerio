@@ -81,12 +81,17 @@ describe("parseSummaryResponse", () => {
       parseSummaryResponse(
         JSON.stringify({ reason: "Fuite sous l'évier", summary: "Le client signale une fuite.", followUp: "Aucun", callerName: "" })
       )
-    ).toEqual({ reason: "Fuite sous l'évier", summary: "Le client signale une fuite.", followUp: null, callerName: null });
+    ).toEqual({ reason: "Fuite sous l'évier", summary: "Le client signale une fuite.", followUp: null, callerName: null, urgent: false });
+  });
+
+  it("lit l'urgence seulement si elle vaut true", () => {
+    expect(parseSummaryResponse(JSON.stringify({ urgent: true })).urgent).toBe(true);
+    expect(parseSummaryResponse(JSON.stringify({ urgent: "oui" })).urgent).toBe(false);
   });
 
   it("survit a une reponse illisible ou mal typee", () => {
-    expect(parseSummaryResponse("pas du json")).toEqual({ reason: null, summary: null, followUp: null, callerName: null });
-    expect(parseSummaryResponse(JSON.stringify({ reason: 42 }))).toEqual({ reason: null, summary: null, followUp: null, callerName: null });
+    expect(parseSummaryResponse("pas du json")).toEqual({ reason: null, summary: null, followUp: null, callerName: null, urgent: false });
+    expect(parseSummaryResponse(JSON.stringify({ reason: 42 }))).toEqual({ reason: null, summary: null, followUp: null, callerName: null, urgent: false });
   });
 
   it("borne la longueur de chaque champ", () => {

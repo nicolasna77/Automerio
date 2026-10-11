@@ -4,7 +4,7 @@ import { useLabels } from "@/hooks/use-labels";
 import { useEffect, useId, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "@/lib/toast";
-import { Check, ChevronDown, ListChecks, Phone, PhoneCall, PhoneIncoming, RotateCcw } from "lucide-react";
+import { AlertTriangle, Check, ChevronDown, ListChecks, Phone, PhoneCall, PhoneIncoming, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -30,6 +30,7 @@ type CallSummary = {
   summary: string | null;
   followUp: string | null;
   callerName: string | null;
+  urgent: boolean;
 };
 
 type RecentCall = {
@@ -202,6 +203,13 @@ function RecentCallItem({
         </span>
         <span className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
           {call.summary?.reason && <span>{caller}</span>}
+          {/* Urgence détectée par le résumé : mot et icône, pas la seule couleur. */}
+          {call.summary?.urgent && (
+            <Badge variant="attention" className="shrink-0">
+              <AlertTriangle aria-hidden="true" />
+              {t("urgent")}
+            </Badge>
+          )}
           <OutcomeBadge outcome={call.outcome} />
           {needsCallback && <Badge className="shrink-0">{t("toCallBack")}</Badge>}
           {handled && call.summary?.followUp && (
