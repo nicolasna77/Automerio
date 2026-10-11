@@ -15,7 +15,10 @@
 
 #ia
 .agents
-.claude
+# Réglages locaux et skills ignorés ; les documents de référence
+# (.claude/rules, cités par CLAUDE.md) sont versionnés.
+.claude/*
+!.claude/rules/
 
 .AGENTS.md
 .CLAUDE.md

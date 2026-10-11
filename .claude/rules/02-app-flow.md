@@ -1,0 +1,126 @@
+# 02 · App flow : les pages et ce qui se passe au clic
+
+Routes sous `src/app/[locale]` (français par défaut, sans préfixe).
+
+## Les pages et qui y accède
+
+| Adresse | Accès |
+|---|---|
+| `/`, `/services/[slug]`, `/industries/[slug]`, `/contact` | Tous |
+| `/privacy`, `/terms`, `/legal-notice`, `/cookies` | Tous |
+| `/login`, `/signup`, `/forgot-password`, `/reset-password`, `/login/verification` | Non connecté |
+| `/invitation/[invitationId]` | Invité (connexion demandée si besoin) |
+| `/dashboard` (vue d'ensemble) | Client connecté |
+| `/dashboard/services` (mes solutions), `/dashboard/services/catalog` | Client |
+| `/dashboard/services/activate/[slug]` | Client |
+| `/dashboard/services/[id]`, `/dashboard/services/[id]/configuration` | Membre de l'organisation de la solution |
+| `/dashboard/calendar`, `/dashboard/help`, `/dashboard/profile` | Client |
+| `/dashboard/subscriptions`, `/dashboard/payments` | Client ; actions réservées aux responsables |
+| `/dashboard/organization` | Client ; inviter et changer les rôles : responsables |
+| `/admin/*` (users, services, promo-codes, calendar, help, waitlist, marketing, audit-log) | Rôle `ADMIN` |
+
+## Règles de navigation
+
+- Non connecté sur `/dashboard/*` ou `/admin/*` : redirigé vers
+  `/login?next=<page demandée>` (`src/proxy.ts`), puis renvoyé sur la page
+  demandée après connexion (`src/lib/safe-redirect.ts`, jamais vers un autre
+  site).
+- Après connexion sans `next` : `/dashboard`.
+- Non `ADMIN` sur `/admin` : refusé dans le layout et dans chaque Server Action.
+- Solution d'une autre organisation : page 404 (`notFound()`).
+- Mode liste d'attente : les pages fermées renvoient vers l'accueil.
+- Une Server Action n'est jamais redirigée par le proxy : elle vérifie la
+  session elle-même.
+
+## Parcours
+
+### S'inscrire
+Accueil → « Créer mon compte » → `/signup` : nom, e-mail, mot de passe,
+entreprise → valider
+- succès → `/dashboard`, première organisation créée
+- e-mail déjà pris ou mot de passe trop court → message sous le champ, rien n'est envoyé
+- double clic → bouton en chargement, une seule requête
+
+### Se connecter
+`/login` → e-mail, mot de passe → valider
+- 2FA activée → `/login/verification` (code ou code de secours)
+- identifiants faux → message d'erreur, champs conservés
+- trop d'essais → message de limite (Upstash)
+
+### Activer une solution
+`/dashboard/services/catalog` → carte → « Activer » →
+`/dashboard/services/activate/[slug]` : nom, besoin, volume (téléphonie),
+récapitulatif, code promo → « Payer » → Stripe Checkout
+- paiement réussi → retour `?checkout=success` ; `CheckoutNotice` attend le
+  webhook → statut `CONFIGURING`, étape suivante proposée
+- paiement abandonné → `?checkout=canceled`, solution `PENDING_PAYMENT`,
+  bouton « Reprendre le paiement »
+- code promo invalide → message sous le champ
+- même nom déjà utilisé dans l'organisation → message sous le champ
+- solution retirée du catalogue (`isActive = false`) → refusée, même par un
+  appel direct à l'action
+
+### Mettre en service
+Page de la solution → carte de mise en service → étape à faire (choisir un
+numéro, connecter WhatsApp, Messenger, Instagram, agenda)
+- membre non responsable → explication à la place du bouton
+- connexion Meta ou Google refusée → retour avec `?instagram=error` ou
+  `?calendar=error`, alerte rouge
+- compte Meta déjà relié ailleurs → `?instagram=in-use`, alerte dédiée
+
+### Suivre une solution (page `/dashboard/services/[id]`)
+- En-tête : nom, description, bouton « Réglages » en haut à droite.
+- Quota de la période (solution active) et carte « Assistant » côte à côte.
+- Pas encore active → frise Payé / En configuration / Actif.
+- Appels reçus, calendrier, conversations selon le type de solution.
+- Vide : « aucun appel ce mois-ci », état vide du calendrier, des conversations.
+- Chargement : squelettes (`loading.tsx`).
+- Suggestion d'agenda (téléphonie avec rendez-vous, sans agenda) : refermable,
+  reste fermée (cookie).
+
+### Désactiver l'assistant
+Carte « Assistant » ou interrupteur du tableau → bascule
+- succès → toast, état « Désactivé » ; appels et messages ne reçoivent plus de réponse
+- non responsable → pas d'interrupteur, état affiché
+- solution non payée ou hors téléphonie / messagerie → interrupteur absent
+- erreur serveur → toast d'erreur, l'interrupteur revient à l'état réel
+
+### Changer le volume, le dépassement, résilier
+Page de la solution → « Réglages » → onglet Abonnement
+- « Modifier le volume » → fenêtre, nouveau prix, confirmer
+- interrupteur Dépassement → appliqué tout de suite, toast
+- « Se désabonner » → fenêtre de confirmation → solution `CANCELED`, numéro et
+  comptes Meta libérés, e-mail envoyé
+- Stripe refuse la résiliation → message d'erreur, la solution reste active
+  (rien n'est marqué résilié tant que le prélèvement n'est pas arrêté)
+- Aussi depuis `/dashboard/subscriptions`.
+
+### Conversations
+Page d'une solution de messagerie → fil → reprendre la main → répondre
+- hors fenêtre de 24 h Meta → envoi désactivé avec explication
+- échec d'envoi Meta → toast d'erreur, message non enregistré comme envoyé
+
+### Équipe
+`/dashboard/organization` → « Inviter » → e-mail et rôle → envoyer
+- invité déjà membre → message ; invitation expirée → page d'invitation l'indique
+
+### Aide
+`/dashboard/help` → nouvelle demande (sujet, message, solution liée) → envoyer
+- l'équipe répond depuis `/admin/help` → notification et e-mail au client
+
+### Parcours techniques (sans écran)
+- **Appel** : Twilio → `/api/voice/incoming` (pause ou quota épuisé → message
+  et raccroché ; sinon SIP vers OpenAI) → `/api/voice/openai-webhook` (outils :
+  disponibilités, rendez-vous, commande, transfert, message) → fin : usage,
+  résumé, alertes de quota.
+- **Message** : webhook Meta → 200 immédiat → `decideAiReply` (pause, limite par
+  expéditeur, plafond quotidien, quota) → réponse OpenAI → envoi Meta.
+- **Paiement** : webhooks Stripe via better-auth (`/api/auth/stripe/webhook`) →
+  `src/lib/stripe-webhooks.ts` (paiement, échec, facture, résiliation).
+- **Bilan hebdomadaire** : cron Vercel, lundi 7 h, `/api/cron/weekly-digest`.
+
+## États à toujours prévoir
+
+Vide, chargement (squelette), erreur (message qui dit comment s'en sortir),
+succès (toast), double clic (bouton `loading`), retour arrière (le navigateur
+revient à la page précédente, pas de formulaire perdu sans prévenir).
