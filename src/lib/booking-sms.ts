@@ -47,9 +47,10 @@ function contactPhone(clientService: SmsService): string | null {
 
 export async function sendBookingConfirmationSms(input: {
   clientServiceId: string;
-  kind: "appointment" | "order";
+  kind: "appointment" | "order" | "quote";
   customerPhone: string;
   startAt?: Date | null;
+  workType?: string;
 }): Promise<boolean> {
   if (!smsRecipient(input.customerPhone)) return false;
   const clientService = await db.clientService.findUnique({
@@ -65,7 +66,9 @@ export async function sendBookingConfirmationSms(input: {
   const body =
     input.kind === "appointment" && input.startAt
       ? t("appointmentConfirmed", { company, date: formatDate(input.startAt), time: formatTime(input.startAt), phone })
-      : t("orderConfirmed", { company, phone });
+      : input.kind === "quote"
+        ? t("quoteReceived", { company, work: input.workType ?? "", phone })
+        : t("orderConfirmed", { company, phone });
   return sendSms(input.customerPhone, body);
 }
 

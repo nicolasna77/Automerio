@@ -6,10 +6,12 @@ const mocks = vi.hoisted(() => ({
   book: vi.fn(),
   isSlotFree: vi.fn(),
   refer: vi.fn(),
+  confirmSms: vi.fn(),
 }));
 
 vi.mock("@/lib/db", () => ({ db: { booking: { create: mocks.bookingCreate } } }));
 vi.mock("@/lib/scheduling", () => ({ getScheduler: mocks.getScheduler }));
+vi.mock("@/lib/booking-sms", () => ({ sendBookingConfirmationSms: mocks.confirmSms }));
 vi.mock("@/lib/openai", () => ({
   getOpenAIClient: () => ({ realtime: { calls: { refer: mocks.refer } } }),
 }));
@@ -45,6 +47,7 @@ function scheduler(fixedDurationMinutes: number | null = null) {
 
 beforeEach(() => {
   for (const mock of Object.values(mocks)) mock.mockReset();
+  mocks.confirmSms.mockResolvedValue(true);
   // Les créneaux des tests (1er octobre 2026) sont à venir.
   vi.useFakeTimers({ now: new Date("2026-09-01T08:00:00Z"), toFake: ["Date"] });
   testContext = { clientServiceId: "cs_1", callId: "call_1", configuration, session: openSession(), testMode: true };
@@ -322,5 +325,67 @@ describe("runTool : plafonds par appel ou conversation", () => {
   it("ne compte pas un appel d'outil refusé pour arguments invalides", async () => {
     await runTool("take_message", { customerName: "", customerPhone: "" }, realContext);
     expect(realContext.session.records).toBe(0);
+  });
+});
+
+describe("demande de devis", () => {
+  const quoteConfiguration = { ...configuration, quoteRequests: "on" };
+  const quote = {
+    customerName: "Claire Vasseur",
+    customerPhone: "0612345678",
+    workType: "Remplacement chauffe-eau",
+    address: "12 rue des Lilas, Lyon",
+    urgent: true,
+    preferredSlot: "jeudi matin",
+    details: "Ballon de 200 L",
+  };
+
+  it("n'est proposée au standard que si le réglage est activé", () => {
+    const names = (config: Record<string, unknown>) =>
+      getToolDefinitions("standard-telephonique-ia", config, false).map((tool) => tool.function.name);
+    expect(names(configuration)).not.toContain("take_quote_request");
+    expect(names(quoteConfiguration)).toContain("take_quote_request");
+  });
+
+  it("enregistre la demande rattachée à l'appel et confirme par SMS", async () => {
+    const session = createToolSession(getToolDefinitions("standard-telephonique-ia", quoteConfiguration, false));
+    const result = await runTool("take_quote_request", quote, { ...realContext, configuration: quoteConfiguration, session });
+    expect(result).toBe("Demande de devis enregistrée, l'entreprise rappellera.");
+    expect(mocks.bookingCreate).toHaveBeenCalledWith({
+      data: {
+        clientServiceId: "cs_1",
+        kind: "quote",
+        customerName: "Claire Vasseur",
+        customerPhone: "0612345678",
+        notes: "Ballon de 200 L",
+        metadata: {
+          callId: "call_1",
+          workType: "Remplacement chauffe-eau",
+          address: "12 rue des Lilas, Lyon",
+          urgent: true,
+          preferredSlot: "jeudi matin",
+        },
+      },
+    });
+    expect(mocks.confirmSms).toHaveBeenCalledWith({
+      clientServiceId: "cs_1",
+      kind: "quote",
+      customerPhone: "0612345678",
+      workType: "Remplacement chauffe-eau",
+    });
+  });
+
+  it("refuse une demande sans nature des travaux", async () => {
+    const session = createToolSession(getToolDefinitions("standard-telephonique-ia", quoteConfiguration, false));
+    const result = await runTool("take_quote_request", { ...quote, workType: " " }, { ...realContext, session });
+    expect(result).toContain("nature des travaux");
+    expect(mocks.bookingCreate).not.toHaveBeenCalled();
+  });
+
+  it("n'écrit rien et n'envoie aucun SMS en appel d'essai", async () => {
+    const session = createToolSession(getToolDefinitions("standard-telephonique-ia", quoteConfiguration, false));
+    await runTool("take_quote_request", quote, { ...testContext, session });
+    expect(mocks.bookingCreate).not.toHaveBeenCalled();
+    expect(mocks.confirmSms).not.toHaveBeenCalled();
   });
 });

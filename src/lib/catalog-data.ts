@@ -106,6 +106,17 @@ export const CATALOG: CatalogService[] = [
         helpText: "Ex. « Urgence » → 06 12 34 56 78",
       },
       {
+        key: "quoteRequests",
+        label: "Demandes de devis",
+        type: "select",
+        options: [
+          { value: "on", label: "Activées" },
+          { value: "off", label: "Désactivées" },
+        ],
+        helpText:
+          "L'assistant note la nature des travaux, l'adresse, l'urgence et le créneau souhaité, sans donner de prix.",
+      },
+      {
         key: "alertPhone",
         label: "Mobile pour les alertes urgentes",
         type: "tel",

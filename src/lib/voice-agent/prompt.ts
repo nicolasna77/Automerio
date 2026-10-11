@@ -222,6 +222,15 @@ function buildStandardTelephoniquePrompt(configuration: Configuration, companyNa
     );
   }
 
+  if (configuration.quoteRequests === "on") {
+    lines.push(
+      "Pour une demande de devis, recueille le nom et le numéro de l'appelant,",
+      "la nature des travaux, l'adresse du chantier, s'il y a urgence et le créneau",
+      "qu'il souhaite pour la visite, puis appelle l'outil take_quote_request.",
+      "Ne donne aucun prix ni délai d'intervention : l'entreprise rappellera."
+    );
+  }
+
   lines.push(
     "Pour toute autre demande, ou si l'appelant refuse d'être transféré, utilise",
     "l'outil take_message pour noter son nom, son numéro et le motif de son",

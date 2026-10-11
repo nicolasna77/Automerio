@@ -30,6 +30,39 @@ function readStatus(value: string | null): CallStatusFilter {
 // état : « todo » = un rappel est demandé et pas encore fait, « done » =
 // marqué comme traité. Sans filtre : les derniers appels, plus tous ceux qui
 // attendent encore un geste.
+type QuoteView = {
+  workType: string;
+  address: string | null;
+  urgent: boolean;
+  preferredSlot: string | null;
+  details: string | null;
+};
+
+async function quotesByCall(clientServiceId: string, callIds: (string | null)[]): Promise<Map<string, QuoteView>> {
+  const wanted = new Set(callIds.filter((callId): callId is string => Boolean(callId)));
+  const result = new Map<string, QuoteView>();
+  if (wanted.size === 0) return result;
+  const rows = await db.booking.findMany({
+    where: { clientServiceId, kind: "quote" },
+    orderBy: { createdAt: "desc" },
+    take: 200,
+    select: { notes: true, metadata: true },
+  });
+  for (const row of rows) {
+    const metadata = (row.metadata ?? {}) as Record<string, unknown>;
+    const callId = typeof metadata.callId === "string" ? metadata.callId : null;
+    if (!callId || !wanted.has(callId) || result.has(callId)) continue;
+    result.set(callId, {
+      workType: typeof metadata.workType === "string" ? metadata.workType : "",
+      address: typeof metadata.address === "string" ? metadata.address : null,
+      urgent: metadata.urgent === true,
+      preferredSlot: typeof metadata.preferredSlot === "string" ? metadata.preferredSlot : null,
+      details: row.notes,
+    });
+  }
+  return result;
+}
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -103,6 +136,10 @@ export async function GET(
     }),
   ]);
 
+  // Demandes de devis prises pendant ces appels (outil take_quote_request) :
+  // rattachées par l'identifiant de l'appel, rangé dans leurs métadonnées.
+  const quotes = await quotesByCall(id, recentRows.map((row) => row.externalId));
+
   // Jours qui ont reçu des appels, du plus récent au plus ancien, pour le
   // filtre par jour.
   const dayCounts = new Map<string, number>();
@@ -126,6 +163,7 @@ export async function GET(
       durationSec: row.durationSec,
       ...readMetadata(row.metadata),
       summary: row.callSummary,
+      quote: (row.externalId && quotes.get(row.externalId)) || null,
       handled: row.handledAt !== null,
     })),
     pendingCount,
