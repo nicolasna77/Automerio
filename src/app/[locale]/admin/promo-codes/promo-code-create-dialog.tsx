@@ -53,6 +53,7 @@ export function PromoCodeCreateDialog({
   const t = useTranslations("Admin.promoCodes");
   const tCommon = useTranslations("Common");
   const tActions = useTranslations("Actions");
+  const tDiscount = useTranslations("Discount");
   const ids = {
     code: useId(),
     codeHelp: useId(),
@@ -303,7 +304,7 @@ export function PromoCodeCreateDialog({
                 ) : preview.ok ? (
                   <span>
                     <span className="text-muted-foreground">{t("previewLabel")}</span>
-                    {describeDiscount(preview.rule)}.
+                    {describeDiscount(preview.rule, tDiscount)}.
                   </span>
                 ) : (
                   <span className="text-destructive">{tActions(preview.problem)}</span>

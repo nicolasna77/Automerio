@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { createTranslator } from "next-intl";
+import messages from "../../messages/fr.json";
 import { formatCentsExcludingVat } from "./vat";
 import { formatCents } from "@/lib/catalog";
 import {
@@ -13,6 +15,8 @@ import {
   type PromoCodeFormInput,
   type PromotionCodeLike,
 } from "./promo-codes";
+
+const tDiscount = createTranslator({ locale: "fr", messages, namespace: "Discount" });
 
 const NBSP = " ";
 const percent = (p: number, duration: DiscountRule["duration"] = "once", months: number | null = null): DiscountRule => ({
@@ -56,47 +60,47 @@ describe("applyDiscount", () => {
 
 describe("describeDiscount", () => {
   it("précise qu'un pourcentage porte sur la mise en place", () => {
-    expect(describeDiscount(percent(20))).toBe(
+    expect(describeDiscount(percent(20), tDiscount)).toBe(
       `−20${NBSP}% sur le premier paiement`
     );
   });
 
   it("ne le précise pas quand il n'y a pas de mise en place", () => {
-    expect(describeDiscount(percent(20))).toBe(
+    expect(describeDiscount(percent(20), tDiscount)).toBe(
       `−20${NBSP}% sur le premier paiement`
     );
   });
 
   it("n'en parle pas pour un montant fixe, qui se retranche du total", () => {
-    expect(describeDiscount(fixed(5000))).toBe(
+    expect(describeDiscount(fixed(5000), tDiscount)).toBe(
       `−${formatCents(5000)} TTC (−${formatCentsExcludingVat(5000)} HT) sur le premier paiement`
     );
   });
 
   it("annonce une durée en mois", () => {
-    expect(describeDiscount(percent(20, "repeating", 3))).toBe(
+    expect(describeDiscount(percent(20, "repeating", 3), tDiscount)).toBe(
       `−20${NBSP}% pendant 3 mois`
     );
-    expect(describeDiscount(fixed(1000, "repeating", 3))).toBe(
+    expect(describeDiscount(fixed(1000, "repeating", 3), tDiscount)).toBe(
       `−${formatCents(1000)} TTC (−${formatCentsExcludingVat(1000)} HT) sur chacun des 3 premiers paiements`
     );
   });
 
   it("traite une durée d'un mois comme un premier paiement", () => {
-    expect(describeDiscount(percent(10, "repeating", 1))).toBe(
+    expect(describeDiscount(percent(10, "repeating", 1), tDiscount)).toBe(
       `−10${NBSP}% sur le premier paiement`
     );
   });
 
   it("annonce une remise permanente", () => {
-    expect(describeDiscount(percent(15, "forever"))).toBe(
+    expect(describeDiscount(percent(15, "forever"), tDiscount)).toBe(
       `−15${NBSP}% sur tous les paiements`
     );
   });
 
 
   it("écrit les décimales à la française", () => {
-    expect(describeDiscount(percent(12.5))).toBe(
+    expect(describeDiscount(percent(12.5), tDiscount)).toBe(
       `−12,5${NBSP}% sur le premier paiement`
     );
   });
@@ -133,26 +137,26 @@ describe("redeemabilityProblem", () => {
 
   it("refuse un code dont le coupon n'est plus valable", () => {
     expect(redeemabilityProblem({ ...valid, coupon: { valid: false } }, "x", NOW)).toBe(
-      "Ce code n'est plus valable."
+      "promoNoLongerValid"
     );
   });
 
   it("refuse un code expiré", () => {
     expect(redeemabilityProblem({ ...valid, expires_at: NOW / 1000 - 1 }, "x", NOW)).toBe(
-      "Ce code a expiré."
+      "promoExpired"
     );
   });
 
   it("refuse un code épuisé", () => {
     expect(
       redeemabilityProblem({ ...valid, max_redemptions: 3, times_redeemed: 3 }, "x", NOW)
-    ).toBe("Ce code a déjà servi le nombre de fois prévu.");
+    ).toBe("promoExhausted");
   });
 
   it("refuse un code réservé à d'autres solutions", () => {
     const restricted = { ...valid, metadata: { services: "assistant-instagram" } };
     expect(redeemabilityProblem(restricted, "assistant-whatsapp", NOW)).toBe(
-      "Ce code ne s'applique pas à cette solution."
+      "promoWrongService"
     );
     expect(redeemabilityProblem(restricted, "assistant-instagram", NOW)).toBeNull();
   });

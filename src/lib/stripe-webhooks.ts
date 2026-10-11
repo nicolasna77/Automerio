@@ -1,4 +1,6 @@
 import type Stripe from "stripe";
+import { getTranslations } from "next-intl/server";
+import { routing } from "@/i18n/routing";
 import { db } from "@/lib/db";
 import { stripeClient } from "@/lib/stripe";
 import { releasePhoneNumber } from "@/lib/twilio";
@@ -10,6 +12,14 @@ import { CLEARED_META_CONNECTION } from "@/lib/meta-connection";
 function idOf(ref: string | { id: string } | null | undefined): string | null {
   if (!ref) return null;
   return typeof ref === "string" ? ref : ref.id;
+}
+
+// Texte enregistré avec l'événement, puis affiché au client : il vient de
+// messages/*.json (espace « ServiceEvents »), dans la langue par défaut, car
+// un webhook n'a pas de requête de l'utilisateur.
+async function eventMessage(key: "paymentRefused" | "paymentFailed" | "paymentRecovered"): Promise<string> {
+  const t = await getTranslations({ locale: routing.defaultLocale, namespace: "ServiceEvents" });
+  return t(key);
 }
 
 function subscriptionIdOfInvoice(invoice: Stripe.Invoice): string | null {
@@ -42,7 +52,7 @@ async function recordFailedCheckout(session: Stripe.Checkout.Session) {
     await logServiceEvent(
       clientServiceId,
       "PAYMENT_FAILED",
-      "Votre banque a refusé le paiement. Vous pouvez le reprendre depuis vos solutions."
+      await eventMessage("paymentRefused")
     );
   }
 }
@@ -68,7 +78,7 @@ async function flagPaymentFailure(invoice: Stripe.Invoice) {
     await logServiceEvent(
       clientService.id,
       "PAYMENT_FAILED",
-      "Mettez à jour votre moyen de paiement pour éviter une interruption."
+      await eventMessage("paymentFailed")
     );
     await sendPaymentFailedEmail(clientService.user, clientService.name);
   }
@@ -84,7 +94,7 @@ async function clearPaymentFailure(invoice: Stripe.Invoice) {
   });
   for (const { id } of recovered) {
     await db.clientService.update({ where: { id }, data: { paymentFailedAt: null } });
-    await logServiceEvent(id, "PAYMENT_RECEIVED", "Paiement régularisé.");
+    await logServiceEvent(id, "PAYMENT_RECEIVED", await eventMessage("paymentRecovered"));
   }
 }
 

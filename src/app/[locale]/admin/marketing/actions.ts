@@ -13,39 +13,41 @@ import { actionError, runAction } from "@/lib/run-action";
 const RECENT_ANGLES_WINDOW = 30;
 
 export async function generatePostsAction(channel: MarketingChannel, count: number) {
-  await requireAdmin();
+  return runAction(async () => {
+    await requireAdmin();
 
-  const [services, recent] = await Promise.all([
-    getCatalog(),
-    db.marketingPost.findMany({
-      where: { channel },
-      orderBy: { createdAt: "desc" },
-      take: RECENT_ANGLES_WINDOW,
-      select: { angle: true },
-    }),
-  ]);
+    const [services, recent] = await Promise.all([
+      getCatalog(),
+      db.marketingPost.findMany({
+        where: { channel },
+        orderBy: { createdAt: "desc" },
+        take: RECENT_ANGLES_WINDOW,
+        select: { angle: true },
+      }),
+    ]);
 
-  const proposals = await generateMarketingPosts({
-    channel,
-    services,
-    recentAngles: recent.map((p) => p.angle),
-    count: Math.min(Math.max(count, 1), 5),
-  });
-
-  const slugToId = new Map(services.map((s) => [s.slug, s.id]));
-
-  await db.marketingPost.createMany({
-    data: proposals.map((proposal) => ({
+    const proposals = await generateMarketingPosts({
       channel,
-      angle: proposal.angle,
-      body: proposal.body,
-      imageBrief: proposal.imageBrief,
-      warnings: proposal.warnings,
-      serviceId: proposal.serviceSlug ? (slugToId.get(proposal.serviceSlug) ?? null) : null,
-    })),
-  });
+      services,
+      recentAngles: recent.map((p) => p.angle),
+      count: Math.min(Math.max(count, 1), 5),
+    });
 
-  revalidatePath("/admin/marketing");
+    const slugToId = new Map(services.map((s) => [s.slug, s.id]));
+
+    await db.marketingPost.createMany({
+      data: proposals.map((proposal) => ({
+        channel,
+        angle: proposal.angle,
+        body: proposal.body,
+        imageBrief: proposal.imageBrief,
+        warnings: proposal.warnings,
+        serviceId: proposal.serviceSlug ? (slugToId.get(proposal.serviceSlug) ?? null) : null,
+      })),
+    });
+
+    revalidatePath("/admin/marketing");
+  });
 }
 
 export async function updatePostAction(id: string, body: string) {
@@ -67,34 +69,42 @@ export async function updatePostAction(id: string, body: string) {
 }
 
 export async function approvePostAction(id: string, scheduledFor: Date | null) {
-  await requireAdmin();
-  await db.marketingPost.update({
-    where: { id },
-    data: { status: "APPROVED", scheduledFor },
+  return runAction(async () => {
+    await requireAdmin();
+    await db.marketingPost.update({
+      where: { id },
+      data: { status: "APPROVED", scheduledFor },
+    });
+    revalidatePath("/admin/marketing");
   });
-  revalidatePath("/admin/marketing");
 }
 
 export async function rejectPostAction(id: string) {
-  await requireAdmin();
-  await db.marketingPost.update({ where: { id }, data: { status: "REJECTED" } });
-  revalidatePath("/admin/marketing");
+  return runAction(async () => {
+    await requireAdmin();
+    await db.marketingPost.update({ where: { id }, data: { status: "REJECTED" } });
+    revalidatePath("/admin/marketing");
+  });
 }
 
 export async function reopenPostAction(id: string) {
-  await requireAdmin();
-  await db.marketingPost.update({
-    where: { id },
-    data: { status: "DRAFT", scheduledFor: null },
+  return runAction(async () => {
+    await requireAdmin();
+    await db.marketingPost.update({
+      where: { id },
+      data: { status: "DRAFT", scheduledFor: null },
+    });
+    revalidatePath("/admin/marketing");
   });
-  revalidatePath("/admin/marketing");
 }
 
 export async function markPublishedAction(id: string) {
-  await requireAdmin();
-  await db.marketingPost.update({
-    where: { id },
-    data: { status: "PUBLISHED", publishedAt: new Date() },
+  return runAction(async () => {
+    await requireAdmin();
+    await db.marketingPost.update({
+      where: { id },
+      data: { status: "PUBLISHED", publishedAt: new Date() },
+    });
+    revalidatePath("/admin/marketing");
   });
-  revalidatePath("/admin/marketing");
 }

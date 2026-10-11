@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getTranslations } from "next-intl/server";
 import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
 import { assertCanReadClientService } from "@/lib/client-service-access";
@@ -47,7 +48,7 @@ export async function GET(
   const dayParam = search.get("day");
   const day = dayParam ? parisDayRange(dayParam) : null;
   if (dayParam && !day) {
-    return NextResponse.json({ error: "Jour invalide" }, { status: 400 });
+    return NextResponse.json({ error: (await getTranslations("Actions"))("invalidDay") }, { status: 400 });
   }
   const status = readStatus(search.get("status"));
 

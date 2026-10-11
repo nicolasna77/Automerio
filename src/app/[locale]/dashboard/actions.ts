@@ -232,7 +232,7 @@ export async function activateService(
     let promotion: { promotionCodeId: string; code: string } | null = null;
     if (promoCode?.trim()) {
       const result = await validatePromoCodeForService(promoCode, service.slug);
-      if (!result.ok) throw new ActionError(result.reason);
+      if (!result.ok) throw actionError(result.key);
       promotion = { promotionCodeId: result.promotionCodeId, code: result.code };
     }
 
@@ -311,7 +311,7 @@ export async function resumeServiceCheckout(
     let promotion: { promotionCodeId: string; code: string } | null = null;
     if (explicitCode) {
       const result = await validatePromoCodeForService(explicitCode, clientService.service.slug);
-      if (!result.ok) throw new ActionError(result.reason);
+      if (!result.ok) throw actionError(result.key);
       promotion = { promotionCodeId: result.promotionCodeId, code: result.code };
     } else if (clientService.status === "PENDING_PAYMENT" && clientService.promoCode) {
       const result = await validatePromoCodeForService(
@@ -375,13 +375,13 @@ export async function previewPromoCode(serviceId: string, code: string): Promise
   const service = await db.service.findUnique({ where: { id: serviceId } });
   if (!service) return { ok: false, reason: t("serviceGone") };
   const result = await validatePromoCodeForService(code, service.slug);
-  if (!result.ok) return result;
+  if (!result.ok) return { ok: false, reason: t(result.key) };
 
   const first = firstPaymentCents(service);
   return {
     ok: true,
     code: result.code,
-    description: describeDiscount(result.rule),
+    description: describeDiscount(result.rule, await getTranslations("Discount")),
     firstPaymentCents: first,
     discountedFirstPaymentCents: applyDiscount(first, result.rule),
   };

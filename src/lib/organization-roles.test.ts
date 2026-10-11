@@ -67,7 +67,7 @@ describe("canInvite", () => {
   it("la refuse au collaborateur, en le disant", () => {
     const verdict = canInvite(collaborateur);
     expect(verdict.ok).toBe(false);
-    expect(verdict.ok === false && verdict.reason).toContain("responsables");
+    expect(verdict.ok === false && verdict.key).toBe("teamManagersOnly");
   });
 });
 
@@ -83,13 +83,13 @@ describe("canRemoveMember", () => {
   it("empêche un responsable de retirer le propriétaire", () => {
     const verdict = canRemoveMember(responsable, proprietaire, equipe);
     expect(verdict.ok).toBe(false);
-    expect(verdict.ok === false && verdict.reason).toContain("propriétaire");
+    expect(verdict.ok === false && verdict.key).toBe("teamOwnerProtected");
   });
 
   it("empêche de retirer le dernier propriétaire, même par lui-même", () => {
     const verdict = canRemoveMember(proprietaire, proprietaire, equipe);
     expect(verdict.ok).toBe(false);
-    expect(verdict.ok === false && verdict.reason).toContain("garder un propriétaire");
+    expect(verdict.ok === false && verdict.key).toBe("teamKeepOwner");
   });
 
   it("autorise le retrait d'un propriétaire quand il en reste un autre", () => {
@@ -107,7 +107,7 @@ describe("canChangeRole", () => {
   it("refuse d'attribuer le rôle de propriétaire depuis l'interface", () => {
     const verdict = canChangeRole(proprietaire, collaborateur, "owner", equipe);
     expect(verdict.ok).toBe(false);
-    expect(verdict.ok === false && verdict.reason).toContain("ne peut pas être attribué");
+    expect(verdict.ok === false && verdict.key).toBe("roleNotAllowed");
   });
 
   it("refuse un rôle inventé", () => {
@@ -117,7 +117,7 @@ describe("canChangeRole", () => {
   it("empêche de rétrograder le dernier propriétaire", () => {
     const verdict = canChangeRole(proprietaire, proprietaire, "member", equipe);
     expect(verdict.ok).toBe(false);
-    expect(verdict.ok === false && verdict.reason).toContain("garder un propriétaire");
+    expect(verdict.ok === false && verdict.key).toBe("teamKeepOwner");
   });
 
   it("autorise la rétrogradation quand un autre propriétaire reste", () => {
@@ -142,7 +142,7 @@ describe("canTransferOwnership", () => {
   it("refuse a qui n'est pas proprietaire, meme responsable", () => {
     expect(canTransferOwnership(responsable, collaborateur)).toEqual({
       ok: false,
-      reason: "Seul le propriétaire peut transmettre la propriété.",
+      key: "transferOwnerOnly",
     });
   });
 

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getTranslations } from "next-intl/server";
 import { getSession } from "@/lib/session";
 import { assertCanReadClientService } from "@/lib/client-service-access";
 import { getConversationDays, getConversations } from "@/lib/conversations";
@@ -20,7 +21,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const dayParam = new URL(request.url).searchParams.get("day");
   const day = dayParam ? parisDayRange(dayParam) : null;
   if (dayParam && !day) {
-    return NextResponse.json({ error: "Jour invalide" }, { status: 400 });
+    return NextResponse.json({ error: (await getTranslations("Actions"))("invalidDay") }, { status: 400 });
   }
 
   const [conversations, days] = await Promise.all([getConversations(id, day), getConversationDays(id)]);

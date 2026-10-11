@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { db } from "@/lib/db";
 import { sendNewContactMessageInternalEmail } from "@/lib/email/notifications";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { LONG_FIELD_MAX, SHORT_FIELD_MAX } from "@/lib/form-limits";
 
 export type ContactFormState = {
   status: "idle" | "success" | "error";
@@ -44,6 +45,12 @@ export async function submitContactMessage(
   }
 
   const activity = input.activity.trim() || null;
+  if (
+    [name, email, activity ?? ""].some((field) => field.length > SHORT_FIELD_MAX) ||
+    message.length > LONG_FIELD_MAX
+  ) {
+    return { status: "error", error: t("tooLong", { max: LONG_FIELD_MAX }) };
+  }
 
   await db.contactMessage.create({
     data: { name, email, activity, message },

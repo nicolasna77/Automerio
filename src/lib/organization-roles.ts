@@ -47,25 +47,34 @@ function ownerCount(team: TeamMember[]): number {
   return team.filter(isOwner).length;
 }
 
-export type Verdict = { ok: true } | { ok: false; reason: string };
+// Refus exprimé par une clé de messages/*.json (espace « Actions ») : le
+// serveur la traduit (runAction, ou auth.ts pour l'API better-auth).
+export type TeamRuleKey =
+  | "teamManagersOnly"
+  | "teamKeepOwner"
+  | "teamOwnerProtected"
+  | "roleNotAllowed"
+  | "transferOwnerOnly"
+  | "alreadyOwnerSelf"
+  | "alreadyOwnerMember";
 
-const NOT_MANAGER =
-  "Seuls le propriétaire et les responsables peuvent gérer l'équipe.";
-const LAST_OWNER = "L'organisation doit garder un propriétaire.";
-const OWNER_IS_SACRED =
-  "Seul le propriétaire peut modifier ou retirer un autre propriétaire.";
+export type Verdict = { ok: true } | { ok: false; key: TeamRuleKey };
+
+const NOT_MANAGER: TeamRuleKey = "teamManagersOnly";
+const LAST_OWNER: TeamRuleKey = "teamKeepOwner";
+const OWNER_IS_SACRED: TeamRuleKey = "teamOwnerProtected";
 
 export function canRemoveMember(
   actor: TeamMember,
   target: TeamMember,
   team: TeamMember[]
 ): Verdict {
-  if (!isOrganizationManager(actor.role)) return { ok: false, reason: NOT_MANAGER };
+  if (!isOrganizationManager(actor.role)) return { ok: false, key: NOT_MANAGER };
   if (isOwner(target) && !isOwner(actor)) {
-    return { ok: false, reason: OWNER_IS_SACRED };
+    return { ok: false, key: OWNER_IS_SACRED };
   }
   if (isOwner(target) && ownerCount(team) <= 1) {
-    return { ok: false, reason: LAST_OWNER };
+    return { ok: false, key: LAST_OWNER };
   }
   return { ok: true };
 }
@@ -76,28 +85,28 @@ export function canChangeRole(
   nextRole: string,
   team: TeamMember[]
 ): Verdict {
-  if (!isOrganizationManager(actor.role)) return { ok: false, reason: NOT_MANAGER };
+  if (!isOrganizationManager(actor.role)) return { ok: false, key: NOT_MANAGER };
   if (!isInvitableRole(nextRole)) {
-    return { ok: false, reason: "Ce rôle ne peut pas être attribué ici." };
+    return { ok: false, key: "roleNotAllowed" };
   }
   if (isOwner(target) && !isOwner(actor)) {
-    return { ok: false, reason: OWNER_IS_SACRED };
+    return { ok: false, key: OWNER_IS_SACRED };
   }
   if (isOwner(target) && ownerCount(team) <= 1) {
-    return { ok: false, reason: LAST_OWNER };
+    return { ok: false, key: LAST_OWNER };
   }
   return { ok: true };
 }
 
 export function canTransferOwnership(actor: TeamMember, target: TeamMember): Verdict {
   if (!isOwner(actor)) {
-    return { ok: false, reason: "Seul le propriétaire peut transmettre la propriété." };
+    return { ok: false, key: "transferOwnerOnly" };
   }
   if (target.userId === actor.userId) {
-    return { ok: false, reason: "Vous êtes déjà propriétaire de cette organisation." };
+    return { ok: false, key: "alreadyOwnerSelf" };
   }
   if (isOwner(target)) {
-    return { ok: false, reason: "Ce membre est déjà propriétaire." };
+    return { ok: false, key: "alreadyOwnerMember" };
   }
   return { ok: true };
 }
@@ -105,5 +114,5 @@ export function canTransferOwnership(actor: TeamMember, target: TeamMember): Ver
 export function canInvite(actor: TeamMember): Verdict {
   return isOrganizationManager(actor.role)
     ? { ok: true }
-    : { ok: false, reason: NOT_MANAGER };
+    : { ok: false, key: NOT_MANAGER };
 }

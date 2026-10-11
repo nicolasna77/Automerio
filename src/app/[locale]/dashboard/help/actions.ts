@@ -9,6 +9,8 @@ import {
   sendNewHelpRequestInternalEmail,
 } from "@/lib/email/notifications";
 import { actionError, runAction } from "@/lib/run-action";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { LONG_FIELD_MAX, SHORT_FIELD_MAX } from "@/lib/form-limits";
 
 async function requireSession() {
   const session = await getSession();
@@ -29,6 +31,13 @@ export async function submitHelpRequest(input: {
     const message = input.message.trim();
     if (!subject || !message) {
       throw actionError("helpFieldsRequired");
+    }
+    if (subject.length > SHORT_FIELD_MAX || message.length > LONG_FIELD_MAX) {
+      throw actionError("helpTooLong", { subject: SHORT_FIELD_MAX, message: LONG_FIELD_MAX });
+    }
+    // Chaque demande envoie un e-mail à l'équipe.
+    if (!(await checkRateLimit("help-request", session.user.id, "1 h", 10))) {
+      throw actionError("tooManyAttempts");
     }
 
     let clientService: { organizationId: string; name: string } | null = null;
@@ -72,6 +81,10 @@ export async function replyToHelpRequest(helpRequestId: string, body: string) {
 
     const trimmed = body.trim();
     if (!trimmed) throw actionError("emptyMessage");
+    if (trimmed.length > LONG_FIELD_MAX) throw actionError("replyTooLong", { max: LONG_FIELD_MAX });
+    if (!(await checkRateLimit("help-reply", session.user.id, "1 h", 30))) {
+      throw actionError("tooManyAttempts");
+    }
 
     const helpRequest = await db.helpRequest.findUnique({
       where: { id: helpRequestId },

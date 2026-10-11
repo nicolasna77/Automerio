@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { submitContactMessage } from "./actions";
+import { LONG_FIELD_MAX, SHORT_FIELD_MAX } from "@/lib/form-limits";
 
 const EMPTY_VALUES = {
   name: "",
@@ -88,6 +89,7 @@ export function ContactForm() {
               <Input
                 id="name"
                 autoComplete="name"
+                maxLength={SHORT_FIELD_MAX}
                 required
                 value={values.name}
                 onChange={(e) => set("name", e.target.value)}
@@ -99,6 +101,7 @@ export function ContactForm() {
                 id="email"
                 type="email"
                 autoComplete="email"
+                maxLength={SHORT_FIELD_MAX}
                 required
                 value={values.email}
                 onChange={(e) => set("email", e.target.value)}
@@ -114,6 +117,7 @@ export function ContactForm() {
             </Label>
             <Input
               id="activity"
+              maxLength={SHORT_FIELD_MAX}
               placeholder={t("activityPlaceholder")}
               value={values.activity}
               onChange={(e) => set("activity", e.target.value)}
@@ -124,6 +128,7 @@ export function ContactForm() {
             <Textarea
               id="message"
               required
+              maxLength={LONG_FIELD_MAX}
               rows={5}
               placeholder={t("messagePlaceholder")}
               value={values.message}

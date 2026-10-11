@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "@/lib/toast";
+import { unwrap } from "@/lib/action-result";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn, getErrorMessage } from "@/lib/utils";
@@ -90,7 +91,7 @@ export function NoteEditor({
       messages="noteEditor"
       value={initialNote}
       inputClassName="min-w-48"
-      onSave={(value) => updateServiceNote(clientServiceId, value)}
+      onSave={async (value) => unwrap(await updateServiceNote(clientServiceId, value))}
     />
   );
 }
@@ -108,7 +109,7 @@ export function PhoneNumberEditor({
       messages="phone"
       value={initialPhoneNumber}
       inputClassName="min-w-36"
-      onSave={(value) => setExternalPhoneNumber(clientServiceId, value)}
+      onSave={async (value) => unwrap(await setExternalPhoneNumber(clientServiceId, value))}
     />
   );
 }
@@ -126,7 +127,7 @@ export function WhatsAppPhoneNumberEditor({
       messages="whatsapp"
       value={initialPhoneNumberId}
       inputClassName="min-w-36"
-      onSave={(value) => setWhatsAppPhoneNumberId(clientServiceId, value)}
+      onSave={async (value) => unwrap(await setWhatsAppPhoneNumberId(clientServiceId, value))}
     />
   );
 }
@@ -144,7 +145,7 @@ export function FacebookPageIdEditor({
       messages="facebook"
       value={initialPageId}
       inputClassName="min-w-36"
-      onSave={(value) => setFacebookPageId(clientServiceId, value)}
+      onSave={async (value) => unwrap(await setFacebookPageId(clientServiceId, value))}
     />
   );
 }
@@ -162,7 +163,7 @@ export function InstagramAccountIdEditor({
       messages="instagram"
       value={initialAccountId}
       inputClassName="min-w-36"
-      onSave={(value) => setInstagramAccountId(clientServiceId, value)}
+      onSave={async (value) => unwrap(await setInstagramAccountId(clientServiceId, value))}
     />
   );
 }
@@ -178,7 +179,7 @@ export function MarkActiveButton({
   function handleActivate() {
     startTransition(async () => {
       try {
-        await markServiceActive(clientServiceId);
+        unwrap(await markServiceActive(clientServiceId));
         toast.success(t("markedActive"));
       } catch (err) {
         toast.error(getErrorMessage(err));

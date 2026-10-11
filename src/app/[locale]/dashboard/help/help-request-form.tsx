@@ -20,6 +20,7 @@ import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
 import type { HelpRequestServiceOption } from "@/lib/help";
 import { submitHelpRequest } from "./actions";
+import { LONG_FIELD_MAX, SHORT_FIELD_MAX } from "@/lib/form-limits";
 
 const NO_SERVICE_VALUE = "none";
 const EMPTY_VALUES = {
@@ -107,6 +108,7 @@ export function HelpRequestForm({
             <Input
               id="help-subject"
               required
+              maxLength={SHORT_FIELD_MAX}
               placeholder={t("subjectPlaceholder")}
               value={values.subject}
               onChange={(e) =>
@@ -125,6 +127,7 @@ export function HelpRequestForm({
             <Textarea
               id="help-message"
               required
+              maxLength={LONG_FIELD_MAX}
               rows={5}
               aria-describedby="help-message-hint"
               value={values.message}

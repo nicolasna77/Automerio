@@ -482,6 +482,20 @@
     "waitlistForm": "Liste d'attente et demande de rappel : {url}",
     "tradesHeading": "Par métier"
   },
+  "ServiceEvents": {
+    "paymentRefused": "Votre banque a refusé le paiement. Vous pouvez le reprendre depuis vos solutions.",
+    "paymentFailed": "Mettez à jour votre moyen de paiement pour éviter une interruption.",
+    "paymentRecovered": "Paiement régularisé."
+  },
+  "Discount": {
+    "percent": "−{percent}",
+    "fixed": "−{inclusive} TTC (−{exclusive} HT)",
+    "firstPayment": "{amount} sur le premier paiement",
+    "forMonths": "{amount} pendant {months} mois",
+    "eachOfFirstPayments": "{amount} sur chacun des {months} premiers paiements",
+    "allPayments": "{amount} sur tous les paiements",
+    "eachPayment": "{amount} sur chaque paiement"
+  },
   "Price": {
     "none": "—",
     "withVat": "{inclusive} TTC ({exclusive} HT)",
@@ -811,7 +825,8 @@
     "errors": {
       "rateLimited": "Trop de messages envoyés récemment. Réessayez dans quelques minutes.",
       "missingFields": "Merci de renseigner votre nom, votre e-mail et votre message.",
-      "invalidEmail": "L'adresse e-mail saisie n'est pas valide."
+      "invalidEmail": "L'adresse e-mail saisie n'est pas valide.",
+      "tooLong": "Votre message est trop long : {max} caractères au maximum."
     }
   },
   "Errors": {
@@ -2117,6 +2132,12 @@
     "tooManyTries": "Trop de tentatives. Réessayez dans quelques minutes.",
     "checkoutUnavailable": "Le paiement n'a pas pu être préparé. Réessayez depuis « Mes solutions ».",
     "promoNewCustomersOnly": "Ce code est réservé aux nouveaux clients. Retirez-le pour payer au tarif normal.",
+    "promoEmpty": "Saisissez un code promo.",
+    "promoUnknown": "Ce code n'existe pas ou n'est plus valable.",
+    "promoNoLongerValid": "Ce code n'est plus valable.",
+    "promoExpired": "Ce code a expiré.",
+    "promoExhausted": "Ce code a déjà servi le nombre de fois prévu.",
+    "promoWrongService": "Ce code ne s'applique pas à cette solution.",
     "promoNotAllowed": "Ce code ne peut pas être utilisé avec votre compte. Retirez-le pour payer au tarif normal.",
     "noPrice": "Cette solution n'a pas encore de prix. Contactez-nous pour l'activer.",
     "activationNameRequired": "Merci de donner un nom à cette activation.",
@@ -2146,12 +2167,14 @@
     "callNotFound": "Cet appel est introuvable.",
     "conversationNotFound": "Cette conversation est introuvable.",
     "emptyReply": "Écrivez un message avant d'envoyer.",
+    "invalidDay": "Jour invalide.",
     "replyTooLong": "Votre message dépasse {max} caractères.",
     "tooManyMessages": "Trop de messages envoyés. Patientez une minute.",
     "replyWindowClosed": "Ce contact ne vous a pas écrit depuis plus de 24 heures. Il doit vous recontacter avant que vous puissiez répondre.",
     "accountDisconnected": "Le compte n'est plus connecté. Reconnectez-le depuis l'onglet Connecteurs.",
     "messageNotSent": "Le message n'a pas pu être envoyé. Réessayez dans un instant.",
     "helpFieldsRequired": "Merci de renseigner un objet et un message.",
+    "helpTooLong": "L'objet est limité à {subject} caractères et le message à {message}.",
     "serviceNotFound": "Solution introuvable.",
     "emptyMessage": "Le message ne peut pas être vide.",
     "requestNotFound": "Demande introuvable.",
@@ -2167,6 +2190,12 @@
     "notAMember": "Ce membre ne fait pas partie de l'organisation.",
     "invalidEmail": "Cette adresse e-mail n'est pas valide.",
     "roleNotAllowed": "Ce rôle ne peut pas être attribué ici.",
+    "teamManagersOnly": "Seuls le propriétaire et les responsables peuvent gérer l'équipe.",
+    "teamKeepOwner": "L'organisation doit garder un propriétaire.",
+    "teamOwnerProtected": "Seul le propriétaire peut modifier ou retirer un autre propriétaire.",
+    "transferOwnerOnly": "Seul le propriétaire peut transmettre la propriété.",
+    "alreadyOwnerSelf": "Vous êtes déjà propriétaire de cette organisation.",
+    "alreadyOwnerMember": "Ce membre est déjà propriétaire.",
     "alreadyMember": "Cette personne fait déjà partie de l'organisation.",
     "noMembers": "Cette organisation n'a aucun membre.",
     "inviteFailed": "L'invitation n'a pas pu être envoyée. Réessayez.",
