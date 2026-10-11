@@ -64,6 +64,9 @@ Priorité : **V1** = indispensable (en production), **Souhaitable**, **Plus tard
   de devis ») : nature des travaux, adresse, urgence, créneau souhaité, sans
   donner de prix ; visible dans le détail de l'appel, SMS récapitulatif à
   l'appelant.
+- **V1** Garder le contact quand l'assistant ne décroche pas (pause, forfait
+  épuisé) : SMS à l'appelant « nous vous rappelons », une fois par appelant
+  toutes les 6 heures, vers un mobile, sauf si les SMS sont coupés.
 
 ### Suivre et piloter
 - **V1** Voir les appels reçus avec transcription, motif, résumé et suite à

@@ -1,9 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { getTranslations } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { validateTwilioRequest } from "@/lib/twilio";
 import { db } from "@/lib/db";
 import { callRefusal } from "@/lib/voice-agent/call-gate";
+import { sendMissedCallSms } from "@/lib/missed-call-sms";
 
 // Message lu à l'appelant puis fin d'appel. Le texte vient de messages/*.json
 // (espace « Voice ») ; échappé, car il est inséré dans du XML.
@@ -34,10 +35,21 @@ export async function POST(request: Request) {
     try {
       const clientService = await db.clientService.findFirst({
         where: { externalPhoneNumber: params.To },
-        include: { service: true },
+        include: { service: true, organization: { select: { name: true } } },
       });
+      const reason = clientService ? await callRefusal(clientService) : null;
       if (!clientService) refusal = "unavailable";
-      else if (await callRefusal(clientService)) refusal = "paused";
+      else if (reason) refusal = "paused";
+      // En pause ou au forfait épuisé, la solution est en service : un SMS
+      // garde le contact avec l'appelant. Pas pour une solution non payée ou
+      // résiliée. Envoyé après la réponse, le message vocal n'attend pas.
+      if (clientService && (reason === "paused" || reason === "quota")) {
+        after(() =>
+          sendMissedCallSms({ clientService, from: params.From }).catch((err) =>
+            console.error("[voice] SMS d'appel non décroché impossible :", err)
+          )
+        );
+      }
     } catch (err) {
       console.error("[voice] lecture du quota impossible, appel transmis :", err);
     }
