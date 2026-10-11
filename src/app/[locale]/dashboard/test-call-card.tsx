@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, useTransition, type FormEvent } from "react";
+import { useId, useRef, useState, useTransition, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { PhoneCall, PhoneIncoming } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,14 +17,25 @@ export function TestCallCard({ clientServiceId }: { clientServiceId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [called, setCalled] = useState<{ displayNumber: string; remaining: number } | null>(null);
   const [isPending, startTransition] = useTransition();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
+    // Bouton toujours actif : un champ vide est expliqué à l'envoi, le focus
+    // revient sur le champ, plutôt qu'un bouton grisé sans raison donnée.
+    if (phone.trim() === "") {
+      setError(t("phoneRequired"));
+      inputRef.current?.focus();
+      return;
+    }
     setError(null);
     startTransition(async () => {
       const result = await requestTestCallAction(clientServiceId, phone);
       if (result.ok) setCalled(result.data);
-      else setError(result.error);
+      else {
+        setError(result.error);
+        inputRef.current?.focus();
+      }
     });
   }
 
@@ -57,8 +68,11 @@ export function TestCallCard({ clientServiceId }: { clientServiceId: string }) {
           <form onSubmit={handleSubmit} noValidate className="space-y-3">
             <div className="space-y-2">
               <Label htmlFor={phoneId}>{t("phoneLabel")}</Label>
-              <div className="flex flex-col gap-2 sm:flex-row">
+              {/* Carte étroite (colonne latérale) : le champ et le bouton
+                  s'empilent, l'exemple de numéro reste lisible en entier. */}
+              <div className="flex flex-col gap-2">
                 <Input
+                  ref={inputRef}
                   id={phoneId}
                   type="tel"
                   inputMode="tel"
@@ -69,9 +83,8 @@ export function TestCallCard({ clientServiceId }: { clientServiceId: string }) {
                   aria-invalid={error ? true : undefined}
                   aria-describedby={error ? errorId : undefined}
                   disabled={isPending}
-                  className="sm:max-w-56"
                 />
-                <Button type="submit" disabled={phone.trim() === ""} loading={isPending}>
+                <Button type="submit" loading={isPending}>
                   {!isPending && <PhoneCall aria-hidden="true" data-icon="inline-start" />}
                   {t("callMe")}
                 </Button>

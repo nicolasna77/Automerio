@@ -13,16 +13,23 @@ import { usePauseToggle } from "./pause-switch";
 // porte une icône (coche activé, croix désactivé) qui se transforme au
 // basculement.
 // Sans droit de gestion, la carte montre l'état sans interrupteur.
+// La phrase d'état dit ce que l'assistant fait sur ce canal (appels ou
+// messages) ; tant que la mise en service n'est pas finie (`ready` faux : pas
+// de numéro, compte non relié), elle ne promet pas qu'il répond déjà.
 export function AssistantToggle({
   clientServiceId,
   name,
   paused,
   canManage,
+  channel,
+  ready,
 }: {
   clientServiceId: string;
   name: string;
   paused: boolean;
   canManage: boolean;
+  channel: "calls" | "messages";
+  ready: boolean;
 }) {
   const t = useTranslations("Dashboard.services.list.pause");
   const toggle = usePauseToggle(clientServiceId, name, paused);
@@ -30,11 +37,17 @@ export function AssistantToggle({
   const running = !toggle.paused;
 
   return (
-    <Card size="sm" className="min-w-0 items-start gap-3 px-(--card-spacing)">
+    <Card size="sm" className="h-full min-w-0 items-start gap-3 px-(--card-spacing)">
       <div className="min-w-0">
         <p className="text-sm font-semibold text-foreground">{t("cardTitle")}</p>
         <p id={descriptionId} className="mt-0.5 text-sm text-muted-foreground" aria-live="polite">
-          {running ? t("cardOn") : t("cardOff")}
+          {!running
+            ? t("cardOff")
+            : !ready
+              ? t("cardWaiting")
+              : channel === "calls"
+                ? t("cardOnCalls")
+                : t("cardOnMessages")}
         </p>
       </div>
       {canManage && (

@@ -2,7 +2,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Check } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import {
   asStringArray,
@@ -141,36 +141,52 @@ export function ServiceSetupCard({
     needsCalendarConnection(item);
   const waitingOnAutomerio = clientDone && !verified;
 
+  const nextStepIndex = steps.findIndex((step) => !step.done);
   const box = "rounded-lg border border-border bg-muted/40 p-4";
 
   const content = (
     <>
+        {/* L'état de chaque étape est dit en toutes lettres pour les
+            lecteurs d'écran (la pastille est décorative) ; la prochaine
+            étape porte un cercle plein, les suivantes un cercle pointillé. */}
         <ol className="space-y-2">
-          {steps.map((step) => (
-            <li key={step.label} className="flex items-center gap-2.5 text-sm">
-              <span
-                aria-hidden="true"
-                className={cn(
-                  "flex size-5 shrink-0 items-center justify-center rounded-full",
-                  step.done
-                    ? "bg-primary text-primary-foreground"
-                    : "border border-dashed border-border"
-                )}
+          {steps.map((step, index) => {
+            const isNext = !step.done && index === nextStepIndex;
+            return (
+              <li
+                key={step.label}
+                aria-current={isNext ? "step" : undefined}
+                className="flex items-center gap-2.5 text-sm"
               >
-                {step.done && <Check className="size-3" />}
-              </span>
-              <span
-                className={cn(
-                  step.done ? "text-muted-foreground" : "font-medium text-foreground"
-                )}
-              >
-                {step.label}
-                {step.optional && !step.done && (
-                  <span className="font-normal text-muted-foreground">{t("optional")}</span>
-                )}
-              </span>
-            </li>
-          ))}
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    "flex size-5 shrink-0 items-center justify-center rounded-full",
+                    step.done
+                      ? "bg-primary text-primary-foreground"
+                      : isNext
+                        ? "border-2 border-primary"
+                        : "border border-dashed border-muted-foreground/60"
+                  )}
+                >
+                  {step.done && <Check className="size-3" />}
+                </span>
+                <span
+                  className={cn(
+                    step.done ? "text-muted-foreground" : "font-medium text-foreground"
+                  )}
+                >
+                  {step.label}
+                  {step.optional && !step.done && (
+                    <span className="font-normal text-muted-foreground">{t("optional")}</span>
+                  )}
+                  <span className="sr-only">
+                    {" "}({step.done ? t("stepDone") : isNext ? t("stepNext") : t("stepTodo")})
+                  </span>
+                </span>
+              </li>
+            );
+          })}
         </ol>
 
         {!paid && (
@@ -281,6 +297,10 @@ export function ServiceSetupCard({
     <Card id={SETUP_ANCHOR} className="scroll-mt-24">
       <CardHeader>
         <CardTitle as="h2" className="text-base">{t("title")}</CardTitle>
+        {/* Où en est le client, en un coup d'œil, avant le détail des étapes. */}
+        <CardDescription className="tabular-nums">
+          {t("progress", { done: steps.filter((step) => step.done).length, total: steps.length })}
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
         {content}

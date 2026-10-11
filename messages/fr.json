@@ -1137,7 +1137,9 @@
         "pause": {
           "switch": "Assistant en service : {name}",
           "cardTitle": "Assistant",
-          "cardOn": "Activé : il répond aux appels et aux messages.",
+          "cardOnCalls": "Activé : il décroche vos appels.",
+      "cardOnMessages": "Activé : il répond à vos messages.",
+      "cardWaiting": "Activé : il répondra dès la fin de la mise en service.",
           "cardOff": "Désactivé : il ne répond plus. Réactivez-le quand vous voulez.",
           "on": "Activé",
           "off": "Désactivé",
@@ -1293,6 +1295,10 @@
         "calendar": "Agenda connecté",
         "verification": "Vérification par l'équipe Automerio"
       },
+      "stepDone": "terminé",
+      "progress": "{done, plural, one {# étape sur {total} terminée} other {# étapes sur {total} terminées}}",
+      "stepNext": "prochaine étape",
+      "stepTodo": "à faire",
       "optional": " (facultatif)",
       "optionalTag": "(facultatif)",
       "payFirst": "Finalisez le paiement pour lancer la mise en service. Le bouton se trouve en haut de cette page.",
@@ -1397,7 +1403,8 @@
         "lastOne": "C'était votre dernier test aujourd'hui.",
         "again": "Refaire un test",
         "phoneLabel": "Votre numéro de téléphone",
-        "phonePlaceholder": "06 12 34 56 78",
+        "phonePlaceholder": "Ex. : 06 12 34 56 78",
+        "phoneRequired": "Saisissez votre numéro de mobile ou de fixe pour recevoir l'appel.",
         "callMe": "M'appeler"
       },
       "actions": {
