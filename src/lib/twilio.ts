@@ -114,3 +114,12 @@ export async function placeDemoCall(input: {
   });
   return call.sid;
 }
+
+// SMS sortant. En France, un numéro fixe ne peut pas envoyer de SMS : on
+// envoie sous un nom d'expéditeur alphanumérique (TWILIO_SMS_SENDER, 11
+// caractères au plus, ex. « Automerio »). Les règles d'envoi (destinataires
+// acceptés, désactivation) sont dans src/lib/sms.ts.
+export async function sendTwilioSms(input: { to: string; from: string; body: string }): Promise<string> {
+  const message = await getTwilioClient().messages.create(input);
+  return message.sid;
+}

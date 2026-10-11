@@ -11,6 +11,7 @@ import {
   validateOrder,
   validateSlot,
 } from "@/lib/voice-agent/tool-args";
+import { sendBookingConfirmationSms } from "@/lib/booking-sms";
 
 
 export type ToolDefinition = {
@@ -220,6 +221,19 @@ export type ToolContext = {
 const BOOKING_CAP_REACHED = `Limite atteinte : pas plus de ${MAX_BOOKINGS_PER_SESSION} rendez-vous par échange. N'en réserve pas d'autre ; propose de noter la demande, l'entreprise rappellera.`;
 const RECORD_CAP_REACHED = `Limite atteinte : pas plus de ${MAX_RECORDS_PER_SESSION} commandes ou messages par échange. N'en enregistre pas d'autre ; indique que l'entreprise reviendra vers la personne.`;
 
+// SMS de confirmation à l'appelant, seulement pendant un vrai appel : pas
+// d'appel d'essai, et en messagerie la confirmation est déjà écrite dans la
+// conversation. Sans attente : l'agent répond pendant que le SMS part.
+function confirmBySms(
+  context: ToolContext,
+  booking: { kind: "appointment" | "order"; customerPhone: string; startAt?: Date }
+): void {
+  if (!context.callId || context.testMode) return;
+  void sendBookingConfirmationSms({ clientServiceId: context.clientServiceId, ...booking }).catch((err) =>
+    console.error("[sms] confirmation impossible :", err)
+  );
+}
+
 export async function runTool(
   name: string,
   args: Record<string, unknown>,
@@ -285,6 +299,7 @@ export async function runTool(
           notes,
         },
       });
+      confirmBySms(context, { kind: "appointment", customerPhone, startAt });
 
       return result
         ? "Rendez-vous confirmé et ajouté à l'agenda."
@@ -309,6 +324,7 @@ export async function runTool(
           metadata: { items, fulfillment, address },
         },
       });
+      confirmBySms(context, { kind: "order", customerPhone });
 
       return "Commande enregistrée.";
     }

@@ -3088,6 +3088,11 @@
       }
     }
   },
+  "Sms": {
+    "appointmentConfirmed": "{company} : votre rendez-vous est confirmé le {date} à {time}. Pour le modifier, appelez le {phone}.",
+    "orderConfirmed": "{company} : votre commande est enregistrée. Pour toute question, appelez le {phone}.",
+    "appointmentReminder": "{company} : rappel de votre rendez-vous demain à {time}. Pour le modifier, appelez le {phone}."
+  },
   "Voice": {
     "paused": "Nous ne pouvons pas prendre votre appel pour le moment, merci de rappeler plus tard.",
     "unavailable": "Service momentanément indisponible, merci de rappeler plus tard."

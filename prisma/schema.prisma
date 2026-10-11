@@ -328,9 +328,12 @@ model Booking {
   externalBookingId String?
   notes             String?
   metadata          Json?
+  // Rappel SMS de la veille envoyé à l'appelant : une seule fois.
+  reminderSentAt    DateTime?
   createdAt         DateTime      @default(now())
 
   @@index([clientServiceId, createdAt])
+  @@index([startAt])
   @@map("booking")
 }
 

@@ -54,6 +54,9 @@ Priorité : **V1** = indispensable (en production), **Souhaitable**, **Plus tard
 - **V1** Répondre aux messages WhatsApp, Messenger, Instagram.
 - **V1** Réserver dans l'agenda du client (Google Agenda, Cal.com, Calendly).
 - **V1** Passer un appel d'essai à sa propre solution.
+- **V1** Envoyer un SMS à l'appelant : confirmation d'un rendez-vous ou d'une
+  commande pris au téléphone, puis rappel la veille du rendez-vous. Réglage
+  « SMS à vos clients » par solution, activé par défaut.
 
 ### Suivre et piloter
 - **V1** Voir les appels reçus avec transcription, motif, résumé et suite à
