@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/session";
 import { logAdminAction } from "@/lib/audit";
@@ -41,7 +42,7 @@ export async function createPromoCodeAction(input: PromoCodeFormInput) {
       actor: session.user,
       action: "PROMO_CODE_CREATED",
       target: { type: "promo_code", id: promo.id, label: promo.code },
-      detail: describeDiscount(parsed.value.rule),
+      detail: describeDiscount(parsed.value.rule, await getTranslations("Discount")),
     });
 
     revalidatePath("/admin/promo-codes");

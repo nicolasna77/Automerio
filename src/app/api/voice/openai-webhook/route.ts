@@ -20,6 +20,7 @@ import type { TranscriptTurn } from "@/lib/voice-agent/call-transcript";
 import { buildDemoPrompt } from "@/lib/voice-agent/demo-prompt";
 import { loadDemoCatalog } from "@/lib/voice-agent/demo-catalog";
 import { parseToolArguments } from "@/lib/messaging-agent";
+import { callRefusal } from "@/lib/voice-agent/call-gate";
 
 export const maxDuration = 800;
 
@@ -93,7 +94,20 @@ export async function POST(request: Request) {
       })
     : null;
 
-  if (!clientService) {
+  // Même contrôle qu'à l'entrée Twilio (call-gate.ts) : un appel arrivé
+  // directement sur l'URI SIP ne contourne ni la pause, ni le statut, ni le
+  // quota. Une erreur de lecture laisse passer l'appel, comme côté Twilio.
+  const refusal = clientService
+    ? await callRefusal(clientService).catch((err) => {
+        console.error(`[voice] contrôle de l'appel ${callId} impossible, appel accepté :`, err);
+        return null;
+      })
+    : "unknown_number";
+  if (!clientService || refusal) {
+    console.warn(`[voice] appel ${callId} refusé : ${refusal}`);
+    await getOpenAIClient()
+      .realtime.calls.reject(callId)
+      .catch((err) => console.error(`[voice] refus de l'appel ${callId} impossible :`, err));
     return NextResponse.json({ received: true });
   }
 

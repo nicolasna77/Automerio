@@ -7,6 +7,7 @@ import {
   redeemabilityProblem,
   type DiscountRule,
   type ParsedPromoCode,
+  type PromoRedeemProblem,
 } from "@/lib/promo-codes";
 
 const SOURCE_METADATA = { source: "automerio-admin" };
@@ -64,14 +65,14 @@ export async function deactivatePromotionCode(id: string): Promise<Stripe.Promot
 
 export type PromoValidation =
   | { ok: true; promotionCodeId: string; code: string; rule: DiscountRule }
-  | { ok: false; reason: string };
+  | { ok: false; key: PromoRedeemProblem | "promoEmpty" | "promoUnknown" };
 
 export async function validatePromoCodeForService(
   rawCode: string,
   serviceSlug: string
 ): Promise<PromoValidation> {
   const code = normalizePromoCode(rawCode);
-  if (!code) return { ok: false, reason: "Saisissez un code promo." };
+  if (!code) return { ok: false, key: "promoEmpty" };
 
   const { data } = await stripeClient.promotionCodes.list({
     code,
@@ -80,7 +81,7 @@ export async function validatePromoCodeForService(
     expand: ["data.promotion.coupon"],
   });
   const promo = data[0];
-  if (!promo) return { ok: false, reason: "Ce code n'existe pas ou n'est plus valable." };
+  if (!promo) return { ok: false, key: "promoUnknown" };
 
   const coupon = couponOf(promo);
   const problem = redeemabilityProblem(
@@ -94,7 +95,7 @@ export async function validatePromoCodeForService(
     serviceSlug,
     Date.now()
   );
-  if (problem || !coupon) return { ok: false, reason: problem ?? "Ce code n'est plus valable." };
+  if (problem || !coupon) return { ok: false, key: problem ?? "promoNoLongerValid" };
 
   return {
     ok: true,

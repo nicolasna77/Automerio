@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { Sparkles } from "lucide-react";
+import { unwrap } from "@/lib/action-result";
 import { toast } from "@/lib/toast";
 import type { MarketingChannel } from "@prisma/client";
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,7 @@ export function GeneratePanel() {
   function handleGenerate() {
     startTransition(async () => {
       try {
-        await generatePostsAction(channel, count);
+        unwrap(await generatePostsAction(channel, count));
         toast.success(t("generated", { count }));
       } catch {
         toast.error(t("generateError"));

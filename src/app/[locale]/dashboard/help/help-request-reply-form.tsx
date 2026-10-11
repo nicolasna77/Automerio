@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
 import { replyToHelpRequest } from "./actions";
+import { LONG_FIELD_MAX } from "@/lib/form-limits";
 
 export function HelpRequestReplyForm({
   helpRequestId,
@@ -43,6 +44,7 @@ export function HelpRequestReplyForm({
       <Textarea
         id={`reply-${helpRequestId}`}
         rows={3}
+        maxLength={LONG_FIELD_MAX}
         placeholder={resolved ? t("reopenPlaceholder") : t("placeholder")}
         value={body}
         onChange={(e) => setBody(e.target.value)}

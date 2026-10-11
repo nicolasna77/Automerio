@@ -158,7 +158,7 @@ export function PostCard({ post }: { post: PostCardData }) {
                 <Button
                   size="sm"
                   onClick={() =>
-                    run(() => approvePostAction(post.id, null), t("approved"))
+                    run(async () => unwrap(await approvePostAction(post.id, null)), t("approved"))
                   }
                   disabled={pending}
                 >
@@ -172,7 +172,7 @@ export function PostCard({ post }: { post: PostCardData }) {
                 <Button
                   size="sm"
                   variant="ghost"
-                  onClick={() => run(() => rejectPostAction(post.id), t("rejected"))}
+                  onClick={() => run(async () => unwrap(await rejectPostAction(post.id)), t("rejected"))}
                   disabled={pending}
                 >
                   <X data-icon="inline-start" />
@@ -191,7 +191,7 @@ export function PostCard({ post }: { post: PostCardData }) {
                   size="sm"
                   variant="outline"
                   onClick={() =>
-                    run(() => markPublishedAction(post.id), t("markedPublished"))
+                    run(async () => unwrap(await markPublishedAction(post.id)), t("markedPublished"))
                   }
                   disabled={pending}
                 >
@@ -215,7 +215,7 @@ export function PostCard({ post }: { post: PostCardData }) {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => run(() => reopenPostAction(post.id), t("reopened"))}
+                onClick={() => run(async () => unwrap(await reopenPostAction(post.id)), t("reopened"))}
                 disabled={pending}
               >
                 <Undo2 data-icon="inline-start" />

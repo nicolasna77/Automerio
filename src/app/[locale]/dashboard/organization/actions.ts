@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { requireUser } from "@/lib/session";
-import { ActionError, actionError, runAction } from "@/lib/run-action";
+import { actionError, runAction } from "@/lib/run-action";
 import { checkRateLimit } from "@/lib/rate-limit";
 import {
   canChangeRole,
@@ -28,7 +28,7 @@ async function loadTeam(organizationId: string, actorUserId: string) {
 }
 
 function enforce(verdict: Verdict) {
-  if (!verdict.ok) throw new ActionError(verdict.reason);
+  if (!verdict.ok) throw actionError(verdict.key);
 }
 
 type TeamRow = TeamMember & { id: string };

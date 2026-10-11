@@ -22,7 +22,7 @@ async function loadPromoCodes(
   discountDeleted: string
 ): Promise<PromoCodeRow[] | null> {
   try {
-    const codes = await codesPromise;
+    const [codes, tDiscount] = await Promise.all([codesPromise, getTranslations("Discount")]);
     const now = Date.now();
     return codes.map((promo) => {
       const coupon = couponOf(promo);
@@ -43,7 +43,7 @@ async function loadPromoCodes(
         code: promo.code,
         state,
         discount: coupon
-          ? describeDiscount(discountRuleFromCoupon(coupon))
+          ? describeDiscount(discountRuleFromCoupon(coupon), tDiscount)
           : discountDeleted,
         services: slugs === null ? null : slugs.map((slug) => nameBySlug.get(slug) ?? slug),
         firstTimeOnly: promo.restrictions.first_time_transaction,

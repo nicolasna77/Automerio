@@ -40,7 +40,7 @@ const adminRole = accessControl.newRole(adminAc.statements);
 const clientRole = accessControl.newRole(userAc.statements);
 
 async function actionsMessage(
-  key: "avatarInvalid" | "roleNotAllowed" | "leaveSoleOwner"
+  key: "avatarInvalid" | Extract<GuardDecision, { ok: false }>["key"]
 ): Promise<string> {
   const t = await getTranslations({ locale: routing.defaultLocale, namespace: "Actions" });
   return t(key);
@@ -55,8 +55,7 @@ async function assertAcceptableAvatar(user: Record<string, unknown>): Promise<vo
 
 async function enforceDecision(decision: GuardDecision | null): Promise<void> {
   if (!decision || decision.ok) return;
-  const message = "key" in decision ? await actionsMessage(decision.key) : decision.reason;
-  throw new APIError("FORBIDDEN", { message });
+  throw new APIError("FORBIDDEN", { message: await actionsMessage(decision.key) });
 }
 
 async function loadTeam(organizationId: string): Promise<TeamRow[]> {

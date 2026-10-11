@@ -10,12 +10,12 @@ import {
   hasOrganizationRole,
   isInvitableRole,
   type TeamMember,
-  type Verdict,
+  type TeamRuleKey,
 } from "@/lib/organization-roles";
 
 export type TeamRow = TeamMember & { id: string; email: string };
 
-export type GuardDecision = Verdict | { ok: false; key: "roleNotAllowed" | "leaveSoleOwner" };
+export type GuardDecision = { ok: true } | { ok: false; key: TeamRuleKey | "leaveSoleOwner" };
 
 // `null` : membre introuvable, better-auth répondra lui-même par son erreur.
 export function decideInvitation(actor: TeamMember | undefined, role: string): GuardDecision | null {

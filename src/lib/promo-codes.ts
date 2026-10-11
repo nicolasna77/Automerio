@@ -1,3 +1,4 @@
+import type { Messages } from "next-intl";
 import { formatCents } from "@/lib/catalog";
 import { formatCentsExcludingVat } from "@/lib/vat";
 
@@ -38,27 +39,31 @@ function formatPercent(percent: number): string {
   return `${new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 }).format(percent)} %`;
 }
 
-export function describeDiscount(rule: DiscountRule): string {
+// Textes dans messages/*.json (espace « Discount ») : le serveur passe
+// getTranslations("Discount"), un composant client useTranslations("Discount").
+export type DiscountTranslator = (
+  key: keyof Messages["Discount"],
+  values?: Record<string, string | number>
+) => string;
+
+export function describeDiscount(rule: DiscountRule, t: DiscountTranslator): string {
   const isPercent = rule.percentOff !== null;
   const amount = isPercent
-    ? `−${formatPercent(rule.percentOff!)}`
-    : `−${formatCents(rule.amountOffCents ?? 0)} TTC (−${formatCentsExcludingVat(
-        rule.amountOffCents ?? 0
-      )} HT)`;
+    ? t("percent", { percent: formatPercent(rule.percentOff!) })
+    : t("fixed", {
+        inclusive: formatCents(rule.amountOffCents ?? 0),
+        exclusive: formatCentsExcludingVat(rule.amountOffCents ?? 0),
+      });
 
   const months = rule.durationInMonths ?? 1;
 
   if (rule.duration === "once" || (rule.duration === "repeating" && months === 1)) {
-    return `${amount} sur le premier paiement`;
+    return t("firstPayment", { amount });
   }
   if (rule.duration === "repeating") {
-    return isPercent
-      ? `${amount} pendant ${months} mois`
-      : `${amount} sur chacun des ${months} premiers paiements`;
+    return t(isPercent ? "forMonths" : "eachOfFirstPayments", { amount, months });
   }
-  return isPercent
-    ? `${amount} sur tous les paiements`
-    : `${amount} sur chaque paiement`;
+  return t(isPercent ? "allPayments" : "eachPayment", { amount });
 }
 
 export function firstPaymentCents(pricing: { monthlyPriceCents: number | null }): number {
@@ -93,21 +98,24 @@ export type PromotionCodeLike = {
   coupon: { valid: boolean } | null;
 };
 
+// Clés de messages/*.json (espace « Actions »).
+export type PromoRedeemProblem = "promoNoLongerValid" | "promoExpired" | "promoExhausted" | "promoWrongService";
+
 export function redeemabilityProblem(
   promo: PromotionCodeLike,
   serviceSlug: string,
   nowMs: number
-): string | null {
-  if (!promo.coupon?.valid) return "Ce code n'est plus valable.";
+): PromoRedeemProblem | null {
+  if (!promo.coupon?.valid) return "promoNoLongerValid";
   if (promo.expires_at !== null && promo.expires_at * 1000 <= nowMs) {
-    return "Ce code a expiré.";
+    return "promoExpired";
   }
   if (promo.max_redemptions !== null && promo.times_redeemed >= promo.max_redemptions) {
-    return "Ce code a déjà servi le nombre de fois prévu.";
+    return "promoExhausted";
   }
   const allowed = allowedServiceSlugs(promo.metadata);
   if (allowed !== null && !allowed.includes(serviceSlug)) {
-    return "Ce code ne s'applique pas à cette solution.";
+    return "promoWrongService";
   }
   return null;
 }
