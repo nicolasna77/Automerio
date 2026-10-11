@@ -107,10 +107,14 @@ Page d'une solution de messagerie → fil → reprendre la main → répondre
 ### Aide
 `/dashboard/help` → nouvelle demande (sujet, message, solution liée) → envoyer
 - l'équipe répond depuis `/admin/help` → notification et e-mail au client
+- objet de plus de 200 caractères ou message de plus de 5 000 → message, rien
+  n'est envoyé ; plus de 10 demandes (30 réponses) par heure → limite atteinte
 
 ### Parcours techniques (sans écran)
-- **Appel** : Twilio → `/api/voice/incoming` (pause ou quota épuisé → message
-  et raccroché ; sinon SIP vers OpenAI) → `/api/voice/openai-webhook` (outils :
+- **Appel** : Twilio → `/api/voice/incoming` (solution non payée ou résiliée,
+  en pause ou quota épuisé → message et raccroché ; numéro sans solution →
+  « indisponible » ; sinon SIP vers OpenAI) → `/api/voice/openai-webhook` (même
+  contrôle, `voice-agent/call-gate.ts`, sinon appel refusé ; outils :
   disponibilités, rendez-vous, commande, transfert, message) → fin : usage,
   résumé, alertes de quota.
 - **Message** : webhook Meta → 200 immédiat → `decideAiReply` (pause, limite par
