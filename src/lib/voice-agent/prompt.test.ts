@@ -70,3 +70,15 @@ describe("fermetures exceptionnelles dans le prompt", () => {
     expect(prompt).not.toContain("passé");
   });
 });
+
+describe("appelant connu", () => {
+  it("ajoute la section quand le numéro est connu", async () => {
+    const { buildSystemPrompt } = await import("./prompt");
+    const prompt = buildSystemPrompt("prise-rdv-telephone", {}, {
+      calendarConnected: false,
+      companyName: "X",
+      callerContext: "Ce numéro est déjà connu de l'entreprise.",
+    });
+    expect(prompt).toContain("## Appelant connu");
+  });
+});

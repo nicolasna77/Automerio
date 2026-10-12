@@ -65,6 +65,11 @@ Priorité : **V1** = indispensable (en production), **Souhaitable**, **Plus tard
   présenté par l'opérateur, jamais un numéro dicté), annule ou déplace dans
   l'agenda relié, et l'appelant reçoit un SMS. Un rendez-vous annulé
   disparaît du calendrier.
+- **V1** Reconnaître un appelant qui rappelle (téléphonie) : pour un numéro
+  déjà connu de la solution (appel des 12 derniers mois, rendez-vous à
+  venir), l'assistant reçoit le nom donné, la date et le motif du dernier
+  appel et le prochain rendez-vous. Il fait confirmer le nom avant d'en
+  parler (un téléphone se prête) et n'en lit jamais la liste.
 - **V1** Passer un appel d'essai à sa propre solution.
 - **V1** Fermetures exceptionnelles (téléphonie, réglage « Fermetures
   exceptionnelles », une période par ligne, ex. « 24/12/2026 - 02/01/2027 :

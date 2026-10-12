@@ -2,7 +2,7 @@ import { NextResponse, after } from "next/server";
 import { getOpenAIClient } from "@/lib/openai";
 import WebSocket from "ws";
 import { db } from "@/lib/db";
-import type { Configuration } from "@/lib/catalog";
+import { TELEPHONY_SERVICE_SLUGS, type Configuration } from "@/lib/catalog";
 import { inputTranscriptionOf, voiceSettingsOf } from "@/lib/voice-agent/voice";
 import { buildSystemPrompt } from "@/lib/voice-agent/prompt";
 import {
@@ -22,6 +22,7 @@ import { loadDemoCatalog } from "@/lib/voice-agent/demo-catalog";
 import { parseToolArguments } from "@/lib/messaging-agent";
 import { callRefusal } from "@/lib/voice-agent/call-gate";
 import { loadLearnedAnswers } from "@/lib/caller-questions";
+import { formatCallerContext, loadCallerContext } from "@/lib/voice-agent/caller-context";
 
 export const maxDuration = 800;
 
@@ -116,12 +117,24 @@ export async function POST(request: Request) {
     console.error(`[voice] réponses validées non chargées pour l'appel ${callId} :`, err);
     return [];
   });
+  // Numéro qui appelle, lu avant de décrocher : il sert à reconnaître un
+  // appelant qui rappelle, puis aux outils de rendez-vous.
+  const fromHeader = findSipHeader(event.data.sip_headers, "From");
+  const fromNumber = fromHeader ? extractE164(fromHeader) : null;
+  const callerContext =
+    fromNumber && TELEPHONY_SERVICE_SLUGS.has(clientService.service.slug)
+      ? await loadCallerContext(clientService.id, fromNumber).catch((err) => {
+          console.error(`[voice] appelant non recherché pour l'appel ${callId} :`, err);
+          return null;
+        })
+      : null;
   const systemPrompt = buildSystemPrompt(clientService.service.slug, configuration, {
     calendarConnected,
     collectsEmail,
     fixedDurationMinutes,
     companyName: clientService.organization.name,
     learnedAnswers,
+    callerContext: callerContext ? formatCallerContext(callerContext) : null,
   });
   const tools = getToolDefinitions(
     clientService.service.slug,
@@ -146,8 +159,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ received: true });
   }
 
-  const fromHeader = findSipHeader(event.data.sip_headers, "From");
-  const fromNumber = fromHeader ? extractE164(fromHeader) : null;
   await recordUsageEvent({
     clientServiceId: clientService.id,
     externalId: callId,
