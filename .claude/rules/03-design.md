@@ -26,7 +26,10 @@ Toujours par les jetons CSS de `src/app/globals.css`, jamais en dur.
 | Filets | `--border` | `#dfe3e8` | `#2a2f36` |
 | Erreur | `--destructive` | `#b91c1c` | `#f87171` |
 
-Pas de dégradé, de halo ni de trame, sauf la trame du hero de l'accueil.
+Pas de dégradé, de halo ni de trame, sauf la trame du hero de l'accueil et,
+sur le site public, des halos discrets de `--primary` (14 % au plus) derrière
+certaines sections et des bandes `bg-primary/5` (`SectionGlow`). Jamais sur
+un composant ni dans le tableau de bord.
 Thème clair et sombre (next-themes).
 
 ## Polices

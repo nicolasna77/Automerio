@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { Check } from "lucide-react";
 import { isDemoCallAvailable } from "@/lib/demo-call";
 import { DemoCallForm } from "../services/[slug]/demo-call-form";
+import { SectionGlow } from "@/components/section-glow";
 
 const POINTS = ["free", "noAccount", "short"] as const;
 
@@ -12,7 +13,8 @@ export async function DemoCallSection() {
   if (!isDemoCallAvailable()) return null;
   const t = await getTranslations("Home.demo");
   return (
-    <section id="essai" aria-labelledby="demo-heading" className="scroll-mt-20 py-20 sm:py-24">
+    <section id="essai" aria-labelledby="demo-heading" className="relative isolate scroll-mt-20 overflow-hidden bg-primary/5 py-20 sm:py-24">
+      <SectionGlow position="right" strength={14} />
       <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16">
         <div>
           <h2

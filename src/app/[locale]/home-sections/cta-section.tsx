@@ -2,12 +2,14 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
+import { SectionGlow } from "@/components/section-glow";
 
 export async function CtaSection() {
   const t = await getTranslations("Home.cta");
   return (
     <section aria-labelledby="cta-heading" className="px-4 pb-20 sm:px-6 sm:pb-24">
-      <div className="relative isolate mx-auto max-w-6xl overflow-hidden rounded-lg border border-border bg-card px-6 py-16 text-center sm:py-20">
+      <div className="relative isolate mx-auto max-w-6xl overflow-hidden rounded-lg border border-primary/20 bg-card px-6 py-16 text-center sm:py-20">
+        <SectionGlow position="bottom" strength={14} />
         <h2
           id="cta-heading"
           className="mx-auto max-w-2xl text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"

@@ -13,6 +13,7 @@ import type { PriceFormatter } from "@/lib/price-format";
 import { getPriceFormatter } from "@/lib/price-format-server";
 import { isWaitlistMode } from "@/lib/launch-mode";
 import { ServiceGlyphBadge } from "@/components/service-glyph";
+import { SectionGlow } from "@/components/section-glow";
 
 const INCLUDED = ["install", "config", "tests", "adjust", "commitment"] as const;
 
@@ -105,7 +106,8 @@ export async function ServicesSection({ services }: { services: ServiceDTO[] }) 
   })).filter(({ categoryServices }) => categoryServices.length > 0);
 
   return (
-    <section id="services" aria-labelledby="services-heading" className="scroll-mt-16 border-t border-border py-20 sm:py-24">
+    <section id="services" aria-labelledby="services-heading" className="relative isolate scroll-mt-16 overflow-hidden border-t border-border py-20 sm:py-24">
+      <SectionGlow position="top" strength={14} />
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="mx-auto max-w-2xl text-center">
           <h2 id="services-heading" className="text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl">

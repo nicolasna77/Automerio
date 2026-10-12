@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { cn } from "@/lib/utils";
 import { BriefIllustration, SetupIllustration } from "./method-illustrations";
 import { DashboardTabs } from "./dashboard-tabs";
+import { SectionGlow } from "@/components/section-glow";
 
 // Deux colonnes plutôt qu'un zigzag de quatre rangées : ce qui revient au
 // client, puis ce que fait l'équipe. Les numéros d'étape gardent l'ordre.
@@ -38,7 +39,8 @@ const SHOTS = [
 export async function MethodSection() {
   const [t, tShots] = await Promise.all([getTranslations("Home.method"), getTranslations("Screenshots")]);
   return (
-    <section id="method" aria-labelledby="method-heading" className="scroll-mt-20 py-20 sm:py-28">
+    <section id="method" aria-labelledby="method-heading" className="relative isolate scroll-mt-20 overflow-hidden py-20 sm:py-28">
+      <SectionGlow position="left" strength={14} />
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="max-w-2xl">
           <span className="text-sm font-medium text-muted-foreground">{t("eyebrow")}</span>

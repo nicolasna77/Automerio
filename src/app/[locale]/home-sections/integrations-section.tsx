@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { CalendarDays, PhoneForwarded, Webhook } from "lucide-react";
 import { ServiceGlyph } from "@/components/service-glyph";
+import { SectionGlow } from "@/components/section-glow";
 
 // Les canaux Meta gardent leur logo officiel (public/brands/README.md) ; les
 // autres, qui regroupent plusieurs produits, une icône du jeu lucide.
@@ -16,7 +17,8 @@ const INTEGRATIONS = [
 export async function IntegrationsSection() {
   const t = await getTranslations("Home.integrations");
   return (
-    <section aria-labelledby="integrations-heading" className="border-t border-border bg-muted/40 py-20 sm:py-24">
+    <section aria-labelledby="integrations-heading" className="relative isolate overflow-hidden border-t border-border bg-muted/40 py-20 sm:py-24">
+      <SectionGlow position="right" strength={10} />
       <div className="mx-auto grid max-w-6xl gap-10 px-4 sm:px-6 lg:grid-cols-5 lg:gap-16">
         <div className="lg:col-span-2">
           <h2
