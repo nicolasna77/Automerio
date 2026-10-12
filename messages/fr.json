@@ -21,6 +21,7 @@
     "payments": "Paiements",
     "profile": "Mon profil",
     "serviceConfiguration": "Réglages de la solution",
+    "instagramDrafts": "Publications Instagram",
     "serviceDetail": "Détail de la solution",
     "activateService": "Activer une solution",
     "catalog": "Catalogue",
@@ -1105,6 +1106,92 @@
         "quotaOverTitle": "Forfait dépassé"
       }
     },
+    "instagramDrafts": {
+      "headerLink": "Publications",
+      "breadcrumb": "Mes solutions",
+      "title": "Publications Instagram",
+      "description": "Préparez vos légendes, carrousels, hashtags et le planning de la semaine. Vous relisez, ajoutez votre photo ou votre vidéo, puis publiez vous-même.",
+      "kinds": {
+        "CAPTION": "Légende",
+        "CAROUSEL": "Carrousel",
+        "HASHTAGS": "Hashtags",
+        "WEEKLY_PLAN": "Planning"
+      },
+      "kindsLabel": "Type de brouillon",
+      "composer": {
+        "intro": {
+          "CAPTION": "Une légende pour une photo ou une vidéo : une accroche lisible avant « plus », un texte court et une seule invitation.",
+          "CAROUSEL": "Un carrousel de 4 à 10 diapositives : la promesse d'abord, un point par diapositive, un récapitulatif à garder.",
+          "HASHTAGS": "De 3 à 5 hashtags qui décrivent vraiment la publication, choisis pour un compte local.",
+          "WEEKLY_PLAN": "Une semaine du lundi au dimanche : format, idée, accroche et heure de publication pour chaque jour."
+        },
+        "subject": {
+          "CAPTION": "Sujet de la publication",
+          "CAROUSEL": "Sujet du carrousel",
+          "HASHTAGS": "De quoi parle la publication ?",
+          "WEEKLY_PLAN": "Thème de la semaine"
+        },
+        "subjectPlaceholder": {
+          "CAPTION": "Exemple : la rénovation d'une salle de bains à Lyon",
+          "CAROUSEL": "Exemple : 5 gestes pour éviter une fuite cet hiver",
+          "HASHTAGS": "Exemple : photo d'un gâteau d'anniversaire sur mesure",
+          "WEEKLY_PLAN": "Exemple : la rentrée de septembre"
+        },
+        "goal": "Objectif",
+        "goals": {
+          "saves": "Être enregistrée",
+          "shares": "Être partagée",
+          "comments": "Faire réagir",
+          "follows": "Gagner des abonnés"
+        },
+        "details": "Précisions",
+        "optional": " (facultatif)",
+        "detailsHint": "Prix, dates, chiffres, nom d'un produit : l'assistant n'utilise que ce que vous écrivez ici, il n'invente aucun chiffre.",
+        "subjectRequired": "Indiquez le sujet pour que l'assistant puisse rédiger.",
+        "submit": "Rédiger le brouillon",
+        "submitting": "Rédaction…",
+        "created": "Brouillon rédigé. Il apparaît en tête de vos brouillons.",
+        "limit": "{count} brouillons par jour, inclus dans votre abonnement."
+      },
+      "history": {
+        "title": "Vos brouillons",
+        "description": "Les {count} derniers brouillons de cette solution.",
+        "emptyTitle": "Aucun brouillon pour l'instant",
+        "emptyDescription": "Choisissez un type de brouillon, indiquez le sujet, puis cliquez sur « Rédiger le brouillon ».",
+        "by": "Rédigé le {date} par {name}",
+        "byUnknown": "Rédigé le {date}",
+        "copy": "Copier",
+        "copied": "Brouillon copié.",
+        "copyError": "La copie a échoué. Sélectionnez le texte à la main.",
+        "delete": "Supprimer",
+        "deleteLabel": "Supprimer le brouillon « {subject} »",
+        "confirmTitle": "Supprimer ce brouillon ?",
+        "confirmDescription": "Le brouillon « {subject} » sera effacé de l'historique.",
+        "deleted": "Brouillon supprimé.",
+        "checkNumbers": "À vérifier avant de publier : {numbers}. Ce chiffre ne figure pas dans vos précisions.",
+        "hook": "Accroche",
+        "cta": "Invitation",
+        "hashtags": "Hashtags",
+        "caption": "Légende",
+        "slide": "Diapositive {number}",
+        "slides": "Diapositives",
+        "stories": "Stories :",
+        "tiers": {
+          "niche": "Niche",
+          "mid": "Intermédiaire",
+          "broad": "Large"
+        },
+        "formats": {
+          "reel": "Reel",
+          "carousel": "Carrousel",
+          "image": "Photo",
+          "stories": "Stories"
+        },
+        "planGoal": "Objectif : {goal}",
+        "dayLine": "{day} · {format} · {time} : {angle} ({hook})",
+        "storiesTitle": "Stories"
+      }
+    },
     "loading": {
       "calendar": "Chargement du calendrier…",
       "help": "Chargement de l'aide…",
@@ -1115,6 +1202,7 @@
       "services": "Chargement des solutions…",
       "configuration": "Chargement de la configuration…",
       "service": "Chargement de la solution…",
+      "instagramDrafts": "Chargement des publications…",
       "subscriptions": "Chargement des abonnements…"
     },
     "services": {
@@ -2326,6 +2414,9 @@
     "previewPhoneOnly": "L'écoute n'existe que pour les solutions téléphoniques.",
     "previewUnavailable": "L'écoute n'est pas disponible pour le moment.",
     "tooManyPreviews": "Trop d'écoutes. Réessayez dans quelques minutes.",
+    "instagramDraftsUnavailable": "Les brouillons Instagram ne sont pas disponibles pour cette solution.",
+    "instagramDraftSubjectRequired": "Indiquez le sujet de la publication.",
+    "tooManyInstagramDrafts": "Vous avez rédigé {count} brouillons aujourd'hui. Revenez demain pour en rédiger d'autres.",
     "organizationDeleteOwnerOnly": "Seul le propriétaire peut supprimer cette organisation.",
     "deleteAccountHasAuditLog": "Ce compte a effectué des actions d'administration : il ne peut pas être supprimé depuis le profil. Contactez l'équipe.",
     "deleteAccountSoleOwner": "Vous êtes le seul propriétaire d'une organisation qui compte d'autres membres. Transmettez-en la propriété à un membre (page Équipe), puis supprimez votre compte.",

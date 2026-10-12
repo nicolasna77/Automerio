@@ -34,6 +34,7 @@ model User {
   members             Member[]
   testCalls           TestCall[]
   conversationReplies ConversationMessage[]
+  instagramDrafts     InstagramDraft[]
   invitations         Invitation[]
 
   @@unique([email])
@@ -230,6 +231,7 @@ model ClientService {
   bookings             Booking[]
   conversations        Conversation[]
   testCalls            TestCall[]
+  instagramDrafts      InstagramDraft[]
   events               ServiceEvent[]
   helpRequests         HelpRequest[]
 
@@ -618,6 +620,33 @@ model ConversationMessage {
 
   @@index([conversationId, createdAt])
   @@map("conversation_message")
+}
+
+enum InstagramDraftKind {
+  CAPTION
+  CAROUSEL
+  HASHTAGS
+  WEEKLY_PLAN
+}
+
+// Brouillon de publication Instagram rédigé pour le client (rien n'est
+// publié par Automerio). Seuls les 20 derniers sont gardés par solution.
+model InstagramDraft {
+  id              String             @id @default(cuid())
+  clientServiceId String
+  clientService   ClientService      @relation(fields: [clientServiceId], references: [id], onDelete: Cascade)
+  createdById     String?
+  createdBy       User?              @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  kind            InstagramDraftKind
+  subject         String
+  goal            String?
+  details         String?
+  content         Json
+  warnings        String[]           @default([])
+  createdAt       DateTime           @default(now())
+
+  @@index([clientServiceId, createdAt])
+  @@map("instagram_draft")
 }
 
 model TestCall {

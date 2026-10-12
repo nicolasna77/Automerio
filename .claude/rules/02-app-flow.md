@@ -14,6 +14,7 @@ Routes sous `src/app/[locale]` (français par défaut, sans préfixe).
 | `/dashboard/services` (mes solutions), `/dashboard/services/catalog` | Client |
 | `/dashboard/services/activate/[slug]` | Client |
 | `/dashboard/services/[id]`, `/dashboard/services/[id]/configuration` | Membre de l'organisation de la solution |
+| `/dashboard/services/[id]/publications` | Membre de l'organisation ; solution Instagram payée |
 | `/dashboard/calendar`, `/dashboard/help`, `/dashboard/profile` | Client |
 | `/dashboard/subscriptions`, `/dashboard/payments` | Client ; actions réservées aux responsables |
 | `/dashboard/organization` | Client ; inviter et changer les rôles : responsables |
@@ -107,6 +108,18 @@ Page de la solution → « Réglages » → onglet Intégrations → adresse htt
   test » → toast avec le statut reçu, ou message qui dit quoi vérifier
 - « Retirer » → fenêtre de confirmation → plus aucun envoi
 - membre non responsable → état affiché, explication à la place du formulaire
+
+### Préparer une publication Instagram
+Page d'une solution Instagram → « Publications » (en-tête) →
+`/dashboard/services/[id]/publications` : onglet Légende, Carrousel, Hashtags
+ou Planning → sujet, objectif, précisions (facultatives) → « Rédiger »
+- sujet manquant → message sous le champ, focus sur le champ, rien n'est envoyé
+- rédigé → le brouillon s'affiche en tête de l'historique, bouton « Copier » ;
+  un chiffre absent des précisions est signalé « à vérifier »
+- 30 brouillons dans la journée → message, rien n'est rédigé
+- OpenAI indisponible → toast d'erreur, rien n'est enregistré
+- historique : les 20 derniers, « Copier », « Supprimer » (confirmé)
+- solution non payée, résiliée ou autre qu'Instagram → page 404
 
 ### Conversations
 Page d'une solution de messagerie → fil → reprendre la main → répondre
