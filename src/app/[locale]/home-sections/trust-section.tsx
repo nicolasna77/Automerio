@@ -16,7 +16,7 @@ export async function TrustSection() {
   const t = await getTranslations("Home.trust");
   return (
     <section aria-labelledby="trust-heading" className="border-t border-border py-20 sm:py-24">
-      <div className="mx-auto max-w-[75rem] px-4 sm:px-6">
+      <div className="mx-auto max-w-[80rem] px-4 sm:px-6">
         <div className="max-w-2xl">
           <h2
             id="trust-heading"

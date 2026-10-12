@@ -12,7 +12,7 @@ export default function GlobalError(props: {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="border-b border-border bg-card">
-        <div className="mx-auto flex h-16 max-w-[75rem] items-center px-4 sm:px-6">
+        <div className="mx-auto flex h-16 max-w-[80rem] items-center px-4 sm:px-6">
           <AutomerioLogo />
         </div>
       </header>
