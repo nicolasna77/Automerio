@@ -1214,6 +1214,17 @@
       "hiddenNumber": "Numéro masqué",
       "updateError": "L'appel n'a pas pu être mis à jour.",
       "urgent": "Urgent",
+      "quote": {
+        "badge": "Devis",
+        "title": "Demande de devis",
+        "work": "Travaux",
+        "address": "Adresse",
+        "urgency": "Urgence",
+        "urgentYes": "Oui",
+        "urgentNo": "Non",
+        "slot": "Créneau souhaité",
+        "details": "Précisions"
+      },
       "toCallBack": "À rappeler",
       "handled": "Traité",
       "showDetail": "Afficher le détail",
@@ -3093,6 +3104,7 @@
     "appointmentConfirmed": "{company} : votre rendez-vous est confirmé le {date} à {time}. Pour le modifier, appelez le {phone}.",
     "orderConfirmed": "{company} : votre commande est enregistrée. Pour toute question, appelez le {phone}.",
     "appointmentReminder": "{company} : rappel de votre rendez-vous demain à {time}. Pour le modifier, appelez le {phone}.",
+    "quoteReceived": "{company} : votre demande de devis ({work}) est enregistrée. Nous vous rappelons rapidement. Pour toute question, appelez le {phone}.",
     "urgentCall": "Appel urgent pour {service} : {caller}, {number}. {reason}",
     "hiddenNumber": "numéro masqué",
     "unknownCaller": "appelant inconnu"

@@ -41,7 +41,16 @@ type RecentCall = {
   outcome: string | null;
   endedReason: string | null;
   summary: CallSummary | null;
+  quote: QuoteRequest | null;
   handled: boolean;
+};
+
+type QuoteRequest = {
+  workType: string;
+  address: string | null;
+  urgent: boolean;
+  preferredSlot: string | null;
+  details: string | null;
 };
 
 type CallsResponse = {
@@ -175,7 +184,7 @@ function RecentCallItem({
   }
   const handled = handledOverride ?? call.handled;
   const caller = call.summary?.callerName ?? (call.fromNumber ? formatFrenchPhone(call.fromNumber) : t("hiddenNumber"));
-  const hasDetail = call.summary !== null;
+  const hasDetail = call.summary !== null || call.quote !== null;
   const needsCallback = Boolean(call.summary?.followUp) && !handled;
 
   function toggleHandled() {
@@ -211,6 +220,11 @@ function RecentCallItem({
             </Badge>
           )}
           <OutcomeBadge outcome={call.outcome} />
+          {call.quote && (
+            <Badge variant="outline" className="shrink-0">
+              {t("quote.badge")}
+            </Badge>
+          )}
           {needsCallback && <Badge className="shrink-0">{t("toCallBack")}</Badge>}
           {handled && call.summary?.followUp && (
             <Badge variant="outline" className="shrink-0">
@@ -249,6 +263,7 @@ function RecentCallItem({
       {expanded && (
         <div id={panelId} className="space-y-3 border-t border-border px-3 pt-3 pb-4 sm:pl-9">
           {call.summary?.summary && <p className="leading-relaxed text-foreground">{call.summary.summary}</p>}
+          {call.quote && <QuoteDetail quote={call.quote} t={t} />}
           {call.summary?.followUp && (
             <p className="flex items-start gap-2 rounded-xl bg-primary/10 px-3 py-2 text-foreground">
               <ListChecks className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
@@ -512,6 +527,32 @@ export function CallActivity({ clientServiceId }: { clientServiceId: string }) {
           </ul>
         )}
       </div>
+    </div>
+  );
+}
+
+// Demande de devis notée pendant l'appel : fiche « libellé / valeur ».
+function QuoteDetail({ quote, t }: { quote: QuoteRequest; t: CallsT }) {
+  const rows: [string, string | null][] = [
+    [t("quote.work"), quote.workType],
+    [t("quote.address"), quote.address],
+    [t("quote.urgency"), quote.urgent ? t("quote.urgentYes") : t("quote.urgentNo")],
+    [t("quote.slot"), quote.preferredSlot],
+    [t("quote.details"), quote.details],
+  ];
+  return (
+    <div className="rounded-xl border border-border px-3 py-2">
+      <p className="font-medium text-foreground">{t("quote.title")}</p>
+      <dl className="mt-1.5 grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-1">
+        {rows
+          .filter(([, value]) => value)
+          .map(([label, value]) => (
+            <div key={label} className="contents">
+              <dt className="text-muted-foreground">{label}</dt>
+              <dd className="[overflow-wrap:anywhere] text-foreground">{value}</dd>
+            </div>
+          ))}
+      </dl>
     </div>
   );
 }

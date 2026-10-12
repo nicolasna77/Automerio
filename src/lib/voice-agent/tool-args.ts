@@ -163,3 +163,33 @@ export function validateMessage(
   if (!contact.ok) return contact;
   return { ok: true, value: { ...contact.value, reason: optionalString(args.reason, LIMITS.notes) } };
 }
+
+// Demande de devis (standard téléphonique, réglage « Demandes de devis ») :
+// la nature des travaux est obligatoire, le reste aide l'artisan à chiffrer.
+export type QuoteRequest = {
+  customerName: string;
+  customerPhone: string;
+  workType: string;
+  address: string | null;
+  urgent: boolean;
+  preferredSlot: string | null;
+  details: string | null;
+};
+
+export function validateQuote(args: Record<string, unknown>): ValidationResult<QuoteRequest> {
+  const contact = contactOf(args);
+  if (!contact.ok) return contact;
+  const workType = boundedString(args.workType, LIMITS.itemName);
+  if (!workType) return fail("Précise la nature des travaux avant d'enregistrer la demande de devis.");
+  return {
+    ok: true,
+    value: {
+      ...contact.value,
+      workType,
+      address: optionalString(args.address, LIMITS.address),
+      urgent: args.urgent === true,
+      preferredSlot: optionalString(args.preferredSlot, LIMITS.itemName),
+      details: optionalString(args.details, LIMITS.notes),
+    },
+  };
+}

@@ -9,6 +9,7 @@ import {
   validateBooking,
   validateMessage,
   validateOrder,
+  validateQuote,
   validateSlot,
 } from "@/lib/voice-agent/tool-args";
 import { sendBookingConfirmationSms } from "@/lib/booking-sms";
@@ -161,6 +162,33 @@ const TAKE_MESSAGE: ToolDefinition = {
   },
 };
 
+const TAKE_QUOTE_REQUEST: ToolDefinition = {
+  type: "function",
+  function: {
+    name: "take_quote_request",
+    description:
+      "Enregistre une demande de devis : nature des travaux, adresse du chantier, urgence et créneau souhaité pour la visite. Aucun prix n'est donné.",
+    parameters: {
+      type: "object",
+      properties: {
+        customerName: { type: "string" },
+        customerPhone: { type: "string" },
+        workType: { type: "string", description: "Nature des travaux, en quelques mots (ex. « Remplacement chauffe-eau »)." },
+        address: { type: "string", description: "Adresse du chantier." },
+        urgent: { type: "boolean", description: "true si l'intervention est urgente." },
+        preferredSlot: { type: "string", description: "Créneau souhaité pour la visite, tel que dit par l'appelant." },
+        details: { type: "string", description: "Précisions utiles au chiffrage." },
+      },
+      required: ["customerName", "customerPhone", "workType"],
+    },
+  },
+};
+
+// Réglage « Demandes de devis » du standard téléphonique.
+export function takesQuoteRequests(configuration: Configuration): boolean {
+  return configuration.quoteRequests === "on";
+}
+
 // collectsEmail : l'agenda (Cal.com, Calendly) envoie une confirmation par
 // e-mail, l'agent peut donc proposer à l'appelant de donner son adresse.
 export function getToolDefinitions(
@@ -174,6 +202,7 @@ export function getToolDefinitions(
     const triggers = asRuleRows(configuration.callRouting).map((r) => r.trigger);
     if (triggers.length > 0) tools.push(buildTransferCallTool(triggers));
     tools.push(TAKE_MESSAGE);
+    if (takesQuoteRequests(configuration)) tools.push(TAKE_QUOTE_REQUEST);
     return tools;
   }
 
@@ -226,7 +255,7 @@ const RECORD_CAP_REACHED = `Limite atteinte : pas plus de ${MAX_RECORDS_PER_SESS
 // conversation. Sans attente : l'agent répond pendant que le SMS part.
 function confirmBySms(
   context: ToolContext,
-  booking: { kind: "appointment" | "order"; customerPhone: string; startAt?: Date }
+  booking: { kind: "appointment" | "order" | "quote"; customerPhone: string; startAt?: Date; workType?: string }
 ): void {
   if (!context.callId || context.testMode) return;
   void sendBookingConfirmationSms({ clientServiceId: context.clientServiceId, ...booking }).catch((err) =>
@@ -366,6 +395,30 @@ export async function runTool(
       });
 
       return "Message enregistré, l'entreprise rappellera.";
+    }
+
+    case "take_quote_request": {
+      if (context.session.records >= MAX_RECORDS_PER_SESSION) return RECORD_CAP_REACHED;
+      const quote = validateQuote(args);
+      if (!quote.ok) return quote.error;
+      context.session.records += 1;
+      if (context.testMode) return "Demande de devis enregistrée, l'entreprise rappellera.";
+
+      const { customerName, customerPhone, workType, address, urgent, preferredSlot, details } = quote.value;
+      await db.booking.create({
+        data: {
+          clientServiceId: context.clientServiceId,
+          kind: "quote",
+          customerName,
+          customerPhone,
+          notes: details,
+          // callId : la demande s'affiche dans le détail de son appel.
+          metadata: { callId: context.callId, workType, address, urgent, preferredSlot },
+        },
+      });
+      confirmBySms(context, { kind: "quote", customerPhone, workType });
+
+      return "Demande de devis enregistrée, l'entreprise rappellera.";
     }
 
     default:

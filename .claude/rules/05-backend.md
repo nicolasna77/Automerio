@@ -43,7 +43,7 @@ Abréviations des droits : **M** membre de l'organisation, **R** responsable
 | `service_event` | clientServiceId, type, message | M ; A | S |
 | `calendar_connection` | **googleAccountEmail**, accessToken / refreshToken (chiffrés), calendarId | R | R |
 | `scheduling_connection` | provider (calcom/calendly), encryptedToken, accountLabel, eventType | R | R |
-| `booking` | **customerName**, **customerPhone**, startAt, endAt, notes, ids externes, reminderSentAt | M ; A | S (agent, rappel SMS) |
+| `booking` | kind (appointment, order, message, quote), **customerName**, **customerPhone**, startAt, endAt, notes, metadata (commande ; devis : callId, travaux, **adresse**, urgence, créneau), ids externes, reminderSentAt | M ; A | S (agent, rappel SMS) |
 
 ### Activité
 

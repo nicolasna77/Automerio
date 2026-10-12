@@ -7,6 +7,7 @@ import type {
 const KIND_LABELS: Record<string, string> = {
   appointment: "Rendez-vous",
   order: "Commande",
+  quote: "Devis",
 };
 
 const WINDOW_MONTHS = 12;

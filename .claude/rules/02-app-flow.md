@@ -118,7 +118,10 @@ Page d'une solution de messagerie → fil → reprendre la main → répondre
   contrôle, `voice-agent/call-gate.ts`, sinon appel refusé ; outils :
   disponibilités, rendez-vous, commande, transfert, message) → fin : usage,
   résumé, alertes de quota. Résumé « urgent » → SMS au mobile d'alerte de la
-  solution (`src/lib/urgent-alert.ts`), sans lui rien ne part.
+  solution (`src/lib/urgent-alert.ts`), sans lui rien ne part. Outil
+  `take_quote_request` (si « Demandes de devis » est activé) → réservation de
+  type `quote`, rattachée à l'appel par `metadata.callId`, affichée dans le
+  détail de l'appel ; SMS récapitulatif à l'appelant.
 - **Message** : webhook Meta → 200 immédiat → `decideAiReply` (pause, limite par
   expéditeur, plafond quotidien, quota) → réponse OpenAI → envoi Meta.
 - **Paiement** : webhooks Stripe via better-auth (`/api/auth/stripe/webhook`) →

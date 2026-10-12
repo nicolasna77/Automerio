@@ -60,6 +60,10 @@ Priorité : **V1** = indispensable (en production), **Souhaitable**, **Plus tard
 - **V1** Repérer un appel urgent (fuite, panne, danger) : badge « Urgent » dans
   les appels et SMS immédiat au « Mobile pour les alertes urgentes » choisi
   par le client (nom, numéro, motif).
+- **V1** Noter une demande de devis (standard téléphonique, réglage « Demandes
+  de devis ») : nature des travaux, adresse, urgence, créneau souhaité, sans
+  donner de prix ; visible dans le détail de l'appel, SMS récapitulatif à
+  l'appelant.
 
 ### Suivre et piloter
 - **V1** Voir les appels reçus avec transcription, motif, résumé et suite à
