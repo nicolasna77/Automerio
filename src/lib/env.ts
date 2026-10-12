@@ -66,6 +66,10 @@ export const FEATURES: FeatureGroup[] = [
     ],
   },
   {
+    feature: "SMS aux clients finaux (confirmation, rappel)",
+    vars: ["TWILIO_SMS_SENDER"],
+  },
+  {
     feature: "Appel d'essai depuis le site public",
     vars: ["DEMO_CALLER_NUMBER"],
   },

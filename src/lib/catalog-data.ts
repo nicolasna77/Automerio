@@ -164,6 +164,17 @@ export const CATALOG: CatalogService[] = [
         showIf: { key: "objectives", includes: "appointment" },
       },
       {
+        key: "customerSms",
+        label: "SMS à vos clients",
+        type: "select",
+        options: [
+          { value: "on", label: "Activés" },
+          { value: "off", label: "Désactivés" },
+        ],
+        helpText:
+          "Confirmation après un rendez-vous ou une commande pris au téléphone, puis rappel la veille du rendez-vous.",
+      },
+      {
         key: "productCatalog",
         label: "Menu / catalogue de produits",
         type: "textarea",

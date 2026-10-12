@@ -43,7 +43,7 @@ Abréviations des droits : **M** membre de l'organisation, **R** responsable
 | `service_event` | clientServiceId, type, message | M ; A | S |
 | `calendar_connection` | **googleAccountEmail**, accessToken / refreshToken (chiffrés), calendarId | R | R |
 | `scheduling_connection` | provider (calcom/calendly), encryptedToken, accountLabel, eventType | R | R |
-| `booking` | **customerName**, **customerPhone**, startAt, endAt, notes, ids externes | M ; A | S (agent) |
+| `booking` | **customerName**, **customerPhone**, startAt, endAt, notes, ids externes, reminderSentAt | M ; A | S (agent, rappel SMS) |
 
 ### Activité
 
@@ -79,7 +79,7 @@ peut pas être supprimée tant qu'elle a des solutions (`onDelete: Restrict`).
 | Nom, e-mail, mot de passe (haché) | Client | Compte, connexion, notifications | Non |
 | IP, navigateur (`session`) | Client | Sécurité des sessions | Non |
 | Numéro et nom de l'appelant, transcription, résumé | Client final du client | Rappeler, traiter la demande | Non (c'est le service) |
-| Nom et téléphone d'une réservation | Client final | Rendez-vous et commandes | Non |
+| Nom et téléphone d'une réservation | Client final | Rendez-vous et commandes ; SMS de confirmation et de rappel (envoyés par Twilio) | Non ; le SMS se coupe par solution |
 | Identifiant et messages WhatsApp / Messenger / Instagram | Client final | Répondre, historique | Non |
 | E-mail Google relié, jetons d'agenda | Client | Réserver dans l'agenda | Oui si pas d'agenda |
 | Numéro et IP de l'appel de démonstration | Visiteur | Anti-abus | Stockés **hachés** |
@@ -95,7 +95,7 @@ messages, réservations) et **responsable** pour les comptes clients.
 | Base PostgreSQL | Toutes les tables | [À CONFIRMER : hébergeur et région ; `src/lib/legal.ts` porte encore « à compléter »] |
 | Vercel | Application, journaux | [À CONFIRMER : région des fonctions] |
 | Stripe | Paiements, factures, moyens de paiement | [À CONFIRMER] |
-| Twilio, OpenAI | Appels, audio, transcription à la volée | [À CONFIRMER : région et clauses de transfert hors UE] |
+| Twilio, OpenAI | Appels, audio, transcription à la volée ; SMS aux clients finaux (Twilio) | [À CONFIRMER : région et clauses de transfert hors UE] |
 | Meta, Google | Comptes reliés par le client | — |
 | Resend | E-mails envoyés | [À CONFIRMER] |
 | Upstash | Compteurs de limite (clés techniques) | [À CONFIRMER] |

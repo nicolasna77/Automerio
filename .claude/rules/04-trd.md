@@ -11,7 +11,7 @@ explicite, jamais en cours de route.
 | Base de données | **PostgreSQL** via **Prisma 7** (`@prisma/adapter-pg`) | Relations fortes (organisations, solutions, usage), migrations versionnées |
 | Authentification | **better-auth 1.6.23** : e-mail / mot de passe, Google, plugins `admin`, `organization`, `twoFactor`, `@better-auth/stripe` | Rôles, organisations et facturation dans une seule librairie |
 | Paiement | **Stripe** : une Checkout Session par solution, abonnements, portail client, codes promo | Facturation à l'usage (dépassement) et TVA |
-| Téléphonie | **Twilio** : numéros français, routage des appels, appel de démonstration | Achat de numéros et SIP |
+| Téléphonie | **Twilio** : numéros français, routage des appels, appel de démonstration, SMS aux clients finaux (expéditeur alphanumérique) | Achat de numéros, SIP et SMS |
 | Agent vocal | **OpenAI Realtime API (SIP)** | Faible latence au téléphone |
 | Réponses aux messages | **OpenAI** (`openai`) | Même fournisseur que la voix |
 | Messageries | **Meta** : WhatsApp Cloud API, Messenger, Instagram (webhooks, Embedded Signup) | Canaux des clients |
@@ -30,7 +30,7 @@ explicite, jamais en cours de route.
 | Vercel | [À CONFIRMER : offre et limites] |
 | Base PostgreSQL | [À CONFIRMER : hébergeur, offre, région] |
 | Stripe | Commission par transaction [À CONFIRMER : taux] |
-| Twilio | Numéro mensuel + minutes [À CONFIRMER] |
+| Twilio | Numéro mensuel + minutes + SMS (payé par Automerio) [À CONFIRMER : prix par SMS, refacturation au client] |
 | OpenAI | Facturé au token / à la minute audio [À CONFIRMER] |
 | Resend | [À CONFIRMER : offre, e-mails par jour] |
 | Upstash | [À CONFIRMER : offre, requêtes par jour] |
@@ -48,7 +48,7 @@ conversation). Liste de référence : `.env.example` ; vérification au démarra
   `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
 - OpenAI : `OPENAI_API_KEY`, `OPENAI_SIP_URI`, `OPENAI_WEBHOOK_SECRET`
 - Twilio : `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_API_KEY_SID`,
-  `TWILIO_API_KEY_SECRET`, `DEMO_CALLER_NUMBER`
+  `TWILIO_API_KEY_SECRET`, `TWILIO_SMS_SENDER`, `DEMO_CALLER_NUMBER`
 - Google : `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,
   `GOOGLE_OAUTH_REDIRECT_URI`, `GOOGLE_OAUTH_STATE_SECRET`
 - Meta : `WHATSAPP_APP_SECRET`, `WHATSAPP_WEBHOOK_VERIFY_TOKEN`,

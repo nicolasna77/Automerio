@@ -123,6 +123,12 @@ Page d'une solution de messagerie → fil → reprendre la main → répondre
 - **Paiement** : webhooks Stripe via better-auth (`/api/auth/stripe/webhook`) →
   `src/lib/stripe-webhooks.ts` (paiement, échec, facture, résiliation).
 - **Bilan hebdomadaire** : cron Vercel, lundi 7 h, `/api/cron/weekly-digest`.
+- **SMS à l'appelant** : rendez-vous ou commande pris pendant un vrai appel
+  (pas un appel d'essai, pas la messagerie) → SMS de confirmation
+  (`src/lib/booking-sms.ts`), seulement vers un mobile français et si le
+  réglage n'est pas coupé. Rappel : cron Vercel chaque jour à 16 h UTC,
+  `/api/cron/booking-reminders`, pour les rendez-vous du lendemain ; chaque
+  rappel envoyé est daté (`reminderSentAt`), une tâche rejouée n'en renvoie pas.
 
 ## États à toujours prévoir
 
