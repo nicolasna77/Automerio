@@ -3,7 +3,7 @@ import { getOpenAIClient } from "@/lib/openai";
 import WebSocket from "ws";
 import { db } from "@/lib/db";
 import type { Configuration } from "@/lib/catalog";
-import { voiceSettingsOf } from "@/lib/voice-agent/voice";
+import { inputTranscriptionOf, voiceSettingsOf } from "@/lib/voice-agent/voice";
 import { buildSystemPrompt } from "@/lib/voice-agent/prompt";
 import {
   createToolSession,
@@ -25,8 +25,6 @@ import { callRefusal } from "@/lib/voice-agent/call-gate";
 export const maxDuration = 800;
 
 const REALTIME_MODEL = "gpt-realtime";
-
-const INPUT_TRANSCRIPTION = { model: "gpt-4o-mini-transcribe", language: "fr" } as const;
 
 function extractE164(sipHeaderValue: string): string | null {
   const match = sipHeaderValue.match(/(?:sip|tel):([+0-9]+)/i);
@@ -133,7 +131,7 @@ export async function POST(request: Request) {
       instructions: systemPrompt,
       tools: toRealtimeTools(tools),
       audio: {
-        input: { format: { type: "audio/pcmu" }, transcription: INPUT_TRANSCRIPTION },
+        input: { format: { type: "audio/pcmu" }, transcription: inputTranscriptionOf(configuration) },
         output: { format: { type: "audio/pcmu" }, ...voiceSettingsOf(configuration) },
       },
     });

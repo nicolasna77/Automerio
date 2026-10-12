@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { CALL_TEMPLATES } from "@/content/fr/call-templates";
 import { buildSystemPrompt } from "./prompt";
-import { toneInstructionOf, voiceSettingsOf } from "./voice";
+import { inputTranscriptionOf, languageInstruction, toneInstructionOf, voiceSettingsOf } from "./voice";
 
 describe("réglages de voix", () => {
   it("prend la voix et le débit choisis", () => {
@@ -71,5 +71,31 @@ describe("consignes de l'agent vocal", () => {
     const limits = prompt.slice(prompt.indexOf("## Limites et règles strictes"));
     expect(limits).toContain("Aucun agenda n'est connecté");
     expect(limits).toContain("Tu ne prends pas de commande");
+  });
+});
+
+describe("langue de l'appelant", () => {
+  it("parle français par défaut et impose la transcription en français", () => {
+    expect(languageInstruction({})).toBe("Tu réponds en français.");
+    expect(inputTranscriptionOf({})).toEqual({ model: "gpt-4o-mini-transcribe", language: "fr" });
+  });
+
+  it("suit la langue de l'appelant quand le réglage le demande", () => {
+    const configuration = { callerLanguage: "auto" };
+    expect(languageInstruction(configuration)).toContain("dans sa langue");
+    expect(inputTranscriptionOf(configuration)).toEqual({ model: "gpt-4o-mini-transcribe" });
+  });
+
+  it("porte la consigne dans les deux solutions téléphoniques", () => {
+    for (const slug of ["standard-telephonique-ia", "prise-rdv-telephone"]) {
+      const prompt = buildSystemPrompt(slug, { callerLanguage: "auto", objectives: ["appointment"] }, {
+        calendarConnected: true,
+        collectsEmail: false,
+        fixedDurationMinutes: null,
+        companyName: "Plomberie Lefèvre",
+      });
+      expect(prompt, slug).toContain("réponds-lui dans sa langue");
+      expect(prompt, slug).not.toContain("Tu réponds en français.");
+    }
   });
 });

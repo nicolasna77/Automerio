@@ -51,6 +51,9 @@ Priorité : **V1** = indispensable (en production), **Souhaitable**, **Plus tard
 ### Faire travailler l'assistant
 - **V1** Décrocher les appels : renseigner, prendre un rendez-vous, une commande,
   un message, transférer selon les règles du client.
+- **V1** Réglage « Langue » : français uniquement (par défaut) ou langue de
+  l'appelant (l'assistant commence en français puis la suit) ; le résumé de
+  l'appel reste en français.
 - **V1** Répondre aux messages WhatsApp, Messenger, Instagram.
 - **V1** Réserver dans l'agenda du client (Google Agenda, Cal.com, Calendly).
 - **V1** Passer un appel d'essai à sa propre solution.

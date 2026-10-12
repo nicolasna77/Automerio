@@ -1,5 +1,5 @@
 import type { ConfigField, ServiceCategory } from "@/lib/catalog";
-import { SPEAKING_RATE_OPTIONS, TONE_OPTIONS, VOICE_OPTIONS } from "@/lib/voice-agent/voice";
+import { CALLER_LANGUAGE_OPTIONS, SPEAKING_RATE_OPTIONS, TONE_OPTIONS, VOICE_OPTIONS } from "@/lib/voice-agent/voice";
 import type { UsageUnit } from "@/lib/usage-cap";
 
 export type CatalogService = {
@@ -62,6 +62,14 @@ const VOICE_FIELDS: CatalogService["configFields"] = [
     type: "select",
     options: [...TONE_OPTIONS],
     placeholder: "Chaleureux (par défaut)",
+  },
+  {
+    key: "callerLanguage",
+    label: "Langue",
+    type: "select",
+    options: [...CALLER_LANGUAGE_OPTIONS],
+    placeholder: "Français uniquement (par défaut)",
+    helpText: "L'assistant commence en français, puis suit la langue de l'appelant. Le résumé reste en français.",
   },
 ];
 

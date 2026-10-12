@@ -135,6 +135,9 @@ Page d'une solution de messagerie → fil → reprendre la main → répondre
   `take_quote_request` (si « Demandes de devis » est activé) → réservation de
   type `quote`, rattachée à l'appel par `metadata.callId`, affichée dans le
   détail de l'appel ; SMS récapitulatif à l'appelant.
+- **Langue** : `callerLanguage` = `auto` → consigne « réponds dans sa langue »
+  et transcription sans langue imposée (`src/lib/voice-agent/voice.ts`) ;
+  sinon français imposé.
 - **Message** : webhook Meta → 200 immédiat → `decideAiReply` (pause, limite par
   expéditeur, plafond quotidien, quota) → réponse OpenAI → envoi Meta.
 - **Paiement** : webhooks Stripe via better-auth (`/api/auth/stripe/webhook`) →
