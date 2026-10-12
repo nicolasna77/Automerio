@@ -3105,6 +3105,7 @@
     "orderConfirmed": "{company} : votre commande est enregistrée. Pour toute question, appelez le {phone}.",
     "appointmentReminder": "{company} : rappel de votre rendez-vous demain à {time}. Pour le modifier, appelez le {phone}.",
     "quoteReceived": "{company} : votre demande de devis ({work}) est enregistrée. Nous vous rappelons rapidement. Pour toute question, appelez le {phone}.",
+    "missedCall": "{company} : nous n'avons pas pu prendre votre appel. Nous vous rappelons dès que possible.",
     "urgentCall": "Appel urgent pour {service} : {caller}, {number}. {reason}",
     "hiddenNumber": "numéro masqué",
     "unknownCaller": "appelant inconnu"
