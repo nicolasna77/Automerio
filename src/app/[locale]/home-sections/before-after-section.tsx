@@ -2,6 +2,7 @@ import { getMessages, getTranslations } from "next-intl/server";
 import { ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { BeforeAfterTabs, type BeforeAfterCase } from "./before-after-tabs";
+import { SectionGlow } from "@/components/section-glow";
 
 // Trois demandes, une par canal : l'appel reste le cas affiché par défaut,
 // les messages et les réservations sont à un onglet.
@@ -27,8 +28,9 @@ export async function BeforeAfterSection() {
   }));
 
   return (
-    <section aria-labelledby="before-after-heading" className="border-b border-border bg-muted/40 py-20 sm:py-24">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+    <section aria-labelledby="before-after-heading" className="relative isolate overflow-hidden border-b border-border bg-muted/40 py-20 sm:py-24">
+      <SectionGlow position="top" strength={14} />
+      <div className="mx-auto max-w-[76rem] px-4 sm:px-6">
         <div className="mx-auto max-w-2xl text-center">
           <h2
             id="before-after-heading"

@@ -26,7 +26,10 @@ Toujours par les jetons CSS de `src/app/globals.css`, jamais en dur.
 | Filets | `--border` | `#dfe3e8` | `#2a2f36` |
 | Erreur | `--destructive` | `#b91c1c` | `#f87171` |
 
-Pas de dégradé, de halo ni de trame, sauf la trame du hero de l'accueil.
+Pas de dégradé, de halo ni de trame, sauf la trame du hero de l'accueil et,
+sur le site public, des halos discrets de `--primary` (14 % au plus) derrière
+certaines sections et des bandes `bg-primary/5` (`SectionGlow`). Jamais sur
+un composant ni dans le tableau de bord.
 Thème clair et sombre (next-themes).
 
 ## Polices
@@ -59,13 +62,17 @@ Thème clair et sombre (next-themes).
 
 ## Allure des pages
 
+- **Largeur** : en-tête, pied de page et sections du site public jusqu'à
+  1216 px (`max-w-[76rem]`), marges de 16 px puis 24 px.
+
 - **Accueil** : hero (titre deux lignes au plus, un bouton principal, capture
   pleine du tableau de bord effacée vers le bas, trame et traits lumineux),
   puis fragments de l'interface en onglets, étapes, métiers, tarifs, FAQ.
 - **Page solution publique** : bénéfices, cas d'usage, prix en fiche technique
   (libellé à gauche, valeur DM Mono à droite), FAQ.
 - **En-tête du site** : menu « Solutions » en panneau large (catégories sur deux
-  colonnes, icône, nom, accroche), « Pour qui ? », ouverts au survol.
+  colonnes, icône, nom, accroche), « Pour qui ? », ouverts au survol, puis
+  « Tarifs », « FAQ » et « Contact ».
 - **Tableau de bord** : barre latérale, fil d'Ariane dans la barre du haut
   (jamais dans la page), `PageHeader` (titre 24 px, description).
 - **Liste des solutions** : tableau Solution / Statut / Quota / Tarif / Réglages.

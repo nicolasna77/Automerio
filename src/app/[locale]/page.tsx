@@ -50,14 +50,14 @@ export default async function HomePage() {
         <JsonLd
           data={serviceListSchema(tHome("heading"), services, (service) => ({
             offerName: tService("offerName"),
-            termsOfService: service.usageCap ? formatUsageCap(service.usageCap) : null,
+            termsOfService: service.usageCap
+              ? formatUsageCap(service.usageCap)
+              : null,
           }))}
         />
         <ServicesSection services={services} />
         <IntegrationsSection />
-        {hasSupportPlan && (
-          <MaintenanceSection services={services} />
-        )}
+        {hasSupportPlan && <MaintenanceSection services={services} />}
         <TrustSection />
         <JsonLd data={faqSchema(faqs)} />
         <FaqSection faqs={faqs} />

@@ -15,7 +15,7 @@ export async function SiteFooter() {
   const [t, tSite] = await Promise.all([getTranslations("Footer"), getTranslations("Site")]);
   return (
     <footer className="border-t border-border bg-muted">
-      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-12 sm:px-6 md:flex-row md:items-start md:justify-between">
+      <div className="mx-auto flex max-w-[76rem] flex-col gap-8 px-4 py-12 sm:px-6 md:flex-row md:items-start md:justify-between">
         <div className="max-w-sm">
           <AutomerioLogo />
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
@@ -74,12 +74,12 @@ export async function SiteFooter() {
           )}
         </div>
       </div>
-      <div className="mx-auto max-w-6xl border-t border-border px-4 pt-6 text-xs text-muted-foreground sm:px-6">
+      <div className="mx-auto max-w-[76rem] border-t border-border px-4 pt-6 text-xs text-muted-foreground sm:px-6">
         <p>
           {t("metaDisclaimer")}
         </p>
       </div>
-      <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
+      <div className="mx-auto flex max-w-[76rem] flex-col gap-3 px-4 py-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <p>{t("copyright", { year: new Date().getFullYear() })}</p>
         <nav aria-label={tSite("legalNavLabel")}>
           <ul className="flex flex-wrap gap-x-5 gap-y-2">

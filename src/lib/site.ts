@@ -5,6 +5,7 @@ export const SITE_NAV_LINKS = [
   { href: "/#who-its-for", key: "audience" },
   { href: "/#services", key: "pricing" },
   { href: "/#faq", key: "faq" },
+  { href: "/contact", key: "contact" },
 ] as const;
 
 export const FAQ_KEYS = [
@@ -18,6 +19,7 @@ export const FAQ_KEYS = [
   "hours",
   "editAnswers",
   "ai",
+  "languages",
   "tools",
   "cancel",
   "data",

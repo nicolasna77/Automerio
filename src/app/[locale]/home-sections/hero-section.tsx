@@ -4,12 +4,16 @@ import { ArrowRight, CalendarCheck, ChevronRight, MessageCircle, PhoneIncoming }
 import { buttonVariants } from "@/components/ui/button";
 import { ProductScreenshot } from "@/components/product-screenshot";
 import { isWaitlistMode } from "@/lib/launch-mode";
+import { isDemoCallAvailable } from "@/lib/demo-call";
+import { SectionGlow } from "@/components/section-glow";
 
 // Carte superposée à la capture : trois événements d'une matinée, un par
 // canal (appel, message, rendez-vous), pour montrer d'un coup d'œil que
 // l'assistant ne fait pas que décrocher. Illustration, masquée aux lecteurs
 // d'écran : la capture porte déjà son texte alternatif.
-async function ActivityCard() {
+// Sur grand écran, la carte flotte sur la capture ; sur mobile, où la capture
+// serait illisible, elle la remplace (variante `inline`).
+async function ActivityCard({ inline = false }: { inline?: boolean }) {
   const t = await getTranslations("Home.hero.activity");
   const events = [
     { key: "call", icon: PhoneIncoming },
@@ -19,7 +23,11 @@ async function ActivityCard() {
   return (
     <div
       aria-hidden="true"
-      className="absolute right-0 bottom-24 hidden w-72 rounded-lg border border-border bg-card p-4 shadow-lg lg:block xl:-right-6"
+      className={
+        inline
+          ? "mx-auto w-full max-w-sm rounded-lg border border-border bg-card p-4 text-left shadow-md sm:hidden"
+          : "absolute right-0 bottom-24 hidden w-72 rounded-lg border border-border bg-card p-4 shadow-lg lg:block xl:-right-6"
+      }
     >
       <p className="text-sm font-medium text-foreground">{t("title")}</p>
       <ul className="mt-3 space-y-3 border-t border-border pt-3 text-xs leading-snug">
@@ -139,6 +147,7 @@ function HeroGrid() {
 
 export async function HeroSection() {
   const waitlist = isWaitlistMode();
+  const demoAvailable = isDemoCallAvailable();
   const [t, tShots, tWaitlist] = await Promise.all([
     getTranslations("Home.hero"),
     getTranslations("Screenshots"),
@@ -147,8 +156,11 @@ export async function HeroSection() {
 
   return (
     <section className="relative isolate overflow-hidden border-b border-border">
+      {/* Halos sous la trame : derrière le titre, puis derrière la capture. */}
+      <SectionGlow position="top" strength={14} />
+      <SectionGlow position="bottom" strength={12} />
       <HeroGrid />
-      <div className="mx-auto max-w-6xl px-4 pt-16 pb-12 text-center sm:px-6 sm:pt-24 sm:pb-16">
+      <div className="mx-auto max-w-[76rem] px-4 pt-16 pb-12 text-center sm:px-6 sm:pt-24 sm:pb-16">
         <Link
           href={waitlist ? "#waitlist" : "#services"}
           className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-sm text-foreground shadow-sm transition-colors hover:bg-muted focus-visible:focus-ring"
@@ -175,29 +187,33 @@ export async function HeroSection() {
             {waitlist ? tWaitlist("cta") : t("signup")}
             <ArrowRight data-icon="inline-end" />
           </Link>
+          {/* La preuve la plus forte sans témoignage : l'appel de démonstration,
+              quand la téléphonie est configurée ; sinon, la méthode. */}
           <Link
-            href="#method"
+            href={demoAvailable ? "#essai" : "#method"}
             className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline focus-visible:focus-ring"
           >
-            {t("howItWorks")}
+            {demoAvailable ? t("hearDemo") : t("howItWorks")}
             <ArrowRight className="size-4" aria-hidden="true" />
           </Link>
         </div>
       </div>
 
-      <div className="relative mx-auto max-w-6xl px-4 pb-16 sm:px-6 sm:pb-24">
+      <div className="relative mx-auto max-w-[76rem] px-4 pb-16 sm:px-6 sm:pb-24">
         <ProductScreenshot
           name="dashboard-overview"
           width={1280}
           height={800}
           alt={tShots("overviewAlt")}
           caption={tShots("demoCaption")}
-          sizes="(min-width: 1152px) 1104px, 100vw"
+          sizes="(min-width: 1216px) 1168px, 100vw"
           captionClassName="text-center"
+          className="hidden sm:block"
           showcase
           priority
         />
         <ActivityCard />
+        <ActivityCard inline />
       </div>
     </section>
   );

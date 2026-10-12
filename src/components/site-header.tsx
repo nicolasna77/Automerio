@@ -53,7 +53,7 @@ export async function SiteHeader() {
         {t("skipToContent")}
       </a>
       <header className="sticky top-0 z-50 border-b bg-background/90 backdrop-blur supports-backdrop-filter:bg-background/75">
-        <div className="mx-auto flex h-16 max-w-6xl items-center gap-2 px-4 sm:px-6">
+        <div className="mx-auto flex h-16 max-w-[76rem] items-center gap-2 px-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-1">
             <SiteMobileNav
               // Le menu mobile n'affiche pas les accroches : inutile de les
@@ -67,7 +67,7 @@ export async function SiteHeader() {
           </div>
           <nav
             aria-label={t("mainNavLabel")}
-            className="ml-8 hidden items-center gap-6 text-sm text-muted-foreground lg:flex"
+            className="ml-6 hidden items-center gap-4 text-sm whitespace-nowrap text-muted-foreground lg:flex xl:ml-8 xl:gap-6"
           >
             {!waitlist && <ServicesMenu services={services} />}
             {SITE_NAV_LINKS.map((link) =>

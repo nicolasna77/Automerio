@@ -9,6 +9,7 @@ Technique et précis : un outil fiable pour des artisans, des coachs et des TPE.
 On montre le produit, ses écrans et ses données, étape par étape, sans décor.
 
 Références retenues :
+
 - [Volubile](https://www.volubile.ai/fr/creez-votre-agent-vocal-ia) : le parcours
   expliqué en étapes, puis les cas d'usage.
 - [fonio.ai](https://www.fonio.ai/fr) : le produit montré plutôt que décrit.
@@ -19,36 +20,41 @@ Toujours par les jetons CSS de `src/app/globals.css`, jamais de couleur écrite 
 dur. `src/lib/brand-palette.ts` en garde la copie hexadécimale pour les e-mails
 et les images de partage (un test vérifie qu'elles concordent).
 
-| Rôle | Jeton | Clair | Sombre |
-|---|---|---|---|
-| Principale (vert Automerio) | `--primary` | `#15803d` | `#2fbc5b` |
-| Texte sur principale | `--primary-foreground` | `#ffffff` | `#0e1013` |
-| Accent (à traiter, attention) | `--attention` | `#b45309` | `#f59e0b` |
-| Fond | `--background` | `#f8f9fb` | `#0e1013` |
-| Surface (cartes) | `--card` | `#ffffff` | `#15181c` |
-| Neutre doux (zones, survol) | `--muted`, `--accent` | `#eef0f3` | `#1d2126` |
-| Texte | `--foreground` | `#111418` | `#eef0f3` |
-| Texte secondaire | `--muted-foreground` | `#4a5160` | `#9aa1ab` |
-| Filets | `--border` | `#dfe3e8` | `#2a2f36` |
-| Erreur | `--destructive` | `#b91c1c` | `#f87171` |
+| Rôle                          | Jeton                  | Clair     | Sombre    |
+| ----------------------------- | ---------------------- | --------- | --------- |
+| Principale (vert Automerio)   | `--primary`            | `#15803d` | `#2fbc5b` |
+| Texte sur principale          | `--primary-foreground` | `#ffffff` | `#0e1013` |
+| Accent (à traiter, attention) | `--attention`          | `#b45309` | `#f59e0b` |
+| Fond                          | `--background`         | `#f8f9fb` | `#0e1013` |
+| Surface (cartes)              | `--card`               | `#ffffff` | `#15181c` |
+| Neutre doux (zones, survol)   | `--muted`, `--accent`  | `#eef0f3` | `#1d2126` |
+| Texte                         | `--foreground`         | `#111418` | `#eef0f3` |
+| Texte secondaire              | `--muted-foreground`   | `#4a5160` | `#9aa1ab` |
+| Filets                        | `--border`             | `#dfe3e8` | `#2a2f36` |
+| Erreur                        | `--destructive`        | `#b91c1c` | `#f87171` |
 
 Le vert d'origine `#00a33d` passe à `#15803d`, assez foncé pour un texte blanc
 lisible (contraste 5 : 1). Le logo, le favicon et les boutons utilisent ce même
 vert, en aplat.
-
-Aucun dégradé, aucun halo, aucune trame décorative.
 
 Seule exception, le hero de l'accueil : une trame de lignes fines (1 px, couleur
 `--border`) avec un point à chaque croisement, et la capture du produit qui
 s'efface vers le bas par un masque de transparence (pas de dégradé de couleur).
 Des traits fins (1 px, vert de la marque, une tête vive et une traînée plus
 pâle) suivent lentement les lignes de la trame : ils descendent, tournent à un
-croisement, longent une ligne horizontale puis redescendent.
-Nulle part ailleurs.
+croisement, longent une ligne horizontale puis redescendent. Sous la trame, un
+halo de `--primary` derrière le titre et un second derrière la capture.
+
+Sur le reste du site public, des halos discrets donnent de la couleur sans
+décor : un dégradé radial de `--primary` (14 % d'opacité au plus, via
+`color-mix`), derrière le contenu d'une section (`src/components/section-glow.tsx`),
+et des bandes très légèrement teintées (`bg-primary/5`). Jamais sur un
+composant, un texte ou un bouton, ni dans le tableau de bord. Sans animation.
 
 ## Typographie
 
 Deux polices de la même famille, chargées par `next/font` :
+
 - **DM Sans** (400, 500, 600) pour les titres et le texte ;
 - **DM Mono** (400, 500), classe `font-mono`, seulement pour les données :
   prix, durées, horaires, numéros de téléphone, codes, numéros d'étape.
@@ -60,17 +66,17 @@ génériques (Inter, Geist), qui font « site généré ».
 Les chiffres de données sont tabulaires (`tabular-nums`). Pas de petites
 étiquettes en capitales espacées.
 
-| Usage | Taille | Graisse |
-|---|---|---|
-| Titre de page (`h1`), site public | 36 px, 48 px dès `sm` | 600 |
-| Titre de page (`h1`), tableau de bord et admin (`PageHeader`) | 24 px | 600 |
-| Titre du hero de l'accueil | 36 px, 48 px dès `sm`, 60 px dès `lg`, deux lignes au plus | 600 |
-| Titre de section (`h2`) | 30 px, 36 px dès `sm` | 600 |
-| Sous-titre (`h3`) | 18 à 20 px | 600 |
-| Texte courant | 16 px, 18 px pour les chapeaux | 400 |
-| Donnée (DM Mono) | taille du texte voisin | 400 ou 500 |
-| Légende, aide | 14 px | 400 |
-| Mention légale, note | 13 px | 400 |
+| Usage                                                         | Taille                                                     | Graisse    |
+| ------------------------------------------------------------- | ---------------------------------------------------------- | ---------- |
+| Titre de page (`h1`), site public                             | 36 px, 48 px dès `sm`                                      | 600        |
+| Titre de page (`h1`), tableau de bord et admin (`PageHeader`) | 24 px                                                      | 600        |
+| Titre du hero de l'accueil                                    | 36 px, 48 px dès `sm`, 60 px dès `lg`, deux lignes au plus | 600        |
+| Titre de section (`h2`)                                       | 30 px, 36 px dès `sm`                                      | 600        |
+| Sous-titre (`h3`)                                             | 18 à 20 px                                                 | 600        |
+| Texte courant                                                 | 16 px, 18 px pour les chapeaux                             | 400        |
+| Donnée (DM Mono)                                              | taille du texte voisin                                     | 400 ou 500 |
+| Légende, aide                                                 | 14 px                                                      | 400        |
+| Mention légale, note                                          | 13 px                                                      | 400        |
 
 Pas de compression manuelle des lettres (`font-stretch`, `tracking` négatif fort).
 
@@ -102,14 +108,14 @@ recréer un bouton, un badge ou un séparateur.
 
 **Boutons (`Button`)**
 
-| Variante | Quand |
-|---|---|
-| `default` (plein, vert) | L'action principale d'un écran, une seule par zone |
-| `outline` (filet) | Action secondaire à côté de la principale |
-| `ghost` | Menus, barres d'outils, boutons d'icône |
-| `destructive` | Supprimer, résilier, bannir ; toujours confirmé |
-| `link` | Action dans une phrase |
-| `secondary` | Réservé à l'application, pour une action neutre sans filet |
+| Variante                | Quand                                                      |
+| ----------------------- | ---------------------------------------------------------- |
+| `default` (plein, vert) | L'action principale d'un écran, une seule par zone         |
+| `outline` (filet)       | Action secondaire à côté de la principale                  |
+| `ghost`                 | Menus, barres d'outils, boutons d'icône                    |
+| `destructive`           | Supprimer, résilier, bannir ; toujours confirmé            |
+| `link`                  | Action dans une phrase                                     |
+| `secondary`             | Réservé à l'application, pour une action neutre sans filet |
 
 Pendant une requête, `loading` : le bouton se désactive, porte `aria-busy`
 et affiche l'indicateur qui tourne. Le libellé reste celui de l'action, ou
@@ -179,6 +185,7 @@ reste affichée jusqu'à ce qu'on la ferme.
 ## Mouvement
 
 Seules animations autorisées :
+
 - transition de couleur ou d'opacité au survol et au clic (150 ms) ;
 - ouverture et fermeture des fenêtres et menus (fondu court) ;
 - indicateur de chargement (rotation) et squelette de chargement ;

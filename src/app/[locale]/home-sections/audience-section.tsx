@@ -21,7 +21,7 @@ export async function AudienceSection() {
     .map((trade) => trade.photo.credit);
   return (
     <section id="who-its-for" aria-labelledby="audience-heading" className="scroll-mt-20 py-20 sm:py-24">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+      <div className="mx-auto max-w-[76rem] px-4 sm:px-6">
         <div className="mx-auto max-w-2xl text-center">
           <h2
             id="audience-heading"
@@ -67,7 +67,7 @@ export async function AudienceSection() {
                       {t(`items.${key}.who`)}
                     </span>
                     <span className="mt-4 text-lg leading-snug font-medium text-balance text-foreground">
-                      « {t(`items.${key}.quote`)} »
+                      {t(`items.${key}.situation`)}
                     </span>
                     <span className="mt-3 flex items-start gap-2 text-sm leading-relaxed text-muted-foreground">
                       <ArrowRight className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />

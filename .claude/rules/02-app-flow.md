@@ -117,6 +117,16 @@ Page d'une solution de messagerie → fil → reprendre la main → répondre
 `/dashboard/organization` → « Inviter » → e-mail et rôle → envoyer
 - invité déjà membre → message ; invitation expirée → page d'invitation l'indique
 
+### Contacter l'équipe (prospect)
+En-tête (lien « Contact ») ou pied de page → `/contact` : nom, e-mail, métier
+(facultatif), demande → « Envoyer ma demande »
+- champ manquant ou e-mail invalide → message sous le champ, focus sur le
+  premier champ à corriger, rien n'est envoyé
+- trop d'envois → message au-dessus du bouton
+- envoyé → confirmation avec l'adresse saisie, puis « Écouter l'assistant »
+  (si l'appel de démonstration est disponible) ou « Voir les solutions »
+- encadré : appel de démonstration, FAQ, aide du tableau de bord pour un client
+
 ### Aide
 `/dashboard/help` → nouvelle demande (sujet, message, solution liée) → envoyer
 - l'équipe répond depuis `/admin/help` → notification et e-mail au client

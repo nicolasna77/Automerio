@@ -12,8 +12,12 @@ test("l'accueil présente l'offre et mène au catalogue", async ({ page }) => {
 
   await expect(page.getByRole("link", { name: "Créer mon compte" }).first()).toBeVisible();
 
-  await page.getByRole("link", { name: "Voir comment ça fonctionne" }).click();
-  await expect(page.locator("#method")).toBeInViewport();
+  // Lien secondaire du haut de page : l'appel de démonstration quand la
+  // téléphonie est configurée, sinon la méthode.
+  const secondary = page.getByRole("link", { name: /Recevoir un appel de démonstration|Voir comment ça fonctionne/ }).first();
+  const target = await secondary.getAttribute("href");
+  await secondary.click();
+  await expect(page.locator(target!)).toBeInViewport();
 
   await page.getByRole("link", { name: "Voir les solutions" }).first().click();
   await expect(page.locator("#services")).toBeVisible();
