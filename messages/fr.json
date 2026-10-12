@@ -1040,7 +1040,12 @@
         "others": "Les autres se trouvent sur la page de chaque solution.",
         "markHandled": "Traité",
         "markHandledLabel": "Marquer comme traité : {label}",
-        "updateError": "L'appel n'a pas pu être mis à jour."
+        "updateError": "L'appel n'a pas pu être mis à jour.",
+        "missedTitle": "Appel non décroché",
+        "missedReason": {
+          "paused": "L'assistant était en pause. L'appelant a reçu un SMS s'il appelait d'un mobile.",
+          "quota": "Le forfait du mois était atteint. L'appelant a reçu un SMS s'il appelait d'un mobile."
+        }
       },
       "services": {
         "title": "Vos solutions",
@@ -1214,6 +1219,13 @@
       "hiddenNumber": "Numéro masqué",
       "updateError": "L'appel n'a pas pu être mis à jour.",
       "urgent": "Urgent",
+      "missed": {
+        "title": "Appel non décroché",
+        "reason": {
+          "paused": "L'assistant était en pause. L'appelant a reçu un SMS s'il appelait d'un mobile.",
+          "quota": "Le forfait du mois était atteint. L'appelant a reçu un SMS s'il appelait d'un mobile."
+        }
+      },
       "quote": {
         "badge": "Devis",
         "title": "Demande de devis",

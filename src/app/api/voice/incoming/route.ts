@@ -5,6 +5,7 @@ import { validateTwilioRequest } from "@/lib/twilio";
 import { db } from "@/lib/db";
 import { callRefusal } from "@/lib/voice-agent/call-gate";
 import { sendMissedCallSms } from "@/lib/missed-call-sms";
+import { recordMissedCall } from "@/lib/missed-calls";
 
 // Message lu à l'appelant puis fin d'appel. Le texte vient de messages/*.json
 // (espace « Voice ») ; échappé, car il est inséré dans du XML.
@@ -43,12 +44,19 @@ export async function POST(request: Request) {
       // En pause ou au forfait épuisé, la solution est en service : un SMS
       // garde le contact avec l'appelant. Pas pour une solution non payée ou
       // résiliée. Envoyé après la réponse, le message vocal n'attend pas.
+      // L'appel est aussi enregistré pour apparaître « à rappeler » dans le
+      // tableau de bord (src/lib/missed-calls.ts), sans compter dans le forfait.
       if (clientService && (reason === "paused" || reason === "quota")) {
-        after(() =>
-          sendMissedCallSms({ clientService, from: params.From }).catch((err) =>
-            console.error("[voice] SMS d'appel non décroché impossible :", err)
-          )
-        );
+        after(async () => {
+          await Promise.all([
+            sendMissedCallSms({ clientService, from: params.From }).catch((err) =>
+              console.error("[voice] SMS d'appel non décroché impossible :", err)
+            ),
+            recordMissedCall({ clientServiceId: clientService.id, callSid: params.CallSid, from: params.From, reason }).catch(
+              (err) => console.error("[voice] enregistrement de l'appel non décroché impossible :", err)
+            ),
+          ]);
+        });
       }
     } catch (err) {
       console.error("[voice] lecture du quota impossible, appel transmis :", err);

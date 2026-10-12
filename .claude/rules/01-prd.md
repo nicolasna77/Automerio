@@ -73,7 +73,11 @@ Priorité : **V1** = indispensable (en production), **Souhaitable**, **Plus tard
   l'appelant.
 - **V1** Garder le contact quand l'assistant ne décroche pas (pause, forfait
   épuisé) : SMS à l'appelant « nous vous rappelons », une fois par appelant
-  toutes les 6 heures, vers un mobile, sauf si les SMS sont coupés.
+  toutes les 6 heures, vers un mobile, sauf si les SMS sont coupés. L'appel
+  apparaît « Appel non décroché » dans les appels et la vue d'ensemble, à
+  rappeler, sans compter dans le forfait.
+- Les SMS envoyés aux clients finaux sont inclus dans l'abonnement : ni
+  refacturés, ni décomptés du forfait.
 
 ### Suivre et piloter
 - **V1** Voir les appels reçus avec transcription, motif, résumé et suite à

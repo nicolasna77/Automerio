@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import { assertCanReadClientService } from "@/lib/client-service-access";
 import { actionError, runAction } from "@/lib/run-action";
+import { LISTED_CALL_TYPES } from "@/lib/missed-calls";
 
 export async function setCallHandledAction(clientServiceId: string, callId: string, handled: boolean) {
   return runAction(async () => {
@@ -14,7 +15,7 @@ export async function setCallHandledAction(clientServiceId: string, callId: stri
     }
 
     const { count } = await db.usageEvent.updateMany({
-      where: { id: callId, clientServiceId, type: "call" },
+      where: { id: callId, clientServiceId, type: { in: LISTED_CALL_TYPES } },
       data: { handledAt: handled ? new Date() : null },
     });
     if (count === 0) throw actionError("callNotFound");

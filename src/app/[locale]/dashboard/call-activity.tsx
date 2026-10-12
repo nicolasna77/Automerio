@@ -4,7 +4,7 @@ import { useLabels } from "@/hooks/use-labels";
 import { useEffect, useId, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "@/lib/toast";
-import { AlertTriangle, Check, ChevronDown, ListChecks, Phone, PhoneCall, PhoneIncoming, RotateCcw } from "lucide-react";
+import { AlertTriangle, Check, ChevronDown, ListChecks, Phone, PhoneCall, PhoneIncoming, PhoneMissed, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -40,6 +40,9 @@ type RecentCall = {
   fromNumber: string | null;
   outcome: string | null;
   endedReason: string | null;
+  // Appel non décroché (assistant en pause, forfait épuisé) : pas de résumé.
+  missed: boolean;
+  missedReason: "paused" | "quota" | null;
   summary: CallSummary | null;
   quote: QuoteRequest | null;
   handled: boolean;
@@ -184,8 +187,8 @@ function RecentCallItem({
   }
   const handled = handledOverride ?? call.handled;
   const caller = call.summary?.callerName ?? (call.fromNumber ? formatFrenchPhone(call.fromNumber) : t("hiddenNumber"));
-  const hasDetail = call.summary !== null || call.quote !== null;
-  const needsCallback = Boolean(call.summary?.followUp) && !handled;
+  const hasDetail = call.summary !== null || call.quote !== null || call.missed;
+  const needsCallback = (call.missed || Boolean(call.summary?.followUp)) && !handled;
 
   function toggleHandled() {
     const next = !handled;
@@ -202,16 +205,23 @@ function RecentCallItem({
 
   const header = (
     <>
-      <PhoneIncoming className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+      {call.missed ? (
+        <PhoneMissed className="mt-0.5 size-4 shrink-0 text-attention" aria-hidden="true" />
+      ) : (
+        <PhoneIncoming className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+      )}
       <span className="min-w-0 flex-1">
         <span className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-          <span className="font-medium text-foreground">{call.summary?.reason ?? caller}</span>
+          <span className="font-medium text-foreground">
+            {call.missed ? t("missed.title") : (call.summary?.reason ?? caller)}
+          </span>
           <span className="text-xs tabular-nums text-muted-foreground">
-            {formatDateTime(call.occurredAt)} · {formatDuration(call.durationSec, t)}
+            {formatDateTime(call.occurredAt)}
+            {!call.missed && ` · ${formatDuration(call.durationSec, t)}`}
           </span>
         </span>
         <span className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-          {call.summary?.reason && <span>{caller}</span>}
+          {(call.missed || call.summary?.reason) && <span>{caller}</span>}
           {/* Urgence détectée par le résumé : mot et icône, pas la seule couleur. */}
           {call.summary?.urgent && (
             <Badge variant="attention" className="shrink-0">
@@ -226,7 +236,7 @@ function RecentCallItem({
             </Badge>
           )}
           {needsCallback && <Badge className="shrink-0">{t("toCallBack")}</Badge>}
-          {handled && call.summary?.followUp && (
+          {handled && (call.missed || call.summary?.followUp) && (
             <Badge variant="outline" className="shrink-0">
               {t("handled")}
             </Badge>
@@ -264,6 +274,7 @@ function RecentCallItem({
         <div id={panelId} className="space-y-3 border-t border-border px-3 pt-3 pb-4 sm:pl-9">
           {call.summary?.summary && <p className="leading-relaxed text-foreground">{call.summary.summary}</p>}
           {call.quote && <QuoteDetail quote={call.quote} t={t} />}
+          {call.missed && <p className="text-foreground">{t(`missed.reason.${call.missedReason ?? "paused"}`)}</p>}
           {call.summary?.followUp && (
             <p className="flex items-start gap-2 rounded-xl bg-primary/10 px-3 py-2 text-foreground">
               <ListChecks className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
@@ -300,6 +311,7 @@ function RecentCallItem({
               )}
             </Button>
           </div>
+          {!call.missed && (
           <div>
             <Button
               type="button"
@@ -316,6 +328,7 @@ function RecentCallItem({
               </div>
             )}
           </div>
+          )}
         </div>
       )}
     </li>
