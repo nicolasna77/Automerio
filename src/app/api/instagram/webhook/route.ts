@@ -1,5 +1,12 @@
 import { NextResponse, after } from "next/server";
-import { getValidInstagramToken, sendInstagramMessage } from "@/lib/instagram";
+import { getValidInstagramToken, sendInstagramMessage, sendInstagramPrivateReply } from "@/lib/instagram";
+import { db } from "@/lib/db";
+import {
+  commentRepliesEnabled,
+  parseInstagramComments,
+  repliesToComments,
+  type InstagramCommentPayload,
+} from "@/lib/instagram-comments";
 import { validateInstagramSignature, verifyMetaWebhookChallenge } from "@/lib/meta";
 import { parseWebhookBody, processInboundBatch, type PendingInboundMessage } from "@/lib/inbound-message-guard";
 
@@ -18,7 +25,7 @@ export async function GET(request: Request) {
   return new NextResponse("Forbidden", { status: 403 });
 }
 
-type InstagramWebhookPayload = {
+type InstagramWebhookPayload = InstagramCommentPayload & {
   entry?: {
     id?: string;
     messaging?: {
@@ -67,6 +74,35 @@ export async function POST(request: Request) {
       },
     })
   );
+
+  // Commentaires sur les publications : réponse en message privé, seulement
+  // si la fonction est ouverte (permission Meta accordée) et activée sur la
+  // solution du compte concerné.
+  const comments = commentRepliesEnabled() ? parseInstagramComments(payload) : [];
+  if (comments.length > 0) {
+    after(async () => {
+      const accounts = await db.clientService.findMany({
+        where: { instagramAccountId: { in: [...new Set(comments.map((comment) => comment.accountId))] } },
+        select: { instagramAccountId: true, configuration: true },
+      });
+      const enabled = new Set(
+        accounts
+          .filter((account) => repliesToComments((account.configuration ?? {}) as Record<string, unknown>))
+          .map((account) => account.instagramAccountId)
+      );
+      await processInboundBatch({
+        channel: "INSTAGRAM",
+        usageType: "instagram_message",
+        messages: comments.filter((comment) => enabled.has(comment.accountId)),
+        send: async (clientService, comment, replyText) => {
+          const accessToken = await getValidInstagramToken(clientService.id);
+          if (!accessToken) return false;
+          await sendInstagramPrivateReply(comment.accountId, comment.externalId, replyText, accessToken);
+          return true;
+        },
+      });
+    });
+  }
 
   return NextResponse.json({ received: true });
 }

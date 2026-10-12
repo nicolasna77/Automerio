@@ -55,6 +55,10 @@ Priorité : **V1** = indispensable (en production), **Souhaitable**, **Plus tard
   l'appelant (l'assistant commence en français puis la suit) ; le résumé de
   l'appel reste en français.
 - **V1** Répondre aux messages WhatsApp, Messenger, Instagram.
+- **V1** Répondre en message privé aux commentaires des publications
+  Instagram (réglage par solution, désactivé par défaut), une fois par
+  commentaire. Ouvert seulement après accord de Meta sur la permission
+  `instagram_business_manage_comments` (`INSTAGRAM_COMMENT_REPLIES=on`).
 - **V1** Réserver dans l'agenda du client (Google Agenda, Cal.com, Calendly).
 - **V1** Passer un appel d'essai à sa propre solution.
 - **V1** Envoyer un SMS à l'appelant : confirmation d'un rendez-vous ou d'une
