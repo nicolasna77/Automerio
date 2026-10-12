@@ -52,6 +52,8 @@ import {
 import { CONNECTORS_SECTION_ID } from "@/app/[locale]/dashboard/billing-section";
 import { getSubscriptionFor } from "@/lib/subscriptions";
 import { PageBreadcrumbs, PageShell } from "@/components/page-shell";
+import { CallStatsCard } from "@/app/[locale]/dashboard/call-stats-card";
+import { loadCallStats } from "@/lib/call-stats-server";
 
 export const generateMetadata = titleMetadata("serviceDetail");
 
@@ -151,6 +153,12 @@ export default async function ServiceDetailPage({
         !item.calendarConnected ||
         Boolean(b.googleEventId || b.externalBookingId),
     });
+
+  // Activité des 30 derniers jours : seulement une fois les appels arrivés
+  // (numéro attribué). Horaires du standard ou de la prise de rendez-vous.
+  const callStats = hasLiveCalls(item)
+    ? await loadCallStats(item.clientServiceId, item.configuration)
+    : null;
 
   // Le tarif et le quota sont dans le sous-titre : seule la carte d'essai
   // reste à côté de l'activité.
@@ -349,6 +357,7 @@ export default async function ServiceDetailPage({
             {isMessaging && (
               <ConversationHistory clientServiceId={item.clientServiceId} />
             )}
+            {callStats && <CallStatsCard stats={callStats} />}
           </div>
           {testCall && (
             <aside aria-label={t("aside")} className="min-w-0 space-y-6">

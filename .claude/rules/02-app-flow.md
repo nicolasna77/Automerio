@@ -74,6 +74,8 @@ numéro, connecter WhatsApp, Messenger, Instagram, agenda)
   sans carte ; l'un sous l'autre quand la place manque.
 - Pas encore active → frise Payé / En configuration / Actif.
 - Appels reçus, calendrier, conversations selon le type de solution.
+- Téléphonie avec numéro : carte « Activité des 30 derniers jours » (chiffres
+  clés, appels par heure, motifs) ; sans appel, une phrase l'annonce.
 - Vide : « aucun appel ce mois-ci », état vide du calendrier, des conversations.
 - Chargement : squelettes (`loading.tsx`).
 - Suggestion d'agenda (téléphonie avec rendez-vous, sans agenda) : refermable,

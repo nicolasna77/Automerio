@@ -72,6 +72,9 @@ Priorité : **V1** = indispensable (en production), **Souhaitable**, **Plus tard
 - **V1** Voir les appels reçus avec transcription, motif, résumé et suite à
   donner ; marquer un appel traité.
 - **V1** Voir les rendez-vous dans un calendrier.
+- **V1** Voir l'activité des 30 derniers jours d'une solution téléphonique :
+  appels reçus, part avec rendez-vous ou commande, part hors horaires,
+  appels par heure, motifs les plus fréquents.
 - **V1** Lire les conversations, reprendre la main, répondre soi-même (dans les
   24 h du dernier message du contact, règle Meta).
 - **V1** Suivre le quota de la période ; accepter ou refuser le dépassement ;
