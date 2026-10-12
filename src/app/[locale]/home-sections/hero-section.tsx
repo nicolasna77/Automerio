@@ -5,6 +5,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { ProductScreenshot } from "@/components/product-screenshot";
 import { isWaitlistMode } from "@/lib/launch-mode";
 import { isDemoCallAvailable } from "@/lib/demo-call";
+import { SectionGlow } from "@/components/section-glow";
 
 // Carte superposée à la capture : trois événements d'une matinée, un par
 // canal (appel, message, rendez-vous), pour montrer d'un coup d'œil que
@@ -155,6 +156,9 @@ export async function HeroSection() {
 
   return (
     <section className="relative isolate overflow-hidden border-b border-border">
+      {/* Halos sous la trame : derrière le titre, puis derrière la capture. */}
+      <SectionGlow position="top" strength={14} />
+      <SectionGlow position="bottom" strength={12} />
       <HeroGrid />
       <div className="mx-auto max-w-6xl px-4 pt-16 pb-12 text-center sm:px-6 sm:pt-24 sm:pb-16">
         <Link

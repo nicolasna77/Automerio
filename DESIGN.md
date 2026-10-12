@@ -42,7 +42,8 @@ Seule exception, le hero de l'accueil : une trame de lignes fines (1 px, couleur
 s'efface vers le bas par un masque de transparence (pas de dégradé de couleur).
 Des traits fins (1 px, vert de la marque, une tête vive et une traînée plus
 pâle) suivent lentement les lignes de la trame : ils descendent, tournent à un
-croisement, longent une ligne horizontale puis redescendent.
+croisement, longent une ligne horizontale puis redescendent. Sous la trame, un
+halo de `--primary` derrière le titre et un second derrière la capture.
 
 Sur le reste du site public, des halos discrets donnent de la couleur sans
 décor : un dégradé radial de `--primary` (14 % d'opacité au plus, via
