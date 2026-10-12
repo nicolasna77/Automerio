@@ -202,6 +202,10 @@ model ClientService {
   stripeSubscriptionId      String?
   externalPhoneNumber       String?
   externalPhoneNumberSid    String?
+  // Webhook sortant vers les outils du client (Zapier, Make, CRM) : adresse
+  // https et secret de signature, chiffré (src/lib/encrypted-fields.ts).
+  webhookUrl                String?
+  webhookSecret             String?
   whatsappPhoneNumberId     String?   @unique
   whatsappBusinessAccountId String?
   whatsappAccessToken       String?

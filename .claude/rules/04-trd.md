@@ -73,7 +73,10 @@ conversation). Liste de référence : `.env.example` ; vérification au démarra
   - jetons tiers chiffrés en base (`src/lib/encrypted-fields.ts`,
     `src/lib/secret-box.ts`) ;
   - origines approuvées pour better-auth (`src/lib/trusted-origins.ts`) ;
-  - limitation de débit sur les actions sensibles.
+  - limitation de débit sur les actions sensibles ;
+  - webhook sortant (`src/lib/outgoing-webhook.ts`) : https seulement, adresse
+    résolue et refusée si une IP est privée (revérifiée à chaque envoi), pas
+    de redirection suivie, 5 s au plus, corps signé HMAC SHA-256.
 - **Server Actions** : renvoient un résultat (`runAction`, `actionError`) ; le
   client appelle `unwrap()` (le message d'erreur survit en production).
 - **Accès** : données du tableau de bord scopées par l'organisation active ;

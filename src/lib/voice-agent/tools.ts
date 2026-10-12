@@ -13,6 +13,7 @@ import {
   validateSlot,
 } from "@/lib/voice-agent/tool-args";
 import { sendBookingConfirmationSms } from "@/lib/booking-sms";
+import { deliverWebhook } from "@/lib/outgoing-webhook";
 
 
 export type ToolDefinition = {
@@ -250,6 +251,24 @@ export type ToolContext = {
 const BOOKING_CAP_REACHED = `Limite atteinte : pas plus de ${MAX_BOOKINGS_PER_SESSION} rendez-vous par échange. N'en réserve pas d'autre ; propose de noter la demande, l'entreprise rappellera.`;
 const RECORD_CAP_REACHED = `Limite atteinte : pas plus de ${MAX_RECORDS_PER_SESSION} commandes ou messages par échange. N'en enregistre pas d'autre ; indique que l'entreprise reviendra vers la personne.`;
 
+// Webhook sortant du client (Zapier, Make, CRM) : chaque réservation créée.
+function announceBooking(
+  context: ToolContext,
+  booking: { id: string; kind: string; customerName: string; customerPhone: string; startAt: Date | null; endAt: Date | null; notes: string | null; metadata: unknown }
+): void {
+  void deliverWebhook(context.clientServiceId, "booking.created", {
+    bookingId: booking.id,
+    kind: booking.kind,
+    customerName: booking.customerName,
+    customerPhone: booking.customerPhone,
+    startAt: booking.startAt?.toISOString() ?? null,
+    endAt: booking.endAt?.toISOString() ?? null,
+    notes: booking.notes,
+    details: booking.metadata ?? null,
+    channel: context.callId ? "phone" : "messaging",
+  });
+}
+
 // SMS de confirmation à l'appelant, seulement pendant un vrai appel : pas
 // d'appel d'essai, et en messagerie la confirmation est déjà écrite dans la
 // conversation. Sans attente : l'agent répond pendant que le SMS part.
@@ -315,7 +334,7 @@ export async function runTool(
           })
         : null;
 
-      await db.booking.create({
+      const created = await db.booking.create({
         data: {
           clientServiceId: context.clientServiceId,
           kind: "appointment",
@@ -328,6 +347,7 @@ export async function runTool(
           notes,
         },
       });
+      announceBooking(context, created);
       confirmBySms(context, { kind: "appointment", customerPhone, startAt });
 
       return result
@@ -343,7 +363,7 @@ export async function runTool(
       if (context.testMode) return "Commande enregistrée.";
 
       const { customerName, customerPhone, items, fulfillment, address, notes } = order.value;
-      await db.booking.create({
+      const created = await db.booking.create({
         data: {
           clientServiceId: context.clientServiceId,
           kind: "order",
@@ -353,6 +373,7 @@ export async function runTool(
           metadata: { items, fulfillment, address },
         },
       });
+      announceBooking(context, created);
       confirmBySms(context, { kind: "order", customerPhone });
 
       return "Commande enregistrée.";
@@ -384,7 +405,7 @@ export async function runTool(
       if (context.testMode) return "Message enregistré, l'entreprise rappellera.";
 
       const { customerName, customerPhone, reason } = message.value;
-      await db.booking.create({
+      const created = await db.booking.create({
         data: {
           clientServiceId: context.clientServiceId,
           kind: "message",
@@ -393,6 +414,7 @@ export async function runTool(
           notes: reason,
         },
       });
+      announceBooking(context, created);
 
       return "Message enregistré, l'entreprise rappellera.";
     }
@@ -405,7 +427,7 @@ export async function runTool(
       if (context.testMode) return "Demande de devis enregistrée, l'entreprise rappellera.";
 
       const { customerName, customerPhone, workType, address, urgent, preferredSlot, details } = quote.value;
-      await db.booking.create({
+      const created = await db.booking.create({
         data: {
           clientServiceId: context.clientServiceId,
           kind: "quote",
@@ -416,6 +438,7 @@ export async function runTool(
           metadata: { callId: context.callId, workType, address, urgent, preferredSlot },
         },
       });
+      announceBooking(context, created);
       confirmBySms(context, { kind: "quote", customerPhone, workType });
 
       return "Demande de devis enregistrée, l'entreprise rappellera.";

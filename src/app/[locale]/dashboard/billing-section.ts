@@ -11,3 +11,6 @@ export const FORWARDING_SECTION_ID = "reglages-renvoi";
 
 // Ancre de l'onglet « Historique » des réglages.
 export const HISTORY_SECTION_ID = "reglages-historique";
+
+// Ancre de l'onglet « Intégrations » (webhook sortant) des réglages.
+export const INTEGRATIONS_SECTION_ID = "reglages-integrations";

@@ -79,6 +79,9 @@ Priorité : **V1** = indispensable (en production), **Souhaitable**, **Plus tard
 - **V1** Désactiver ou réactiver l'assistant (pause manuelle).
 - **V1** Résilier une solution depuis ses réglages ou la page Abonnements.
 - **V1** Consulter abonnements et factures, gérer le moyen de paiement.
+- **V1** Envoyer chaque appel terminé et chaque réservation vers ses outils
+  (Zapier, Make, CRM) par un webhook signé : onglet « Intégrations » des
+  réglages, réservé aux responsables, avec un envoi de test.
 - **V1** Recevoir notifications et e-mails (selon ses préférences) et un bilan
   hebdomadaire le lundi.
 

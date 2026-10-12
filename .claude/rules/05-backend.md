@@ -39,7 +39,7 @@ Abréviations des droits : **M** membre de l'organisation, **R** responsable
 | Table | Champs principaux | Lecture | Écriture |
 |---|---|---|---|
 | `service` | slug, name, description, category, monthlyPriceCents, includedUsageUnits, usageUnit, overageUnitPriceCents, maxUsageUnits, usageStepUnits, configFields, isActive | tous | A |
-| `client_service` | organizationId, userId, serviceId, name, status, configuration (JSON), includedUsageUnits, overageAllowed, pausedAt, prix, ids Stripe, **externalPhoneNumber**, comptes WhatsApp / Facebook / Instagram (jetons chiffrés), activatedAt, canceledAt, paymentFailedAt, adminNote | M ; A | M (configuration) ; R (pause, volume, dépassement, connexions, résiliation) ; A (statut, numéro, note) ; S |
+| `client_service` | organizationId, userId, serviceId, name, status, configuration (JSON), includedUsageUnits, overageAllowed, pausedAt, prix, ids Stripe, **externalPhoneNumber**, comptes WhatsApp / Facebook / Instagram (jetons chiffrés), webhookUrl et webhookSecret (chiffré), activatedAt, canceledAt, paymentFailedAt, adminNote | M ; A | M (configuration) ; R (pause, volume, dépassement, connexions, webhook, résiliation) ; A (statut, numéro, note) ; S |
 | `service_event` | clientServiceId, type, message | M ; A | S |
 | `calendar_connection` | **googleAccountEmail**, accessToken / refreshToken (chiffrés), calendarId | R | R |
 | `scheduling_connection` | provider (calcom/calendly), encryptedToken, accountLabel, eventType | R | R |

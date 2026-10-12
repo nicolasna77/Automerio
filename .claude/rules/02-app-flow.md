@@ -96,6 +96,16 @@ Page de la solution → « Réglages » → onglet Abonnement
   (rien n'est marqué résilié tant que le prélèvement n'est pas arrêté)
 - Aussi depuis `/dashboard/subscriptions`.
 
+### Envoyer vers ses outils (webhook)
+Page de la solution → « Réglages » → onglet Intégrations → adresse https →
+« Enregistrer »
+- adresse non https, invalide ou vers un réseau privé → message sous le champ,
+  focus sur le champ
+- enregistrée → secret de signature affiché (masqué, copiable), « Envoyer un
+  test » → toast avec le statut reçu, ou message qui dit quoi vérifier
+- « Retirer » → fenêtre de confirmation → plus aucun envoi
+- membre non responsable → état affiché, explication à la place du formulaire
+
 ### Conversations
 Page d'une solution de messagerie → fil → reprendre la main → répondre
 - hors fenêtre de 24 h Meta → envoi désactivé avec explication

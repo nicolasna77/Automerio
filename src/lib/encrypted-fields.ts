@@ -19,7 +19,7 @@ export const ENCRYPTED_PREFIX = "enc:v1:";
 // et écritures passent par l'extension de `db`, puis lancer
 // `scripts/encrypt-integration-tokens.ts` pour chiffrer l'existant.
 export const ENCRYPTED_FIELDS: Readonly<Record<string, readonly string[]>> = {
-  ClientService: ["whatsappAccessToken", "facebookPageAccessToken", "instagramAccessToken"],
+  ClientService: ["whatsappAccessToken", "facebookPageAccessToken", "instagramAccessToken", "webhookSecret"],
   CalendarConnection: ["accessToken", "refreshToken"],
 };
 

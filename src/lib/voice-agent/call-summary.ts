@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { getOpenAIClient } from "@/lib/openai";
 import { sendCallSummaryEmail } from "@/lib/email/notifications";
 import { sendUrgentCallAlert } from "@/lib/urgent-alert";
+import { deliverWebhook } from "@/lib/outgoing-webhook";
 import {
   formatTranscriptForSummary,
   parseSummaryResponse,
@@ -46,7 +47,10 @@ export async function finalizeCallSummary(input: {
   if (input.turns.length === 0) return;
 
   const [usageEvent, clientService] = await Promise.all([
-    db.usageEvent.findUnique({ where: { externalId: input.usageEventExternalId }, select: { id: true } }),
+    db.usageEvent.findUnique({
+      where: { externalId: input.usageEventExternalId },
+      select: { id: true, occurredAt: true, durationSec: true, metadata: true },
+    }),
     db.clientService.findUnique({
       where: { id: input.clientServiceId },
       select: { name: true, organizationId: true, organization: { select: { name: true } } },
@@ -69,6 +73,15 @@ export async function finalizeCallSummary(input: {
       ...fields,
     },
     update: { transcript: input.turns as unknown as Prisma.InputJsonValue, ...fields },
+  });
+
+  const metadata = (usageEvent.metadata ?? {}) as Record<string, unknown>;
+  void deliverWebhook(input.clientServiceId, "call.completed", {
+    callId: usageEvent.id,
+    occurredAt: usageEvent.occurredAt.toISOString(),
+    durationSec: usageEvent.durationSec,
+    fromNumber: typeof metadata.fromNumber === "string" ? metadata.fromNumber : null,
+    ...fields,
   });
 
   if (fields.urgent) {

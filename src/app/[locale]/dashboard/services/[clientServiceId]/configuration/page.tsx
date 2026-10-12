@@ -19,9 +19,12 @@ import {
   asStringArray,
   canEditConfiguration,
   MESSAGING_SERVICE_SLUGS,
+  TELEPHONY_SERVICE_SLUGS,
   withCleanProductCatalog,
 } from "@/lib/catalog";
 import { ServiceConfigurationForm } from "./service-configuration-form";
+import { ServiceIntegrationsCard } from "@/app/[locale]/dashboard/service-integrations-card";
+import { db } from "@/lib/db";
 import { PageHeader, PageShell } from "@/components/page-shell";
 
 export const generateMetadata = titleMetadata("serviceConfiguration");
@@ -59,6 +62,18 @@ export default async function ServiceConfigurationPage({
   // paiement) tant qu'il est en cours.
   const billingOpen = subscription !== null && isRunning(subscription);
   if (!canEditConfiguration(item) && !billingOpen) redirect(detailHref);
+
+  // Webhook sortant : solutions qui produisent des appels ou des
+  // réservations. Le secret n'est transmis qu'à un responsable.
+  const integrable =
+    canEditConfiguration(item) &&
+    (TELEPHONY_SERVICE_SLUGS.has(item.service.slug) || MESSAGING_SERVICE_SLUGS.has(item.service.slug));
+  const webhook = integrable
+    ? await db.clientService.findUnique({
+        where: { id: item.clientServiceId },
+        select: { webhookUrl: true, webhookSecret: true },
+      })
+    : null;
 
   return (
     <PageShell size="content">
@@ -102,6 +117,16 @@ export default async function ServiceConfigurationPage({
             />
           ) : MESSAGING_SERVICE_SLUGS.has(item.service.slug) ? (
             <MessagingConnectorsCard item={item} canManage={canManage} />
+          ) : null
+        }
+        integrationsSection={
+          integrable ? (
+            <ServiceIntegrationsCard
+              clientServiceId={item.clientServiceId}
+              webhookUrl={webhook?.webhookUrl ?? null}
+              webhookSecret={canManage ? (webhook?.webhookSecret ?? null) : null}
+              canManage={canManage}
+            />
           ) : null
         }
         historySection={

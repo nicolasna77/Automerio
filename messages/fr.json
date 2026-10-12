@@ -1668,6 +1668,7 @@
         "catalog": "Carte et produits",
         "connectors": "Connecteurs",
         "forwarding": "Renvoi d'appel",
+        "integrations": "Intégrations",
         "billing": "Abonnement",
         "history": "Historique",
         "modified": "modifié"
@@ -1711,6 +1712,36 @@
       "hint": "L'assistant lit votre message d'accueil avec ces réglages, sans passer d'appel. Au téléphone, le son sera un peu moins net."
     },
     "settingsCards": {
+      "integrations": {
+        "title": "Envoi vers vos outils",
+        "description": "Chaque appel terminé et chaque réservation partent vers l'adresse de votre choix : Zapier, Make ou votre CRM.",
+        "statusOn": "Un envoi vers vos outils est réglé.",
+        "statusOff": "Aucun envoi vers vos outils n'est réglé.",
+        "urlLabel": "Adresse de réception",
+        "urlPlaceholder": "https://hooks.zapier.com/...",
+        "urlHelp": "Adresse https fournie par votre outil (Zapier : déclencheur « Webhooks by Zapier »).",
+        "save": "Enregistrer",
+        "saved": "Adresse enregistrée.",
+        "secretLabel": "Secret de signature",
+        "secretHelp": "Gardez-le pour vérifier que les envois viennent bien d'Automerio.",
+        "showSecret": "Afficher le secret",
+        "hideSecret": "Masquer le secret",
+        "copySecret": "Copier le secret",
+        "secretCopied": "Secret copié.",
+        "copyFailed": "Copie impossible : sélectionnez le secret à la main.",
+        "test": "Envoyer un test",
+        "testOk": "Test reçu par votre outil (statut {status}).",
+        "remove": "Retirer",
+        "removed": "Envoi vers vos outils retiré.",
+        "removeTitle": "Retirer l'envoi vers vos outils ?",
+        "removeDescription": "Les appels et réservations ne partiront plus vers cette adresse. Vous pourrez en régler une autre.",
+        "removeConfirm": "Retirer l'envoi",
+        "cancel": "Annuler",
+        "eventsTitle": "Ce qui est envoyé",
+        "eventCall": ": appel terminé, avec le motif, le résumé, la suite à donner et l'urgence.",
+        "eventBooking": ": rendez-vous, commande, message ou demande de devis enregistrés.",
+        "signatureHelp": "Chaque envoi porte les en-têtes X-Automerio-Timestamp et X-Automerio-Signature (HMAC SHA-256 de « horodatage.corps » avec votre secret)."
+      },
       "billing": {
         "title": "Abonnement",
         "description": "Ces changements s'appliquent tout de suite, sans passer par « Enregistrer ».",
@@ -2269,6 +2300,12 @@
     "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères.",
     "overageOnlyActive": "Seule une solution en service peut changer ce réglage.",
     "overageNotAvailable": "Le dépassement n'est pas proposé pour cette solution.",
+    "webhookInvalid": "Cette adresse n'est pas valide. Collez l'adresse complète fournie par votre outil.",
+    "webhookNotHttps": "L'adresse doit commencer par https://.",
+    "webhookPrivate": "Cette adresse pointe vers un réseau privé : utilisez l'adresse publique fournie par votre outil.",
+    "webhookMissing": "Enregistrez d'abord une adresse de réception.",
+    "webhookUnreachable": "Votre outil n'a pas répondu. Vérifiez l'adresse, puis réessayez.",
+    "webhookRejected": "Votre outil a refusé l'envoi (statut {status}). Vérifiez son réglage, puis réessayez.",
     "pauseOnlyLive": "Seuls un standard téléphonique ou une messagerie payés peuvent être mis en pause."
   },
   "Labels": {
