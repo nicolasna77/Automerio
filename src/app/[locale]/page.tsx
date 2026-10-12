@@ -45,7 +45,6 @@ export default async function HomePage() {
         <BeforeAfterSection />
         <DemoCallSection />
         <AudienceSection />
-        un peux moi large
         <TestimonialsSection />
         <MethodSection />
         <JsonLd
