@@ -53,6 +53,7 @@ Abréviations des droits : **M** membre de l'organisation, **R** responsable
 | `call_summary` | usageEventId, **transcript**, reason, summary, followUp, **callerName**, urgent | M ; A | S |
 | `conversation` | clientServiceId, channel, **contactId**, lastInboundAt, humanTakeoverAt | M | S ; M (reprise en main) |
 | `conversation_message` | direction, **text**, externalId, sentById | M | S ; M (réponse manuelle) |
+| `caller_question` | clientServiceId, usageEventId, question, answer, answeredById, answeredAt, dismissedAt | M ; A | S (résumé d'appel) ; M (réponse, ignorer) |
 | `test_call` | clientServiceId, requestedById, status, durationSec | M | M ; S |
 | `demo_call` | **phoneHash**, **ipHash** (hachés), serviceSlug, status | A | S |
 

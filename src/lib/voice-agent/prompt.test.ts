@@ -36,3 +36,22 @@ describe("truncateForPrompt", () => {
     expect(truncateForPrompt("abcdef", 3)).toBe("abc…");
   });
 });
+
+describe("réponses validées par l'entreprise", () => {
+  it("les ajoute aux consignes de l'assistant téléphonique", async () => {
+    const { buildSystemPrompt } = await import("./prompt");
+    const prompt = buildSystemPrompt("standard-telephonique-ia", {}, {
+      calendarConnected: false,
+      companyName: "Plomberie Lefèvre",
+      learnedAnswers: [{ question: "Intervenez-vous le dimanche ?", answer: "Oui, en urgence seulement." }],
+    });
+    expect(prompt).toContain("## Réponses validées par l'entreprise");
+    expect(prompt).toContain("« Intervenez-vous le dimanche ? » : Oui, en urgence seulement.");
+  });
+
+  it("n'ajoute rien sans réponse", async () => {
+    const { buildSystemPrompt } = await import("./prompt");
+    const prompt = buildSystemPrompt("standard-telephonique-ia", {}, { calendarConnected: false, companyName: "X" });
+    expect(prompt).not.toContain("Réponses validées");
+  });
+});

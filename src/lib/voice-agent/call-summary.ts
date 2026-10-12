@@ -4,9 +4,11 @@ import { getOpenAIClient } from "@/lib/openai";
 import { sendCallSummaryEmail } from "@/lib/email/notifications";
 import { sendUrgentCallAlert } from "@/lib/urgent-alert";
 import { deliverWebhook } from "@/lib/outgoing-webhook";
+import { saveUnansweredQuestions } from "@/lib/caller-questions";
 import {
   formatTranscriptForSummary,
   parseSummaryResponse,
+  parseUnansweredQuestions,
   type CallSummaryFields,
   type TranscriptTurn,
 } from "./call-transcript";
@@ -15,7 +17,10 @@ const SUMMARY_MODEL = "gpt-5-mini";
 
 const EMPTY_FIELDS: CallSummaryFields = { reason: null, summary: null, followUp: null, callerName: null, urgent: false };
 
-async function summarize(turns: TranscriptTurn[], companyName: string): Promise<CallSummaryFields> {
+async function summarize(
+  turns: TranscriptTurn[],
+  companyName: string
+): Promise<{ fields: CallSummaryFields; unansweredQuestions: string[] }> {
   const completion = await getOpenAIClient().chat.completions.create({
     model: SUMMARY_MODEL,
     response_format: { type: "json_object" },
@@ -29,14 +34,16 @@ async function summarize(turns: TranscriptTurn[], companyName: string): Promise<
           '- "summary" : ce qui a été dit et convenu, en deux ou trois phrases ;',
           '- "followUp" : ce que le gérant doit faire ensuite (ex. « Rappeler avant 18 h »), ou "" s\'il n\'y a rien à faire ;',
           '- "callerName" : le nom donné par l\'appelant, ou "" s\'il ne l\'a pas dit ;',
-          '- "urgent" : true si l\'appelant décrit une urgence qui demande une intervention rapide (fuite, panne, danger, client bloqué), sinon false.',
+          '- "urgent" : true si l\'appelant décrit une urgence qui demande une intervention rapide (fuite, panne, danger, client bloqué), sinon false ;',
+          '- "unansweredQuestions" : les questions précises de l\'appelant auxquelles l\'assistant n\'a pas su répondre (prix, délai, service proposé…), reformulées en une courte question chacune, trois au plus, ou [] s\'il a répondu à tout.',
           "N'invente rien qui ne figure pas dans la transcription.",
         ].join("\n"),
       },
       { role: "user", content: formatTranscriptForSummary(turns) },
     ],
   });
-  return parseSummaryResponse(completion.choices[0]?.message.content);
+  const content = completion.choices[0]?.message.content;
+  return { fields: parseSummaryResponse(content), unansweredQuestions: parseUnansweredQuestions(content) };
 }
 
 export async function finalizeCallSummary(input: {
@@ -59,8 +66,9 @@ export async function finalizeCallSummary(input: {
   if (!usageEvent || !clientService) return;
 
   let fields = EMPTY_FIELDS;
+  let unansweredQuestions: string[] = [];
   try {
-    fields = await summarize(input.turns, clientService.organization.name);
+    ({ fields, unansweredQuestions } = await summarize(input.turns, clientService.organization.name));
   } catch (err) {
     console.error(`[appel] résumé impossible pour ${usageEvent.id} :`, err);
   }
@@ -74,6 +82,13 @@ export async function finalizeCallSummary(input: {
     },
     update: { transcript: input.turns as unknown as Prisma.InputJsonValue, ...fields },
   });
+
+  // « Questions à compléter » sur la page de la solution.
+  await saveUnansweredQuestions({
+    clientServiceId: input.clientServiceId,
+    usageEventId: usageEvent.id,
+    questions: unansweredQuestions,
+  }).catch((err) => console.error(`[appel] questions sans réponse non enregistrées pour ${usageEvent.id} :`, err));
 
   const metadata = (usageEvent.metadata ?? {}) as Record<string, unknown>;
   void deliverWebhook(input.clientServiceId, "call.completed", {

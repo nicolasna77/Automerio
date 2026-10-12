@@ -21,6 +21,7 @@ import { buildDemoPrompt } from "@/lib/voice-agent/demo-prompt";
 import { loadDemoCatalog } from "@/lib/voice-agent/demo-catalog";
 import { parseToolArguments } from "@/lib/messaging-agent";
 import { callRefusal } from "@/lib/voice-agent/call-gate";
+import { loadLearnedAnswers } from "@/lib/caller-questions";
 
 export const maxDuration = 800;
 
@@ -111,11 +112,16 @@ export async function POST(request: Request) {
 
   const configuration = (clientService.configuration ?? {}) as Configuration;
   const { calendarConnected, collectsEmail, fixedDurationMinutes } = calendarOf(clientService);
+  const learnedAnswers = await loadLearnedAnswers(clientService.id).catch((err) => {
+    console.error(`[voice] réponses validées non chargées pour l'appel ${callId} :`, err);
+    return [];
+  });
   const systemPrompt = buildSystemPrompt(clientService.service.slug, configuration, {
     calendarConnected,
     collectsEmail,
     fixedDurationMinutes,
     companyName: clientService.organization.name,
+    learnedAnswers,
   });
   const tools = getToolDefinitions(
     clientService.service.slug,
@@ -356,6 +362,8 @@ async function acceptTestCall(callId: string, testCallId: string): Promise<void>
   const configuration = (clientService.configuration ?? {}) as Configuration;
   const { calendarConnected, collectsEmail, fixedDurationMinutes } = calendarOf(clientService);
   const tools = getToolDefinitions(clientService.service.slug, configuration, calendarConnected, collectsEmail);
+  // L'appel d'essai entend aussi les réponses validées : le client vérifie ce qu'il vient d'ajouter.
+  const learnedAnswers = await loadLearnedAnswers(clientService.id).catch(() => []);
 
   try {
     await getOpenAIClient().realtime.calls.accept(callId, {
@@ -366,6 +374,7 @@ async function acceptTestCall(callId: string, testCallId: string): Promise<void>
         collectsEmail,
         fixedDurationMinutes,
         companyName: clientService.organization.name,
+        learnedAnswers,
       }),
       tools: toRealtimeTools(tools),
       audio: {
