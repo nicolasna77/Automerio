@@ -72,6 +72,36 @@ export async function sendBookingConfirmationSms(input: {
   return sendSms(input.customerPhone, body);
 }
 
+// Rendez-vous annulé ou déplacé au téléphone : l'appelant reçoit la trace
+// écrite de ce qui vient d'être fait.
+export async function sendAppointmentChangeSms(input: {
+  clientServiceId: string;
+  change: "canceled" | "moved";
+  customerPhone: string;
+  startAt: Date;
+}): Promise<boolean> {
+  if (!smsRecipient(input.customerPhone)) return false;
+  const clientService = await db.clientService.findUnique({
+    where: { id: input.clientServiceId },
+    select: { configuration: true, externalPhoneNumber: true, organization: { select: { name: true } } },
+  });
+  if (!clientService || !customerSmsEnabled((clientService.configuration ?? {}) as Configuration)) return false;
+  const phone = contactPhone(clientService);
+  if (!phone) return false;
+
+  const t = await smsTranslator();
+  const values = {
+    company: clientService.organization.name,
+    date: formatDate(input.startAt),
+    time: formatTime(input.startAt),
+    phone,
+  };
+  return sendSms(
+    input.customerPhone,
+    input.change === "canceled" ? t("appointmentCanceled", values) : t("appointmentMoved", values)
+  );
+}
+
 // Rendez-vous de demain (heure de Paris) sans rappel envoyé, pour une solution
 // en service dont les SMS ne sont pas coupés. Chaque rappel envoyé est daté :
 // une tâche rejouée n'envoie pas de doublon.

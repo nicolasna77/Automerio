@@ -142,7 +142,12 @@ En-tête (lien « Contact ») ou pied de page → `/contact` : nom, e-mail, mét
   « indisponible » ; sinon SIP vers OpenAI) → `/api/voice/openai-webhook` (même
   contrôle, `voice-agent/call-gate.ts`, sinon appel refusé ; outils :
   disponibilités, rendez-vous, commande, transfert, message) → fin : usage,
-  résumé, alertes de quota. Résumé « urgent » → SMS au mobile d'alerte de la
+  résumé, alertes de quota. Outils `find_my_appointments`,
+  `cancel_appointment`, `reschedule_appointment` (prise de rendez-vous avec
+  agenda) : seulement les rendez-vous à venir dont le téléphone correspond au
+  numéro appelant (en-tête SIP `From`) ; annulation dans l'agenda puis
+  suppression du rendez-vous, ou nouveau créneau réservé puis ancien libéré ;
+  SMS à l'appelant, webhook `booking.canceled` ou `booking.rescheduled`. Résumé « urgent » → SMS au mobile d'alerte de la
   solution (`src/lib/urgent-alert.ts`), sans lui rien ne part. Outil
   `take_quote_request` (si « Demandes de devis » est activé) → réservation de
   type `quote`, rattachée à l'appel par `metadata.callId`, affichée dans le

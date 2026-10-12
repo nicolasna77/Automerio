@@ -26,6 +26,7 @@ import { removeWebhookAction, saveWebhookAction, sendTestWebhookAction } from ".
 // Noms techniques des événements, identiques dans toutes les langues.
 const CALL_EVENT = "call.completed";
 const BOOKING_EVENT = "booking.created";
+const BOOKING_CHANGE_EVENTS = "booking.canceled, booking.rescheduled";
 
 // Onglet « Intégrations » des réglages : le webhook sortant qui envoie chaque
 // appel terminé et chaque réservation vers l'outil du client (Zapier, Make,
@@ -199,6 +200,9 @@ export function ServiceIntegrationsCard({
                 </li>
                 <li>
                   <code className="font-mono text-xs">{BOOKING_EVENT}</code> {t("eventBooking")}
+                </li>
+                <li>
+                  <code className="font-mono text-xs">{BOOKING_CHANGE_EVENTS}</code> {t("eventBookingChange")}
                 </li>
               </ul>
               <p>{t("signatureHelp")}</p>

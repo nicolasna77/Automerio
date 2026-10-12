@@ -95,6 +95,22 @@ export async function isCalendlySlotFree(
   );
 }
 
+// La réservation garde l'adresse de l'invité :
+// https://api.calendly.com/scheduled_events/{événement}/invitees/{invité}.
+// L'annulation porte sur l'événement.
+export function calendlyEventUuid(inviteeUri: string): string | null {
+  return /\/scheduled_events\/([^/]+)\/invitees\//.exec(inviteeUri)?.[1] ?? null;
+}
+
+export async function cancelCalendlyBooking(token: string, inviteeUri: string, reason: string): Promise<void> {
+  const eventUuid = calendlyEventUuid(inviteeUri);
+  if (!eventUuid) throw new Error(`Calendly : adresse de réservation inattendue (${inviteeUri})`);
+  await call(token, `/scheduled_events/${encodeURIComponent(eventUuid)}/cancellation`, {
+    method: "POST",
+    body: { reason },
+  });
+}
+
 export async function createCalendlyBooking(
   token: string,
   eventTypeUri: string,

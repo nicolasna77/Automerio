@@ -9,7 +9,12 @@ import { db } from "@/lib/db";
 // interne (adresse revérifiée à chaque envoi), pas de redirection suivie,
 // 5 secondes au plus, et un envoi qui échoue ne fait jamais échouer l'appel.
 
-export type WebhookEvent = "call.completed" | "booking.created" | "test";
+export type WebhookEvent =
+  | "call.completed"
+  | "booking.created"
+  | "booking.canceled"
+  | "booking.rescheduled"
+  | "test";
 
 export type WebhookUrlCheck =
   | { ok: true; url: string }
