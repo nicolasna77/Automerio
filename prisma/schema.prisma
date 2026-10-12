@@ -34,6 +34,7 @@ model User {
   members             Member[]
   testCalls           TestCall[]
   conversationReplies ConversationMessage[]
+  callerAnswers       CallerQuestion[]
   invitations         Invitation[]
 
   @@unique([email])
@@ -230,6 +231,7 @@ model ClientService {
   bookings             Booking[]
   conversations        Conversation[]
   testCalls            TestCall[]
+  callerQuestions      CallerQuestion[]
   events               ServiceEvent[]
   helpRequests         HelpRequest[]
 
@@ -355,6 +357,7 @@ model UsageEvent {
   createdAt       DateTime      @default(now())
   handledAt       DateTime?
   callSummary     CallSummary?
+  callerQuestions CallerQuestion[]
 
   @@index([clientServiceId, occurredAt])
   @@index([clientServiceId, status])
@@ -618,6 +621,27 @@ model ConversationMessage {
 
   @@index([conversationId, createdAt])
   @@map("conversation_message")
+}
+
+// Question d'un appelant à laquelle l'assistant n'a pas su répondre (résumé
+// de l'appel). Une réponse ajoutée par un membre est donnée à l'assistant
+// dès l'appel suivant ; ignorée, elle disparaît de la liste.
+model CallerQuestion {
+  id              String        @id @default(cuid())
+  clientServiceId String
+  clientService   ClientService @relation(fields: [clientServiceId], references: [id], onDelete: Cascade)
+  usageEventId    String?
+  usageEvent      UsageEvent?   @relation(fields: [usageEventId], references: [id], onDelete: SetNull)
+  question        String
+  answer          String?
+  answeredById    String?
+  answeredBy      User?         @relation(fields: [answeredById], references: [id], onDelete: SetNull)
+  answeredAt      DateTime?
+  dismissedAt     DateTime?
+  createdAt       DateTime      @default(now())
+
+  @@index([clientServiceId, createdAt])
+  @@map("caller_question")
 }
 
 model TestCall {

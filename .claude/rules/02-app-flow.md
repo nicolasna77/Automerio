@@ -76,10 +76,23 @@ numéro, connecter WhatsApp, Messenger, Instagram, agenda)
 - Appels reçus, calendrier, conversations selon le type de solution.
 - Téléphonie avec numéro : carte « Activité des 30 derniers jours » (chiffres
   clés, appels par heure, motifs) ; sans appel, une phrase l'annonce.
+- Téléphonie avec numéro : carte « Questions à compléter » (questions sans
+  réponse des appels, réponses déjà enregistrées) ; sans question, une
+  phrase explique d'où elles viendront.
 - Vide : « aucun appel ce mois-ci », état vide du calendrier, des conversations.
 - Chargement : squelettes (`loading.tsx`).
 - Suggestion d'agenda (téléphonie avec rendez-vous, sans agenda) : refermable,
   reste fermée (cookie).
+
+### Compléter les réponses de l'assistant
+Page d'une solution téléphonique → « Questions à compléter » → « Répondre »
+→ réponse → « Enregistrer »
+- réponse vide → message sous le champ, focus dessus
+- enregistrée → toast, la question passe dans « Réponses enregistrées » et
+  l'assistant l'utilise dès l'appel suivant
+- « Ignorer » → la question disparaît ; « Supprimer » une réponse → l'assistant
+  ne l'utilise plus
+- question d'une autre organisation → refusée par l'action
 
 ### Désactiver l'assistant
 Bloc « Assistant » ou interrupteur du tableau → bascule

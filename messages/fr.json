@@ -1105,6 +1105,23 @@
         "quotaOverTitle": "Forfait dépassé"
       }
     },
+    "callerQuestions": {
+      "title": "Questions à compléter",
+      "description": "Les questions auxquelles l'assistant n'a pas su répondre pendant vos appels. Répondez une fois : il s'en servira dès l'appel suivant.",
+      "empty": "Aucune question en attente. Après chaque appel, celles auxquelles l'assistant n'a pas su répondre apparaîtront ici.",
+      "askedOn": "Posée le {date}",
+      "answer": "Répondre",
+      "answerLabel": "Votre réponse",
+      "answerRequired": "Écrivez la réponse que l'assistant doit donner.",
+      "save": "Enregistrer la réponse",
+      "saved": "Réponse enregistrée. L'assistant s'en servira dès le prochain appel.",
+      "dismiss": "Ignorer",
+      "dismissed": "Question ignorée.",
+      "answeredTitle": "Réponses enregistrées ({count})",
+      "remove": "Retirer",
+      "removeLabel": "Retirer la réponse à « {question} »",
+      "removed": "Réponse retirée. L'assistant ne s'en sert plus."
+    },
     "loading": {
       "calendar": "Chargement du calendrier…",
       "help": "Chargement de l'aide…",
@@ -2327,6 +2344,8 @@
     "previewPhoneOnly": "L'écoute n'existe que pour les solutions téléphoniques.",
     "previewUnavailable": "L'écoute n'est pas disponible pour le moment.",
     "tooManyPreviews": "Trop d'écoutes. Réessayez dans quelques minutes.",
+    "callerAnswerRequired": "Écrivez la réponse que l'assistant doit donner.",
+    "callerAnswerTooLong": "La réponse ne doit pas dépasser {max} caractères.",
     "organizationDeleteOwnerOnly": "Seul le propriétaire peut supprimer cette organisation.",
     "deleteAccountHasAuditLog": "Ce compte a effectué des actions d'administration : il ne peut pas être supprimé depuis le profil. Contactez l'équipe.",
     "deleteAccountSoleOwner": "Vous êtes le seul propriétaire d'une organisation qui compte d'autres membres. Transmettez-en la propriété à un membre (page Équipe), puis supprimez votre compte.",

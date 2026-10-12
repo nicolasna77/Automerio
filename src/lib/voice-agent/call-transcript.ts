@@ -101,6 +101,23 @@ function cleanField(value: unknown, maxLength: number): string | null {
   return trimmed.slice(0, maxLength);
 }
 
+// Questions de l'appelant restées sans réponse : à part des champs du résumé,
+// qui partent tels quels dans la base et le webhook.
+export function parseUnansweredQuestions(raw: string | null | undefined): string[] {
+  let data: unknown;
+  try {
+    data = JSON.parse(raw ?? "{}");
+  } catch {
+    return [];
+  }
+  const list = (data as { unansweredQuestions?: unknown } | null)?.unansweredQuestions;
+  if (!Array.isArray(list)) return [];
+  return list
+    .map((item) => cleanField(item, 200))
+    .filter((item): item is string => item !== null)
+    .slice(0, 3);
+}
+
 export function parseSummaryResponse(raw: string | null | undefined): CallSummaryFields {
   let data: Record<string, unknown> = {};
   try {
