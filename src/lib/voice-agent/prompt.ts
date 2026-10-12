@@ -14,6 +14,7 @@ import {
 } from "@/lib/product-catalog";
 import { asWeeklyHours, isOpenAt } from "@/lib/business-hours";
 import { languageInstruction, toneInstructionOf } from "@/lib/voice-agent/voice";
+import { closureOn, parseClosures, upcomingClosureLines } from "@/lib/closures";
 
 // Les champs saisis par le client entrent dans les consignes du modèle : leur
 // longueur est bornée pour qu'aucun ne noie les règles strictes ni ne fasse
@@ -71,6 +72,31 @@ export function formatLearnedAnswers(answers: { question: string; answer: string
   );
 }
 
+const TODAY_LABEL = new Intl.DateTimeFormat("fr-FR", {
+  timeZone: "Europe/Paris",
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+});
+
+// Fermetures exceptionnelles à venir (réglage `closures`) : l'assistant les
+// annonce ; les outils refusent de toute façon un créneau ces jours-là.
+function closureLines(configuration: Configuration, now: Date = new Date()): string[] {
+  const lines = upcomingClosureLines(configuration.closures, now);
+  if (lines.length === 0) return [];
+  const today = closureOn(parseClosures(configuration.closures), now);
+  return [
+    "## Fermetures exceptionnelles",
+    `Nous sommes le ${TODAY_LABEL.format(now)}.`,
+    today
+      ? `L'entreprise est fermée aujourd'hui${today.label ? ` (${today.label})` : ""} : dis-le dès le début de l'appel, puis propose de prendre un message.`
+      : "",
+    "Pendant ces périodes, l'entreprise est fermée : ne propose aucun rendez-vous ces jours-là, annonce la fermeture si l'appelant en demande un, et propose une autre date ou un message.",
+    ...lines.map((line) => `- ${truncateForPrompt(line, PROMPT_SHORT_FIELD_MAX)}`),
+  ].filter(Boolean);
+}
+
 function companyInstructions(configuration: Configuration): string[] {
   const callInstructions = asString(configuration.callInstructions);
   const learnedAnswers = asString(configuration[LEARNED_ANSWERS_KEY], LEARNED_ANSWERS_PROMPT_MAX);
@@ -123,6 +149,7 @@ function buildPriseRdvPrompt(
     `Tu es l'assistant virtuel de ${companyName}, au téléphone. ${languageInstruction(configuration)}`,
     `Commence l'appel en présentant ${companyName} en une phrase, puis présente-toi comme son assistant virtuel.`,
     `Horaires d'ouverture : ${formatWeeklyHours(asWeeklyHours(configuration.businessHours))}.`,
+    ...closureLines(configuration),
     ...phoneStyle(configuration),
     "## Déroulé de l'appel",
   ];
@@ -234,6 +261,7 @@ function buildStandardTelephoniquePrompt(configuration: Configuration, companyNa
     open
       ? "L'entreprise est actuellement ouverte."
       : "L'entreprise est actuellement fermée : informe-en l'appelant, mais reste utile. Tu peux toujours transférer un motif urgent ou prendre un message.",
+    ...closureLines(configuration),
     ...phoneStyle(configuration),
     "## Déroulé de l'appel",
     "Écoute la demande, puis reformule-la en une phrase pour vérifier que tu as bien compris.",

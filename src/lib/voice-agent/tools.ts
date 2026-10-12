@@ -14,6 +14,7 @@ import {
 } from "@/lib/voice-agent/tool-args";
 import { sendAppointmentChangeSms, sendBookingConfirmationSms } from "@/lib/booking-sms";
 import { normalizeFrenchPhone } from "@/lib/demo-call";
+import { closureOn, parseClosures } from "@/lib/closures";
 import { deliverWebhook } from "@/lib/outgoing-webhook";
 
 
@@ -361,6 +362,13 @@ export async function callerAppointments(
   );
 }
 
+// Un jour de fermeture exceptionnelle : aucun créneau, même si l'agenda est libre.
+function closedDayRefusal(configuration: Configuration, startAt: Date): string | null {
+  const closure = closureOn(parseClosures(configuration.closures), startAt);
+  if (!closure) return null;
+  return `L'entreprise est fermée ce jour-là${closure.label ? ` (${closure.label})` : ""} : n'y propose aucun rendez-vous. Propose une autre date, ou de noter un message.`;
+}
+
 const RECORD_CAP_REACHED = `Limite atteinte : pas plus de ${MAX_RECORDS_PER_SESSION} commandes ou messages par échange. N'en enregistre pas d'autre ; indique que l'entreprise reviendra vers la personne.`;
 
 // Webhook sortant du client (Zapier, Make, CRM) : chaque réservation créée.
@@ -410,6 +418,8 @@ export async function runTool(
     case "check_availability": {
       const slot = validateSlot(args);
       if (!slot.ok) return slot.error;
+      const closed = closedDayRefusal(context.configuration, slot.value.startAt);
+      if (closed) return closed;
       const scheduler = await getScheduler(context.clientServiceId);
       const free = scheduler
         ? await scheduler.isSlotFree(slot.value.startAt, slot.value.durationMinutes)
@@ -428,6 +438,8 @@ export async function runTool(
       // Une durée imposée par le type de rendez-vous prime sur celle de l'agent.
       const booking = validateBooking(args, scheduler?.fixedDurationMinutes ?? null);
       if (!booking.ok) return booking.error;
+      const closedDay = closedDayRefusal(context.configuration, booking.value.startAt);
+      if (closedDay) return closedDay;
       // Revérifié après l'attente : des appels d'outils peuvent être parallèles.
       if (context.session.bookings >= MAX_BOOKINGS_PER_SESSION) return BOOKING_CAP_REACHED;
       context.session.bookings += 1;
@@ -537,6 +549,8 @@ export async function runTool(
         durationMinutes: scheduler?.fixedDurationMinutes ?? previousMinutes ?? 30,
       });
       if (!slot.ok) return slot.error;
+      const closedDay = closedDayRefusal(context.configuration, slot.value.startAt);
+      if (closedDay) return closedDay;
       if (!scheduler || !(await scheduler.isSlotFree(slot.value.startAt, slot.value.durationMinutes))) {
         return "Ce nouveau créneau n'est pas disponible : propose un autre horaire.";
       }

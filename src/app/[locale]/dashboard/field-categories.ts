@@ -74,6 +74,8 @@ const CATEGORY_BY_KEY: Record<string, CategoryDef> = {
   // commande » qui les fait apparaître.
   businessAddress: CATEGORIES.need,
   deliveryZone: CATEGORIES.need,
+  // Fermetures exceptionnelles : à côté des horaires.
+  closures: CATEGORIES.hours,
 };
 
 // Champs saisis à l'activation mais plus proposés dans les réglages : ils
