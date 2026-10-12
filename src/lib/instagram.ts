@@ -7,11 +7,21 @@ import {
 } from "@/lib/oauth-state";
 import { logServiceEvent } from "@/lib/service-events";
 import { isUniqueViolation } from "@/lib/meta-connection";
+import { commentRepliesEnabled } from "@/lib/instagram-comments";
 
 const INSTAGRAM_AUTH_URL = "https://www.instagram.com/oauth/authorize";
 const INSTAGRAM_TOKEN_URL = "https://api.instagram.com/oauth/access_token";
 const INSTAGRAM_GRAPH_URL = "https://graph.instagram.com";
-const INSTAGRAM_SCOPE = "instagram_business_basic,instagram_business_manage_messages";
+const INSTAGRAM_BASE_SCOPE = "instagram_business_basic,instagram_business_manage_messages";
+
+// Réponse aux commentaires (src/lib/instagram-comments.ts) : la permission
+// n'est demandée qu'une fois accordée par Meta, sans quoi la connexion
+// Instagram échouerait pour tous les clients.
+function instagramScope(): string {
+  return commentRepliesEnabled()
+    ? `${INSTAGRAM_BASE_SCOPE},instagram_business_manage_comments`
+    : INSTAGRAM_BASE_SCOPE;
+}
 
 const FEATURE = "la messagerie Instagram";
 
@@ -39,7 +49,7 @@ export function buildInstagramAuthUrl(
     client_id: requireEnv("INSTAGRAM_APP_ID", FEATURE),
     redirect_uri: requireEnv("INSTAGRAM_OAUTH_REDIRECT_URI", FEATURE),
     response_type: "code",
-    scope: INSTAGRAM_SCOPE,
+    scope: instagramScope(),
     state,
   });
   return { url: `${INSTAGRAM_AUTH_URL}?${params.toString()}`, nonce };
@@ -168,5 +178,27 @@ export async function sendInstagramMessage(igUserId: string, to: string, body: s
   if (!res.ok) {
     const detail = await res.text().catch(() => "");
     throw new Error(`Échec d'envoi Instagram (${res.status}) : ${detail}`);
+  }
+}
+
+// Réponse privée à un commentaire : message adressé au commentaire (et non à
+// une personne), accepté une seule fois par commentaire et dans les 7 jours.
+export async function sendInstagramPrivateReply(
+  igUserId: string,
+  commentId: string,
+  body: string,
+  accessToken: string
+): Promise<void> {
+  const res = await fetch(`${INSTAGRAM_GRAPH_URL}/${igUserId}/messages`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ recipient: { comment_id: commentId }, message: { text: body } }),
+  });
+  if (!res.ok) {
+    const detail = await res.text().catch(() => "");
+    throw new Error(`Échec de la réponse privée Instagram (${res.status}) : ${detail}`);
   }
 }

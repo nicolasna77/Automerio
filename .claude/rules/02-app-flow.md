@@ -138,6 +138,10 @@ Page d'une solution de messagerie → fil → reprendre la main → répondre
 - **Langue** : `callerLanguage` = `auto` → consigne « réponds dans sa langue »
   et transcription sans langue imposée (`src/lib/voice-agent/voice.ts`) ;
   sinon français imposé.
+- **Commentaire Instagram** (si `INSTAGRAM_COMMENT_REPLIES=on` et réglage
+  activé) : webhook champ `comments` → commentaires de premier niveau d'un
+  tiers (`src/lib/instagram-comments.ts`) → même chaîne que les messages
+  (`decideAiReply`, quota) → réponse privée adressée au commentaire.
 - **Message** : webhook Meta → 200 immédiat → `decideAiReply` (pause, limite par
   expéditeur, plafond quotidien, quota) → réponse OpenAI → envoi Meta.
 - **Paiement** : webhooks Stripe via better-auth (`/api/auth/stripe/webhook`) →

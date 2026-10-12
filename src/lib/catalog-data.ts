@@ -312,6 +312,17 @@ export const CATALOG: CatalogService[] = [
     extraUnitPriceCents: 24,
     configFields: [
       {
+        key: "commentReplies",
+        label: "Réponse aux commentaires",
+        type: "select",
+        options: [
+          { value: "on", label: "Activée" },
+          { value: "off", label: "Désactivée" },
+        ],
+        helpText:
+          "Quand quelqu'un commente une de vos publications, l'assistant lui répond en message privé, une fois par commentaire.",
+      },
+      {
         key: "instagramUsername",
         label: "Nom d'utilisateur Instagram",
         type: "text",
