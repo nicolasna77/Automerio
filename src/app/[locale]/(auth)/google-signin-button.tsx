@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/lib/toast";
 import { authClient } from "@/lib/auth-client";
 
 function GoogleIcon() {
@@ -34,7 +35,12 @@ export function GoogleSignInButton({ next = null }: { next?: string | null }) {
 
   async function handleClick() {
     setLoading(true);
-    await authClient.signIn.social({ provider: "google", callbackURL: next ?? "/dashboard" });
+    const { error } = await authClient.signIn.social({ provider: "google", callbackURL: next ?? "/dashboard" });
+    // En cas de succès, le navigateur part vers Google : le bouton reste en chargement.
+    if (error) {
+      setLoading(false);
+      toast.error(t("error"));
+    }
   }
 
   return (

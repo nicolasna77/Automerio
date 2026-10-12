@@ -23,7 +23,7 @@ export default async function AuthLayout({
         </div>
       </header>
       <div className="grid flex-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
-        <main className="flex items-center px-4 py-12 sm:px-6 lg:px-12 xl:px-16">
+        <main className="flex items-center justify-center px-4 py-12 sm:px-6 lg:px-12 xl:px-16">
           <div className="w-full max-w-md">{children}</div>
         </main>
         <AuthAside />

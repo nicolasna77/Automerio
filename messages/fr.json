@@ -2531,7 +2531,13 @@
       "newLinkSent": "Nouveau lien envoyé.",
       "minLength": "{min} caractères minimum.",
       "signIn": "Se connecter",
-      "createAccount": "Créer mon compte"
+      "createAccount": "Créer mon compte",
+      "errors": {
+        "emailRequired": "Indiquez votre adresse e-mail.",
+        "emailInvalid": "Indiquez une adresse e-mail valide, par exemple vous@entreprise.fr.",
+        "passwordRequired": "Indiquez votre mot de passe.",
+        "passwordTooShort": "Choisissez un mot de passe d'au moins {min} caractères."
+      }
     },
     "login": {
       "title": "Connexion",
@@ -2561,6 +2567,7 @@
       "errors": {
         "expired": "La vérification a expiré. Reconnectez-vous.",
         "invalidBackupCode": "Ce code de secours n'est pas valable.",
+        "codeRequired": "Saisissez le code avant de valider.",
         "invalidCode": "Code incorrect. Vérifiez que l'heure de votre téléphone est à jour, puis réessayez."
       }
     },
@@ -2570,7 +2577,7 @@
       "nameLabel": "Nom",
       "namePlaceholder": "Marie Dupont",
       "companyLabel": "Entreprise",
-      "optional": "(optionnel)",
+      "optional": "(facultatif)",
       "companyPlaceholder": "Dupont Coiffure",
       "submitting": "Création du compte…",
       "terms": "En créant un compte, vous acceptez nos <terms>conditions générales de vente</terms> et notre <privacy>politique de confidentialité</privacy>.",
@@ -2578,7 +2585,8 @@
       "sentDescription": "Nous avons envoyé un lien de confirmation à <email>{email}</email>. Cliquez dessus pour activer votre compte.",
       "notReceived": "Rien reçu après quelques minutes ? Regardez dans les indésirables, ou demandez un nouveau lien.",
       "errors": {
-        "emailTaken": "Un compte existe déjà avec cet e-mail.",
+        "emailTaken": "Un compte existe déjà avec cet e-mail. Connectez-vous ou utilisez une autre adresse.",
+        "nameRequired": "Indiquez votre nom.",
         "generic": "La création du compte a échoué. Vérifiez vos informations puis réessayez.",
         "resendFailed": "L'envoi a échoué. Réessayez dans quelques minutes."
       },
@@ -2591,6 +2599,10 @@
       "sentDescription": "Si un compte existe pour <email>{email}</email>, un lien pour choisir un nouveau mot de passe vient de lui être envoyé. Il expire dans une heure.",
       "notReceived": "Rien reçu ? Regardez dans les indésirables avant de redemander un lien.",
       "useAnotherAddress": "Utiliser une autre adresse",
+      "errors": {
+        "tooMany": "Trop de demandes. Réessayez dans quelques minutes.",
+        "generic": "L'envoi du lien a échoué. Vérifiez votre connexion, puis réessayez."
+      },
       "sentMessage": "Si un compte existe pour <strong>{email}</strong>, un lien pour choisir un nouveau mot de passe vient de lui être envoyé. Il expire dans une heure."
     },
     "resetPassword": {
@@ -2622,7 +2634,8 @@
       "guarantee": "Notre équipe l'installe, la connecte à vos outils et la surveille chaque mois. Sans engagement : votre abonnement est remboursé sous 30 jours si ça ne vous convient pas."
     },
     "google": {
-      "continue": "Continuer avec Google"
+      "continue": "Continuer avec Google",
+      "error": "La connexion avec Google n'a pas pu démarrer. Réessayez dans un instant."
     }
   },
   "Invitation": {
