@@ -69,7 +69,7 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
       <JsonLd data={faqSchema(trade.faq)} />
       <main id="content" className="flex-1">
         <section className="border-b border-border">
-          <div className="mx-auto max-w-[76rem] px-4 pt-12 pb-16 sm:px-6 sm:pt-16 sm:pb-20">
+          <div className="mx-auto max-w-[75rem] px-4 pt-12 pb-16 sm:px-6 sm:pt-16 sm:pb-20">
             <nav aria-label={t("breadcrumb")}>
               <ol className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
                 <li>
@@ -129,7 +129,7 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
         </section>
 
         <section aria-labelledby="pains-heading" className="bg-muted/40 py-16 sm:py-20">
-          <div className="mx-auto max-w-[76rem] px-4 sm:px-6">
+          <div className="mx-auto max-w-[75rem] px-4 sm:px-6">
             <div className="mx-auto max-w-2xl text-center">
               <h2 id="pains-heading" className="text-3xl font-semibold tracking-tight text-foreground">
                 {t("painsHeading")}
@@ -167,7 +167,7 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
         </section>
 
         <section aria-labelledby="call-heading" className="border-t border-border py-16 sm:py-20">
-          <div className="mx-auto grid max-w-[76rem] items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16">
+          <div className="mx-auto grid max-w-[75rem] items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16">
             <div>
               <h2 id="call-heading" className="text-3xl font-semibold tracking-tight text-foreground">
                 {t("callHeading")}
@@ -206,7 +206,7 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
             aria-labelledby="solutions-heading"
             className="scroll-mt-20 border-t border-border bg-muted/40 py-16 sm:py-20"
           >
-            <div className="mx-auto max-w-[76rem] px-4 sm:px-6">
+            <div className="mx-auto max-w-[75rem] px-4 sm:px-6">
               <div className="max-w-2xl">
                 <h2 id="solutions-heading" className="text-3xl font-semibold tracking-tight text-balance text-foreground">
                   {t("solutionsHeading", { name })}
@@ -255,7 +255,7 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
         </section>
 
         <nav aria-labelledby="other-trades-heading" className="border-t border-border py-16 sm:py-20">
-          <div className="mx-auto max-w-[76rem] px-4 sm:px-6">
+          <div className="mx-auto max-w-[75rem] px-4 sm:px-6">
             <h2 id="other-trades-heading" className="text-2xl font-semibold tracking-tight text-foreground">
               {t("otherTrades")}
             </h2>
@@ -293,7 +293,7 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
           <WaitlistSection />
         ) : (
           <section aria-labelledby="trade-cta-heading" className="px-4 pb-20 sm:px-6 sm:pb-24">
-            <div className="mx-auto max-w-[76rem] rounded-lg border border-border bg-card px-6 py-14 text-center sm:py-16">
+            <div className="mx-auto max-w-[75rem] rounded-lg border border-border bg-card px-6 py-14 text-center sm:py-16">
               <h2
                 id="trade-cta-heading"
                 className="mx-auto max-w-2xl text-3xl font-semibold tracking-tight text-balance text-foreground"

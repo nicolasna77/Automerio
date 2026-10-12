@@ -20,7 +20,7 @@ export async function MaintenanceSection({ services }: { services: ServiceDTO[] 
 
   return (
     <section id="subscription" className="border-t border-border py-20 sm:py-24">
-      <div className="mx-auto max-w-[76rem] px-4 sm:px-6">
+      <div className="mx-auto max-w-[75rem] px-4 sm:px-6">
         <Card className="mx-auto max-w-3xl">
           <CardHeader>
             <div className="mb-2 flex items-center justify-between">
