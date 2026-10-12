@@ -53,7 +53,7 @@ export function PauseSwitch({
       onCheckedChange={toggle.setRunning}
       disabled={toggle.pending}
       aria-label={t("switch", { name })}
-      className="group/pause relative z-10 inline-flex h-7 w-24 shrink-0 items-center rounded-full border outline-none transition-colors focus-visible:focus-ring data-checked:border-primary data-checked:bg-primary data-unchecked:border-border data-unchecked:bg-muted data-disabled:cursor-progress data-disabled:opacity-70 motion-reduce:transition-none"
+      className="group/pause relative z-10 inline-flex h-7 w-24 shrink-0 items-center rounded-full border p-0.5 outline-none transition-colors focus-visible:focus-ring data-checked:border-primary data-checked:bg-primary data-unchecked:border-border data-unchecked:bg-muted data-disabled:cursor-progress data-disabled:opacity-70 motion-reduce:transition-none"
     >
       <span
         aria-hidden="true"
@@ -67,7 +67,10 @@ export function PauseSwitch({
       >
         {t("off")}
       </span>
-      <SwitchPrimitive.Thumb className="pointer-events-none absolute left-0.5 size-5 rounded-full bg-background shadow-sm ring-1 ring-foreground/5 transition-[left] data-checked:left-[calc(100%-1.375rem)] motion-reduce:transition-none" />
+      {/* Poignée dans le flux, déplacée par translation (comme le Switch de
+          components/ui) : 96 px de piste, 1 px de bordure et 2 px de marge de
+          chaque côté, poignée de 20 px, soit 70 px de course. */}
+      <SwitchPrimitive.Thumb className="pointer-events-none relative size-5 translate-x-0 rounded-full bg-background shadow-sm ring-1 ring-foreground/5 transition-transform data-checked:translate-x-17.5 motion-reduce:transition-none" />
     </SwitchPrimitive.Root>
   );
 }

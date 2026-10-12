@@ -65,7 +65,8 @@ Thème clair et sombre (next-themes).
 - **Page solution publique** : bénéfices, cas d'usage, prix en fiche technique
   (libellé à gauche, valeur DM Mono à droite), FAQ.
 - **En-tête du site** : menu « Solutions » en panneau large (catégories sur deux
-  colonnes, icône, nom, accroche), « Pour qui ? », ouverts au survol.
+  colonnes, icône, nom, accroche), « Pour qui ? », ouverts au survol, puis
+  « Tarifs », « FAQ » et « Contact ».
 - **Tableau de bord** : barre latérale, fil d'Ariane dans la barre du haut
   (jamais dans la page), `PageHeader` (titre 24 px, description).
 - **Liste des solutions** : tableau Solution / Statut / Quota / Tarif / Réglages.

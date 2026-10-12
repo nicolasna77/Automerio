@@ -20,6 +20,7 @@ export function DemoCallForm({ serviceSlug }: { serviceSlug: string }) {
   const [error, setError] = useState<string | null>(null);
   const [calledNumber, setCalledNumber] = useState<string | null>(null);
   const confirmationRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (calledNumber !== null) confirmationRef.current?.focus();
@@ -27,11 +28,21 @@ export function DemoCallForm({ serviceSlug }: { serviceSlug: string }) {
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
+    // Bouton toujours actif : un champ vide est expliqué à l'envoi, plutôt
+    // qu'un bouton grisé sans raison donnée.
+    if (phone.trim() === "") {
+      setError(t("errors.phoneRequired"));
+      inputRef.current?.focus();
+      return;
+    }
     setError(null);
     startTransition(async () => {
       const result = await requestDemoCall({ phone, serviceSlug, website });
       if (result.ok) setCalledNumber(result.data.displayNumber);
-      else setError(result.error);
+      else {
+        setError(result.error);
+        inputRef.current?.focus();
+      }
     });
   }
 
@@ -71,6 +82,7 @@ export function DemoCallForm({ serviceSlug }: { serviceSlug: string }) {
       <div className="space-y-2">
         <Label htmlFor={phoneId}>{t("phoneLabel")}</Label>
         <Input
+          ref={inputRef}
           id={phoneId}
           type="tel"
           inputMode="tel"
@@ -94,7 +106,6 @@ export function DemoCallForm({ serviceSlug }: { serviceSlug: string }) {
         type="submit"
         size="lg"
         className="w-full"
-        disabled={phone.trim() === ""}
         loading={isPending}
         aria-describedby={noticeId}
       >

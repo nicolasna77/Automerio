@@ -67,7 +67,7 @@ export async function AudienceSection() {
                       {t(`items.${key}.who`)}
                     </span>
                     <span className="mt-4 text-lg leading-snug font-medium text-balance text-foreground">
-                      « {t(`items.${key}.quote`)} »
+                      {t(`items.${key}.situation`)}
                     </span>
                     <span className="mt-3 flex items-start gap-2 text-sm leading-relaxed text-muted-foreground">
                       <ArrowRight className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />

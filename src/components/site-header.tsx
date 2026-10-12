@@ -67,7 +67,7 @@ export async function SiteHeader() {
           </div>
           <nav
             aria-label={t("mainNavLabel")}
-            className="ml-8 hidden items-center gap-6 text-sm text-muted-foreground lg:flex"
+            className="ml-6 hidden items-center gap-4 text-sm whitespace-nowrap text-muted-foreground lg:flex xl:ml-8 xl:gap-6"
           >
             {!waitlist && <ServicesMenu services={services} />}
             {SITE_NAV_LINKS.map((link) =>

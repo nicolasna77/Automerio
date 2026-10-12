@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { CalendarDays, PhoneForwarded } from "lucide-react";
+import { CalendarDays, PhoneForwarded, Webhook } from "lucide-react";
 import { ServiceGlyph } from "@/components/service-glyph";
 
 // Les canaux Meta gardent leur logo officiel (public/brands/README.md) ; les
@@ -7,6 +7,7 @@ import { ServiceGlyph } from "@/components/service-glyph";
 const INTEGRATIONS = [
   { key: "phone", icon: PhoneForwarded },
   { key: "calendar", icon: CalendarDays },
+  { key: "tools", icon: Webhook },
   { key: "whatsapp", brand: "assistant-whatsapp" },
   { key: "messenger", brand: "assistant-facebook" },
   { key: "instagram", brand: "assistant-instagram" },

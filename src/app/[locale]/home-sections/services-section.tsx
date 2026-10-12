@@ -133,6 +133,8 @@ export async function ServicesSection({ services }: { services: ServiceDTO[] }) 
         {categories.map(({ category, categoryServices }, index) => {
           return (
             <div key={category} className={index > 0 ? "mt-14" : "mt-12"}>
+              {/* Une seule catégorie : son titre répéterait celui de la section. */}
+              {categories.length > 1 && (
               <div className="mb-5">
                 <div className="mx-auto max-w-2xl text-center">
                   <h3 className="text-xl font-semibold tracking-tight text-foreground">
@@ -143,6 +145,7 @@ export async function ServicesSection({ services }: { services: ServiceDTO[] }) 
                   </p>
                 </div>
               </div>
+              )}
 
               <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {categoryServices.map((service) => (

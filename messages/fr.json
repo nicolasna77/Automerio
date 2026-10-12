@@ -144,6 +144,10 @@
         "question": "Mes clients sauront-ils qu'ils parlent à un assistant virtuel ?",
         "answer": "Oui. Vos clients sont informés lorsqu'ils échangent avec un assistant virtuel : au téléphone, il présente votre entreprise, puis se présente comme son assistant. Il peut ensuite transférer l'appel ou prendre un message pour vous."
       },
+      "languages": {
+        "question": "L'assistant parle-t-il d'autres langues ?",
+        "answer": "Oui, si vous l'activez dans les réglages : il commence en français, puis répond dans la langue de l'appelant. Le résumé de l'appel reste en français."
+      },
       "tools": {
         "question": "Est-ce compatible avec mon agenda ?",
         "answer": "Oui, avec Google Agenda, Cal.com et Calendly : les rendez-vous pris s'y inscrivent directement. Pour un autre outil, écrivez-nous : nous vous dirons ce qui est possible."
@@ -174,7 +178,8 @@
       "lead": "Un assistant décroche, répond sur WhatsApp, Messenger et Instagram, et remplit votre agenda. Notre équipe l'installe.",
       "signup": "Créer mon compte",
       "howItWorks": "Voir comment ça fonctionne",
-      "badge": "Nouveau : vos rendez-vous dans Google Agenda, Cal.com ou Calendly",
+      "hearDemo": "Recevoir un appel de démonstration",
+      "badge": "Nouveau : confirmation et rappel par SMS pour vos clients",
       "badgeWaitlist": "Lancement bientôt : rejoignez la liste d'attente",
       "activity": {
         "title": "Ce matin",
@@ -200,7 +205,7 @@
       "lead": "Choisissez une solution en quelques minutes, ou dites-nous ce qui vous fait perdre du temps : nous vous montrons ce qu'Automerio peut prendre en charge.",
       "signup": "Créer mon compte",
       "ask": "Écrivez-nous",
-      "note": "Sans engagement, remboursé pendant 30 jours, sans rendez-vous commercial."
+      "note": "Sans engagement, remboursement sur demande pendant 30 jours, sans rendez-vous commercial."
     },
     "services": {
       "heading": "Choisissez ce que vous voulez arrêter de faire vous-même",
@@ -321,6 +326,10 @@
           "title": "Votre ligne actuelle",
           "description": "Un renvoi d'appel vers l'assistant. Vous gardez votre numéro, et vous coupez le renvoi quand vous voulez."
         },
+        "tools": {
+          "title": "Zapier, Make, votre CRM",
+          "description": "Chaque appel terminé et chaque réservation partent vers vos outils, depuis l'onglet Intégrations."
+        },
         "calendar": {
           "title": "Google Agenda, Cal.com, Calendly",
           "description": "Les rendez-vous pris au téléphone s'inscrivent directement dans votre agenda."
@@ -402,27 +411,27 @@
       "items": {
         "artisan": {
           "who": "Artisan",
-          "quote": "Je suis sur un chantier, je ne peux pas répondre.",
+          "situation": "Sur un chantier, impossible de décrocher.",
           "answer": "Automerio prend l'appel et vous transfère les urgences."
         },
         "beauty": {
           "who": "Coiffure et beauté",
-          "quote": "Je ne veux plus décrocher en pleine prestation.",
+          "situation": "En pleine prestation, le téléphone sonne dans le vide.",
           "answer": "Automerio prend les réservations par téléphone et les inscrit dans votre agenda."
         },
         "coach": {
           "who": "Coach",
-          "quote": "Je reçois des demandes pendant mes séances.",
+          "situation": "Les demandes arrivent pendant vos séances.",
           "answer": "Automerio répond sur Instagram et WhatsApp, et note ce que la personne recherche."
         },
         "restaurant": {
           "who": "Restaurant",
-          "quote": "Le téléphone sonne en plein service.",
+          "situation": "Le téléphone sonne en plein service.",
           "answer": "Automerio prend les commandes au téléphone, avec votre menu et vos prix."
         },
         "tpe": {
           "who": "Cabinet et TPE",
-          "quote": "Les demandes arrivent par tous les canaux.",
+          "situation": "Les demandes arrivent par tous les canaux.",
           "answer": "Automerio répond au téléphone, sur WhatsApp, Messenger et Instagram, et regroupe tout au même endroit."
         }
       },
@@ -761,10 +770,11 @@
     "pickUp": "Décrochez : l'assistant d'Automerio se présente et répond à vos questions pendant trois minutes.",
     "honeypot": "Site web",
     "phoneLabel": "Votre numéro de téléphone",
-    "phonePlaceholder": "06 12 34 56 78",
+    "phonePlaceholder": "Ex. : 06 12 34 56 78",
     "submit": "Recevoir l'appel",
     "notice": "En demandant cet appel, vous confirmez avoir pris connaissance de <link>nos modalités de contact et de notre politique de confidentialité</link>. Votre numéro ne sert qu'à cet appel, jamais à de la prospection.",
     "errors": {
+      "phoneRequired": "Saisissez votre numéro pour recevoir l'appel.",
       "unavailable": "L'appel d'essai n'est pas disponible pour le moment. Réessayez plus tard ou écrivez-nous.",
       "invalidNumber": "Saisissez un numéro de mobile ou de fixe français, par exemple 06 12 34 56 78.",
       "tooManyFromIp": "Trop d'essais demandés depuis cette connexion. Réessayez demain.",
@@ -790,37 +800,63 @@
     "bounds": "Minimum {min}, maximum {max}."
   },
   "Contact": {
-    "heading": "Parlons de votre activité",
-    "lead": "Dites-nous ce qui vous prend le plus de temps aujourd'hui. Nous vous indiquons les automatisations les plus utiles pour votre métier.",
-    "next": "Ensuite",
+    "heading": "Parlons de ce qui vous fait perdre du temps",
+    "lead": "Appels manqués, messages en attente, rendez-vous à caler : décrivez votre journée. Nous vous disons ce qu'un assistant peut prendre en charge, avec son prix.",
+    "metaDescription": "Écrivez à l'équipe Automerio : décrivez votre activité, nous vous indiquons l'assistant utile pour vous, avec son prix.",
+    "asideLabel": "Après votre message",
+    "next": "Ce qui se passe ensuite",
     "steps": {
-      "reply": {
-        "label": "Nous lisons votre message",
-        "detail": "Et nous vous répondons par e-mail."
+      "read": {
+        "label": "Nous lisons votre demande",
+        "detail": "Une personne de l'équipe, pas un robot. Nous vous répondons par e-mail."
       },
-      "call": {
+      "advise": {
         "label": "Nous vous orientons",
-        "detail": "Vers les solutions utiles pour votre activité, avec leur prix."
+        "detail": "Vers les solutions utiles pour votre métier, avec leur prix affiché."
       },
-      "quote": {
-        "label": "Vous activez en ligne",
-        "detail": "Quand vous êtes prêt, depuis votre compte. Sans engagement."
+      "activate": {
+        "label": "Vous activez quand vous êtes prêt",
+        "detail": "Depuis votre compte, sans engagement. Notre équipe installe tout."
+      }
+    },
+    "otherWays": "Autres façons d'avancer",
+    "shortcuts": {
+      "demo": {
+        "label": "Écouter l'assistant",
+        "detail": "Il vous appelle et répond à vos questions, gratuitement."
+      },
+      "faq": {
+        "label": "Lire les questions fréquentes",
+        "detail": "Prix, numéro conservé, mise en service, données."
+      },
+      "client": {
+        "label": "Déjà client ?",
+        "detail": "Écrivez-nous depuis l'aide de votre tableau de bord : votre demande y est suivie."
       }
     },
     "form": {
-      "genericError": "Une erreur est survenue.",
-      "sent": "Message envoyé.",
-      "sentDetail": "Nous vous répondons par e-mail.",
       "honeypot": "Site web",
-      "name": "Nom",
-      "email": "E-mail",
-      "activity": "Votre activité",
+      "name": "Votre nom",
+      "email": "Votre e-mail",
+      "emailHint": "Nous vous répondons à cette adresse.",
+      "activity": "Votre métier",
       "optional": "(facultatif)",
-      "activityPlaceholder": "Ex. artisan plombier, coach sportif…",
-      "message": "Message",
-      "messagePlaceholder": "Quelle tâche répétitive vous prend le plus de temps, à vous ou votre équipe ?",
-      "sending": "Envoi…",
-      "submit": "Envoyer le message"
+      "activityPlaceholder": "Ex. : plombier, coiffeuse, coach sportif",
+      "message": "Votre demande",
+      "messageHint": "Par exemple : les appels que vous manquez, vos horaires, les canaux de vos clients.",
+      "privacy": "Vos coordonnées servent seulement à vous répondre.",
+      "sending": "Envoi en cours",
+      "submit": "Envoyer ma demande",
+      "sent": "Message envoyé",
+      "sentDetail": "Nous vous répondons par e-mail, à l'adresse {email}.",
+      "thenDemo": "Écouter l'assistant",
+      "thenServices": "Voir les solutions et leurs prix",
+      "errors": {
+        "name": "Indiquez votre nom.",
+        "email": "Indiquez une adresse e-mail valide, par exemple nom@domaine.fr.",
+        "message": "Décrivez votre demande en quelques mots.",
+        "generic": "Le message n'a pas pu être envoyé. Réessayez dans un instant."
+      }
     },
     "errors": {
       "rateLimited": "Trop de messages envoyés récemment. Réessayez dans quelques minutes.",
