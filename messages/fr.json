@@ -1073,6 +1073,18 @@
         "pending": "{count, plural, one {Un appel attend un geste de votre part.} other {# appels attendent un geste de votre part.}}",
         "hiddenNumber": "Numéro masqué",
         "callBack": "Rappeler",
+        "bridge": {
+          "button": "Via Automerio",
+          "buttonLabel": "Rappeler via Automerio, sans montrer votre numéro : {label}",
+          "title": "Rappeler via Automerio",
+          "description": "Votre téléphone sonne d'abord. Décrochez : nous composons l'appelant, qui voit le numéro de votre solution.",
+          "mobileLabel": "Votre téléphone",
+          "mobilePlaceholder": "06 12 34 56 78",
+          "mobileHint": "Le numéro qui va sonner. Il n'est montré à personne.",
+          "mobileRequired": "Indiquez le numéro qui doit sonner.",
+          "submit": "Appeler",
+          "ringing": "Votre téléphone va sonner. Décrochez pour être mis en relation."
+        },
         "others": "Les autres se trouvent sur la page de chaque solution.",
         "markHandled": "Traité",
         "markHandledLabel": "Marquer comme traité : {label}",
@@ -2344,6 +2356,11 @@
     "previewPhoneOnly": "L'écoute n'existe que pour les solutions téléphoniques.",
     "previewUnavailable": "L'écoute n'est pas disponible pour le moment.",
     "tooManyPreviews": "Trop d'écoutes. Réessayez dans quelques minutes.",
+    "callbackHiddenNumber": "Le numéro de l'appelant est masqué : il ne peut pas être rappelé.",
+    "callbackUnavailable": "Cette solution n'a pas de numéro en service : le rappel est impossible.",
+    "callbackMobileInvalid": "Indiquez un numéro français valide, différent de celui de l'appelant et de la solution.",
+    "tooManyCallbacks": "{count} rappels ont déjà été passés aujourd'hui pour cette solution. Réessayez demain, ou rappelez depuis votre téléphone.",
+    "callbackFailed": "L'appel n'a pas pu être lancé. Réessayez dans un instant.",
     "callerAnswerRequired": "Écrivez la réponse que l'assistant doit donner.",
     "callerAnswerTooLong": "La réponse ne doit pas dépasser {max} caractères.",
     "organizationDeleteOwnerOnly": "Seul le propriétaire peut supprimer cette organisation.",
@@ -3247,6 +3264,7 @@
   },
   "Voice": {
     "paused": "Nous ne pouvons pas prendre votre appel pour le moment, merci de rappeler plus tard.",
-    "unavailable": "Service momentanément indisponible, merci de rappeler plus tard."
+    "unavailable": "Service momentanément indisponible, merci de rappeler plus tard.",
+    "bridgeAnnounce": "Rappel d'un appelant de {service}. Mise en relation, ne quittez pas."
   }
 }

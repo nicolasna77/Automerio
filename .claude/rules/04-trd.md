@@ -11,7 +11,7 @@ explicite, jamais en cours de route.
 | Base de données | **PostgreSQL** via **Prisma 7** (`@prisma/adapter-pg`) | Relations fortes (organisations, solutions, usage), migrations versionnées |
 | Authentification | **better-auth 1.6.23** : e-mail / mot de passe, Google, plugins `admin`, `organization`, `twoFactor`, `@better-auth/stripe` | Rôles, organisations et facturation dans une seule librairie |
 | Paiement | **Stripe** : une Checkout Session par solution, abonnements, portail client, codes promo | Facturation à l'usage (dépassement) et TVA |
-| Téléphonie | **Twilio** : numéros français, routage des appels, appel de démonstration, SMS aux clients finaux (expéditeur alphanumérique) | Achat de numéros, SIP et SMS |
+| Téléphonie | **Twilio** : numéros français, routage des appels, appel de démonstration, SMS aux clients finaux (expéditeur alphanumérique), rappel en un clic (appel sortant mis en relation) | Achat de numéros, SIP et SMS |
 | Agent vocal | **OpenAI Realtime API (SIP)** | Faible latence au téléphone |
 | Réponses aux messages | **OpenAI** (`openai`) | Même fournisseur que la voix |
 | Messageries | **Meta** : WhatsApp Cloud API, Messenger, Instagram (webhooks, Embedded Signup) | Canaux des clients |
