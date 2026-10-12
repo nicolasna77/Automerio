@@ -40,9 +40,10 @@ export function CallStatsCard({ stats }: { stats: CallStats }) {
           <>
             <dl className="grid gap-4 sm:grid-cols-3">
               {tiles.map((tile) => (
-                <div key={tile.label} className="min-w-0">
+                // Chiffres alignés en bas : un libellé sur deux lignes ne les décale pas.
+                <div key={tile.label} className="flex min-w-0 flex-col">
                   <dt className="text-sm text-muted-foreground">{tile.label}</dt>
-                  <dd className="mt-1 font-mono text-2xl font-medium tabular-nums text-foreground">{tile.value}</dd>
+                  <dd className="mt-auto pt-1 font-mono text-2xl font-medium tabular-nums text-foreground">{tile.value}</dd>
                 </div>
               ))}
             </dl>
