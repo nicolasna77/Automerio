@@ -62,7 +62,7 @@ Thème clair et sombre (next-themes).
 
 ## Allure des pages
 
-- **Largeur** du site public : en-tête, pied de page et contenu jusqu'à 1200 px (`max-w-[75rem]`,
+- **Largeur** du site public : en-tête, pied de page et contenu jusqu'à 1280 px (`max-w-[80rem]`,
   marges de 16 puis 24 px), alignés sur les mêmes bords, comme fonio.ai.
 
 - **Accueil** : hero (titre deux lignes au plus, un bouton principal, capture
