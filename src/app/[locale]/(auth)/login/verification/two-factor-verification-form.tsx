@@ -1,7 +1,7 @@
 "use client";
 
 import { Link } from "@/i18n/navigation";
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { ArrowLeft, CircleAlert } from "lucide-react";
@@ -20,6 +20,9 @@ export function TwoFactorVerificationForm({ next }: { next: string | null }) {
   const codeId = useId();
   const trustId = useId();
   const errorId = useId();
+  const codeErrorId = useId();
+  const codeRef = useRef<HTMLInputElement>(null);
+  const [codeError, setCodeError] = useState<string | null>(null);
   const [useBackupCode, setUseBackupCode] = useState(false);
   const [code, setCode] = useState("");
   const [trustDevice, setTrustDevice] = useState(false);
@@ -29,9 +32,17 @@ export function TwoFactorVerificationForm({ next }: { next: string | null }) {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
-    setLoading(true);
 
     const trimmed = code.replace(/\s+/g, "");
+    // Bouton toujours actif : un code vide est signalé sous le champ.
+    if (!trimmed) {
+      setCodeError(t("errors.codeRequired"));
+      codeRef.current?.focus();
+      return;
+    }
+    setCodeError(null);
+    setLoading(true);
+
     const { error } = useBackupCode
       ? await authClient.twoFactor.verifyBackupCode({ code: trimmed, trustDevice })
       : await authClient.twoFactor.verifyTotp({ code: trimmed, trustDevice });
@@ -45,6 +56,7 @@ export function TwoFactorVerificationForm({ next }: { next: string | null }) {
             ? t("errors.invalidBackupCode")
             : t("errors.invalidCode")
       );
+      codeRef.current?.select();
       return;
     }
 
@@ -62,23 +74,34 @@ export function TwoFactorVerificationForm({ next }: { next: string | null }) {
           : t("descriptionTotp")}
       </p>
 
-      <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+      <form onSubmit={handleSubmit} noValidate className="mt-8 space-y-4">
         <div className="space-y-2">
           <Label htmlFor={codeId}>{useBackupCode ? t("backupCodeLabel") : t("codeLabel")}</Label>
           <Input
+            ref={codeRef}
             id={codeId}
             value={code}
-            onChange={(e) => setCode(e.target.value)}
+            onChange={(e) => {
+              setCode(e.target.value);
+              if (codeError) setCodeError(null);
+            }}
+            maxLength={useBackupCode ? 32 : 8}
+            spellCheck={false}
             inputMode={useBackupCode ? "text" : "numeric"}
             autoComplete="one-time-code"
             autoFocus
             required
-            aria-invalid={error ? true : undefined}
-            aria-describedby={error ? errorId : undefined}
-            className="text-center text-lg tabular-nums tracking-[0.4em]"
+            aria-invalid={error || codeError ? true : undefined}
+            aria-describedby={[codeError ? codeErrorId : null, error ? errorId : null].filter(Boolean).join(" ") || undefined}
+            className="text-center font-mono text-lg tabular-nums tracking-[0.4em]"
           />
+          {codeError && (
+            <p id={codeErrorId} className="text-sm text-destructive">
+              {codeError}
+            </p>
+          )}
         </div>
-        <label htmlFor={trustId} className="flex items-center gap-2 text-sm text-muted-foreground">
+        <label htmlFor={trustId} className="flex min-h-6 items-center gap-2 text-sm text-muted-foreground">
           <Checkbox
             id={trustId}
             checked={trustDevice}
@@ -97,7 +120,6 @@ export function TwoFactorVerificationForm({ next }: { next: string | null }) {
         <Button
           type="submit"
           className="w-full"
-          disabled={!code.trim()}
           loading={loading}
         >
           {loading ? t("submitting") : t("submit")}
@@ -110,6 +132,8 @@ export function TwoFactorVerificationForm({ next }: { next: string | null }) {
             setUseBackupCode((prev) => !prev);
             setCode("");
             setError(null);
+            setCodeError(null);
+            codeRef.current?.focus();
           }}
         >
           {useBackupCode ? t("useApp") : t("useBackupCode")}

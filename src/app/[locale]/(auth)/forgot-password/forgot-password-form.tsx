@@ -1,14 +1,16 @@
 "use client";
 
 import { Link } from "@/i18n/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, MailCheck } from "lucide-react";
+import { ArrowLeft, CircleAlert, MailCheck } from "lucide-react";
 import { toast } from "@/lib/toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
+import { describedBy, EMAIL_PATTERN, FieldError } from "../field-error";
 
 const RESEND_DELAY_SECONDS = 30;
 
@@ -19,6 +21,9 @@ export function ForgotPasswordForm() {
   const [loading, setLoading] = useState(false);
   const [sentTo, setSentTo] = useState<string | null>(null);
   const [cooldown, setCooldown] = useState(0);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -26,31 +31,49 @@ export function ForgotPasswordForm() {
     return () => clearTimeout(timer);
   }, [cooldown]);
 
-  async function requestLink(email: string) {
-    await authClient.requestPasswordReset({ email, redirectTo: "/reset-password" });
+  // better-auth répond de la même façon qu'un compte existe ou non : une
+  // erreur ici est un vrai échec (réseau, limite d'envoi), pas une adresse
+  // inconnue. Renvoie le message à afficher, ou null si le lien est parti.
+  async function requestLink(email: string): Promise<string | null> {
+    const { error } = await authClient.requestPasswordReset({ email, redirectTo: "/reset-password" });
+    if (error) return error.status === 429 ? t("errors.tooMany") : t("errors.generic");
     setCooldown(RESEND_DELAY_SECONDS);
+    return null;
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setError(null);
+
+    const email = String(new FormData(event.currentTarget).get("email") ?? "").trim();
+    const invalid = !email
+      ? tShared("errors.emailRequired")
+      : !EMAIL_PATTERN.test(email)
+        ? tShared("errors.emailInvalid")
+        : null;
+    setEmailError(invalid);
+    if (invalid) return emailRef.current?.focus();
+
     setLoading(true);
-
-    const email = String(new FormData(event.currentTarget).get("email"));
-    await requestLink(email);
-
-    setSentTo(email);
+    const failure = await requestLink(email);
     setLoading(false);
+    if (failure) {
+      setError(failure);
+      return;
+    }
+    setSentTo(email);
   }
 
   async function handleResend() {
     if (!sentTo || cooldown > 0) return;
-    await requestLink(sentTo);
-    toast.success(tShared("newLinkSent"));
+    const failure = await requestLink(sentTo);
+    if (failure) toast.error(failure);
+    else toast.success(tShared("newLinkSent"));
   }
 
   if (sentTo) {
     return (
-      <div>
+      <div role="status">
         <MailCheck className="size-6 text-primary" aria-hidden="true" />
         <h1 className="mt-3 text-2xl font-semibold tracking-tight text-foreground">
           {tShared("checkInbox")}
@@ -58,7 +81,7 @@ export function ForgotPasswordForm() {
         <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
           {t.rich("sentMessage", {
             email: sentTo,
-            strong: (chunks) => <span className="font-medium text-foreground">{chunks}</span>,
+            strong: (chunks) => <span className="font-medium text-foreground [overflow-wrap:anywhere]">{chunks}</span>,
           })}
         </p>
         <p className="mt-4 text-sm text-muted-foreground">
@@ -108,7 +131,7 @@ export function ForgotPasswordForm() {
         {t("subtitle")}
       </p>
 
-      <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+      <form onSubmit={handleSubmit} noValidate className="mt-8 space-y-4">
         <div className="space-y-2">
           <Label htmlFor="email">{tShared("emailLabel")}</Label>
           <Input
@@ -116,11 +139,24 @@ export function ForgotPasswordForm() {
             name="email"
             type="email"
             autoComplete="email"
+            ref={emailRef}
+            inputMode="email"
+            spellCheck={false}
             placeholder={tShared("emailPlaceholder")}
             autoFocus
+            onChange={() => emailError && setEmailError(null)}
+            aria-invalid={emailError ? true : undefined}
+            aria-describedby={describedBy(emailError && "email-error")}
             required
           />
+          <FieldError id="email-error" message={emailError} />
         </div>
+        {error && (
+          <Alert variant="destructive">
+            <CircleAlert aria-hidden="true" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
         <Button type="submit" className="w-full" loading={loading}>
           {loading ? tCommon("sending") : t("submit")}
         </Button>

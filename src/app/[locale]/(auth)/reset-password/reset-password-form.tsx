@@ -29,6 +29,8 @@ export function ResetPasswordForm({
   // Erreur de saisie affichée sous le champ concerné, qui reçoit le focus.
   const [fieldError, setFieldError] = useState<{ field: PasswordField; message: string } | null>(null);
   const [done, setDone] = useState(false);
+  // Jeton refusé par le serveur (déjà utilisé, expiré) : même écran qu'un lien invalide.
+  const [tokenRejected, setTokenRejected] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
 
@@ -66,13 +68,14 @@ export function ResetPasswordForm({
     setLoading(false);
 
     if (resetError) {
-      setError(resetError.message ?? t("errors.generic"));
+      if (resetError.code?.includes("TOKEN")) setTokenRejected(true);
+      else setError(t("errors.generic"));
       return;
     }
     setDone(true);
   }
 
-  if (!token || invalidToken) {
+  if (!token || invalidToken || tokenRejected) {
     return (
       <div>
         <CircleAlert className="size-6 text-muted-foreground" aria-hidden="true" />
@@ -130,7 +133,7 @@ export function ResetPasswordForm({
         {t("subtitle")}
       </p>
 
-      <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+      <form onSubmit={handleSubmit} noValidate className="mt-8 space-y-4">
         <div className="space-y-2">
           <Label htmlFor="newPassword">{t("newPasswordLabel")}</Label>
           <PasswordInput
