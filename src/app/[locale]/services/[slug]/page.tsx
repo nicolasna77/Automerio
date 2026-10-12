@@ -286,7 +286,7 @@ export default async function PrestationDetailPage({
           aria-labelledby="steps-heading"
           className="border-t border-border"
         >
-          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
+          <div className="mx-auto max-w-[76rem] px-4 py-16 sm:px-6 sm:py-24">
             <div className="max-w-2xl">
               <h2
                 id="steps-heading"
@@ -442,7 +442,7 @@ export default async function PrestationDetailPage({
             aria-labelledby="benefits-heading"
             className="border-t border-border bg-muted/40"
           >
-            <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
+            <div className="mx-auto max-w-[76rem] px-4 py-16 sm:px-6 sm:py-24">
               <div className="max-w-2xl">
                 <h2
                   id="benefits-heading"
@@ -499,7 +499,7 @@ export default async function PrestationDetailPage({
             aria-labelledby="situations-heading"
             className="border-t border-border"
           >
-            <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
+            <div className="mx-auto max-w-[76rem] px-4 py-16 sm:px-6 sm:py-24">
               <div className="max-w-2xl">
                 <h2
                   id="situations-heading"
@@ -562,7 +562,7 @@ export default async function PrestationDetailPage({
             aria-labelledby="related-heading"
             className="border-t border-border"
           >
-            <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+            <div className="mx-auto max-w-[76rem] px-4 py-16 sm:px-6 sm:py-20">
               <h2
                 id="related-heading"
                 className="text-2xl font-semibold tracking-tight text-foreground"
@@ -602,7 +602,7 @@ export default async function PrestationDetailPage({
           aria-labelledby="cta-heading"
           className="px-4 pb-16 sm:px-6 sm:pb-24"
         >
-          <div className="relative isolate mx-auto max-w-6xl overflow-hidden rounded-lg border border-border bg-card px-6 py-16 text-center sm:py-20">
+          <div className="relative isolate mx-auto max-w-[76rem] overflow-hidden rounded-lg border border-border bg-card px-6 py-16 text-center sm:py-20">
             <h2
               id="cta-heading"
               className="mx-auto max-w-2xl text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"

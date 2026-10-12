@@ -62,6 +62,9 @@ Thème clair et sombre (next-themes).
 
 ## Allure des pages
 
+- **Largeur** : en-tête, pied de page et sections du site public jusqu'à
+  1216 px (`max-w-[76rem]`), marges de 16 px puis 24 px.
+
 - **Accueil** : hero (titre deux lignes au plus, un bouton principal, capture
   pleine du tableau de bord effacée vers le bas, trame et traits lumineux),
   puis fragments de l'interface en onglets, étapes, métiers, tarifs, FAQ.

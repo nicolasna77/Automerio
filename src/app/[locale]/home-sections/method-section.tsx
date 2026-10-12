@@ -41,7 +41,7 @@ export async function MethodSection() {
   return (
     <section id="method" aria-labelledby="method-heading" className="relative isolate scroll-mt-20 overflow-hidden py-20 sm:py-28">
       <SectionGlow position="left" strength={14} />
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+      <div className="mx-auto max-w-[76rem] px-4 sm:px-6">
         <div className="max-w-2xl">
           <span className="text-sm font-medium text-muted-foreground">{t("eyebrow")}</span>
           <h2

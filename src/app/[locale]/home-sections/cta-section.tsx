@@ -8,7 +8,7 @@ export async function CtaSection() {
   const t = await getTranslations("Home.cta");
   return (
     <section aria-labelledby="cta-heading" className="px-4 pb-20 sm:px-6 sm:pb-24">
-      <div className="relative isolate mx-auto max-w-6xl overflow-hidden rounded-lg border border-primary/20 bg-card px-6 py-16 text-center sm:py-20">
+      <div className="relative isolate mx-auto max-w-[76rem] overflow-hidden rounded-lg border border-primary/20 bg-card px-6 py-16 text-center sm:py-20">
         <SectionGlow position="bottom" strength={14} />
         <h2
           id="cta-heading"

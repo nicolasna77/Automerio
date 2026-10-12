@@ -15,7 +15,7 @@ export async function DemoCallSection() {
   return (
     <section id="essai" aria-labelledby="demo-heading" className="relative isolate scroll-mt-20 overflow-hidden bg-primary/5 py-20 sm:py-24">
       <SectionGlow position="right" strength={14} />
-      <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16">
+      <div className="mx-auto grid max-w-[76rem] items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16">
         <div>
           <h2
             id="demo-heading"
