@@ -59,6 +59,13 @@ Priorité : **V1** = indispensable (en production), **Souhaitable**, **Plus tard
   Instagram (réglage par solution, désactivé par défaut), une fois par
   commentaire. Ouvert seulement après accord de Meta sur la permission
   `instagram_business_manage_comments` (`INSTAGRAM_COMMENT_REPLIES=on`).
+- **V1** Préparer des brouillons de publications Instagram (solution
+  Instagram payée, tous les membres) : légende, carrousel, hashtags, planning
+  de la semaine, à partir du sujet et des précisions du client, sans chiffre
+  inventé. Historique des 20 derniers brouillons, à copier ou supprimer ;
+  30 brouillons par solution et par jour, inclus dans l'abonnement, hors
+  forfait. Rien n'est publié par Automerio. Consignes adaptées des skills
+  `instagram-skills` de Sergey Bulaev (licence MIT).
 - **V1** Réserver dans l'agenda du client (Google Agenda, Cal.com, Calendly).
 - **V1** Passer un appel d'essai à sa propre solution.
 - **V1** Envoyer un SMS à l'appelant : confirmation d'un rendez-vous ou d'une
@@ -153,6 +160,7 @@ solutions « Plus tard », désactivées. Téléphonie : volume ajustable jusqu'
 
 ## Hors périmètre
 
+- Publication automatique sur Instagram et audit du profil Instagram.
 - Portabilité de numéro (le client garde le sien et active un renvoi d'appel).
 - Modèle d'IA hébergé par Automerio (l'agent passe par OpenAI).
 - Application mobile native.

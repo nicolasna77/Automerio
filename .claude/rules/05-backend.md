@@ -54,6 +54,7 @@ Abréviations des droits : **M** membre de l'organisation, **R** responsable
 | `conversation` | clientServiceId, channel, **contactId**, lastInboundAt, humanTakeoverAt | M | S ; M (reprise en main) |
 | `conversation_message` | direction, **text**, externalId, sentById | M | S ; M (réponse manuelle) |
 | `test_call` | clientServiceId, requestedById, status, durationSec | M | M ; S |
+| `instagram_draft` | clientServiceId, createdById, kind (`CAPTION`, `CAROUSEL`, `HASHTAGS`, `WEEKLY_PLAN`), subject, goal, details, content (JSON), warnings | M ; A | M ; S (OpenAI) |
 | `demo_call` | **phoneHash**, **ipHash** (hachés), serviceSlug, status | A | S |
 
 ### Relation client et équipe
@@ -109,6 +110,7 @@ Liste publiée dans la politique de confidentialité
 |---|---|---|
 | Compte et configuration | Tant que le compte existe | Effacés à la suppression du compte (`src/lib/account-deletion.ts`) |
 | Appels, résumés, messages | Tant que le compte existe | Effacés avec le compte |
+| Brouillons Instagram | Les 20 derniers par solution | Les plus anciens sont effacés à chaque nouveau brouillon ; tous avec la solution |
 | Factures | 10 ans (Code de commerce) | Conservées par Stripe |
 | Sessions | Jusqu'à expiration | Supprimées |
 | Messages de contact sans suite | 3 ans | [À CONFIRMER : aucune purge automatique dans le code] |

@@ -14,10 +14,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+import { PenLine } from "lucide-react";
+import { Link } from "@/i18n/navigation";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { unwrap } from "@/lib/action-result";
 import { getErrorMessage } from "@/lib/utils";
 import type { MyServiceDTO } from "@/lib/catalog";
+import { canDraftInstagram } from "@/lib/instagram-drafts/content";
 import { cancelService } from "./actions";
 import { ResumeCheckoutButton } from "./resume-checkout-button";
 import { ServiceSettingsButton } from "./service-settings-button";
@@ -77,6 +80,7 @@ export function CancelServiceButton({
 }
 
 export function ServiceDetailActions({ item }: { item: MyServiceDTO }) {
+  const tDrafts = useTranslations("Dashboard.instagramDrafts");
   const canResume = item.status === "PENDING_PAYMENT" || item.status === "CANCELED";
 
   return (
@@ -86,6 +90,15 @@ export function ServiceDetailActions({ item }: { item: MyServiceDTO }) {
           clientServiceId={item.clientServiceId}
           status={item.status as "PENDING_PAYMENT" | "CANCELED"}
         />
+      )}
+      {canDraftInstagram(item) && (
+        <Link
+          href={`/dashboard/services/${item.clientServiceId}/publications`}
+          className={buttonVariants({ variant: "outline", className: "@max-3xl/header:px-2.5" })}
+        >
+          <PenLine aria-hidden="true" data-icon="inline-start" />
+          <span className="@max-3xl/header:sr-only">{tDrafts("headerLink")}</span>
+        </Link>
       )}
       <ServiceSettingsButton item={item} labeled />
     </div>
