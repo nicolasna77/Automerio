@@ -84,6 +84,8 @@ export type CallSummaryFields = {
   summary: string | null;
   followUp: string | null;
   callerName: string | null;
+  // L'appelant décrit une urgence : l'artisan est prévenu par SMS.
+  urgent: boolean;
 };
 
 export function formatTranscriptForSummary(turns: TranscriptTurn[]): string {
@@ -111,5 +113,6 @@ export function parseSummaryResponse(raw: string | null | undefined): CallSummar
     summary: cleanField(data.summary, 600),
     followUp: cleanField(data.followUp, 240),
     callerName: cleanField(data.callerName, 80),
+    urgent: data.urgent === true,
   };
 }

@@ -561,6 +561,8 @@ model CallSummary {
   summary      String?
   followUp     String?
   callerName   String?
+  // L'appelant décrit une urgence (résumé de l'appel) : alerte SMS envoyée.
+  urgent       Boolean    @default(false)
   createdAt    DateTime   @default(now())
 
   @@map("call_summary")

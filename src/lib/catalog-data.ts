@@ -106,6 +106,13 @@ export const CATALOG: CatalogService[] = [
         helpText: "Ex. « Urgence » → 06 12 34 56 78",
       },
       {
+        key: "alertPhone",
+        label: "Mobile pour les alertes urgentes",
+        type: "tel",
+        placeholder: "06 12 34 56 78",
+        helpText: "Un SMS y part dès qu'un appel urgent est terminé : nom, numéro et motif.",
+      },
+      {
         key: "callInstructions",
         label: "Consignes pour l'assistant",
         type: "textarea",
@@ -202,6 +209,13 @@ export const CATALOG: CatalogService[] = [
         placeholder: "Ex. Amiens et 10 km autour",
         helpText: "Seulement si vous livrez : les communes ou le rayon desservis. Laissez vide sinon.",
         showIf: { key: "objectives", includes: "order" },
+      },
+      {
+        key: "alertPhone",
+        label: "Mobile pour les alertes urgentes",
+        type: "tel",
+        placeholder: "06 12 34 56 78",
+        helpText: "Un SMS y part dès qu'un appel urgent est terminé : nom, numéro et motif.",
       },
       {
         key: "callInstructions",

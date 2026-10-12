@@ -57,6 +57,9 @@ Priorité : **V1** = indispensable (en production), **Souhaitable**, **Plus tard
 - **V1** Envoyer un SMS à l'appelant : confirmation d'un rendez-vous ou d'une
   commande pris au téléphone, puis rappel la veille du rendez-vous. Réglage
   « SMS à vos clients » par solution, activé par défaut.
+- **V1** Repérer un appel urgent (fuite, panne, danger) : badge « Urgent » dans
+  les appels et SMS immédiat au « Mobile pour les alertes urgentes » choisi
+  par le client (nom, numéro, motif).
 
 ### Suivre et piloter
 - **V1** Voir les appels reçus avec transcription, motif, résumé et suite à
