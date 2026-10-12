@@ -84,6 +84,16 @@ numéro, connecter WhatsApp, Messenger, Instagram, agenda)
 - Suggestion d'agenda (téléphonie avec rendez-vous, sans agenda) : refermable,
   reste fermée (cookie).
 
+### Rappeler via Automerio
+Vue d'ensemble → « À rappeler » → « Rappeler via Automerio » → mobile à faire
+sonner (prérempli avec le dernier saisi sur cet appareil) → « Appeler »
+- mobile vide ou invalide → message sous le champ, focus dessus
+- lancé → toast « Votre téléphone va sonner » ; en décrochant, message
+  d'annonce puis mise en relation ; l'appelant voit le numéro de la solution
+- solution sans numéro ou résiliée, numéro appelant masqué →
+  bouton absent ou refus de l'action
+- 20 rappels dans la journée → message, rien n'est composé
+
 ### Compléter les réponses de l'assistant
 Page d'une solution téléphonique → « Questions à compléter » → « Répondre »
 → réponse → « Enregistrer »

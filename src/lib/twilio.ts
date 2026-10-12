@@ -100,6 +100,16 @@ export async function releasePhoneNumber(sid: string): Promise<void> {
   }
 }
 
+// Appel sortant avec un TwiML donné : appel de démonstration, rappel en un clic.
+export async function placeOutboundCall(input: {
+  to: string;
+  from: string;
+  twiml: string;
+  timeLimitSec: number;
+}): Promise<string> {
+  return placeDemoCall(input);
+}
+
 export async function placeDemoCall(input: {
   to: string;
   from: string;

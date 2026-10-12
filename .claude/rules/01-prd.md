@@ -97,6 +97,11 @@ Priorité : **V1** = indispensable (en production), **Souhaitable**, **Plus tard
 ### Suivre et piloter
 - **V1** Voir les appels reçus avec transcription, motif, résumé et suite à
   donner ; marquer un appel traité.
+- **V1** Rappeler un appelant sans montrer son numéro personnel : dans « À
+  rappeler », « Rappeler via Automerio » fait sonner le mobile indiqué, puis
+  met en relation avec l'appelant, qui voit le numéro de la solution. 20
+  rappels par solution et par jour [À CONFIRMER : minutes de rappel incluses
+  ou décomptées du forfait ; aujourd'hui incluses].
 - **V1** Voir les rendez-vous dans un calendrier.
 - **V1** Compléter les réponses de l'assistant téléphonique : chaque question
   à laquelle il n'a pas su répondre (repérée dans le résumé de l'appel, trois

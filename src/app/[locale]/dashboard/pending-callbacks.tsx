@@ -6,6 +6,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { countPendingCallbacks, listPendingCallbacks } from "@/lib/call-callbacks";
 import { MarkHandledButton } from "./mark-handled-button";
+import { BridgeCallbackButton } from "./bridge-callback-button";
 
 function formatDateTime(date: Date): string {
   return date.toLocaleString("fr-FR", {
@@ -58,13 +59,14 @@ export async function PendingCallbacks({ organizationId }: { organizationId: str
                     · {formatDateTime(callback.occurredAt)}
                   </p>
                 </div>
-                <div className="flex shrink-0 gap-2">
+                <div className="flex shrink-0 flex-wrap gap-2">
                   {callback.fromNumber && (
                     <a href={`tel:${callback.fromNumber}`} className={buttonVariants({ size: "sm" })}>
                       <Phone aria-hidden="true" data-icon="inline-start" />
                       {t("callBack")}
                     </a>
                   )}
+                  {callback.fromNumber && <BridgeCallbackButton callId={callback.id} label={title} />}
                   <MarkHandledButton
                     clientServiceId={callback.clientServiceId}
                     callId={callback.id}
