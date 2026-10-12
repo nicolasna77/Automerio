@@ -48,3 +48,29 @@ export function voiceSettingsOf(configuration: Configuration): { voice: string; 
 export function toneInstructionOf(configuration: Configuration): string {
   return TONE_INSTRUCTIONS[pick(TONE_OPTIONS, configuration.tone) ?? "warm"];
 }
+
+// Réglage « Langue » (callerLanguage) : « fr » par défaut, « auto » pour
+// répondre dans la langue de l'appelant. Le résumé de l'appel, lui, reste
+// toujours en français (call-summary.ts) : il est lu par le gérant.
+export const CALLER_LANGUAGE_OPTIONS = [
+  { value: "fr", label: "Français uniquement" },
+  { value: "auto", label: "Langue de l'appelant" },
+] as const;
+
+export function answersInCallerLanguage(configuration: Configuration): boolean {
+  return configuration.callerLanguage === "auto";
+}
+
+export function languageInstruction(configuration: Configuration): string {
+  return answersInCallerLanguage(configuration)
+    ? "Commence en français. Si l'appelant parle une autre langue, réponds-lui dans sa langue jusqu'à la fin de l'appel."
+    : "Tu réponds en français.";
+}
+
+// Transcription de la voix de l'appelant : langue imposée en français, ou
+// détectée quand l'assistant suit la langue de l'appelant.
+export function inputTranscriptionOf(configuration: Configuration): { model: "gpt-4o-mini-transcribe"; language?: "fr" } {
+  return answersInCallerLanguage(configuration)
+    ? { model: "gpt-4o-mini-transcribe" }
+    : { model: "gpt-4o-mini-transcribe", language: "fr" };
+}

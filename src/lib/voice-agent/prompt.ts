@@ -13,7 +13,7 @@ import {
   readProductCatalog,
 } from "@/lib/product-catalog";
 import { asWeeklyHours, isOpenAt } from "@/lib/business-hours";
-import { toneInstructionOf } from "@/lib/voice-agent/voice";
+import { languageInstruction, toneInstructionOf } from "@/lib/voice-agent/voice";
 
 // Les champs saisis par le client entrent dans les consignes du modèle : leur
 // longueur est bornée pour qu'aucun ne noie les règles strictes ni ne fasse
@@ -97,7 +97,7 @@ function buildPriseRdvPrompt(
 
   const lines = [
     "## Rôle",
-    `Tu es l'assistant virtuel de ${companyName}, au téléphone. Tu réponds en français.`,
+    `Tu es l'assistant virtuel de ${companyName}, au téléphone. ${languageInstruction(configuration)}`,
     `Commence l'appel en présentant ${companyName} en une phrase, puis présente-toi comme son assistant virtuel.`,
     `Horaires d'ouverture : ${formatWeeklyHours(asWeeklyHours(configuration.businessHours))}.`,
     ...phoneStyle(configuration),
@@ -198,7 +198,7 @@ function buildStandardTelephoniquePrompt(configuration: Configuration, companyNa
 
   const lines = [
     "## Rôle",
-    `Tu es le standard téléphonique de ${companyName} : son assistant virtuel. Tu réponds en français.`,
+    `Tu es le standard téléphonique de ${companyName} : son assistant virtuel. ${languageInstruction(configuration)}`,
     greetingMessage
       ? `Commence l'appel en disant exactement : « ${greetingMessage} » Si ce message ne le dit pas, précise ensuite que tu es un assistant virtuel.`
       : `Commence l'appel par une salutation brève : présente ${companyName} en une phrase, puis présente-toi comme son assistant virtuel.`,
