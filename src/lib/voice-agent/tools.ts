@@ -12,7 +12,8 @@ import {
   validateQuote,
   validateSlot,
 } from "@/lib/voice-agent/tool-args";
-import { sendBookingConfirmationSms } from "@/lib/booking-sms";
+import { sendAppointmentChangeSms, sendBookingConfirmationSms } from "@/lib/booking-sms";
+import { normalizeFrenchPhone } from "@/lib/demo-call";
 import { deliverWebhook } from "@/lib/outgoing-webhook";
 
 
@@ -97,6 +98,51 @@ function buildBookAppointmentTool(collectsEmail: boolean): ToolDefinition {
     },
   };
 }
+
+// Annuler ou déplacer un rendez-vous : l'agent ne voit que les rendez-vous
+// à venir pris au numéro qui appelle (en-tête SIP), jamais un numéro dicté.
+const FIND_MY_APPOINTMENTS: ToolDefinition = {
+  type: "function",
+  function: {
+    name: "find_my_appointments",
+    description:
+      "Liste les rendez-vous à venir pris au numéro qui appelle, avant de les annuler ou de les déplacer.",
+    parameters: { type: "object", properties: {} },
+  },
+};
+
+const CANCEL_APPOINTMENT: ToolDefinition = {
+  type: "function",
+  function: {
+    name: "cancel_appointment",
+    description:
+      "Annule un rendez-vous de l'appelant, après lui avoir relu la date et l'heure et obtenu son accord.",
+    parameters: {
+      type: "object",
+      properties: {
+        appointmentId: { type: "string", description: "Identifiant donné par find_my_appointments." },
+      },
+      required: ["appointmentId"],
+    },
+  },
+};
+
+const RESCHEDULE_APPOINTMENT: ToolDefinition = {
+  type: "function",
+  function: {
+    name: "reschedule_appointment",
+    description:
+      "Déplace un rendez-vous de l'appelant vers un nouveau créneau, vérifié libre avec check_availability et accepté par l'appelant.",
+    parameters: {
+      type: "object",
+      properties: {
+        appointmentId: { type: "string", description: "Identifiant donné par find_my_appointments." },
+        newStartAt: { type: "string", description: "Nouveau début, au format ISO 8601." },
+      },
+      required: ["appointmentId", "newStartAt"],
+    },
+  },
+};
 
 const TAKE_ORDER: ToolDefinition = {
   type: "function",
@@ -210,7 +256,13 @@ export function getToolDefinitions(
   const objectives = objectivesOf(configuration);
   const tools: ToolDefinition[] = [];
   if (objectives.includes("appointment") && calendarConnected) {
-    tools.push(CHECK_AVAILABILITY, buildBookAppointmentTool(collectsEmail));
+    tools.push(
+      CHECK_AVAILABILITY,
+      buildBookAppointmentTool(collectsEmail),
+      FIND_MY_APPOINTMENTS,
+      CANCEL_APPOINTMENT,
+      RESCHEDULE_APPOINTMENT
+    );
   }
   if (objectives.includes("order")) {
     const hasCatalog = countCatalogItems(readProductCatalog(configuration.productCatalog)) > 0;
@@ -223,6 +275,7 @@ export function getToolDefinitions(
 // manipule le modèle ne peut pas remplir l'agenda ni la liste des demandes.
 export const MAX_BOOKINGS_PER_SESSION = 3;
 export const MAX_RECORDS_PER_SESSION = 5;
+export const MAX_CHANGES_PER_SESSION = 3;
 
 // Une session = un appel ou une conversation. Elle garde les outils réellement
 // proposés au modèle, seuls exécutables, et compte les écritures.
@@ -230,6 +283,7 @@ export type ToolSession = {
   allowedTools: ReadonlySet<string>;
   bookings: number;
   records: number;
+  changes: number;
 };
 
 export function createToolSession(tools: ToolDefinition[]): ToolSession {
@@ -237,6 +291,7 @@ export function createToolSession(tools: ToolDefinition[]): ToolSession {
     allowedTools: new Set(tools.map((tool) => tool.function.name)),
     bookings: 0,
     records: 0,
+    changes: 0,
   };
 }
 
@@ -246,9 +301,66 @@ export type ToolContext = {
   configuration: Configuration;
   session: ToolSession;
   testMode?: boolean;
+  // Numéro qui appelle (en-tête SIP From, E.164), seul moyen de retrouver
+  // les rendez-vous de l'appelant ; null en messagerie et pour un numéro masqué.
+  callerNumber?: string | null;
 };
 
 const BOOKING_CAP_REACHED = `Limite atteinte : pas plus de ${MAX_BOOKINGS_PER_SESSION} rendez-vous par échange. N'en réserve pas d'autre ; propose de noter la demande, l'entreprise rappellera.`;
+const CHANGE_CAP_REACHED = `Limite atteinte : pas plus de ${MAX_CHANGES_PER_SESSION} annulations ou déplacements par appel. Propose de noter la demande, l'entreprise rappellera.`;
+const CALLER_UNKNOWN =
+  "Le numéro de l'appelant est masqué ou inconnu : tu ne peux pas retrouver ses rendez-vous. Propose de noter sa demande, l'entreprise rappellera.";
+const APPOINTMENT_NOT_FOUND =
+  "Ce rendez-vous n'existe pas ou n'a pas été pris avec ce numéro. Relance find_my_appointments, ou propose de noter la demande.";
+
+const PARIS_LABEL = new Intl.DateTimeFormat("fr-FR", {
+  timeZone: "Europe/Paris",
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+type CallerAppointment = {
+  id: string;
+  customerName: string;
+  customerPhone: string;
+  startAt: Date;
+  endAt: Date | null;
+  notes: string | null;
+  googleEventId: string | null;
+  externalBookingId: string | null;
+};
+
+// Rendez-vous à venir de la solution dont le téléphone, dicté à la prise de
+// rendez-vous, correspond au numéro qui appelle.
+export async function callerAppointments(
+  clientServiceId: string,
+  callerNumber: string,
+  now: Date = new Date()
+): Promise<CallerAppointment[]> {
+  const rows = await db.booking.findMany({
+    where: { clientServiceId, kind: "appointment", startAt: { gt: now } },
+    orderBy: { startAt: "asc" },
+    take: 50,
+    select: {
+      id: true,
+      customerName: true,
+      customerPhone: true,
+      startAt: true,
+      endAt: true,
+      notes: true,
+      googleEventId: true,
+      externalBookingId: true,
+    },
+  });
+  return rows.filter(
+    (row): row is CallerAppointment =>
+      row.startAt !== null && normalizeFrenchPhone(row.customerPhone) === callerNumber
+  );
+}
+
 const RECORD_CAP_REACHED = `Limite atteinte : pas plus de ${MAX_RECORDS_PER_SESSION} commandes ou messages par échange. N'en enregistre pas d'autre ; indique que l'entreprise reviendra vers la personne.`;
 
 // Webhook sortant du client (Zapier, Make, CRM) : chaque réservation créée.
@@ -353,6 +465,129 @@ export async function runTool(
       return result
         ? "Rendez-vous confirmé et ajouté à l'agenda."
         : "Rendez-vous noté, mais l'ajout à l'agenda a échoué : l'entreprise le confirmera elle-même.";
+    }
+
+    case "find_my_appointments": {
+      if (!context.callerNumber) return CALLER_UNKNOWN;
+      if (context.testMode) {
+        return "Appel d'essai : aucun rendez-vous réel n'est consulté. Explique qu'en situation réelle, tu retrouverais les rendez-vous pris à ce numéro.";
+      }
+      const appointments = await callerAppointments(context.clientServiceId, context.callerNumber);
+      if (appointments.length === 0) {
+        return "Aucun rendez-vous à venir n'a été pris avec ce numéro. Si l'appelant l'a pris avec un autre numéro, propose de noter sa demande.";
+      }
+      return [
+        "Rendez-vous à venir pris avec ce numéro :",
+        ...appointments.map(
+          (a) => `- ${PARIS_LABEL.format(a.startAt)}, au nom de ${a.customerName}${a.notes ? ` (${a.notes})` : ""} : identifiant ${a.id}`
+        ),
+      ].join("\n");
+    }
+
+    case "cancel_appointment": {
+      if (!context.callerNumber) return CALLER_UNKNOWN;
+      if (context.session.changes >= MAX_CHANGES_PER_SESSION) return CHANGE_CAP_REACHED;
+      if (context.testMode) return "Appel d'essai : le rendez-vous serait maintenant annulé et l'appelant prévenu par SMS.";
+      const appointmentId = boundedString(args.appointmentId, 64);
+      const appointment = (await callerAppointments(context.clientServiceId, context.callerNumber)).find(
+        (a) => a.id === appointmentId
+      );
+      if (!appointment) return APPOINTMENT_NOT_FOUND;
+      context.session.changes += 1;
+
+      const scheduler = await getScheduler(context.clientServiceId);
+      const removed = scheduler ? await scheduler.cancel(appointment) : false;
+      if (!removed) {
+        return "L'agenda n'a pas pu annuler ce rendez-vous. Ne le présente pas comme annulé : propose de noter la demande, l'entreprise s'en chargera.";
+      }
+      await db.booking.delete({ where: { id: appointment.id } });
+      void deliverWebhook(context.clientServiceId, "booking.canceled", {
+        bookingId: appointment.id,
+        customerName: appointment.customerName,
+        customerPhone: appointment.customerPhone,
+        startAt: appointment.startAt.toISOString(),
+        channel: "phone",
+      });
+      void sendAppointmentChangeSms({
+        clientServiceId: context.clientServiceId,
+        change: "canceled",
+        customerPhone: appointment.customerPhone,
+        startAt: appointment.startAt,
+      }).catch((err) => console.error("[sms] annulation impossible :", err));
+      return `Rendez-vous du ${PARIS_LABEL.format(appointment.startAt)} annulé. L'appelant reçoit une confirmation par SMS.`;
+    }
+
+    case "reschedule_appointment": {
+      if (!context.callerNumber) return CALLER_UNKNOWN;
+      if (context.session.changes >= MAX_CHANGES_PER_SESSION) return CHANGE_CAP_REACHED;
+      if (context.testMode) return "Appel d'essai : le rendez-vous serait maintenant déplacé et l'appelant prévenu par SMS.";
+      const appointmentId = boundedString(args.appointmentId, 64);
+      const appointment = (await callerAppointments(context.clientServiceId, context.callerNumber)).find(
+        (a) => a.id === appointmentId
+      );
+      if (!appointment) return APPOINTMENT_NOT_FOUND;
+      const scheduler = await getScheduler(context.clientServiceId);
+
+      // Même durée qu'avant, sauf durée imposée par l'agenda.
+      const previousMinutes = appointment.endAt
+        ? Math.round((appointment.endAt.getTime() - appointment.startAt.getTime()) / 60_000)
+        : null;
+      const slot = validateSlot({
+        startAt: args.newStartAt,
+        durationMinutes: scheduler?.fixedDurationMinutes ?? previousMinutes ?? 30,
+      });
+      if (!slot.ok) return slot.error;
+      if (!scheduler || !(await scheduler.isSlotFree(slot.value.startAt, slot.value.durationMinutes))) {
+        return "Ce nouveau créneau n'est pas disponible : propose un autre horaire.";
+      }
+      context.session.changes += 1;
+
+      // Le nouveau créneau d'abord : si l'agenda le refuse, l'ancien reste valable.
+      const result = await scheduler.book({
+        startAt: slot.value.startAt,
+        durationMinutes: slot.value.durationMinutes,
+        customerName: appointment.customerName,
+        customerPhone: appointment.customerPhone,
+        customerEmail: null,
+        notes: appointment.notes,
+      });
+      if (!result) {
+        return "L'agenda a refusé le nouveau créneau : le rendez-vous reste à son horaire actuel. Propose un autre horaire.";
+      }
+      const released = await scheduler.cancel(appointment);
+      if (!released) {
+        console.error(`[agenda] ancien créneau non libéré pour le rendez-vous ${appointment.id}`);
+      }
+      const endAt = new Date(slot.value.startAt.getTime() + slot.value.durationMinutes * 60_000);
+      await db.booking.update({
+        where: { id: appointment.id },
+        data: {
+          startAt: slot.value.startAt,
+          endAt,
+          googleEventId: result.googleEventId ?? null,
+          externalBookingId: result.externalBookingId ?? null,
+          // Nouveau rendez-vous, nouveau rappel la veille.
+          reminderSentAt: null,
+        },
+      });
+      void deliverWebhook(context.clientServiceId, "booking.rescheduled", {
+        bookingId: appointment.id,
+        customerName: appointment.customerName,
+        customerPhone: appointment.customerPhone,
+        previousStartAt: appointment.startAt.toISOString(),
+        startAt: slot.value.startAt.toISOString(),
+        endAt: endAt.toISOString(),
+        channel: "phone",
+      });
+      void sendAppointmentChangeSms({
+        clientServiceId: context.clientServiceId,
+        change: "moved",
+        customerPhone: appointment.customerPhone,
+        startAt: slot.value.startAt,
+      }).catch((err) => console.error("[sms] déplacement impossible :", err));
+      return released
+        ? `Rendez-vous déplacé au ${PARIS_LABEL.format(slot.value.startAt)}. L'appelant reçoit une confirmation par SMS.`
+        : `Rendez-vous déplacé au ${PARIS_LABEL.format(slot.value.startAt)}, mais l'ancien créneau n'a pas pu être libéré dans l'agenda : l'entreprise le fera.`;
     }
 
     case "take_order": {

@@ -113,6 +113,11 @@ function buildPriseRdvPrompt(
       "Rendez-vous : demande le motif, puis le jour et le moment qui conviennent. Vérifie le",
       "créneau avec check_availability avant de le proposer. Une fois l'appelant d'accord,",
       "demande son nom et son numéro de téléphone, puis réserve avec book_appointment.",
+      "Annuler ou déplacer : si l'appelant veut annuler ou changer un rendez-vous, cherche-le",
+      "avec find_my_appointments, relis-lui la date et l'heure, et demande son accord avant",
+      "cancel_appointment. Pour déplacer, trouve d'abord un créneau libre avec",
+      "check_availability, puis reschedule_appointment. Si aucun rendez-vous n'est trouvé, note",
+      "la demande avec son nom et son numéro : l'entreprise rappellera.",
       collectsEmail
         ? "Propose-lui de donner son adresse e-mail pour recevoir la confirmation ; ce n'est pas obligatoire. Fais-la épeler et relis-la."
         : "",

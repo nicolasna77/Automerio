@@ -180,6 +180,22 @@ export async function isSlotFree(
   }
 }
 
+// Annulation d'un rendez-vous : l'événement est supprimé de l'agenda. Un
+// événement déjà absent (404, 410) compte comme supprimé.
+export async function deleteCalendarEvent(clientServiceId: string, eventId: string): Promise<boolean> {
+  const auth = await getValidAccessToken(clientServiceId);
+  if (!auth) return false;
+  try {
+    const res = await fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(auth.calendarId)}/events/${encodeURIComponent(eventId)}`,
+      { method: "DELETE", headers: { Authorization: `Bearer ${auth.accessToken}` } }
+    );
+    return res.ok || res.status === 404 || res.status === 410;
+  } catch {
+    return false;
+  }
+}
+
 export async function createCalendarEvent(
   clientServiceId: string,
   event: { summary: string; description?: string; startAt: Date; endAt: Date }

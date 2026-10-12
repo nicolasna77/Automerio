@@ -3,6 +3,11 @@ import type { Configuration } from "@/lib/catalog";
 
 const mocks = vi.hoisted(() => ({
   bookingCreate: vi.fn(),
+  bookingFindMany: vi.fn(),
+  bookingDelete: vi.fn(),
+  bookingUpdate: vi.fn(),
+  cancel: vi.fn(),
+  changeSms: vi.fn(),
   getScheduler: vi.fn(),
   book: vi.fn(),
   isSlotFree: vi.fn(),
@@ -11,9 +16,21 @@ const mocks = vi.hoisted(() => ({
   deliverWebhook: vi.fn(),
 }));
 
-vi.mock("@/lib/db", () => ({ db: { booking: { create: mocks.bookingCreate } } }));
+vi.mock("@/lib/db", () => ({
+  db: {
+    booking: {
+      create: mocks.bookingCreate,
+      findMany: mocks.bookingFindMany,
+      delete: mocks.bookingDelete,
+      update: mocks.bookingUpdate,
+    },
+  },
+}));
 vi.mock("@/lib/scheduling", () => ({ getScheduler: mocks.getScheduler }));
-vi.mock("@/lib/booking-sms", () => ({ sendBookingConfirmationSms: mocks.confirmSms }));
+vi.mock("@/lib/booking-sms", () => ({
+  sendBookingConfirmationSms: mocks.confirmSms,
+  sendAppointmentChangeSms: mocks.changeSms,
+}));
 vi.mock("@/lib/outgoing-webhook", () => ({ deliverWebhook: mocks.deliverWebhook }));
 vi.mock("@/lib/openai", () => ({
   getOpenAIClient: () => ({ realtime: { calls: { refer: mocks.refer } } }),
@@ -21,6 +38,7 @@ vi.mock("@/lib/openai", () => ({
 
 import {
   MAX_BOOKINGS_PER_SESSION,
+  MAX_CHANGES_PER_SESSION,
   MAX_RECORDS_PER_SESSION,
   createToolSession,
   getToolDefinitions,
@@ -30,10 +48,19 @@ import {
 } from "./tools";
 
 const configuration = { callRouting: [{ trigger: "urgence", target: "+33612345678" }] };
-const ALL_TOOLS = ["check_availability", "book_appointment", "take_order", "take_message", "transfer_call"];
+const ALL_TOOLS = [
+  "check_availability",
+  "book_appointment",
+  "find_my_appointments",
+  "cancel_appointment",
+  "reschedule_appointment",
+  "take_order",
+  "take_message",
+  "transfer_call",
+];
 
 function openSession(): ToolSession {
-  return { allowedTools: new Set(ALL_TOOLS), bookings: 0, records: 0 };
+  return { allowedTools: new Set(ALL_TOOLS), bookings: 0, records: 0, changes: 0 };
 }
 
 let testContext: ToolContext;
@@ -45,6 +72,7 @@ function scheduler(fixedDurationMinutes: number | null = null) {
     fixedDurationMinutes,
     isSlotFree: mocks.isSlotFree,
     book: mocks.book,
+    cancel: mocks.cancel,
   };
 }
 
@@ -52,6 +80,7 @@ beforeEach(() => {
   for (const mock of Object.values(mocks)) mock.mockReset();
   mocks.confirmSms.mockResolvedValue(true);
   mocks.deliverWebhook.mockResolvedValue(undefined);
+  mocks.changeSms.mockResolvedValue(true);
   mocks.bookingCreate.mockImplementation(async ({ data }) => ({ id: "bk_1", startAt: null, endAt: null, notes: null, metadata: null, ...data }));
   // Les créneaux des tests (1er octobre 2026) sont à venir.
   vi.useFakeTimers({ now: new Date("2026-09-01T08:00:00Z"), toFake: ["Date"] });
@@ -409,5 +438,114 @@ describe("webhook sortant", () => {
   it("n'annonce rien en appel d'essai", async () => {
     await runTool("take_message", { customerName: "A", customerPhone: "06", reason: "rappel" }, testContext);
     expect(mocks.deliverWebhook).not.toHaveBeenCalled();
+  });
+});
+
+describe("annuler ou déplacer un rendez-vous", () => {
+  const CALLER = "+33612345678";
+  const mine = {
+    id: "bk_mine",
+    customerName: "Léa Martin",
+    customerPhone: "06 12 34 56 78",
+    startAt: new Date("2026-10-01T09:00:00Z"),
+    endAt: new Date("2026-10-01T09:30:00Z"),
+    notes: "Coupe",
+    googleEventId: "evt_1",
+    externalBookingId: null,
+  };
+  const someoneElse = { ...mine, id: "bk_other", customerPhone: "0699999999" };
+
+  beforeEach(() => {
+    mocks.bookingFindMany.mockResolvedValue([mine, someoneElse]);
+    mocks.getScheduler.mockResolvedValue(scheduler());
+    realContext = { ...realContext, callerNumber: CALLER };
+  });
+
+  it("est proposé avec la prise de rendez-vous, seulement si un agenda est connecté", () => {
+    const names = (connected: boolean) =>
+      getToolDefinitions("prise-rendez-vous-telephone", { objectives: ["appointment"] }, connected).map(
+        (tool) => tool.function.name
+      );
+    expect(names(true)).toEqual(expect.arrayContaining(["find_my_appointments", "cancel_appointment", "reschedule_appointment"]));
+    expect(names(false)).not.toContain("cancel_appointment");
+  });
+
+  it("ne liste que les rendez-vous pris avec le numéro qui appelle", async () => {
+    const result = await runTool("find_my_appointments", {}, realContext);
+    expect(result).toContain("bk_mine");
+    expect(result).not.toContain("bk_other");
+  });
+
+  it("refuse tout quand le numéro est masqué", async () => {
+    const hidden = { ...realContext, callerNumber: null };
+    expect(await runTool("find_my_appointments", {}, hidden)).toContain("masqué");
+    expect(await runTool("cancel_appointment", { appointmentId: "bk_mine" }, hidden)).toContain("masqué");
+    expect(mocks.bookingFindMany).not.toHaveBeenCalled();
+  });
+
+  it("n'annule pas le rendez-vous d'un autre numéro", async () => {
+    const result = await runTool("cancel_appointment", { appointmentId: "bk_other" }, realContext);
+    expect(result).toContain("n'a pas été pris avec ce numéro");
+    expect(mocks.cancel).not.toHaveBeenCalled();
+    expect(mocks.bookingDelete).not.toHaveBeenCalled();
+  });
+
+  it("annule dans l'agenda, supprime le rendez-vous et prévient par SMS et webhook", async () => {
+    mocks.cancel.mockResolvedValue(true);
+    const result = await runTool("cancel_appointment", { appointmentId: "bk_mine" }, realContext);
+    expect(result).toContain("annulé");
+    expect(mocks.cancel).toHaveBeenCalledWith(mine);
+    expect(mocks.bookingDelete).toHaveBeenCalledWith({ where: { id: "bk_mine" } });
+    expect(mocks.changeSms).toHaveBeenCalledWith(expect.objectContaining({ change: "canceled", startAt: mine.startAt }));
+    expect(mocks.deliverWebhook).toHaveBeenCalledWith("cs_1", "booking.canceled", expect.objectContaining({ bookingId: "bk_mine" }));
+  });
+
+  it("garde le rendez-vous si l'agenda refuse l'annulation", async () => {
+    mocks.cancel.mockResolvedValue(false);
+    const result = await runTool("cancel_appointment", { appointmentId: "bk_mine" }, realContext);
+    expect(result).toContain("Ne le présente pas comme annulé");
+    expect(mocks.bookingDelete).not.toHaveBeenCalled();
+    expect(mocks.changeSms).not.toHaveBeenCalled();
+  });
+
+  it("déplace : réserve le nouveau créneau, libère l'ancien, remet le rappel à zéro", async () => {
+    mocks.isSlotFree.mockResolvedValue(true);
+    mocks.book.mockResolvedValue({ googleEventId: "evt_2" });
+    mocks.cancel.mockResolvedValue(true);
+    const result = await runTool(
+      "reschedule_appointment",
+      { appointmentId: "bk_mine", newStartAt: "2026-10-02T14:00:00Z" },
+      realContext
+    );
+    expect(result).toContain("déplacé");
+    expect(mocks.isSlotFree).toHaveBeenCalledWith(new Date("2026-10-02T14:00:00Z"), 30);
+    expect(mocks.bookingUpdate).toHaveBeenCalledWith({
+      where: { id: "bk_mine" },
+      data: expect.objectContaining({ googleEventId: "evt_2", reminderSentAt: null }),
+    });
+    expect(mocks.changeSms).toHaveBeenCalledWith(expect.objectContaining({ change: "moved" }));
+  });
+
+  it("ne touche à rien si le nouveau créneau est pris", async () => {
+    mocks.isSlotFree.mockResolvedValue(false);
+    const result = await runTool(
+      "reschedule_appointment",
+      { appointmentId: "bk_mine", newStartAt: "2026-10-02T14:00:00Z" },
+      realContext
+    );
+    expect(result).toContain("pas disponible");
+    expect(mocks.book).not.toHaveBeenCalled();
+    expect(mocks.cancel).not.toHaveBeenCalled();
+    expect(mocks.bookingUpdate).not.toHaveBeenCalled();
+  });
+
+  it(`ne fait pas plus de ${MAX_CHANGES_PER_SESSION} changements par appel`, async () => {
+    mocks.cancel.mockResolvedValue(true);
+    for (let i = 0; i < MAX_CHANGES_PER_SESSION; i += 1) {
+      await runTool("cancel_appointment", { appointmentId: "bk_mine" }, realContext);
+    }
+    const result = await runTool("cancel_appointment", { appointmentId: "bk_mine" }, realContext);
+    expect(result).toContain("Limite atteinte");
+    expect(mocks.cancel).toHaveBeenCalledTimes(MAX_CHANGES_PER_SESSION);
   });
 });

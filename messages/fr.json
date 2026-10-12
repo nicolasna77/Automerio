@@ -1803,6 +1803,7 @@
         "eventsTitle": "Ce qui est envoyé",
         "eventCall": ": appel terminé, avec le motif, le résumé, la suite à donner et l'urgence.",
         "eventBooking": ": rendez-vous, commande, message ou demande de devis enregistrés.",
+        "eventBookingChange": ": rendez-vous annulé ou déplacé par l'appelant au téléphone.",
         "signatureHelp": "Chaque envoi porte les en-têtes X-Automerio-Timestamp et X-Automerio-Signature (HMAC SHA-256 de « horodatage.corps » avec votre secret)."
       },
       "billing": {
@@ -3217,6 +3218,8 @@
     "appointmentConfirmed": "{company} : votre rendez-vous est confirmé le {date} à {time}. Pour le modifier, appelez le {phone}.",
     "orderConfirmed": "{company} : votre commande est enregistrée. Pour toute question, appelez le {phone}.",
     "appointmentReminder": "{company} : rappel de votre rendez-vous demain à {time}. Pour le modifier, appelez le {phone}.",
+    "appointmentCanceled": "{company} : votre rendez-vous du {date} à {time} est annulé. Pour en reprendre un, appelez le {phone}.",
+    "appointmentMoved": "{company} : votre rendez-vous est déplacé au {date} à {time}. Pour le modifier, appelez le {phone}.",
     "quoteReceived": "{company} : votre demande de devis ({work}) est enregistrée. Nous vous rappelons rapidement. Pour toute question, appelez le {phone}.",
     "missedCall": "{company} : nous n'avons pas pu prendre votre appel. Nous vous rappelons dès que possible.",
     "urgentCall": "Appel urgent pour {service} : {caller}, {number}. {reason}",

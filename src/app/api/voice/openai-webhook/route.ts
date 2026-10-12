@@ -155,6 +155,7 @@ export async function POST(request: Request) {
       clientServiceId: clientService.id,
       configuration,
       tools,
+      callerNumber: fromNumber,
       onFinish: async ({ durationSec, toolCalls, turns }) => {
         await recordUsageEvent({
           clientServiceId: clientService.id,
@@ -185,6 +186,7 @@ function listenToCall({
   configuration,
   tools,
   testMode = false,
+  callerNumber = null,
   onFinish,
 }: {
   sipCallId: string;
@@ -193,6 +195,8 @@ function listenToCall({
   // Outils proposés à l'appel : les seuls que l'agent peut exécuter.
   tools: ToolDefinition[];
   testMode?: boolean;
+  // Numéro qui appelle : seul moyen pour l'agent de retrouver ses rendez-vous.
+  callerNumber?: string | null;
   onFinish: (end: CallEnd) => Promise<void>;
 }): Promise<void> {
   return new Promise((resolve) => {
@@ -237,6 +241,7 @@ function listenToCall({
           configuration,
           session,
           testMode,
+          callerNumber,
         });
         toolCalls.push({ name: toolName, result });
 

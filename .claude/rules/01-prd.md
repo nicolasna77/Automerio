@@ -60,6 +60,11 @@ Priorité : **V1** = indispensable (en production), **Souhaitable**, **Plus tard
   commentaire. Ouvert seulement après accord de Meta sur la permission
   `instagram_business_manage_comments` (`INSTAGRAM_COMMENT_REPLIES=on`).
 - **V1** Réserver dans l'agenda du client (Google Agenda, Cal.com, Calendly).
+- **V1** Annuler ou déplacer un rendez-vous au téléphone : l'assistant ne
+  retrouve que les rendez-vous à venir pris au numéro qui appelle (numéro
+  présenté par l'opérateur, jamais un numéro dicté), annule ou déplace dans
+  l'agenda relié, et l'appelant reçoit un SMS. Un rendez-vous annulé
+  disparaît du calendrier.
 - **V1** Passer un appel d'essai à sa propre solution.
 - **V1** Envoyer un SMS à l'appelant : confirmation d'un rendez-vous ou d'une
   commande pris au téléphone, puis rappel la veille du rendez-vous. Réglage

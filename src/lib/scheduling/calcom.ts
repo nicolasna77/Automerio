@@ -111,6 +111,14 @@ export async function createCalcomBooking(
   return data.uid;
 }
 
+export async function cancelCalcomBooking(apiKey: string, uid: string, reason: string): Promise<void> {
+  await call(apiKey, `/bookings/${encodeURIComponent(uid)}/cancel`, {
+    method: "POST",
+    version: VERSIONS.bookings,
+    body: { cancellationReason: reason },
+  });
+}
+
 function isE164(phone: string): boolean {
   return /^\+\d{8,15}$/.test(phone);
 }

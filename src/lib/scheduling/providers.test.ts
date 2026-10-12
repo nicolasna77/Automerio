@@ -176,3 +176,11 @@ describe("Calendly", () => {
     await expect(createCalendlyBooking("t", "E1", null, request)).rejects.toThrow(/offre payante/);
   });
 });
+
+describe("calendlyEventUuid", () => {
+  it("extrait l'événement de l'adresse de l'invité", async () => {
+    const { calendlyEventUuid } = await import("./calendly");
+    expect(calendlyEventUuid("https://api.calendly.com/scheduled_events/EVT123/invitees/INV456")).toBe("EVT123");
+    expect(calendlyEventUuid("https://api.calendly.com/autre")).toBeNull();
+  });
+});

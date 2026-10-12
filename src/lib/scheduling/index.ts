@@ -1,9 +1,13 @@
 import { db } from "@/lib/db";
 import { LEGAL_ENTITY } from "@/lib/legal";
 import { openSecret } from "@/lib/secret-box";
-import { createCalendarEvent, isSlotFree as isGoogleSlotFree } from "@/lib/google-calendar";
-import { createCalcomBooking, isCalcomSlotFree } from "./calcom";
-import { createCalendlyBooking, isCalendlySlotFree } from "./calendly";
+import {
+  createCalendarEvent,
+  deleteCalendarEvent,
+  isSlotFree as isGoogleSlotFree,
+} from "@/lib/google-calendar";
+import { cancelCalcomBooking, createCalcomBooking, isCalcomSlotFree } from "./calcom";
+import { cancelCalendlyBooking, createCalendlyBooking, isCalendlySlotFree } from "./calendly";
 import type { BookingRequest, EventLocation, SchedulingProvider } from "./types";
 
 // L'agenda d'une solution, quel qu'il soit : l'agent vocal vérifie un
@@ -21,7 +25,11 @@ export type Scheduler = {
     customerEmail: string | null;
     durationMinutes: number;
   }): Promise<BookingResult | null>;
+  // Annule une réservation faite par book() ; false si l'agenda a refusé.
+  cancel(booking: { googleEventId?: string | null; externalBookingId?: string | null }): Promise<boolean>;
 };
+
+const CANCEL_REASON = "Annulé par téléphone, à la demande du client.";
 
 const TIME_ZONE = "Europe/Paris";
 
@@ -77,6 +85,17 @@ export async function getScheduler(clientServiceId: string): Promise<Scheduler |
           return null;
         }
       },
+      async cancel({ externalBookingId }) {
+        if (!externalBookingId) return false;
+        try {
+          if (provider === "calcom") await cancelCalcomBooking(token, externalBookingId, CANCEL_REASON);
+          else await cancelCalendlyBooking(token, externalBookingId, CANCEL_REASON);
+          return true;
+        } catch (err) {
+          console.error(`[agenda] ${provider} : annulation refusée`, err);
+          return false;
+        }
+      },
     };
   }
 
@@ -97,6 +116,8 @@ export async function getScheduler(clientServiceId: string): Promise<Scheduler |
         });
         return googleEventId ? { googleEventId } : null;
       },
+      cancel: ({ googleEventId }) =>
+        googleEventId ? deleteCalendarEvent(clientServiceId, googleEventId) : Promise.resolve(false),
     };
   }
 
