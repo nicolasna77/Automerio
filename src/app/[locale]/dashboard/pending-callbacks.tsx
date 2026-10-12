@@ -38,13 +38,17 @@ export async function PendingCallbacks({ organizationId }: { organizationId: str
           {callbacks.map((callback) => {
             const who =
               callback.callerName ?? (callback.fromNumber ? formatFrenchPhone(callback.fromNumber) : t("hiddenNumber"));
+            // Appel non décroché : pas de résumé, le motif dit pourquoi.
+            const title = callback.missedReason ? t("missedTitle") : (callback.reason ?? who);
+            const detail = callback.missedReason ? t(`missedReason.${callback.missedReason}`) : callback.followUp;
+            const showWho = Boolean(callback.missedReason || callback.reason);
             return (
               <li key={callback.id} className="flex flex-col gap-3 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center">
                 <div className="min-w-0 flex-1">
-                  <p className="font-medium text-foreground">{callback.reason ?? who}</p>
-                  <p className="mt-0.5 text-sm text-foreground">{callback.followUp}</p>
+                  <p className="font-medium text-foreground">{title}</p>
+                  <p className="mt-0.5 text-sm text-foreground">{detail}</p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {callback.reason ? `${who} · ` : ""}
+                    {showWho ? `${who} · ` : ""}
                     <Link
                       href={`/dashboard/services/${callback.clientServiceId}`}
                       className="underline-offset-4 hover:text-foreground hover:underline"
@@ -64,7 +68,7 @@ export async function PendingCallbacks({ organizationId }: { organizationId: str
                   <MarkHandledButton
                     clientServiceId={callback.clientServiceId}
                     callId={callback.id}
-                    label={callback.reason ?? who}
+                    label={title}
                   />
                 </div>
               </li>

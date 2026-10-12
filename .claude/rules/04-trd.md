@@ -30,7 +30,7 @@ explicite, jamais en cours de route.
 | Vercel | [À CONFIRMER : offre et limites] |
 | Base PostgreSQL | [À CONFIRMER : hébergeur, offre, région] |
 | Stripe | Commission par transaction [À CONFIRMER : taux] |
-| Twilio | Numéro mensuel + minutes + SMS (payé par Automerio) [À CONFIRMER : prix par SMS, refacturation au client] |
+| Twilio | Numéro mensuel + minutes + SMS, inclus dans l'abonnement du client (non refacturés) [À CONFIRMER : prix par SMS] |
 | OpenAI | Facturé au token / à la minute audio [À CONFIRMER] |
 | Resend | [À CONFIRMER : offre, e-mails par jour] |
 | Upstash | [À CONFIRMER : offre, requêtes par jour] |

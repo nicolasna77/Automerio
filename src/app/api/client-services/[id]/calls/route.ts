@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getTranslations } from "next-intl/server";
 import { getSession } from "@/lib/session";
 import { db } from "@/lib/db";
+import { LISTED_CALL_TYPES, MISSED_CALL_TYPE, readMissedReason } from "@/lib/missed-calls";
 import { assertCanReadClientService } from "@/lib/client-service-access";
 import { parisDayKey, parisDayRange } from "@/lib/paris-day";
 
@@ -17,6 +18,7 @@ function readMetadata(metadata: unknown) {
     fromNumber: typeof m.fromNumber === "string" ? m.fromNumber : null,
     outcome: typeof m.outcome === "string" ? m.outcome : null,
     endedReason: typeof m.endedReason === "string" ? m.endedReason : null,
+    missedReason: readMissedReason(metadata),
   };
 }
 
@@ -85,8 +87,13 @@ export async function GET(
   }
   const status = readStatus(search.get("status"));
 
-  const completed = { clientServiceId: id, type: "call", status: "completed" } as const;
-  const todo = { handledAt: null, callSummary: { followUp: { not: null } } } as const;
+  // Appels décrochés et non décrochés (pause, forfait épuisé) ; un appel non
+  // décroché est toujours « à traiter » tant qu'il n'est pas marqué traité.
+  const completed = { clientServiceId: id, type: { in: LISTED_CALL_TYPES }, status: "completed" };
+  const todo = {
+    handledAt: null,
+    OR: [{ callSummary: { followUp: { not: null } } }, { type: MISSED_CALL_TYPE }],
+  };
   const done = { handledAt: { not: null } } as const;
   const statusWhere = status === "todo" ? todo : status === "done" ? done : {};
   const summaryInclude = {
@@ -162,6 +169,7 @@ export async function GET(
       occurredAt: row.occurredAt.toISOString(),
       durationSec: row.durationSec,
       ...readMetadata(row.metadata),
+      missed: row.type === MISSED_CALL_TYPE,
       summary: row.callSummary,
       quote: (row.externalId && quotes.get(row.externalId)) || null,
       handled: row.handledAt !== null,

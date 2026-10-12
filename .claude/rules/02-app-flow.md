@@ -126,7 +126,9 @@ Page d'une solution de messagerie → fil → reprendre la main → répondre
 ### Parcours techniques (sans écran)
 - **Appel** : Twilio → `/api/voice/incoming` (solution non payée ou résiliée,
   en pause ou quota épuisé → message et raccroché ; en pause ou quota épuisé,
-  SMS « nous vous rappelons » à l'appelant, `src/lib/missed-call-sms.ts` ; numéro sans solution →
+  SMS « nous vous rappelons » à l'appelant, `src/lib/missed-call-sms.ts`, et
+  ligne `usage_event` de type `missed_call`, à rappeler, hors forfait,
+  `src/lib/missed-calls.ts` ; numéro sans solution →
   « indisponible » ; sinon SIP vers OpenAI) → `/api/voice/openai-webhook` (même
   contrôle, `voice-agent/call-gate.ts`, sinon appel refusé ; outils :
   disponibilités, rendez-vous, commande, transfert, message) → fin : usage,

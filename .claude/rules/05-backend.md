@@ -49,7 +49,7 @@ Abréviations des droits : **M** membre de l'organisation, **R** responsable
 
 | Table | Champs principaux | Lecture | Écriture |
 |---|---|---|---|
-| `usage_event` | clientServiceId, type, status, occurredAt, durationSec, externalId, metadata (**numéro appelant**), handledAt | M ; A | S ; M (traité) |
+| `usage_event` | clientServiceId, type (`call` ; `missed_call` = non décroché, jamais compté dans le forfait ; messages), status, occurredAt, durationSec, externalId, metadata (**numéro appelant**, missedReason), handledAt | M ; A | S ; M (traité) |
 | `call_summary` | usageEventId, **transcript**, reason, summary, followUp, **callerName**, urgent | M ; A | S |
 | `conversation` | clientServiceId, channel, **contactId**, lastInboundAt, humanTakeoverAt | M | S ; M (reprise en main) |
 | `conversation_message` | direction, **text**, externalId, sentById | M | S ; M (réponse manuelle) |
