@@ -101,6 +101,13 @@ export const CATALOG: CatalogService[] = [
         type: "weekly-hours",
       },
       {
+        key: "closures",
+        label: "Fermetures exceptionnelles",
+        type: "textarea",
+        placeholder: "24/12/2026 - 02/01/2027 : congés de Noël",
+        helpText: "Une période par ligne, dates au format JJ/MM/AAAA. L'assistant annonce la fermeture et ne propose aucun rendez-vous ces jours-là.",
+      },
+      {
         key: "greetingMessage",
         label: "Message d'accueil",
         type: "textarea",
@@ -220,6 +227,13 @@ export const CATALOG: CatalogService[] = [
         key: "businessHours",
         label: "Horaires",
         type: "weekly-hours",
+      },
+      {
+        key: "closures",
+        label: "Fermetures exceptionnelles",
+        type: "textarea",
+        placeholder: "24/12/2026 - 02/01/2027 : congés de Noël",
+        helpText: "Une période par ligne, dates au format JJ/MM/AAAA. L'assistant annonce la fermeture et ne propose aucun rendez-vous ces jours-là.",
       },
       {
         key: "deliveryZone",

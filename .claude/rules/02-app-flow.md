@@ -165,6 +165,10 @@ En-tête (lien « Contact ») ou pied de page → `/contact` : nom, e-mail, mét
   `take_quote_request` (si « Demandes de devis » est activé) → réservation de
   type `quote`, rattachée à l'appel par `metadata.callId`, affichée dans le
   détail de l'appel ; SMS récapitulatif à l'appelant.
+- **Fermetures** : réglage `closures` (texte, une période par ligne, dates
+  JJ/MM/AAAA, `src/lib/closures.ts`) → périodes à venir dans le prompt avec
+  la date du jour ; `check_availability`, `book_appointment` et
+  `reschedule_appointment` refusent un créneau un jour de fermeture.
 - **Langue** : `callerLanguage` = `auto` → consigne « réponds dans sa langue »
   et transcription sans langue imposée (`src/lib/voice-agent/voice.ts`) ;
   sinon français imposé.

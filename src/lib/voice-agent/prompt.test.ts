@@ -55,3 +55,18 @@ describe("réponses validées par l'entreprise", () => {
     expect(prompt).not.toContain("Réponses validées");
   });
 });
+
+describe("fermetures exceptionnelles dans le prompt", () => {
+  it("annonce les fermetures à venir avec la date du jour", async () => {
+    const { buildSystemPrompt } = await import("./prompt");
+    const prompt = buildSystemPrompt(
+      "standard-telephonique-ia",
+      { closures: "01/01/2020 : passé\n24/12/2099 - 26/12/2099 : congés" },
+      { calendarConnected: false, companyName: "X" }
+    );
+    expect(prompt).toContain("## Fermetures exceptionnelles");
+    expect(prompt).toContain("Nous sommes le");
+    expect(prompt).toContain("24/12/2099 - 26/12/2099 : congés");
+    expect(prompt).not.toContain("passé");
+  });
+});

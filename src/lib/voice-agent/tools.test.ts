@@ -549,3 +549,30 @@ describe("annuler ou déplacer un rendez-vous", () => {
     expect(mocks.cancel).toHaveBeenCalledTimes(MAX_CHANGES_PER_SESSION);
   });
 });
+
+describe("fermetures exceptionnelles", () => {
+  const closed = { ...configuration, closures: "01/10/2026 : inventaire" };
+
+  it("refuse un créneau un jour de fermeture, sans consulter l'agenda", async () => {
+    mocks.getScheduler.mockResolvedValue(scheduler());
+    const result = await runTool(
+      "check_availability",
+      { startAt: "2026-10-01T09:00:00Z", durationMinutes: 30 },
+      { ...realContext, configuration: closed }
+    );
+    expect(result).toContain("fermée ce jour-là (inventaire)");
+    expect(mocks.isSlotFree).not.toHaveBeenCalled();
+  });
+
+  it("ne réserve pas un jour de fermeture", async () => {
+    mocks.getScheduler.mockResolvedValue(scheduler());
+    const result = await runTool(
+      "book_appointment",
+      { customerName: "Léa", customerPhone: "0612345678", startAt: "2026-10-01T09:00:00Z", durationMinutes: 30 },
+      { ...realContext, configuration: closed }
+    );
+    expect(result).toContain("fermée ce jour-là");
+    expect(mocks.book).not.toHaveBeenCalled();
+    expect(mocks.bookingCreate).not.toHaveBeenCalled();
+  });
+});

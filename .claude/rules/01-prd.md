@@ -66,6 +66,11 @@ Priorité : **V1** = indispensable (en production), **Souhaitable**, **Plus tard
   l'agenda relié, et l'appelant reçoit un SMS. Un rendez-vous annulé
   disparaît du calendrier.
 - **V1** Passer un appel d'essai à sa propre solution.
+- **V1** Fermetures exceptionnelles (téléphonie, réglage « Fermetures
+  exceptionnelles », une période par ligne, ex. « 24/12/2026 - 02/01/2027 :
+  congés ») : l'assistant annonce la fermeture et prend un message ; aucun
+  créneau n'est proposé ni réservé ces jours-là, même si l'agenda est libre.
+  Les périodes passées sont ignorées.
 - **V1** Envoyer un SMS à l'appelant : confirmation d'un rendez-vous ou d'une
   commande pris au téléphone, puis rappel la veille du rendez-vous. Réglage
   « SMS à vos clients » par solution, activé par défaut.
