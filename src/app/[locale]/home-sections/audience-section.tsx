@@ -21,7 +21,7 @@ export async function AudienceSection() {
     .map((trade) => trade.photo.credit);
   return (
     <section id="who-its-for" aria-labelledby="audience-heading" className="scroll-mt-20 py-20 sm:py-24">
-      <div className="mx-auto max-w-[76rem] px-4 sm:px-6">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="mx-auto max-w-2xl text-center">
           <h2
             id="audience-heading"

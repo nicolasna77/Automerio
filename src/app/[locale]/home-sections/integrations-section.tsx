@@ -19,7 +19,7 @@ export async function IntegrationsSection() {
   return (
     <section aria-labelledby="integrations-heading" className="relative isolate overflow-hidden border-t border-border bg-muted/40 py-20 sm:py-24">
       <SectionGlow position="right" strength={10} />
-      <div className="mx-auto grid max-w-[76rem] gap-10 px-4 sm:px-6 lg:grid-cols-5 lg:gap-16">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 sm:px-6 lg:grid-cols-5 lg:gap-16">
         <div className="lg:col-span-2">
           <h2
             id="integrations-heading"

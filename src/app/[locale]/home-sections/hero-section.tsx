@@ -160,7 +160,7 @@ export async function HeroSection() {
       <SectionGlow position="top" strength={14} />
       <SectionGlow position="bottom" strength={12} />
       <HeroGrid />
-      <div className="mx-auto max-w-[76rem] px-4 pt-16 pb-12 text-center sm:px-6 sm:pt-24 sm:pb-16">
+      <div className="mx-auto max-w-6xl px-4 pt-16 pb-12 text-center sm:px-6 sm:pt-24 sm:pb-16">
         <Link
           href={waitlist ? "#waitlist" : "#services"}
           className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-sm text-foreground shadow-sm transition-colors hover:bg-muted focus-visible:focus-ring"
@@ -199,14 +199,14 @@ export async function HeroSection() {
         </div>
       </div>
 
-      <div className="relative mx-auto max-w-[76rem] px-4 pb-16 sm:px-6 sm:pb-24">
+      <div className="relative mx-auto max-w-6xl px-4 pb-16 sm:px-6 sm:pb-24">
         <ProductScreenshot
           name="dashboard-overview"
           width={1280}
           height={800}
           alt={tShots("overviewAlt")}
           caption={tShots("demoCaption")}
-          sizes="(min-width: 1216px) 1168px, 100vw"
+          sizes="(min-width: 1152px) 1104px, 100vw"
           captionClassName="text-center"
           className="hidden sm:block"
           showcase

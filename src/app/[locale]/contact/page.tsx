@@ -36,7 +36,7 @@ export default async function ContactPage() {
       <SiteHeader />
       <main id="content" className="flex-1">
         <section className="border-b border-border py-16 sm:py-24">
-          <div className="mx-auto max-w-[76rem] px-4 sm:px-6">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-balance text-foreground sm:text-5xl">
               {t("heading")}
             </h1>
@@ -45,7 +45,7 @@ export default async function ContactPage() {
         </section>
 
         <section className="py-16 sm:py-20">
-          <div className="mx-auto grid max-w-[76rem] items-start gap-10 px-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-14">
+          <div className="mx-auto grid max-w-6xl items-start gap-10 px-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-14">
             <ContactForm demoAvailable={demoAvailable} />
 
             <aside className="space-y-10" aria-label={t("asideLabel")}>
