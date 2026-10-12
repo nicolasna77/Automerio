@@ -165,6 +165,10 @@ En-tête (lien « Contact ») ou pied de page → `/contact` : nom, e-mail, mét
   `take_quote_request` (si « Demandes de devis » est activé) → réservation de
   type `quote`, rattachée à l'appel par `metadata.callId`, affichée dans le
   détail de l'appel ; SMS récapitulatif à l'appelant.
+- **Appelant connu** : avant de décrocher, `src/lib/voice-agent/caller-context.ts`
+  cherche le numéro appelant (en-tête SIP `From`) dans les appels de la
+  solution (12 mois) et ses rendez-vous à venir → section « Appelant connu »
+  du prompt ; rien pour un numéro masqué ni pour l'appel d'essai.
 - **Fermetures** : réglage `closures` (texte, une période par ligne, dates
   JJ/MM/AAAA, `src/lib/closures.ts`) → périodes à venir dans le prompt avec
   la date du jour ; `check_availability`, `book_appointment` et

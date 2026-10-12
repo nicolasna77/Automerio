@@ -63,6 +63,8 @@ function phoneStyle(configuration: Configuration): string[] {
 // prompt par buildSystemPrompt sous cette clé interne, jamais affichée dans
 // les réglages.
 export const LEARNED_ANSWERS_KEY = "__learnedAnswers";
+// Appelant déjà connu (caller-context.ts), passé de la même façon.
+export const CALLER_CONTEXT_KEY = "__callerContext";
 const LEARNED_ANSWERS_PROMPT_MAX = 4000;
 
 export function formatLearnedAnswers(answers: { question: string; answer: string }[]): string {
@@ -100,7 +102,9 @@ function closureLines(configuration: Configuration, now: Date = new Date()): str
 function companyInstructions(configuration: Configuration): string[] {
   const callInstructions = asString(configuration.callInstructions);
   const learnedAnswers = asString(configuration[LEARNED_ANSWERS_KEY], LEARNED_ANSWERS_PROMPT_MAX);
+  const callerContext = asString(configuration[CALLER_CONTEXT_KEY]);
   return [
+    ...(callerContext ? ["## Appelant connu", callerContext] : []),
     ...(callInstructions
       ? [
           "## Consignes de l'entreprise",
@@ -337,12 +341,17 @@ export function buildSystemPrompt(
     companyName: string;
     // Réponses données par l'entreprise aux questions restées sans réponse.
     learnedAnswers?: { question: string; answer: string }[];
+    // Ce que l'entreprise sait déjà du numéro qui appelle (caller-context.ts).
+    callerContext?: string | null;
   }
 ): string {
   const companyName =
     truncateForPrompt(options.companyName ?? "", PROMPT_SHORT_FIELD_MAX) || "cette entreprise";
   if (options.learnedAnswers?.length) {
     configuration = { ...configuration, [LEARNED_ANSWERS_KEY]: formatLearnedAnswers(options.learnedAnswers) };
+  }
+  if (options.callerContext) {
+    configuration = { ...configuration, [CALLER_CONTEXT_KEY]: options.callerContext };
   }
 
   switch (serviceSlug) {
