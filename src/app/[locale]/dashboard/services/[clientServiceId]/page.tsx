@@ -19,6 +19,7 @@ import { getMyService } from "@/app/[locale]/dashboard/get-my-service";
 import {
   asStringArray,
   canPauseService,
+  formatDate,
   MESSAGING_SERVICE_SLUGS,
   needsFacebookConnection,
   needsInstagramConnection,
@@ -54,6 +55,9 @@ import { getSubscriptionFor } from "@/lib/subscriptions";
 import { PageBreadcrumbs, PageShell } from "@/components/page-shell";
 import { CallStatsCard } from "@/app/[locale]/dashboard/call-stats-card";
 import { loadCallStats } from "@/lib/call-stats-server";
+import { db } from "@/lib/db";
+import { ANSWER_MAX, LEARNED_ANSWERS_MAX } from "@/lib/caller-questions";
+import { CallerQuestionsCard } from "@/app/[locale]/dashboard/caller-questions-card";
 
 export const generateMetadata = titleMetadata("serviceDetail");
 
@@ -158,6 +162,20 @@ export default async function ServiceDetailPage({
   // (numéro attribué). Horaires du standard ou de la prise de rendez-vous.
   const callStats = hasLiveCalls(item)
     ? await loadCallStats(item.clientServiceId, item.configuration)
+    : null;
+
+  // Questions restées sans réponse pendant les appels, et réponses déjà
+  // données à l'assistant.
+  const callerQuestions = hasLiveCalls(item)
+    ? await db.callerQuestion.findMany({
+        where: {
+          clientServiceId: item.clientServiceId,
+          OR: [{ answer: { not: null } }, { dismissedAt: null }],
+        },
+        orderBy: { createdAt: "desc" },
+        take: LEARNED_ANSWERS_MAX + 20,
+        select: { id: true, question: true, answer: true, createdAt: true },
+      })
     : null;
 
   // Le tarif et le quota sont dans le sous-titre : seule la carte d'essai
@@ -358,6 +376,18 @@ export default async function ServiceDetailPage({
               <ConversationHistory clientServiceId={item.clientServiceId} />
             )}
             {callStats && <CallStatsCard stats={callStats} />}
+            {callerQuestions && (
+              <CallerQuestionsCard
+                answerMax={ANSWER_MAX}
+                open={callerQuestions
+                  .filter((q) => q.answer === null)
+                  .slice(0, 10)
+                  .map((q) => ({ id: q.id, question: q.question, askedOn: formatDate(q.createdAt) }))}
+                answered={callerQuestions.flatMap((q) =>
+                  q.answer ? [{ id: q.id, question: q.question, answer: q.answer }] : []
+                )}
+              />
+            )}
           </div>
           {testCall && (
             <aside aria-label={t("aside")} className="min-w-0 space-y-6">

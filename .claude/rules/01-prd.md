@@ -88,6 +88,11 @@ Priorité : **V1** = indispensable (en production), **Souhaitable**, **Plus tard
 - **V1** Voir les appels reçus avec transcription, motif, résumé et suite à
   donner ; marquer un appel traité.
 - **V1** Voir les rendez-vous dans un calendrier.
+- **V1** Compléter les réponses de l'assistant téléphonique : chaque question
+  à laquelle il n'a pas su répondre (repérée dans le résumé de l'appel, trois
+  au plus par appel) apparaît dans « Questions à compléter » sur la page de la
+  solution. Une réponse ajoutée par un membre sert dès l'appel suivant ;
+  « Ignorer » retire la question ; une réponse enregistrée se supprime.
 - **V1** Voir l'activité des 30 derniers jours d'une solution téléphonique :
   appels reçus, part avec rendez-vous ou commande, part hors horaires,
   appels par heure, motifs les plus fréquents.

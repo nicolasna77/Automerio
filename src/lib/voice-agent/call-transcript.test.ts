@@ -98,3 +98,17 @@ describe("parseSummaryResponse", () => {
     expect(parseSummaryResponse(JSON.stringify({ reason: "x".repeat(500) })).reason).toHaveLength(120);
   });
 });
+
+describe("parseUnansweredQuestions", () => {
+  it("garde trois questions au plus, sans les valeurs vides", async () => {
+    const { parseUnansweredQuestions } = await import("./call-transcript");
+    const raw = JSON.stringify({ unansweredQuestions: ["Quel est le prix ?", " ", "aucun", "Délai ?", "Garantie ?", "Parking ?"] });
+    expect(parseUnansweredQuestions(raw)).toEqual(["Quel est le prix ?", "Délai ?", "Garantie ?"]);
+  });
+
+  it("renvoie une liste vide pour une réponse illisible ou sans la clé", async () => {
+    const { parseUnansweredQuestions } = await import("./call-transcript");
+    expect(parseUnansweredQuestions("pas du json")).toEqual([]);
+    expect(parseUnansweredQuestions(JSON.stringify({ reason: "x" }))).toEqual([]);
+  });
+});

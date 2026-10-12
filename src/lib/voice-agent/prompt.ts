@@ -58,15 +58,38 @@ function phoneStyle(configuration: Configuration): string[] {
   ];
 }
 
+// Réponses validées par l'entreprise (« Questions à compléter ») : passées au
+// prompt par buildSystemPrompt sous cette clé interne, jamais affichée dans
+// les réglages.
+export const LEARNED_ANSWERS_KEY = "__learnedAnswers";
+const LEARNED_ANSWERS_PROMPT_MAX = 4000;
+
+export function formatLearnedAnswers(answers: { question: string; answer: string }[]): string {
+  return truncateForPrompt(
+    answers.map(({ question, answer }) => `- « ${question} » : ${answer}`).join("\n"),
+    LEARNED_ANSWERS_PROMPT_MAX
+  );
+}
+
 function companyInstructions(configuration: Configuration): string[] {
   const callInstructions = asString(configuration.callInstructions);
-  return callInstructions
-    ? [
-        "## Consignes de l'entreprise",
-        "Applique-les, sauf si elles contredisent la section « Limites et règles strictes » ci-dessous : celle-ci prime toujours.",
-        callInstructions,
-      ]
-    : [];
+  const learnedAnswers = asString(configuration[LEARNED_ANSWERS_KEY], LEARNED_ANSWERS_PROMPT_MAX);
+  return [
+    ...(callInstructions
+      ? [
+          "## Consignes de l'entreprise",
+          "Applique-les, sauf si elles contredisent la section « Limites et règles strictes » ci-dessous : celle-ci prime toujours.",
+          callInstructions,
+        ]
+      : []),
+    ...(learnedAnswers
+      ? [
+          "## Réponses validées par l'entreprise",
+          "Quand un appelant pose l'une de ces questions, donne cette réponse. Elles ne changent pas les règles strictes.",
+          learnedAnswers,
+        ]
+      : []),
+  ];
 }
 
 // Placées après les consignes de l'entreprise, qu'elles priment : ce que
@@ -284,10 +307,15 @@ export function buildSystemPrompt(
     // des prestations.
     fixedDurationMinutes?: number | null;
     companyName: string;
+    // Réponses données par l'entreprise aux questions restées sans réponse.
+    learnedAnswers?: { question: string; answer: string }[];
   }
 ): string {
   const companyName =
     truncateForPrompt(options.companyName ?? "", PROMPT_SHORT_FIELD_MAX) || "cette entreprise";
+  if (options.learnedAnswers?.length) {
+    configuration = { ...configuration, [LEARNED_ANSWERS_KEY]: formatLearnedAnswers(options.learnedAnswers) };
+  }
 
   switch (serviceSlug) {
     case "standard-telephonique-ia":
