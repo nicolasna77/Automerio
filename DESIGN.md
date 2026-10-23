@@ -189,9 +189,13 @@ Seules animations autorisées :
 - transition de couleur ou d'opacité au survol et au clic (150 ms) ;
 - ouverture et fermeture des fenêtres et menus (fondu court) ;
 - indicateur de chargement (rotation) et squelette de chargement ;
-- traits lumineux de la trame du hero de l'accueil (parcours lent le long des lignes, en boucle).
+- traits lumineux de la trame du hero de l'accueil (parcours lent le long des lignes, en boucle) ;
+- défilement doux vers une section quand on clique sur un lien de la même page
+  (`/#faq`…), y compris vers la section déjà dans l'adresse ; un changement de
+  page reste instantané (`data-scroll-behavior="smooth"` sur `<html>`).
 
-Pas d'animation au défilement, de parallaxe, de pulsation ni d'effet « radar ».
+Pas d'animation déclenchée par le défilement, de parallaxe, de pulsation ni
+d'effet « radar ».
 Le réglage système « réduire les animations » coupe tout mouvement.
 
 ## Ton des textes

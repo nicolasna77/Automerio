@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { locale as rootLocale } from "next/root-params";
 import { routing } from "@/i18n/routing";
 import { Toaster } from "@/components/ui/sonner";
+import { SameHashScroll } from "@/components/same-hash-scroll";
 import "../globals.css";
 import { cn } from "@/lib/utils";
 import { JsonLd, organizationSchema } from "@/components/json-ld";
@@ -56,10 +57,15 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
+      // Défilement doux pour les liens /#section (motion-safe:scroll-smooth,
+      // coupé par « réduire les animations »), mais pas pour un changement de
+      // page, qui remonte en haut d'un coup.
+      data-scroll-behavior="smooth"
       suppressHydrationWarning
       className={cn(
         "h-full",
         "antialiased",
+        "motion-safe:scroll-smooth",
         dmSans.variable,
         dmMono.variable,
         "font-sans",
@@ -78,6 +84,7 @@ export default async function RootLayout({
             <Toaster />
           </NextIntlClientProvider>
         </ThemeProvider>
+        <SameHashScroll />
         <Analytics />
         <SpeedInsights />
       </body>
