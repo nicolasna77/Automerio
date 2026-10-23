@@ -136,7 +136,9 @@ barre latérale et le fil d'Ariane.
 d'Ariane s'affiche dans la barre du haut (`HeaderBreadcrumbs`), déduit de
 l'adresse ; une page dont le titre vient des données (une solution, un
 utilisateur) le fournit par `PageBreadcrumbs`. Jamais de fil d'Ariane dans
-le contenu de la page.
+le contenu de la page du tableau de bord. Sur le site public, les pages
+solution et métier ouvrent sur un fil d'Ariane en pastille, le même pour
+toutes (`SiteBreadcrumb`).
 
 **Onglets (`Tabs`)** : filet vert sous l'onglet actif ; un onglet désactivé
 passe à 50 % d'opacité et ne réagit plus.
@@ -189,7 +191,8 @@ Seules animations autorisées :
 - transition de couleur ou d'opacité au survol et au clic (150 ms) ;
 - ouverture et fermeture des fenêtres et menus (fondu court) ;
 - indicateur de chargement (rotation) et squelette de chargement ;
-- traits lumineux de la trame du hero de l'accueil (parcours lent le long des lignes, en boucle).
+- réponse de FAQ qui se déplie à l'ouverture (200 ms, `faq-list.tsx`) ;
+- traits lumineux de la trame du hero de l'accueil (parcours lent le long des lignes, en boucle, mis en pause hors de l'écran).
 
 Pas d'animation au défilement, de parallaxe, de pulsation ni d'effet « radar ».
 Le réglage système « réduire les animations » coupe tout mouvement.

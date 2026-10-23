@@ -84,7 +84,8 @@ Thème clair et sombre (next-themes).
 ## Mouvement
 
 Transitions de couleur et d'opacité (150 ms), ouverture des menus, chargement,
-traits du hero. Pas d'animation au défilement. « Réduire les animations » coupe tout.
+traits du hero (en pause hors de l'écran), réponse de FAQ qui se déplie.
+Pas d'animation au défilement. « Réduire les animations » coupe tout.
 
 ## Ton
 

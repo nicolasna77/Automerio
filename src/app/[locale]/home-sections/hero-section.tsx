@@ -6,6 +6,7 @@ import { ProductScreenshot } from "@/components/product-screenshot";
 import { isWaitlistMode } from "@/lib/launch-mode";
 import { isDemoCallAvailable } from "@/lib/demo-call";
 import { SectionGlow } from "@/components/section-glow";
+import { PauseOffscreen } from "./pause-offscreen";
 
 // Carte superposée à la capture : trois événements d'une matinée, un par
 // canal (appel, message, rendez-vous), pour montrer d'un coup d'œil que
@@ -30,7 +31,7 @@ async function ActivityCard({ inline = false }: { inline?: boolean }) {
       }
     >
       <p className="text-sm font-medium text-foreground">{t("title")}</p>
-      <ul className="mt-3 space-y-3 border-t border-border pt-3 text-xs leading-snug">
+      <ul className="mt-3 space-y-3 border-t border-border pt-3 text-[13px] leading-snug">
         {events.map(({ key, icon: Icon }) => (
           <li key={key} className="flex items-start gap-2.5">
             <Icon className="mt-0.5 size-4 shrink-0 text-primary" />
@@ -104,8 +105,7 @@ function HeroGrid() {
           backgroundPosition: "-0.5px -0.5px, -0.5px 0, 0 -0.5px",
         }}
       />
-      <div
-        aria-hidden="true"
+      <PauseOffscreen
         className={`pointer-events-none absolute inset-0 -z-10 overflow-hidden will-change-transform motion-reduce:hidden ${GRID_MASK}`}
       >
         <svg className="absolute top-0 left-0" width={CELL_PX * 17} height={CELL_PX * 6} fill="none">
@@ -140,7 +140,7 @@ function HeroGrid() {
             ));
           })}
         </svg>
-      </div>
+      </PauseOffscreen>
     </>
   );
 }
@@ -163,7 +163,7 @@ export async function HeroSection() {
       <div className="mx-auto max-w-[80rem] px-4 pt-16 pb-12 text-center sm:px-6 sm:pt-24 sm:pb-16">
         <Link
           href={waitlist ? "#waitlist" : "#services"}
-          className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-sm text-foreground shadow-sm transition-colors hover:bg-muted focus-visible:focus-ring"
+          className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-sm text-foreground shadow-sm transition-colors hover:bg-muted focus-visible:focus-ring active:opacity-70"
         >
           {waitlist ? t("badgeWaitlist") : t("badge")}
           <ChevronRight
@@ -191,7 +191,7 @@ export async function HeroSection() {
               quand la téléphonie est configurée ; sinon, la méthode. */}
           <Link
             href={demoAvailable ? "#essai" : "#method"}
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline focus-visible:focus-ring"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline focus-visible:focus-ring active:opacity-70"
           >
             {demoAvailable ? t("hearDemo") : t("howItWorks")}
             <ArrowRight className="size-4" aria-hidden="true" />

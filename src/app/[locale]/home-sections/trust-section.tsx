@@ -38,8 +38,8 @@ export async function TrustSection() {
               <Icon className="size-5 text-primary" aria-hidden="true" />
               <h3
                 className={cn(
-                  "mt-4 font-semibold tracking-tight text-foreground",
-                  wide ? "text-xl sm:text-2xl" : "text-base"
+                  "mt-4 font-semibold text-foreground",
+                  wide ? "text-xl tracking-tight sm:text-2xl" : "text-base"
                 )}
               >
                 {t(`items.${key}.title`)}
@@ -52,7 +52,7 @@ export async function TrustSection() {
         </ul>
         <Link
           href="/privacy"
-          className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline focus-visible:focus-ring"
+          className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline focus-visible:focus-ring active:opacity-70"
         >
           {t("privacy")}
           <ArrowRight className="size-4" aria-hidden="true" />
