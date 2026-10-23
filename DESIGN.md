@@ -139,7 +139,9 @@ utilisateur) le fournit par `PageBreadcrumbs`. Jamais de fil d'Ariane dans
 le contenu de la page.
 
 **Onglets (`Tabs`)** : filet vert sous l'onglet actif ; un onglet désactivé
-passe à 50 % d'opacité et ne réagit plus.
+passe à 50 % d'opacité et ne réagit plus. Sur l'accueil, les onglets des
+sections « Avant / après » et « Tableau de bord » sont une pastille verte
+pleine, unique, qui glisse vers l'onglet choisi.
 
 **Formulaires** : chaque champ a son `Label`. Une erreur de saisie s'affiche
 sous le champ (`aria-invalid`, `aria-describedby`) et le champ reçoit le
@@ -189,6 +191,7 @@ Seules animations autorisées :
 - transition de couleur ou d'opacité au survol et au clic (150 ms) ;
 - ouverture et fermeture des fenêtres et menus (fondu court) ;
 - indicateur de chargement (rotation) et squelette de chargement ;
+- pastille des onglets de l'accueil qui glisse vers l'onglet choisi (200 ms, sans rebond) ;
 - traits lumineux de la trame du hero de l'accueil (parcours lent le long des lignes, en boucle).
 
 Pas d'animation au défilement, de parallaxe, de pulsation ni d'effet « radar ».

@@ -3,6 +3,7 @@
 import { useId, useRef, useState, type KeyboardEvent } from "react";
 import { Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TabIndicator, useTabIndicator } from "./tab-indicator";
 
 export type BeforeAfterCase = {
   key: string;
@@ -27,6 +28,7 @@ export function BeforeAfterTabs({
   const id = useId();
   const [selected, setSelected] = useState(0);
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
+  const indicator = useTabIndicator(tabs, selected);
 
   function select(index: number) {
     const next = (index + cases.length) % cases.length;
@@ -54,8 +56,9 @@ export function BeforeAfterTabs({
       <div
         role="tablist"
         aria-label={label}
-        className="mx-auto flex w-fit max-w-full flex-wrap justify-center gap-1 rounded-lg border border-border bg-background p-1"
+        className="relative mx-auto flex w-fit max-w-full flex-wrap justify-center gap-1 rounded-lg border border-border bg-background p-1"
       >
+        <TabIndicator box={indicator} />
         {cases.map((item, index) => (
           <button
             key={item.key}
@@ -71,9 +74,9 @@ export function BeforeAfterTabs({
             onClick={() => setSelected(index)}
             onKeyDown={(event) => handleKey(event, index)}
             className={cn(
-              "rounded-md px-3 py-1.5 text-sm font-medium transition-colors focus-visible:focus-ring",
+              "relative rounded-md px-3 py-1.5 text-sm font-medium transition-colors focus-visible:focus-ring",
               index === selected
-                ? "bg-primary text-primary-foreground"
+                ? cn("text-primary-foreground", !indicator && "bg-primary")
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             )}
           >

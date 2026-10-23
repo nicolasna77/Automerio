@@ -37,7 +37,8 @@ Thème clair et sombre (next-themes).
 - **DM Sans** (400, 500, 600), titres et texte, via `next/font`.
 - **DM Mono** (400, 500), classe `font-mono`, seulement pour les données : prix,
   durées, horaires, numéros, codes. Chiffres `tabular-nums`.
-- Tailles : `h1` public 36 px (48 dès `sm`) ; `h1` tableau de bord 24 px ;
+- Tailles : `h1` public 36 px (48 dès `sm`) ; titre du hero de l'accueil
+  60 px dès `lg` ; `h1` tableau de bord 24 px ;
   `h2` 30 px (36 dès `sm`) ; texte 16 px ; aide 14 px ; mentions 13 px.
 - Jamais Inter ni Geist. Pas de petites étiquettes en capitales espacées.
 
@@ -84,7 +85,8 @@ Thème clair et sombre (next-themes).
 ## Mouvement
 
 Transitions de couleur et d'opacité (150 ms), ouverture des menus, chargement,
-traits du hero. Pas d'animation au défilement. « Réduire les animations » coupe tout.
+traits du hero, pastille des onglets de l'accueil qui glisse (200 ms, sans
+rebond). Pas d'animation au défilement. « Réduire les animations » coupe tout.
 
 ## Ton
 

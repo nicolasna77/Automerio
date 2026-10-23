@@ -3,6 +3,7 @@
 import { useId, useRef, useState, type KeyboardEvent } from "react";
 import { ProductScreenshot } from "@/components/product-screenshot";
 import { cn } from "@/lib/utils";
+import { TabIndicator, useTabIndicator } from "./tab-indicator";
 
 export type DashboardShot = {
   key: string;
@@ -30,6 +31,7 @@ export function DashboardTabs({
   const id = useId();
   const [selected, setSelected] = useState(0);
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
+  const indicator = useTabIndicator(tabs, selected);
 
   function select(index: number) {
     const next = (index + shots.length) % shots.length;
@@ -55,8 +57,9 @@ export function DashboardTabs({
       <div
         role="tablist"
         aria-label={label}
-        className="-mx-4 flex gap-1 overflow-x-auto px-4 pb-1 sm:mx-0 sm:w-fit sm:max-w-full sm:rounded-lg sm:border sm:border-border sm:bg-background sm:p-1"
+        className="relative -mx-4 flex gap-1 overflow-x-auto px-4 pb-1 sm:mx-0 sm:w-fit sm:max-w-full sm:rounded-lg sm:border sm:border-border sm:bg-background sm:p-1"
       >
+        <TabIndicator box={indicator} />
         {shots.map((shot, index) => (
           <button
             key={shot.key}
@@ -72,9 +75,9 @@ export function DashboardTabs({
             onClick={() => setSelected(index)}
             onKeyDown={(event) => handleKey(event, index)}
             className={cn(
-              "shrink-0 rounded-md px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors focus-visible:focus-ring",
+              "relative shrink-0 rounded-md px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors focus-visible:focus-ring",
               index === selected
-                ? "bg-primary text-primary-foreground"
+                ? cn("text-primary-foreground", !indicator && "bg-primary")
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             )}
           >
