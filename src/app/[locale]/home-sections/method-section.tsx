@@ -39,7 +39,7 @@ const SHOTS = [
 export async function MethodSection() {
   const [t, tShots] = await Promise.all([getTranslations("Home.method"), getTranslations("Screenshots")]);
   return (
-    <section id="method" aria-labelledby="method-heading" className="relative isolate scroll-mt-20 overflow-hidden py-20 sm:py-28">
+    <section id="method" aria-labelledby="method-heading" className="relative isolate scroll-mt-20 overflow-hidden py-24 sm:py-32">
       <SectionGlow position="left" strength={14} />
       <div className="mx-auto max-w-[80rem] px-4 sm:px-6">
         <div className="max-w-2xl">

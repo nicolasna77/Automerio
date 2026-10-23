@@ -7,7 +7,7 @@ import { isWaitlistMode } from "@/lib/launch-mode";
 export async function FaqSection({ faqs }: { faqs: Faq[] }) {
   const t = await getTranslations("Home.faq");
   return (
-    <section id="faq" aria-labelledby="faq-heading" className="scroll-mt-20 border-t border-border py-20 sm:py-24">
+    <section id="faq" aria-labelledby="faq-heading" className="scroll-mt-20 border-t border-border py-24 sm:py-32">
       <div className="mx-auto max-w-3xl px-4 sm:px-6">
         <h2
           id="faq-heading"

@@ -26,8 +26,8 @@ async function ActivityCard({ inline = false }: { inline?: boolean }) {
       aria-hidden="true"
       className={
         inline
-          ? "mx-auto w-full max-w-sm rounded-lg border border-border bg-card p-4 text-left shadow-md sm:hidden"
-          : "absolute right-0 bottom-24 hidden w-72 rounded-lg border border-border bg-card p-4 shadow-lg lg:block xl:-right-6"
+          ? "mx-auto w-full max-w-sm rounded-lg border border-border bg-card p-4 text-left shadow-soft sm:hidden"
+          : "absolute right-0 bottom-24 hidden w-72 rounded-lg border border-border bg-card p-4 shadow-soft lg:block xl:-right-6"
       }
     >
       <p className="text-sm font-medium text-foreground">{t("title")}</p>
@@ -172,7 +172,7 @@ export async function HeroSection() {
           />
         </Link>
 
-        <h1 className="mx-auto mt-8 max-w-4xl text-4xl leading-[1.08] font-semibold tracking-tight text-balance text-foreground sm:text-5xl lg:text-6xl">
+        <h1 className="mx-auto mt-8 max-w-4xl text-4xl leading-[1.08] font-semibold tracking-[-0.035em] text-balance text-foreground sm:text-5xl lg:text-6xl">
           {t("title")}
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-pretty text-muted-foreground">

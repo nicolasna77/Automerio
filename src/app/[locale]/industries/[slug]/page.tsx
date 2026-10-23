@@ -91,7 +91,7 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
             <div className="mt-8 grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
               <div>
                 <span className="text-sm font-medium text-primary">{t("eyebrow", { name })}</span>
-                <h1 className="mt-3 text-4xl leading-[1.1] font-semibold tracking-tight text-balance text-foreground sm:text-5xl">
+                <h1 className="mt-3 text-4xl leading-[1.1] font-semibold tracking-[-0.035em] text-balance text-foreground sm:text-5xl">
                   {trade.title}
                 </h1>
                 <p className="mt-5 max-w-xl text-lg leading-relaxed text-pretty text-muted-foreground">{trade.lead}</p>
@@ -127,7 +127,7 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
           </div>
         </section>
 
-        <section aria-labelledby="pains-heading" className="bg-muted/40 py-16 sm:py-20">
+        <section aria-labelledby="pains-heading" className="bg-muted/40 py-24 sm:py-32">
           <div className="mx-auto max-w-[80rem] px-4 sm:px-6">
             <div className="mx-auto max-w-2xl text-center">
               <h2 id="pains-heading" className="text-3xl font-semibold sm:text-4xl tracking-tight text-foreground">
@@ -165,7 +165,7 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
           </div>
         </section>
 
-        <section aria-labelledby="call-heading" className="border-t border-border py-16 sm:py-20">
+        <section aria-labelledby="call-heading" className="border-t border-border py-24 sm:py-32">
           <div className="mx-auto grid max-w-[80rem] items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16">
             <div>
               <h2 id="call-heading" className="text-3xl font-semibold sm:text-4xl tracking-tight text-foreground">
@@ -175,7 +175,7 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
               {showDemoCall && (
                 <div
                   id="essai"
-                  className="mt-8 max-w-md scroll-mt-24 rounded-lg border border-border bg-card p-5 shadow-sm sm:p-6"
+                  className="mt-8 max-w-md scroll-mt-24 rounded-lg border border-border bg-card p-5 shadow-soft sm:p-6"
                 >
                   <h3 className="text-base font-semibold text-foreground">{t("demoHeading")}</h3>
                   <p className="mt-1.5 mb-5 text-sm leading-relaxed text-muted-foreground">{t("demoLead")}</p>
@@ -183,7 +183,7 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
                 </div>
               )}
             </div>
-            <figure className="rounded-lg border border-border bg-card p-5 shadow-sm sm:p-6">
+            <figure className="rounded-lg border border-border bg-card p-5 shadow-soft sm:p-6">
               <figcaption className="flex items-center gap-2 text-sm font-medium text-foreground">
                 <Phone className="size-4 text-primary" aria-hidden="true" />
                 {trade.call.company}
@@ -213,7 +213,7 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
           <section
             id="solutions"
             aria-labelledby="solutions-heading"
-            className="scroll-mt-20 border-t border-border bg-muted/40 py-16 sm:py-20"
+            className="scroll-mt-20 border-t border-border bg-muted/40 py-24 sm:py-32"
           >
             <div className="mx-auto max-w-[80rem] px-4 sm:px-6">
               <div className="max-w-2xl">
@@ -271,7 +271,7 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
           </section>
         )}
 
-        <section aria-labelledby="trade-faq-heading" className="border-t border-border py-16 sm:py-20">
+        <section aria-labelledby="trade-faq-heading" className="border-t border-border py-24 sm:py-32">
           <div className="mx-auto max-w-3xl px-4 sm:px-6">
             <h2 id="trade-faq-heading" className="text-center text-3xl font-semibold sm:text-4xl tracking-tight text-foreground">
               {t("faqHeading")}
@@ -280,7 +280,7 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
           </div>
         </section>
 
-        <nav aria-labelledby="other-trades-heading" className="border-t border-border py-16 sm:py-20">
+        <nav aria-labelledby="other-trades-heading" className="border-t border-border py-24 sm:py-32">
           <div className="mx-auto max-w-[80rem] px-4 sm:px-6">
             <h2 id="other-trades-heading" className="text-2xl font-semibold tracking-tight text-foreground">
               {t("otherTrades")}
@@ -318,7 +318,7 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
         {waitlist ? (
           <WaitlistSection />
         ) : (
-          <section aria-labelledby="trade-cta-heading" className="px-4 pb-20 sm:px-6 sm:pb-24">
+          <section aria-labelledby="trade-cta-heading" className="px-4 pb-24 sm:px-6 sm:pb-32">
             <div className="mx-auto max-w-[80rem] rounded-lg border border-border bg-card px-6 py-14 text-center sm:py-16">
               <h2
                 id="trade-cta-heading"

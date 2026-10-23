@@ -13,7 +13,7 @@ export async function DemoCallSection() {
   if (!isDemoCallAvailable()) return null;
   const t = await getTranslations("Home.demo");
   return (
-    <section id="essai" aria-labelledby="demo-heading" className="relative isolate scroll-mt-20 overflow-hidden bg-primary/5 py-20 sm:py-24">
+    <section id="essai" aria-labelledby="demo-heading" className="relative isolate scroll-mt-20 overflow-hidden bg-primary/5 py-24 sm:py-32">
       <SectionGlow position="right" strength={14} />
       <div className="mx-auto grid max-w-[80rem] items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16">
         <div>
@@ -33,7 +33,7 @@ export async function DemoCallSection() {
             ))}
           </ul>
         </div>
-        <div className="rounded-lg border border-border bg-card p-5 shadow-sm sm:p-6">
+        <div className="rounded-lg border border-border bg-card p-5 shadow-soft sm:p-6">
           <DemoCallForm serviceSlug="standard-telephonique-ia" />
         </div>
       </div>

@@ -112,7 +112,7 @@ export function BeforeAfterTabs({
           </ol>
         </div>
 
-        <div className="rounded-lg border border-primary/40 bg-card p-6 shadow-sm sm:p-8">
+        <div className="rounded-lg border border-primary/40 bg-card p-6 shadow-soft sm:p-8">
           <h3 className="text-base font-semibold text-primary">{afterTitle}</h3>
           <ol className="mt-6 space-y-4">
             {current.after.map((step) => (

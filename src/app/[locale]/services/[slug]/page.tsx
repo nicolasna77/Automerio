@@ -194,7 +194,7 @@ export default async function PrestationDetailPage({
               items={[{ label: t("solutions"), href: "/#services" }, { label: categoryLabel }]}
             />
 
-            <h1 className="mt-6 text-4xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-6xl lg:leading-[1.05]">
+            <h1 className="mt-6 text-4xl font-semibold tracking-[-0.035em] text-balance sm:text-5xl lg:text-6xl lg:leading-[1.05]">
               {service.name}
             </h1>
             <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-pretty text-muted-foreground">
@@ -205,7 +205,7 @@ export default async function PrestationDetailPage({
               <section
                 id="demo"
                 aria-labelledby="demo-heading"
-                className="mx-auto mt-10 max-w-md scroll-mt-24 rounded-3xl border border-border bg-card p-5 text-left shadow-lg sm:p-6"
+                className="mx-auto mt-10 max-w-md scroll-mt-24 rounded-3xl border border-border bg-card p-5 text-left shadow-soft sm:p-6"
               >
                 <h2
                   id="demo-heading"
@@ -260,7 +260,7 @@ export default async function PrestationDetailPage({
             )}
           </div>
 
-          <div className="mx-auto mt-14 max-w-3xl px-4 pb-16 sm:px-6 sm:pb-24">
+          <div className="mx-auto mt-14 max-w-3xl px-4 pb-24 sm:px-6 sm:pb-32">
             <div className="rounded-lg border border-border bg-muted/40 px-4 py-10 sm:px-12 sm:py-12">
               <ServiceIllustration slug={service.slug} />
             </div>
@@ -271,7 +271,7 @@ export default async function PrestationDetailPage({
           aria-labelledby="steps-heading"
           className="border-t border-border"
         >
-          <div className="mx-auto max-w-[80rem] px-4 py-16 sm:px-6 sm:py-24">
+          <div className="mx-auto max-w-[80rem] px-4 py-24 sm:px-6 sm:py-32">
             <div className="max-w-2xl">
               <h2
                 id="steps-heading"
@@ -321,7 +321,7 @@ export default async function PrestationDetailPage({
           aria-labelledby="pricing-heading"
           className="scroll-mt-20 border-t border-border"
         >
-          <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 sm:py-24">
+          <div className="mx-auto max-w-5xl px-4 py-24 sm:px-6 sm:py-32">
             <div className="mx-auto max-w-2xl text-center">
               <h2
                 id="pricing-heading"
@@ -336,7 +336,7 @@ export default async function PrestationDetailPage({
             <div className="mt-12 grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-16">
               {/* La carte de prix vient d'abord dans le code comme à l'écran :
                   le clavier et les lecteurs d'écran la lisent avant la liste. */}
-              <Card className="gap-0 px-(--card-spacing) lg:sticky lg:top-24">
+              <Card className="gap-0 px-(--card-spacing) shadow-soft lg:sticky lg:top-24">
                 <p className="text-sm font-medium text-muted-foreground">
                   {service.name}
                 </p>
@@ -429,7 +429,7 @@ export default async function PrestationDetailPage({
             aria-labelledby="benefits-heading"
             className="border-t border-border bg-muted/40"
           >
-            <div className="mx-auto max-w-[80rem] px-4 py-16 sm:px-6 sm:py-24">
+            <div className="mx-auto max-w-[80rem] px-4 py-24 sm:px-6 sm:py-32">
               <div className="max-w-2xl">
                 <h2
                   id="benefits-heading"
@@ -486,7 +486,7 @@ export default async function PrestationDetailPage({
             aria-labelledby="situations-heading"
             className="border-t border-border"
           >
-            <div className="mx-auto max-w-[80rem] px-4 py-16 sm:px-6 sm:py-24">
+            <div className="mx-auto max-w-[80rem] px-4 py-24 sm:px-6 sm:py-32">
               <div className="max-w-2xl">
                 <h2
                   id="situations-heading"
@@ -520,7 +520,7 @@ export default async function PrestationDetailPage({
             aria-labelledby="faq-heading"
             className="border-t border-border"
           >
-            <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-24">
+            <div className="mx-auto max-w-3xl px-4 py-24 sm:px-6 sm:py-32">
               <h2
                 id="faq-heading"
                 className="text-center text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"
@@ -549,7 +549,7 @@ export default async function PrestationDetailPage({
             aria-labelledby="related-heading"
             className="border-t border-border"
           >
-            <div className="mx-auto max-w-[80rem] px-4 py-16 sm:px-6 sm:py-20">
+            <div className="mx-auto max-w-[80rem] px-4 py-24 sm:px-6 sm:py-32">
               <h2
                 id="related-heading"
                 className="text-2xl font-semibold tracking-tight text-foreground"
@@ -587,7 +587,7 @@ export default async function PrestationDetailPage({
 
         <section
           aria-labelledby="cta-heading"
-          className="px-4 pb-16 sm:px-6 sm:pb-24"
+          className="px-4 pb-24 sm:px-6 sm:pb-32"
         >
           <div className="relative isolate mx-auto max-w-[80rem] overflow-hidden rounded-lg border border-border bg-card px-6 py-16 text-center sm:py-20">
             <h2
