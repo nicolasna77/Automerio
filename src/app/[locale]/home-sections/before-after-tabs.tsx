@@ -74,7 +74,7 @@ export function BeforeAfterTabs({
             onClick={() => setSelected(index)}
             onKeyDown={(event) => handleKey(event, index)}
             className={cn(
-              "relative rounded-md px-3 py-1.5 text-sm font-medium transition-colors focus-visible:focus-ring",
+              "relative rounded-md px-3 py-1.5 text-sm font-medium transition-colors duration-200 ease-out focus-visible:focus-ring",
               index === selected
                 ? cn("text-primary-foreground", !indicator && "bg-primary")
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"

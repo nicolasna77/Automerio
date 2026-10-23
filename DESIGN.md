@@ -70,7 +70,7 @@ Les chiffres de données sont tabulaires (`tabular-nums`). Pas de petites
 | ------------------------------------------------------------- | ---------------------------------------------------------- | ---------- |
 | Titre de page (`h1`), site public                             | 36 px, 48 px dès `sm`                                      | 600        |
 | Titre de page (`h1`), tableau de bord et admin (`PageHeader`) | 24 px                                                      | 600        |
-| Titre du hero de l'accueil                                    | 36 px, 48 px dès `sm`, 60 px dès `lg`, deux lignes au plus | 600        |
+| Titre du hero de l'accueil et des pages solution              | 36 px, 48 px dès `sm`, 60 px dès `lg`, deux lignes au plus | 600        |
 | Titre de section (`h2`)                                       | 30 px, 36 px dès `sm`                                      | 600        |
 | Sous-titre (`h3`)                                             | 18 à 20 px                                                 | 600        |
 | Texte courant                                                 | 16 px, 18 px pour les chapeaux                             | 400        |
