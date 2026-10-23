@@ -97,12 +97,16 @@ Pas de compression manuelle des lettres (`font-stretch`, `tracking` négatif for
 ## Logo
 
 Un A ouvert, sans barre, avec une pastille en son cœur : l'assistant qui écoute
-(piste « Écoute », octobre 2026). Dans l'application, il est blanc
-(`--primary-foreground`) sur une tuile `--primary` à coins arrondis (9/32 du
-côté), suivi du mot « Automerio » en DM Sans 600 (`src/components/brand.tsx`).
-Le favicon (`src/app/icon.svg`) et l'icône Apple (`src/app/apple-icon.tsx`)
-reprennent la même tuile. Sous 32 px, on emploie la coupe renforcée (traits
-plus épais, pastille plus grosse). Pas d'effet, de reflet ni de transparence.
+(piste « Écoute », octobre 2026). Dans l'application, il est en
+`--primary-foreground` (blanc en thème clair, presque noir en sombre) sur une
+tuile `--primary` à coins arrondis (9/32 du côté), suivi du mot « Automerio »
+en DM Sans 600 (`src/components/brand.tsx`). Le favicon (`src/app/icon.svg`),
+l'icône Apple (`src/app/apple-icon.tsx`) et les images de partage
+(`src/components/og-frame.tsx`) reprennent la même tuile, en clair. Dans la
+tuile, le A est toujours la coupe renforcée (traits plus épais, pastille plus
+grosse, `src/lib/brand-mark.ts`) : il n'en occupe que 60 %. Le dessin fin
+(`assets/brand/logo/automerio-symbol.svg`) sert au symbole seul, sans tuile,
+au-dessus de 32 px. Pas d'effet, de reflet ni de transparence.
 
 ## Icônes
 

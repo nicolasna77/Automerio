@@ -89,5 +89,6 @@ write("automerio-horizontal-dark.svg", horizontal(GREEN_DARK, INK_DARK))
 write("automerio-stacked.svg", stacked("#000", "#000"))
 write("automerio-stacked-color.svg", stacked(GREEN, INK))
 write("automerio-wordmark.svg", svg(f"0 0 {f(ww+48)} {f(CAP_PX+80)}", f'<path fill="#000" d="{word("Automerio", CAP_PX, 24, 40+CAP_PX)[0]}"/>'))
-with open(os.path.join(OUT, "_paths.txt"), "w") as fh: fh.write(f"MARK={MARK}\nSMALL={SMALL}\n")
+# Tracés à recopier dans src/lib/brand-mark.ts (SMALL) : affichés, pas écrits dans le kit.
+print(f"MARK={MARK}\nSMALL={SMALL}")
 print("ok", f(HW), f(SW), f(SH))

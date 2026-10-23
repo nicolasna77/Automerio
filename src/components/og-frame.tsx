@@ -1,4 +1,5 @@
 import { BRAND_PALETTE } from "@/lib/brand-palette";
+import { LOGO_MARK_PATH, LOGO_MARK_TRANSFORM, LOGO_TILE_RADIUS } from "@/lib/brand-mark";
 
 export const OG_SIZE = { width: 1200, height: 630 };
 
@@ -6,6 +7,7 @@ const INK = BRAND_PALETTE.dark.background;
 const PAPER = BRAND_PALETTE.dark.foreground;
 const MUTED = BRAND_PALETTE.dark.mutedForeground;
 const BRAND = BRAND_PALETTE.light.primary;
+const BRAND_FOREGROUND = BRAND_PALETTE.light.primaryForeground;
 
 export function OgFrame({
   eyebrow,
@@ -33,21 +35,10 @@ export function OgFrame({
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-        <div
-          style={{
-            width: 44,
-            height: 44,
-            borderRadius: 8,
-            background: BRAND,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: 26,
-            fontWeight: 700,
-          }}
-        >
-          A
-        </div>
+        <svg width="44" height="44" viewBox="0 0 256 256">
+          <rect width="256" height="256" rx={LOGO_TILE_RADIUS} fill={BRAND} />
+          <path d={LOGO_MARK_PATH} transform={LOGO_MARK_TRANSFORM} fill={BRAND_FOREGROUND} />
+        </svg>
         <div style={{ fontSize: 30, fontWeight: 600, letterSpacing: -0.5 }}>Automerio</div>
         {eyebrow && (
           <div style={{ fontSize: 26, color: MUTED, marginLeft: 8 }}>{`· ${eyebrow}`}</div>
