@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Minus, Plus } from "lucide-react";
 import { Figure } from "@/components/figure";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ import {
   clampToStep,
   type SubscriptionTier,
 } from "@/lib/subscription-pricing";
+import { nearestStop, sliderStops } from "@/lib/slider-stops";
 
 export function SubscriptionMinutesSlider({
   tier,
@@ -30,13 +32,26 @@ export function SubscriptionMinutesSlider({
 }) {
   const t = useTranslations("MinutesSlider");
   const price = usePriceFormatter();
+  const stops = sliderStops(tier);
   const priceCents = calculateMonthlyPriceCents(tier, value);
   const quantity = price.usageUnits(value, tier.unit);
   const atMin = value <= tier.minUnits;
   const atMax = value >= tier.maxUnits;
+  // Annonce pour les lecteurs d'écran : une fois le curseur lâché ou le bouton
+  // pressé, pas à chaque cran pendant qu'on glisse.
+  const [announced, setAnnounced] = useState("");
+
+  function describe(units: number) {
+    return t("valueText", {
+      units: price.usageUnits(units, tier.unit),
+      price: price.withVat(calculateMonthlyPriceCents(tier, units)),
+    });
+  }
 
   function shift(by: number) {
-    onChange(clampToStep(tier, value + by));
+    const next = clampToStep(tier, value + by);
+    onChange(next);
+    setAnnounced(describe(next));
   }
 
   return (
@@ -66,21 +81,17 @@ export function SubscriptionMinutesSlider({
 
         <Slider
           className="flex-1"
-          value={value}
-          min={tier.minUnits}
-          max={tier.maxUnits}
-          step={tier.stepUnits}
+          value={nearestStop(stops, value)}
+          min={0}
+          max={stops.length - 1}
+          step={1}
           disabled={disabled}
-          onValueChange={(next) =>
-            onChange(clampToStep(tier, Array.isArray(next) ? next[0] : next))
-          }
+          onValueChange={(next) => onChange(stops[Array.isArray(next) ? next[0] : next])}
+          onValueCommitted={(next) => {
+            if (showPrice) setAnnounced(describe(stops[Array.isArray(next) ? next[0] : next]));
+          }}
           getAriaLabel={() => label}
-          getAriaValueText={(_formatted, units) =>
-            t("valueText", {
-              units: price.usageUnits(units, tier.unit),
-              price: price.withVat(calculateMonthlyPriceCents(tier, units)),
-            })
-          }
+          getAriaValueText={(_formatted, index) => describe(stops[index])}
         />
 
         <Button
@@ -95,29 +106,30 @@ export function SubscriptionMinutesSlider({
         </Button>
       </div>
 
-      <div className="flex justify-between text-xs tabular-nums text-muted-foreground">
+      <div className="flex justify-between text-[13px] tabular-nums text-muted-foreground">
         <span>{price.usageUnits(tier.minUnits, tier.unit)}</span>
         <span>{price.usageUnits(tier.maxUnits, tier.unit)}</span>
       </div>
 
       {showPrice && (
-        <p
-          role="status"
-          aria-atomic="true"
-          className="rounded-lg bg-muted px-4 py-3 text-center"
-        >
-          <Figure
-            text={price.amountWithVat(priceCents)}
-            className="block text-2xl font-medium text-foreground"
-            unitClassName="text-base text-muted-foreground"
-          />
-          <span className="block text-xs text-muted-foreground">
-            {price.excludingVatSuffix(priceCents)}
-          </span>
-          <span className="mt-1 block text-sm text-muted-foreground">
-            {t("perMonthFor", { units: quantity })}
-          </span>
-        </p>
+        <>
+          <p className="rounded-lg bg-muted px-4 py-3 text-center">
+            <Figure
+              text={price.amountWithVat(priceCents)}
+              className="block text-2xl font-medium text-foreground"
+              unitClassName="text-base text-muted-foreground"
+            />
+            <span className="block text-[13px] text-muted-foreground">
+              {price.excludingVatSuffix(priceCents)}
+            </span>
+            <span className="mt-1 block text-sm text-muted-foreground">
+              {t("perMonthFor", { units: quantity })}
+            </span>
+          </p>
+          <p role="status" aria-atomic="true" className="sr-only">
+            {announced}
+          </p>
+        </>
       )}
     </div>
   );

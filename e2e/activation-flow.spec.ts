@@ -9,13 +9,15 @@ test("le volume choisi sur la page publique suit le visiteur jusqu'à l'activati
   await page.setExtraHTTPHeaders(isolatedClientIp());
   await page.goto("/services/standard-telephonique-ia");
 
+  // Le curseur avance par crans (aria-valuenow est un numéro de cran) : le
+  // volume se lit dans aria-valuetext, et dans l'adresse après la connexion.
   const slider = page.getByRole("slider");
-  const floor = Number(await slider.getAttribute("aria-valuenow"));
+  const floor = await slider.getAttribute("aria-valuetext");
   const add = page.getByRole("button", { name: /^Ajouter / });
   await add.click();
   await add.click();
-  await expect(slider).not.toHaveAttribute("aria-valuenow", String(floor));
-  const chosen = await slider.getAttribute("aria-valuenow");
+  await expect(slider).not.toHaveAttribute("aria-valuetext", floor!);
+  const chosen = await slider.getAttribute("aria-valuetext");
 
   await page.getByRole("link", { name: /^Continuer avec / }).click();
   await page.waitForURL(/\/signup\?next=/);
@@ -26,10 +28,8 @@ test("le volume choisi sur la page publique suit le visiteur jusqu'à l'activati
   await page.getByLabel("Mot de passe", { exact: true }).fill(CLIENT.password);
   await page.getByRole("button", { name: "Se connecter" }).click();
 
-  await page.waitForURL(
-    new RegExp(`/dashboard/services/activate/standard-telephonique-ia\\?minutes=${chosen}$`)
-  );
-  await expect(page.getByRole("slider")).toHaveAttribute("aria-valuenow", chosen!);
+  await page.waitForURL(/\/dashboard\/services\/activate\/standard-telephonique-ia\?minutes=\d+$/);
+  await expect(page.getByRole("slider")).toHaveAttribute("aria-valuetext", chosen!);
 });
 
 test("une page protégée renvoie à la connexion en gardant la destination", async ({ page }) => {

@@ -20,7 +20,7 @@ export async function AudienceSection() {
     .filter((trade) => AUDIENCES.some((audience) => audience.trade === trade.slug))
     .map((trade) => trade.photo.credit);
   return (
-    <section id="who-its-for" aria-labelledby="audience-heading" className="scroll-mt-20 py-20 sm:py-24">
+    <section id="who-its-for" aria-labelledby="audience-heading" className="scroll-mt-20 py-24 sm:py-32">
       <div className="mx-auto max-w-[80rem] px-4 sm:px-6">
         <div className="mx-auto max-w-2xl text-center">
           <h2

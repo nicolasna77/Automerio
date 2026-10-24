@@ -7,7 +7,7 @@ export async function WaitlistSection() {
     <section
       id="waitlist"
       aria-labelledby="waitlist-heading"
-      className="scroll-mt-20 border-t border-border py-20 sm:py-24"
+      className="scroll-mt-20 border-t border-border py-24 sm:py-32"
     >
       <div className="mx-auto grid max-w-[80rem] gap-10 px-4 sm:px-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-16">
         <div>

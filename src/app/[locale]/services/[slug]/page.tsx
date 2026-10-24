@@ -20,6 +20,7 @@ import { siteOpenGraph } from "@/lib/site-metadata";
 import { getPriceFormatter } from "@/lib/price-format-server";
 import { getServiceCopy } from "@/lib/service-copy";
 import { FaqList } from "@/components/faq-list";
+import { SiteBreadcrumb } from "@/components/site-breadcrumb";
 import { ServiceGlyph, ServiceGlyphBadge } from "@/components/service-glyph";
 import { ServicePriceSimulator } from "@/components/subscription/service-price-simulator";
 import { activationPath, authPathWithNext } from "@/lib/safe-redirect";
@@ -148,7 +149,7 @@ export default async function PrestationDetailPage({
             }
           />
           {hiddenFieldCount > 0 && (
-            <p className="mt-3 text-xs text-muted-foreground">
+            <p className="mt-3 text-[13px] text-muted-foreground">
               {t("steps.configure.moreFields", { count: hiddenFieldCount })}
             </p>
           )}
@@ -186,30 +187,14 @@ export default async function PrestationDetailPage({
       <main id="content" className="flex-1">
         <section className="relative isolate overflow-hidden">
           <div className="mx-auto max-w-3xl px-4 pt-12 text-center sm:px-6 sm:pt-16">
-            <nav aria-label={t("breadcrumb")} className="flex justify-center">
-              <ol className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground shadow-sm">
-                <li>
-                  <ServiceGlyph
-                    slug={service.slug}
-                    className="size-4 text-primary"
-                  />
-                </li>
-                <li>
-                  <Link
-                    href="/#services"
-                    className="rounded-sm transition-colors hover:text-foreground focus-visible:focus-ring"
-                  >
-                    {t("solutions")}
-                  </Link>
-                </li>
-                <li aria-hidden="true">/</li>
-                <li className="text-foreground">
-                  {categoryLabel}
-                </li>
-              </ol>
-            </nav>
+            <SiteBreadcrumb
+              label={t("breadcrumb")}
+              className="flex justify-center"
+              icon={<ServiceGlyph slug={service.slug} className="size-4 text-primary" />}
+              items={[{ label: t("solutions"), href: "/#services" }, { label: categoryLabel }]}
+            />
 
-            <h1 className="mt-6 text-4xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-6xl lg:leading-[1.05]">
+            <h1 className="mt-6 text-4xl font-semibold tracking-[-0.035em] text-balance sm:text-5xl lg:text-6xl lg:leading-[1.05]">
               {service.name}
             </h1>
             <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-pretty text-muted-foreground">
@@ -220,7 +205,7 @@ export default async function PrestationDetailPage({
               <section
                 id="demo"
                 aria-labelledby="demo-heading"
-                className="mx-auto mt-10 max-w-md scroll-mt-24 rounded-3xl border border-border bg-card p-5 text-left shadow-lg sm:p-6"
+                className="mx-auto mt-10 max-w-md scroll-mt-24 rounded-3xl border border-border bg-card p-5 text-left shadow-soft sm:p-6"
               >
                 <h2
                   id="demo-heading"
@@ -257,7 +242,7 @@ export default async function PrestationDetailPage({
                   activate: (chunks) => (
                     <Link
                       href={primaryHref}
-                      className="font-medium text-foreground underline-offset-4 hover:underline"
+                      className="font-medium text-foreground underline-offset-4 hover:underline active:opacity-70"
                     >
                       {chunks}
                     </Link>
@@ -265,7 +250,7 @@ export default async function PrestationDetailPage({
                   pricing: (chunks) => (
                     <Link
                       href="#pricing"
-                      className="font-medium text-foreground underline-offset-4 hover:underline"
+                      className="font-medium text-foreground underline-offset-4 hover:underline active:opacity-70"
                     >
                       {chunks}
                     </Link>
@@ -275,7 +260,7 @@ export default async function PrestationDetailPage({
             )}
           </div>
 
-          <div className="mx-auto mt-14 max-w-3xl px-4 pb-16 sm:px-6 sm:pb-24">
+          <div className="mx-auto mt-14 max-w-3xl px-4 pb-24 sm:px-6 sm:pb-32">
             <div className="rounded-lg border border-border bg-muted/40 px-4 py-10 sm:px-12 sm:py-12">
               <ServiceIllustration slug={service.slug} />
             </div>
@@ -286,7 +271,7 @@ export default async function PrestationDetailPage({
           aria-labelledby="steps-heading"
           className="border-t border-border"
         >
-          <div className="mx-auto max-w-[80rem] px-4 py-16 sm:px-6 sm:py-24">
+          <div className="mx-auto max-w-[80rem] px-4 py-24 sm:px-6 sm:py-32">
             <div className="max-w-2xl">
               <h2
                 id="steps-heading"
@@ -336,7 +321,7 @@ export default async function PrestationDetailPage({
           aria-labelledby="pricing-heading"
           className="scroll-mt-20 border-t border-border"
         >
-          <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 sm:py-24">
+          <div className="mx-auto max-w-5xl px-4 py-24 sm:px-6 sm:py-32">
             <div className="mx-auto max-w-2xl text-center">
               <h2
                 id="pricing-heading"
@@ -349,28 +334,9 @@ export default async function PrestationDetailPage({
               </p>
             </div>
             <div className="mt-12 grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-16">
-              <div>
-              <h3 className="text-base font-semibold text-foreground">{t("pricing.includedHeading")}</h3>
-              <ul className="mt-4 divide-y divide-border border-y border-border">
-                {includedItems.map((item) => (
-                  <li key={item.title} className="flex gap-4 py-5">
-                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                      <Check className="size-3.5" aria-hidden="true" />
-                    </span>
-                    <div>
-                      <p className="font-medium text-foreground">
-                        {item.title}
-                      </p>
-                      <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">
-                        {item.description}
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-              </div>
-
-              <Card className="gap-0 px-(--card-spacing) lg:sticky lg:top-24 lg:order-first">
+              {/* La carte de prix vient d'abord dans le code comme à l'écran :
+                  le clavier et les lecteurs d'écran la lisent avant la liste. */}
+              <Card className="gap-0 px-(--card-spacing) shadow-soft lg:sticky lg:top-24">
                 <p className="text-sm font-medium text-muted-foreground">
                   {service.name}
                 </p>
@@ -383,7 +349,7 @@ export default async function PrestationDetailPage({
                       <div className="flex flex-col-reverse py-4 first:pt-0">
                         <dt className="mt-0.5 text-sm text-muted-foreground">
                           {t("pricing.perMonthVat")}
-                          <span className="block text-xs">
+                          <span className="block text-[13px]">
                             {price.excludingVatSuffix(service.monthlyPriceCents)}
                           </span>
                         </dt>
@@ -433,6 +399,27 @@ export default async function PrestationDetailPage({
                   ))}
                 </ul>
               </Card>
+
+              <div>
+              <h3 className="text-base font-semibold text-foreground">{t("pricing.includedHeading")}</h3>
+              <ul className="mt-4 divide-y divide-border border-y border-border">
+                {includedItems.map((item) => (
+                  <li key={item.title} className="flex gap-4 py-5">
+                    <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <Check className="size-3.5" aria-hidden="true" />
+                    </span>
+                    <div>
+                      <p className="font-medium text-foreground">
+                        {item.title}
+                      </p>
+                      <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">
+                        {item.description}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              </div>
             </div>
           </div>
         </section>
@@ -442,7 +429,7 @@ export default async function PrestationDetailPage({
             aria-labelledby="benefits-heading"
             className="border-t border-border bg-muted/40"
           >
-            <div className="mx-auto max-w-[80rem] px-4 py-16 sm:px-6 sm:py-24">
+            <div className="mx-auto max-w-[80rem] px-4 py-24 sm:px-6 sm:py-32">
               <div className="max-w-2xl">
                 <h2
                   id="benefits-heading"
@@ -473,8 +460,8 @@ export default async function PrestationDetailPage({
                       <Icon className="size-5 text-primary" aria-hidden="true" />
                       <h3
                         className={cn(
-                          "mt-3 font-sans font-semibold tracking-tight text-foreground",
-                          lead ? "text-2xl text-balance" : "text-lg"
+                          "mt-3 font-sans font-semibold text-foreground",
+                          lead ? "text-2xl tracking-tight text-balance" : "text-lg"
                         )}
                       >
                         {benefit.title}
@@ -499,7 +486,7 @@ export default async function PrestationDetailPage({
             aria-labelledby="situations-heading"
             className="border-t border-border"
           >
-            <div className="mx-auto max-w-[80rem] px-4 py-16 sm:px-6 sm:py-24">
+            <div className="mx-auto max-w-[80rem] px-4 py-24 sm:px-6 sm:py-32">
               <div className="max-w-2xl">
                 <h2
                   id="situations-heading"
@@ -533,7 +520,7 @@ export default async function PrestationDetailPage({
             aria-labelledby="faq-heading"
             className="border-t border-border"
           >
-            <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-24">
+            <div className="mx-auto max-w-3xl px-4 py-24 sm:px-6 sm:py-32">
               <h2
                 id="faq-heading"
                 className="text-center text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"
@@ -546,7 +533,7 @@ export default async function PrestationDetailPage({
                   link: (chunks) => (
                     <Link
                       href="/contact"
-                      className="font-medium text-primary underline-offset-4 hover:underline"
+                      className="font-medium text-primary underline-offset-4 hover:underline active:opacity-70"
                     >
                       {chunks}
                     </Link>
@@ -562,7 +549,7 @@ export default async function PrestationDetailPage({
             aria-labelledby="related-heading"
             className="border-t border-border"
           >
-            <div className="mx-auto max-w-[80rem] px-4 py-16 sm:px-6 sm:py-20">
+            <div className="mx-auto max-w-[80rem] px-4 py-24 sm:px-6 sm:py-32">
               <h2
                 id="related-heading"
                 className="text-2xl font-semibold tracking-tight text-foreground"
@@ -574,7 +561,7 @@ export default async function PrestationDetailPage({
                   <li key={relatedService.slug}>
                     <Link
                       href={`/services/${relatedService.slug}`}
-                      className="group flex items-center gap-4 p-5 transition-colors hover:bg-muted/40 focus-visible:focus-ring sm:gap-6 sm:p-6"
+                      className="group flex items-center gap-4 p-5 transition-colors hover:bg-muted/40 focus-visible:focus-ring active:bg-muted/70 sm:gap-6 sm:p-6"
                     >
                       <ServiceGlyphBadge slug={relatedService.slug} />
                       <span className="min-w-0 flex-1">
@@ -600,7 +587,7 @@ export default async function PrestationDetailPage({
 
         <section
           aria-labelledby="cta-heading"
-          className="px-4 pb-16 sm:px-6 sm:pb-24"
+          className="px-4 pb-24 sm:px-6 sm:pb-32"
         >
           <div className="relative isolate mx-auto max-w-[80rem] overflow-hidden rounded-lg border border-border bg-card px-6 py-16 text-center sm:py-20">
             <h2

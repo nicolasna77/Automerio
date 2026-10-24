@@ -17,6 +17,10 @@ import { getTrade, getTrades, tradePath } from "@/lib/trades";
 import { isWaitlistMode } from "@/lib/launch-mode";
 import { cn } from "@/lib/utils";
 import { WaitlistSection } from "../../home-sections/waitlist-section";
+import { DemoCallForm } from "../../services/[slug]/demo-call-form";
+import { SiteBreadcrumb } from "@/components/site-breadcrumb";
+import { isDemoCallAvailable } from "@/lib/demo-call";
+import { TELEPHONY_SERVICE_SLUGS } from "@/lib/catalog";
 
 export async function generateMetadata({
   params,
@@ -55,6 +59,12 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
   });
   const otherTrades = getTrades().filter((other) => other.slug !== trade.slug);
   const path = tradePath(trade.slug);
+  // L'appel de démonstration à côté de l'exemple d'appel, quand la
+  // téléphonie est configurée : avec la solution téléphonique du métier.
+  const demoSlug =
+    trade.solutions.find((solution) => TELEPHONY_SERVICE_SLUGS.has(solution.slug))?.slug ??
+    "standard-telephonique-ia";
+  const showDemoCall = isDemoCallAvailable();
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -70,29 +80,18 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
       <main id="content" className="flex-1">
         <section className="border-b border-border">
           <div className="mx-auto max-w-[80rem] px-4 pt-12 pb-16 sm:px-6 sm:pt-16 sm:pb-20">
-            <nav aria-label={t("breadcrumb")}>
-              <ol className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
-                <li>
-                  <Link href="/" className="hover:text-foreground">
-                    {t("breadcrumbHome")}
-                  </Link>
-                </li>
-                <ChevronRight className="size-3.5" aria-hidden="true" />
-                <li>
-                  <Link href="/#who-its-for" className="hover:text-foreground">
-                    {t("breadcrumbAudience")}
-                  </Link>
-                </li>
-                <ChevronRight className="size-3.5" aria-hidden="true" />
-                <li aria-current="page" className="text-foreground">
-                  {trade.name}
-                </li>
-              </ol>
-            </nav>
+            <SiteBreadcrumb
+              label={t("breadcrumb")}
+              items={[
+                { label: t("breadcrumbHome"), href: "/" },
+                { label: t("breadcrumbAudience"), href: "/#who-its-for" },
+                { label: trade.name, current: true },
+              ]}
+            />
             <div className="mt-8 grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
               <div>
                 <span className="text-sm font-medium text-primary">{t("eyebrow", { name })}</span>
-                <h1 className="mt-3 text-4xl leading-[1.1] font-semibold tracking-tight text-balance text-foreground sm:text-5xl">
+                <h1 className="mt-3 text-4xl leading-[1.1] font-semibold tracking-[-0.035em] text-balance text-foreground sm:text-5xl">
                   {trade.title}
                 </h1>
                 <p className="mt-5 max-w-xl text-lg leading-relaxed text-pretty text-muted-foreground">{trade.lead}</p>
@@ -103,7 +102,7 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
                   </Link>
                   <Link
                     href="#solutions"
-                    className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline focus-visible:focus-ring"
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline focus-visible:focus-ring active:opacity-70"
                   >
                     {t("seeSolutions")}
                     <ArrowRight className="size-4" aria-hidden="true" />
@@ -120,7 +119,7 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
                   priority
                   className="aspect-[4/3] w-full rounded-lg border border-border object-cover"
                 />
-                <figcaption className="mt-2 text-xs text-muted-foreground">
+                <figcaption className="mt-2 text-[13px] text-muted-foreground">
                   {t("photoCredit", { name: trade.photo.credit })}
                 </figcaption>
               </figure>
@@ -128,10 +127,10 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
           </div>
         </section>
 
-        <section aria-labelledby="pains-heading" className="bg-muted/40 py-16 sm:py-20">
+        <section aria-labelledby="pains-heading" className="bg-muted/40 py-24 sm:py-32">
           <div className="mx-auto max-w-[80rem] px-4 sm:px-6">
             <div className="mx-auto max-w-2xl text-center">
-              <h2 id="pains-heading" className="text-3xl font-semibold tracking-tight text-foreground">
+              <h2 id="pains-heading" className="text-3xl font-semibold sm:text-4xl tracking-tight text-foreground">
                 {t("painsHeading")}
               </h2>
               <p className="mt-4 text-lg text-muted-foreground">{t("for", { trades: trade.trades })}</p>
@@ -151,8 +150,8 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
                 >
                   <h3
                     className={cn(
-                      "font-semibold tracking-tight text-foreground",
-                      index === 0 ? "text-2xl text-balance" : "text-lg"
+                      "font-semibold text-foreground",
+                      index === 0 ? "text-2xl tracking-tight text-balance" : "text-lg"
                     )}
                   >
                     {pain.title}
@@ -166,15 +165,25 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
           </div>
         </section>
 
-        <section aria-labelledby="call-heading" className="border-t border-border py-16 sm:py-20">
+        <section aria-labelledby="call-heading" className="border-t border-border py-24 sm:py-32">
           <div className="mx-auto grid max-w-[80rem] items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16">
             <div>
-              <h2 id="call-heading" className="text-3xl font-semibold tracking-tight text-foreground">
+              <h2 id="call-heading" className="text-3xl font-semibold sm:text-4xl tracking-tight text-foreground">
                 {t("callHeading")}
               </h2>
               <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{t("callLead")}</p>
+              {showDemoCall && (
+                <div
+                  id="essai"
+                  className="mt-8 max-w-md scroll-mt-24 rounded-lg border border-border bg-card p-5 shadow-soft sm:p-6"
+                >
+                  <h3 className="text-base font-semibold text-foreground">{t("demoHeading")}</h3>
+                  <p className="mt-1.5 mb-5 text-sm leading-relaxed text-muted-foreground">{t("demoLead")}</p>
+                  <DemoCallForm serviceSlug={demoSlug} />
+                </div>
+              )}
             </div>
-            <figure className="rounded-lg border border-border bg-card p-5 shadow-sm sm:p-6">
+            <figure className="rounded-lg border border-border bg-card p-5 shadow-soft sm:p-6">
               <figcaption className="flex items-center gap-2 text-sm font-medium text-foreground">
                 <Phone className="size-4 text-primary" aria-hidden="true" />
                 {trade.call.company}
@@ -182,7 +191,7 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
               <dl className="mt-4 space-y-3 border-t border-border pt-4 text-sm leading-relaxed">
                 {trade.call.turns.map((turn, index) => (
                   <div key={index}>
-                    <dt className="font-mono text-xs text-muted-foreground">
+                    <dt className="text-[13px] font-medium text-muted-foreground">
                       {turn.speaker === "caller" ? t("caller") : t("assistant")}
                     </dt>
                     <dd className="mt-0.5 text-foreground">{turn.text}</dd>
@@ -204,11 +213,11 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
           <section
             id="solutions"
             aria-labelledby="solutions-heading"
-            className="scroll-mt-20 border-t border-border bg-muted/40 py-16 sm:py-20"
+            className="scroll-mt-20 border-t border-border bg-muted/40 py-24 sm:py-32"
           >
             <div className="mx-auto max-w-[80rem] px-4 sm:px-6">
               <div className="max-w-2xl">
-                <h2 id="solutions-heading" className="text-3xl font-semibold tracking-tight text-balance text-foreground">
+                <h2 id="solutions-heading" className="text-3xl font-semibold sm:text-4xl tracking-tight text-balance text-foreground">
                   {t("solutionsHeading", { name })}
                 </h2>
                 <p className="mt-4 text-lg text-muted-foreground">{t("solutionsLead")}</p>
@@ -216,45 +225,62 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
               {/* Une ligne par solution, prix aligné à droite comme une fiche
                   technique (DESIGN.md, Images). */}
               <ul className="mt-10 divide-y divide-border rounded-lg border border-border bg-card">
-                {solutions.map(({ service, why }) => (
-                  <li
-                    key={service.slug}
-                    className="grid gap-4 p-6 sm:grid-cols-[auto_1fr_auto] sm:items-center sm:gap-6"
-                  >
-                    <ServiceGlyphBadge slug={service.slug} size="lg" />
-                    <div>
-                      <h3 className="text-lg font-semibold text-foreground">{service.name}</h3>
-                      <p className="mt-1 max-w-prose leading-relaxed text-muted-foreground">{why}</p>
-                    </div>
-                    <div className="flex items-end justify-between gap-6 border-t border-border pt-4 sm:flex-col sm:items-end sm:border-t-0 sm:pt-0">
-                      {service.monthlyPriceCents !== null && <MonthlyPrice cents={service.monthlyPriceCents} />}
-                      {!waitlist && (
+                {/* Toute la ligne mène à la solution, comme la liste « Autres
+                    solutions » de la page solution : une cible large, pas un
+                    petit lien au bout de la ligne. */}
+                {solutions.map(({ service, why }) => {
+                  const row = (
+                    <>
+                      <ServiceGlyphBadge slug={service.slug} size="lg" />
+                      <div>
+                        <h3 className="text-lg font-semibold text-foreground">{service.name}</h3>
+                        <p className="mt-1 max-w-prose leading-relaxed text-muted-foreground">{why}</p>
+                      </div>
+                      <div className="flex items-end justify-between gap-6 border-t border-border pt-4 sm:flex-col sm:items-end sm:border-t-0 sm:pt-0">
+                        {service.monthlyPriceCents !== null && <MonthlyPrice cents={service.monthlyPriceCents} />}
+                        {!waitlist && (
+                          <span className="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-primary underline-offset-4 group-hover/solution:underline">
+                            {t("seeSolution")}
+                            <ArrowRight className="size-4" aria-hidden="true" />
+                          </span>
+                        )}
+                      </div>
+                    </>
+                  );
+                  const rowClass = "grid gap-4 p-6 sm:grid-cols-[auto_1fr_auto] sm:items-center sm:gap-6";
+                  return (
+                    <li key={service.slug}>
+                      {waitlist ? (
+                        <div className={rowClass}>{row}</div>
+                      ) : (
                         <Link
                           href={`/services/${service.slug}`}
-                          className="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-primary underline-offset-4 hover:underline"
+                          className={cn(
+                            rowClass,
+                            "group/solution transition-colors hover:bg-muted/40 focus-visible:focus-ring active:bg-muted/70"
+                          )}
                         >
-                          {t("seeSolution")}
-                          <ArrowRight className="size-4" aria-hidden="true" />
+                          {row}
                         </Link>
                       )}
-                    </div>
-                  </li>
-                ))}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           </section>
         )}
 
-        <section aria-labelledby="trade-faq-heading" className="border-t border-border py-16 sm:py-20">
+        <section aria-labelledby="trade-faq-heading" className="border-t border-border py-24 sm:py-32">
           <div className="mx-auto max-w-3xl px-4 sm:px-6">
-            <h2 id="trade-faq-heading" className="text-center text-3xl font-semibold tracking-tight text-foreground">
+            <h2 id="trade-faq-heading" className="text-center text-3xl font-semibold sm:text-4xl tracking-tight text-foreground">
               {t("faqHeading")}
             </h2>
             <FaqList items={trade.faq} className="mt-10" />
           </div>
         </section>
 
-        <nav aria-labelledby="other-trades-heading" className="border-t border-border py-16 sm:py-20">
+        <nav aria-labelledby="other-trades-heading" className="border-t border-border py-24 sm:py-32">
           <div className="mx-auto max-w-[80rem] px-4 sm:px-6">
             <h2 id="other-trades-heading" className="text-2xl font-semibold tracking-tight text-foreground">
               {t("otherTrades")}
@@ -264,7 +290,7 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
                 <li key={other.slug}>
                   <Link
                     href={tradePath(other.slug)}
-                    className="group/trade block overflow-hidden rounded-lg border border-border bg-card transition-colors hover:border-primary/40 focus-visible:focus-ring"
+                    className="group/trade block overflow-hidden rounded-lg border border-border bg-card transition-colors hover:border-primary/40 focus-visible:focus-ring active:opacity-80"
                   >
                     {/* Photo décorative : le nom du métier nomme le lien. */}
                     <Image
@@ -283,7 +309,7 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
                 </li>
               ))}
             </ul>
-            <p className="mt-4 text-xs text-muted-foreground">
+            <p className="mt-4 text-[13px] text-muted-foreground">
               {t("photoCredits", { names: otherTrades.map((other) => other.photo.credit).join(", ") })}
             </p>
           </div>
@@ -292,11 +318,11 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
         {waitlist ? (
           <WaitlistSection />
         ) : (
-          <section aria-labelledby="trade-cta-heading" className="px-4 pb-20 sm:px-6 sm:pb-24">
+          <section aria-labelledby="trade-cta-heading" className="px-4 pb-24 sm:px-6 sm:pb-32">
             <div className="mx-auto max-w-[80rem] rounded-lg border border-border bg-card px-6 py-14 text-center sm:py-16">
               <h2
                 id="trade-cta-heading"
-                className="mx-auto max-w-2xl text-3xl font-semibold tracking-tight text-balance text-foreground"
+                className="mx-auto max-w-2xl text-3xl font-semibold sm:text-4xl tracking-tight text-balance text-foreground"
               >
                 {t("ctaHeading")}
               </h2>

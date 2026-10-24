@@ -950,7 +950,9 @@
     "ctaContact": "Écrivez-nous",
     "ctaNote": "Sans engagement, remboursé pendant 30 jours.",
     "photoCredit": "Photo : {name}, Unsplash",
-    "photoCredits": "Photos : {names}, Unsplash"
+    "photoCredits": "Photos : {names}, Unsplash",
+    "demoHeading": "Écoutez-le au téléphone",
+    "demoLead": "Laissez votre numéro : l'assistant vous appelle et répond à vos questions. Gratuit, sans compte, un essai par numéro."
   },
   "Dashboard": {
     "weeklyHours": {

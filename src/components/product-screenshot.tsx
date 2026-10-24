@@ -35,7 +35,7 @@ export function ProductScreenshot({
   fragment?: boolean;
 }) {
   const frame = (
-    <div className="overflow-hidden rounded-lg border border-border bg-card shadow-md">
+    <div className="overflow-hidden rounded-lg border border-border bg-card shadow-soft">
       <Image
         src={`/screenshots/${name}-light.webp`}
         width={width}
@@ -65,14 +65,14 @@ export function ProductScreenshot({
         // rester lisible : il part de la gauche et le fond le coupe à droite.
         <div className="flex justify-start overflow-hidden rounded-lg border border-border bg-muted/50 p-4 sm:justify-center sm:p-10">
           <div
-            className="w-[max(100%,calc(var(--fragment-width)*0.8))] shrink-0 overflow-hidden rounded-lg shadow-lg sm:w-full sm:shrink"
+            className="w-[max(100%,calc(var(--fragment-width)*0.8))] shrink-0 overflow-hidden rounded-lg shadow-soft sm:w-full sm:shrink"
             style={{ maxWidth: width, "--fragment-width": `${width}px` } as React.CSSProperties}
           >
             {frame}
           </div>
         </div>
       ) : showcase ? (
-        <div className="rounded-lg border border-border bg-muted/50 p-1.5 shadow-sm [mask-image:linear-gradient(to_bottom,black_60%,transparent)] sm:p-2">
+        <div className="rounded-lg border border-border bg-muted/50 p-1.5 shadow-soft [mask-image:linear-gradient(to_bottom,black_60%,transparent)] sm:p-2">
           {frame}
         </div>
       ) : (

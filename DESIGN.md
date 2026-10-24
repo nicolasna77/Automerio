@@ -79,6 +79,9 @@ Les chiffres de données sont tabulaires (`tabular-nums`). Pas de petites
 | Mention légale, note                                          | 13 px                                                      | 400        |
 
 Pas de compression manuelle des lettres (`font-stretch`, `tracking` négatif fort).
+Approche selon la taille : −0,035 em sur les titres de page du site public
+(48 px et plus), −0,025 em (`tracking-tight`) sur les titres de section, 0 sous
+20 px.
 
 ## Formes
 
@@ -88,8 +91,8 @@ Pas de compression manuelle des lettres (`font-stretch`, `tracking` négatif for
   graphique, flèche d'infobulle) gardent un arrondi de 2 à 5 px.
 - Cercle (`rounded-full`) seulement pour ce qui est rond par nature : avatar,
   pastille d'état, numéro d'étape. Jamais pour un bouton, un badge ou un champ.
-- Espacements sur la grille de 4 px de Tailwind ; sections de 80 px, 96 px dès
-  `sm` (`py-20 sm:py-24`).
+- Espacements sur la grille de 4 px de Tailwind ; sections du site public de
+  96 px, 128 px dès `sm` (`py-24 sm:py-32`).
 - Boutons : un style principal plein (`default`), un secondaire à filet
   (`outline`). Les autres variantes restent pour l'application (`ghost` dans les
   menus, `destructive` pour supprimer).
@@ -150,7 +153,9 @@ barre latérale et le fil d'Ariane.
 d'Ariane s'affiche dans la barre du haut (`HeaderBreadcrumbs`), déduit de
 l'adresse ; une page dont le titre vient des données (une solution, un
 utilisateur) le fournit par `PageBreadcrumbs`. Jamais de fil d'Ariane dans
-le contenu de la page.
+le contenu de la page du tableau de bord. Sur le site public, les pages
+solution et métier ouvrent sur un fil d'Ariane en pastille, le même pour
+toutes (`SiteBreadcrumb`).
 
 **Onglets (`Tabs`)** : filet vert sous l'onglet actif ; un onglet désactivé
 passe à 50 % d'opacité et ne réagit plus. Sur l'accueil, les onglets des
@@ -161,6 +166,10 @@ pleine, unique, qui glisse vers l'onglet choisi.
 sous le champ (`aria-invalid`, `aria-describedby`) et le champ reçoit le
 focus ; une erreur qui ne vise pas un champ va dans une notification, qui
 reste affichée jusqu'à ce qu'on la ferme.
+
+**Cartes mises en avant du site public** (appel de démonstration, carte de
+prix, captures, carte d'activité du hero) : ombre douce `shadow-soft`, un contact
+net et une ombre large et diffuse, plus dense en thème sombre.
 
 **États vides** : `EmptyState`, avec une phrase qui dit quoi faire.
 
@@ -205,8 +214,9 @@ Seules animations autorisées :
 - transition de couleur ou d'opacité au survol et au clic (150 ms) ;
 - ouverture et fermeture des fenêtres et menus (fondu court) ;
 - indicateur de chargement (rotation) et squelette de chargement ;
+- réponse de FAQ qui se déplie à l'ouverture (200 ms, `faq-list.tsx`) ;
 - pastille des onglets de l'accueil qui glisse vers l'onglet choisi (200 ms, sans rebond) ;
-- traits lumineux de la trame du hero de l'accueil (parcours lent le long des lignes, en boucle) ;
+- traits lumineux de la trame du hero de l'accueil (parcours lent le long des lignes, en boucle, mis en pause hors de l'écran) ;
 - défilement doux vers une section quand on clique sur un lien de la même page
   (`/#faq`…), y compris vers la section déjà dans l'adresse ; un changement de
   page reste instantané (`data-scroll-behavior="smooth"` sur `<html>`).

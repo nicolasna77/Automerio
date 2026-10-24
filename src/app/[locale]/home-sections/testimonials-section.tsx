@@ -7,7 +7,7 @@ export async function TestimonialsSection() {
   if (TESTIMONIALS.length === 0) return null;
   const t = await getTranslations("Home.testimonials");
   return (
-    <section aria-labelledby="testimonials-heading" className="border-t border-border py-20 sm:py-24">
+    <section aria-labelledby="testimonials-heading" className="border-t border-border py-24 sm:py-32">
       <div className="mx-auto max-w-[80rem] px-4 sm:px-6">
         <h2
           id="testimonials-heading"

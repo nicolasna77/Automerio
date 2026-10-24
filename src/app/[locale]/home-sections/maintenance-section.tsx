@@ -19,7 +19,7 @@ export async function MaintenanceSection({ services }: { services: ServiceDTO[] 
   const [t, price] = await Promise.all([getTranslations("Home.support"), getPriceFormatter()]);
 
   return (
-    <section id="subscription" className="border-t border-border py-20 sm:py-24">
+    <section id="subscription" className="border-t border-border py-24 sm:py-32">
       <div className="mx-auto max-w-[80rem] px-4 sm:px-6">
         <Card className="mx-auto max-w-3xl">
           <CardHeader>

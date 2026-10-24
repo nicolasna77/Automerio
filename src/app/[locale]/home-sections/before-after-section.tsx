@@ -28,7 +28,7 @@ export async function BeforeAfterSection() {
   }));
 
   return (
-    <section aria-labelledby="before-after-heading" className="relative isolate overflow-hidden border-b border-border bg-muted/40 py-20 sm:py-24">
+    <section aria-labelledby="before-after-heading" className="relative isolate overflow-hidden border-b border-border bg-muted/40 py-24 sm:py-32">
       <SectionGlow position="top" strength={14} />
       <div className="mx-auto max-w-[80rem] px-4 sm:px-6">
         <div className="mx-auto max-w-2xl text-center">
