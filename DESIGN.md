@@ -70,7 +70,7 @@ Les chiffres de données sont tabulaires (`tabular-nums`). Pas de petites
 | ------------------------------------------------------------- | ---------------------------------------------------------- | ---------- |
 | Titre de page (`h1`), site public                             | 36 px, 48 px dès `sm`                                      | 600        |
 | Titre de page (`h1`), tableau de bord et admin (`PageHeader`) | 24 px                                                      | 600        |
-| Titre du hero de l'accueil                                    | 36 px, 48 px dès `sm`, 60 px dès `lg`, deux lignes au plus | 600        |
+| Titre du hero de l'accueil et des pages solution              | 36 px, 48 px dès `sm`, 60 px dès `lg`, deux lignes au plus | 600        |
 | Titre de section (`h2`)                                       | 30 px, 36 px dès `sm`                                      | 600        |
 | Sous-titre (`h3`)                                             | 18 à 20 px                                                 | 600        |
 | Texte courant                                                 | 16 px, 18 px pour les chapeaux                             | 400        |
@@ -139,7 +139,9 @@ utilisateur) le fournit par `PageBreadcrumbs`. Jamais de fil d'Ariane dans
 le contenu de la page.
 
 **Onglets (`Tabs`)** : filet vert sous l'onglet actif ; un onglet désactivé
-passe à 50 % d'opacité et ne réagit plus.
+passe à 50 % d'opacité et ne réagit plus. Sur l'accueil, les onglets des
+sections « Avant / après » et « Tableau de bord » sont une pastille verte
+pleine, unique, qui glisse vers l'onglet choisi.
 
 **Formulaires** : chaque champ a son `Label`. Une erreur de saisie s'affiche
 sous le champ (`aria-invalid`, `aria-describedby`) et le champ reçoit le
@@ -189,6 +191,7 @@ Seules animations autorisées :
 - transition de couleur ou d'opacité au survol et au clic (150 ms) ;
 - ouverture et fermeture des fenêtres et menus (fondu court) ;
 - indicateur de chargement (rotation) et squelette de chargement ;
+- pastille des onglets de l'accueil qui glisse vers l'onglet choisi (200 ms, sans rebond) ;
 - traits lumineux de la trame du hero de l'accueil (parcours lent le long des lignes, en boucle).
 
 Pas d'animation au défilement, de parallaxe, de pulsation ni d'effet « radar ».
