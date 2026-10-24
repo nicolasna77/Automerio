@@ -3,6 +3,7 @@ import { routing } from "@/i18n/routing";
 import { db } from "@/lib/db";
 import { formatFrenchPhone } from "@/lib/phone-format";
 import { sendSms } from "@/lib/sms";
+import { stripLinks } from "@/lib/sms-text";
 
 // Alerte SMS à l'artisan quand le résumé d'un appel le dit urgent : sur un
 // chantier, on lit un SMS, pas ses e-mails. Destinataire : le mobile du
@@ -30,9 +31,10 @@ export async function sendUrgentCallAlert(input: {
     alertPhone,
     t("urgentCall", {
       service: clientService.name,
-      caller: input.callerName ?? t("unknownCaller"),
+      // Nom et motif viennent de ce qu'a dit l'appelant : jamais de lien.
+      caller: (input.callerName && stripLinks(input.callerName)) || t("unknownCaller"),
       number: fromNumber ? formatFrenchPhone(fromNumber) : t("hiddenNumber"),
-      reason: input.reason ?? "",
+      reason: input.reason ? stripLinks(input.reason) : "",
     }).trim()
   );
 }

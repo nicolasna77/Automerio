@@ -70,7 +70,7 @@ Les chiffres de données sont tabulaires (`tabular-nums`). Pas de petites
 | ------------------------------------------------------------- | ---------------------------------------------------------- | ---------- |
 | Titre de page (`h1`), site public                             | 36 px, 48 px dès `sm`                                      | 600        |
 | Titre de page (`h1`), tableau de bord et admin (`PageHeader`) | 24 px                                                      | 600        |
-| Titre du hero de l'accueil                                    | 36 px, 48 px dès `sm`, 60 px dès `lg`, deux lignes au plus | 600        |
+| Titre du hero de l'accueil et des pages solution              | 36 px, 48 px dès `sm`, 60 px dès `lg`, deux lignes au plus | 600        |
 | Titre de section (`h2`)                                       | 30 px, 36 px dès `sm`                                      | 600        |
 | Sous-titre (`h3`)                                             | 18 à 20 px                                                 | 600        |
 | Texte courant                                                 | 16 px, 18 px pour les chapeaux                             | 400        |
@@ -93,6 +93,20 @@ Pas de compression manuelle des lettres (`font-stretch`, `tracking` négatif for
 - Boutons : un style principal plein (`default`), un secondaire à filet
   (`outline`). Les autres variantes restent pour l'application (`ghost` dans les
   menus, `destructive` pour supprimer).
+
+## Logo
+
+Un A ouvert, sans barre, avec une pastille en son cœur : l'assistant qui écoute
+(piste « Écoute », octobre 2026). Dans l'application, il est en
+`--primary-foreground` (blanc en thème clair, presque noir en sombre) sur une
+tuile `--primary` à coins arrondis (9/32 du côté), suivi du mot « Automerio »
+en DM Sans 600 (`src/components/brand.tsx`). Le favicon (`src/app/icon.svg`),
+l'icône Apple (`src/app/apple-icon.tsx`) et les images de partage
+(`src/components/og-frame.tsx`) reprennent la même tuile, en clair. Dans la
+tuile, le A est toujours la coupe renforcée (traits plus épais, pastille plus
+grosse, `src/lib/brand-mark.ts`) : il n'en occupe que 60 %. Le dessin fin
+(`assets/brand/logo/automerio-symbol.svg`) sert au symbole seul, sans tuile,
+au-dessus de 32 px. Pas d'effet, de reflet ni de transparence.
 
 ## Icônes
 
@@ -139,7 +153,9 @@ utilisateur) le fournit par `PageBreadcrumbs`. Jamais de fil d'Ariane dans
 le contenu de la page.
 
 **Onglets (`Tabs`)** : filet vert sous l'onglet actif ; un onglet désactivé
-passe à 50 % d'opacité et ne réagit plus.
+passe à 50 % d'opacité et ne réagit plus. Sur l'accueil, les onglets des
+sections « Avant / après » et « Tableau de bord » sont une pastille verte
+pleine, unique, qui glisse vers l'onglet choisi.
 
 **Formulaires** : chaque champ a son `Label`. Une erreur de saisie s'affiche
 sous le champ (`aria-invalid`, `aria-describedby`) et le champ reçoit le
@@ -189,6 +205,7 @@ Seules animations autorisées :
 - transition de couleur ou d'opacité au survol et au clic (150 ms) ;
 - ouverture et fermeture des fenêtres et menus (fondu court) ;
 - indicateur de chargement (rotation) et squelette de chargement ;
+- pastille des onglets de l'accueil qui glisse vers l'onglet choisi (200 ms, sans rebond) ;
 - traits lumineux de la trame du hero de l'accueil (parcours lent le long des lignes, en boucle) ;
 - défilement doux vers une section quand on clique sur un lien de la même page
   (`/#faq`…), y compris vers la section déjà dans l'adresse ; un changement de

@@ -239,36 +239,14 @@
 <!-- Monogramme : copie de src/app/icon.svg (clair) et de sa variante sombre du site. -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
-    <linearGradient id="tile-light" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#008236" />
-      <stop offset="1" stop-color="#004e1d" />
-    </linearGradient>
-    <linearGradient id="tile-dark" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#00c950" />
-      <stop offset="1" stop-color="#007b2e" />
-    </linearGradient>
-    <clipPath id="tile-clip"><rect width="32" height="32" rx="9" /></clipPath>
-    <symbol id="mark-light" viewBox="0 0 32 32">
-      <rect width="32" height="32" rx="9" fill="url(#tile-light)" />
-      <g clip-path="url(#tile-clip)">
-        <g transform="rotate(-38 16 16)">
-          <rect x="-8" y="6" width="48" height="6" fill="#f0fdf4" opacity="0.22" />
-          <rect x="-8" y="14.5" width="48" height="2.4" fill="#f0fdf4" opacity="0.13" />
-        </g>
-      </g>
-      <path d="M9.6 21.8L16 10.2L22.4 21.8M11.48 18.4H20.52" fill="none" stroke="#f0fdf4" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" />
-      <path d="M16 13.6L18.4 18.4H13.6Z" fill="#f0fdf4" opacity="0.45" />
+    <path id="mark-a" transform="translate(128 123) scale(0.6) translate(-128 -128)" d="M27.38 197.82L107.38 35.82A23 23 0 0 1 148.62 35.82L228.62 197.82A23 23 0 0 1 187.38 218.18L128 97.94L68.62 218.18A23 23 0 0 1 27.38 197.82ZM104 172a24 24 0 1 0 48 0a24 24 0 1 0 -48 0Z" />
+    <symbol id="mark-light" viewBox="0 0 256 256">
+      <rect width="256" height="256" rx="72" fill="#15803d" />
+      <use href="#mark-a" fill="#ffffff" />
     </symbol>
-    <symbol id="mark-dark" viewBox="0 0 32 32">
-      <rect width="32" height="32" rx="9" fill="url(#tile-dark)" />
-      <g clip-path="url(#tile-clip)">
-        <g transform="rotate(-38 16 16)">
-          <rect x="-8" y="6" width="48" height="6" fill="#032e15" opacity="0.22" />
-          <rect x="-8" y="14.5" width="48" height="2.4" fill="#032e15" opacity="0.13" />
-        </g>
-      </g>
-      <path d="M9.6 21.8L16 10.2L22.4 21.8M11.48 18.4H20.52" fill="none" stroke="#032e15" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" />
-      <path d="M16 13.6L18.4 18.4H13.6Z" fill="#032e15" opacity="0.45" />
+    <symbol id="mark-dark" viewBox="0 0 256 256">
+      <rect width="256" height="256" rx="72" fill="#2fbc5b" />
+      <use href="#mark-a" fill="#0e1013" />
     </symbol>
     <symbol id="arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
   </defs>
