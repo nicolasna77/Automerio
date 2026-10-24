@@ -106,7 +106,7 @@ export async function ServicesSection({ services }: { services: ServiceDTO[] }) 
   })).filter(({ categoryServices }) => categoryServices.length > 0);
 
   return (
-    <section id="services" aria-labelledby="services-heading" className="relative isolate scroll-mt-16 overflow-hidden border-t border-border py-24 sm:py-32">
+    <section id="services" aria-labelledby="services-heading" className="relative isolate scroll-mt-20 overflow-hidden border-t border-border py-24 sm:py-32">
       <SectionGlow position="top" strength={14} />
       <div className="mx-auto max-w-[80rem] px-4 sm:px-6">
         <div className="mx-auto max-w-2xl text-center">
