@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { WaitlistSection } from "../../home-sections/waitlist-section";
 import { DemoCallForm } from "../../services/[slug]/demo-call-form";
 import { SiteBreadcrumb } from "@/components/site-breadcrumb";
+import { MotionScene, Sequence, Step } from "@/components/illustration-motion";
 import { isDemoCallAvailable } from "@/lib/demo-call";
 import { TELEPHONY_SERVICE_SLUGS } from "@/lib/catalog";
 
@@ -188,23 +189,34 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
                 <Phone className="size-4 text-primary" aria-hidden="true" />
                 {trade.call.company}
               </figcaption>
-              <dl className="mt-4 space-y-3 border-t border-border pt-4 text-sm leading-relaxed">
-                {trade.call.turns.map((turn, index) => (
-                  <div key={index}>
-                    <dt className="text-[13px] font-medium text-muted-foreground">
-                      {turn.speaker === "caller" ? t("caller") : t("assistant")}
-                    </dt>
-                    <dd className="mt-0.5 text-foreground">{turn.text}</dd>
-                  </div>
-                ))}
-              </dl>
-              <p className="mt-4 flex items-start gap-2 rounded-md bg-primary/10 px-3 py-2 text-sm text-foreground">
-                <Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
-                <span>
-                  <span className="font-medium">{t("result")} : </span>
-                  {trade.call.result}
-                </span>
-              </p>
+              {/* L'appel se déroule comme en direct : une réplique après
+                  l'autre, l'assistant « écrit » avant de répondre, puis le
+                  résultat (DESIGN.md, Mouvement). */}
+              <MotionScene>
+                <Sequence
+                  typing={[...trade.call.turns.map((turn) => turn.speaker === "assistant"), false]}
+                >
+                  <ol className="mt-4 space-y-3 border-t border-border pt-4 text-sm leading-relaxed">
+                    {trade.call.turns.map((turn, index) => (
+                      <Step key={index} as="li" index={index}>
+                        <p className="text-[13px] font-medium text-muted-foreground">
+                          {turn.speaker === "caller" ? t("caller") : t("assistant")}
+                        </p>
+                        <p className="mt-0.5 text-foreground">{turn.text}</p>
+                      </Step>
+                    ))}
+                  </ol>
+                  <Step index={trade.call.turns.length} className="mt-4">
+                    <p className="flex items-start gap-2 rounded-md bg-primary/10 px-3 py-2 text-sm text-foreground">
+                      <Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
+                      <span>
+                        <span className="font-medium">{t("result")} : </span>
+                        {trade.call.result}
+                      </span>
+                    </p>
+                  </Step>
+                </Sequence>
+              </MotionScene>
             </figure>
           </div>
         </section>

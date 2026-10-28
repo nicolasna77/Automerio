@@ -87,8 +87,11 @@ Thème clair et sombre (next-themes).
 Transitions de couleur et d'opacité (150 ms), ouverture des menus, chargement,
 traits du hero (en pause hors de l'écran), réponse de FAQ qui se déplie,
 pastille des onglets de l'accueil qui glisse (200 ms, sans rebond), défilement
-doux vers une section de la même page (lien `/#…`). Pas d'animation déclenchée
-par le défilement. « Réduire les animations » coupe tout.
+doux vers une section de la même page (lien `/#…`), illustrations animées du
+site public (messages qui arrivent, onde audio, logos en orbite et faisceaux ;
+seulement visibles à l'écran, en boucle douce). Hors de ces illustrations, pas
+d'animation déclenchée par le défilement. « Réduire les animations » coupe
+tout : les illustrations restent complètes et immobiles.
 
 ## Ton
 

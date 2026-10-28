@@ -2,6 +2,7 @@ import { ArrowRight, Check, FileText, Headset, ListChecks, Phone, PhoneForwarded
 import { useTranslations } from "next-intl";
 import { ServiceGlyph } from "@/components/service-glyph";
 import { cn } from "@/lib/utils";
+import { MotionScene, Sequence, Step, WaveBars } from "@/components/illustration-motion";
 
 type Family = "call" | "booking-call" | "chat" | "email" | "calendar" | "document" | "meeting" | "support";
 
@@ -66,26 +67,18 @@ function Bubble({ from, children }: { from: "them" | "us"; children: React.React
   );
 }
 
-function Waveform() {
-  const bars = [4, 9, 14, 7, 18, 11, 5, 15, 9, 13, 6, 17, 10, 4, 12, 8, 16, 6, 11, 5];
-  return (
-    <div className="flex h-6 items-center gap-[3px]">
-      {bars.map((height, index) => (
-        <span
-          key={index}
-          className="w-[3px] rounded-full bg-primary/70"
-          style={{ height: `${height + 4}px` }}
-        />
-      ))}
-    </div>
-  );
-}
+const WAVE_BARS = [4, 9, 14, 7, 18, 11, 5, 15, 9, 13, 6, 17, 10, 4, 12, 8, 16, 6, 11, 5];
 
 function CallIllustration({ booking }: { booking: boolean }) {
   const t = useTranslations("Illustrations.call");
+  // Messages de l'appel puis fiche résumé, l'un après l'autre (DESIGN.md,
+  // Mouvement) ; l'assistant « écrit » avant de répondre.
+  const typing = booking ? [false, true, false, false] : [false, true, false];
   return (
     <Frame>
-      <Panel>
+      <MotionScene>
+        <Sequence typing={typing}>
+          <Panel>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <span className="relative flex size-9 items-center justify-center rounded-full bg-primary/15 text-primary">
@@ -99,26 +92,37 @@ function CallIllustration({ booking }: { booking: boolean }) {
           <Label>{t("answeredAt")}</Label>
         </div>
         <div className="mt-4 flex items-center justify-between gap-3 rounded-xl bg-muted/60 px-3 py-2">
-          <Waveform />
+          <WaveBars bars={WAVE_BARS} />
           <span className="font-mono text-xs tabular-nums text-muted-foreground">01:12</span>
         </div>
         <div className="mt-4 space-y-2">
           {booking ? (
             <>
-              <Bubble from="them">{t("bookingThem1")}</Bubble>
-              <Bubble from="us">{t("bookingUs")}</Bubble>
-              <Bubble from="them">{t("bookingThem2")}</Bubble>
+              <Step index={0}>
+                <Bubble from="them">{t("bookingThem1")}</Bubble>
+              </Step>
+              <Step index={1} align="end">
+                <Bubble from="us">{t("bookingUs")}</Bubble>
+              </Step>
+              <Step index={2}>
+                <Bubble from="them">{t("bookingThem2")}</Bubble>
+              </Step>
             </>
           ) : (
             <>
-              <Bubble from="them">{t("leakThem")}</Bubble>
-              <Bubble from="us">{t("leakUs")}</Bubble>
+              <Step index={0}>
+                <Bubble from="them">{t("leakThem")}</Bubble>
+              </Step>
+              <Step index={1} align="end">
+                <Bubble from="us">{t("leakUs")}</Bubble>
+              </Step>
             </>
           )}
         </div>
       </Panel>
 
-      <Panel className="relative -mt-3 ml-8 border-primary/30 sm:ml-16">
+      <Step index={booking ? 3 : 2} className="-mt-3 ml-8 sm:ml-16">
+      <Panel className="relative border-primary/30">
         <div className="flex items-center gap-2">
           <span className="flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
             <Check className="size-3" />
@@ -145,6 +149,9 @@ function CallIllustration({ booking }: { booking: boolean }) {
           )}
         </dl>
       </Panel>
+      </Step>
+        </Sequence>
+      </MotionScene>
     </Frame>
   );
 }
@@ -153,6 +160,8 @@ function ChatIllustration({ slug }: { slug: string }) {
   const t = useTranslations("Illustrations.chat");
   return (
     <Frame>
+      <MotionScene>
+        <Sequence typing={[false, true, false, true, false]}>
       <Panel className="p-0">
         <div className="flex items-center gap-2.5 border-b border-border px-4 py-3">
           <ServiceGlyph slug={slug} className="size-6" />
@@ -162,16 +171,28 @@ function ChatIllustration({ slug }: { slug: string }) {
           </div>
         </div>
         <div className="space-y-2 px-4 py-4">
-          <Bubble from="them">{t("them1")}</Bubble>
-          <Bubble from="us">{t("us1")}</Bubble>
-          <Bubble from="them">{t("them2")}</Bubble>
-          <Bubble from="us">{t("us2")}</Bubble>
+          <Step index={0}>
+            <Bubble from="them">{t("them1")}</Bubble>
+          </Step>
+          <Step index={1} align="end">
+            <Bubble from="us">{t("us1")}</Bubble>
+          </Step>
+          <Step index={2}>
+            <Bubble from="them">{t("them2")}</Bubble>
+          </Step>
+          <Step index={3} align="end">
+            <Bubble from="us">{t("us2")}</Bubble>
+          </Step>
         </div>
       </Panel>
-      <div className="relative -mt-4 ml-auto flex w-fit items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 shadow-sm">
-        <span className="size-1.5 rounded-full bg-primary" />
-        <Label className="normal-case">{t("answered")}</Label>
-      </div>
+      <Step index={4} className="-mt-4 ml-auto w-fit">
+        <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 shadow-sm">
+          <span className="size-1.5 rounded-full bg-primary" />
+          <Label className="normal-case">{t("answered")}</Label>
+        </div>
+      </Step>
+        </Sequence>
+      </MotionScene>
     </Frame>
   );
 }
@@ -278,7 +299,7 @@ function DocumentIllustration({ meeting }: { meeting: boolean }) {
           </div>
           {meeting ? (
             <div className="pt-1">
-              <Waveform />
+              <WaveBars bars={WAVE_BARS} />
             </div>
           ) : (
             Array.from({ length: 9 }, (_, index) => (
