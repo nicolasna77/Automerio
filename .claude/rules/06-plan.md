@@ -6,8 +6,11 @@
   lignes ce qui sera fait et ce qui ne sera pas touché.
 - Respecter `01-prd.md` à la lettre ; une fonctionnalité qui semble manquer va
   dans `.claude/rules/a-discuter.md`, pas dans le code.
-- Une étape = une branche et une PR ; revue (`code-review`, et
-  `interface-review` si l'interface change) ; CI verte avant de fusionner.
+- Une étape = une branche et une PR **vers `preview`**, jamais directement
+  vers `main` ; revue (`code-review`, et `interface-review` si l'interface
+  change) ; CI verte avant de fusionner. `preview` sert à la preview Vercel
+  (automerio-git-preview-netgenius.vercel.app) ; `main` (production) ne
+  reçoit `preview` que sur demande explicite.
 - Les étapes terminées sont **figées** : changer une chose finie passe par une
   nouvelle étape.
 - Les documents changent **avant** le code : on met à jour `01` à `05`, puis ce
