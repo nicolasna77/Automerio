@@ -219,11 +219,21 @@ Seules animations autorisées :
 - traits lumineux de la trame du hero de l'accueil (parcours lent le long des lignes, en boucle, mis en pause hors de l'écran) ;
 - défilement doux vers une section quand on clique sur un lien de la même page
   (`/#faq`…), y compris vers la section déjà dans l'adresse ; un changement de
-  page reste instantané (`data-scroll-behavior="smooth"` sur `<html>`).
+  page reste instantané (`data-scroll-behavior="smooth"` sur `<html>`) ;
+- illustrations animées du site public (`illustration-motion.tsx`) : messages
+  d'un appel ou d'une conversation qui arrivent l'un après l'autre, avec
+  l'indicateur « l'assistant écrit », onde audio d'un appel, logos des canaux
+  en orbite lente autour d'Automerio, reliés au centre par des faisceaux. Elles
+  ne bougent que visibles à l'écran (démarrage à l'entrée, pause à la sortie),
+  rejouent en boucle douce, n'animent que la transformation et l'opacité, et
+  ne servent jamais dans le tableau de bord. Chaque scène a un bouton pour
+  mettre en pause (WCAG 2.2.2). Un vrai contenu (l'appel type d'une page
+  métier) se joue une fois et reste affiché.
 
-Pas d'animation déclenchée par le défilement, de parallaxe, de pulsation ni
-d'effet « radar ».
-Le réglage système « réduire les animations » coupe tout mouvement.
+En dehors de ces illustrations : pas d'animation déclenchée par le
+défilement, de parallaxe, de pulsation ni d'effet « radar ».
+Le réglage système « réduire les animations » coupe tout mouvement : les
+illustrations s'affichent alors complètes et immobiles.
 
 ## Ton des textes
 
