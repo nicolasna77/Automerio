@@ -191,9 +191,11 @@ export default async function TradePage({ params }: { params: Promise<{ slug: st
               </figcaption>
               {/* L'appel se déroule comme en direct : une réplique après
                   l'autre, l'assistant « écrit » avant de répondre, puis le
-                  résultat (DESIGN.md, Mouvement). */}
+                  résultat (DESIGN.md, Mouvement). C'est un vrai contenu : il
+                  se joue une fois et reste affiché, pour être lu. */}
               <MotionScene>
                 <Sequence
+                  loop={false}
                   typing={[...trade.call.turns.map((turn) => turn.speaker === "assistant"), false]}
                 >
                   <ol className="mt-4 space-y-3 border-t border-border pt-4 text-sm leading-relaxed">

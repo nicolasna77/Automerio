@@ -75,8 +75,8 @@ function CallIllustration({ booking }: { booking: boolean }) {
   // Mouvement) ; l'assistant « écrit » avant de répondre.
   const typing = booking ? [false, true, false, false] : [false, true, false];
   return (
-    <Frame>
-      <MotionScene>
+    <MotionScene className="mx-auto w-full max-w-md">
+      <Frame>
         <Sequence typing={typing}>
           <Panel>
         <div className="flex items-center justify-between">
@@ -151,16 +151,16 @@ function CallIllustration({ booking }: { booking: boolean }) {
       </Panel>
       </Step>
         </Sequence>
-      </MotionScene>
-    </Frame>
+      </Frame>
+    </MotionScene>
   );
 }
 
 function ChatIllustration({ slug }: { slug: string }) {
   const t = useTranslations("Illustrations.chat");
   return (
-    <Frame>
-      <MotionScene>
+    <MotionScene className="mx-auto w-full max-w-md">
+      <Frame>
         <Sequence typing={[false, true, false, true, false]}>
       <Panel className="p-0">
         <div className="flex items-center gap-2.5 border-b border-border px-4 py-3">
@@ -192,8 +192,8 @@ function ChatIllustration({ slug }: { slug: string }) {
         </div>
       </Step>
         </Sequence>
-      </MotionScene>
-    </Frame>
+      </Frame>
+    </MotionScene>
   );
 }
 

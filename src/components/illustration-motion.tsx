@@ -4,20 +4,25 @@ import {
   createContext,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
   useSyncExternalStore,
   type ReactNode,
 } from "react";
+import { Pause, Play } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import styles from "./illustration-motion.module.css";
 
 // Illustrations animées du site public (DESIGN.md, Mouvement). Une scène ne
-// bouge que visible à l'écran : hors écran, ses animations CSS sont en pause
-// (data-paused) et sa séquence de messages s'arrête. « Réduire les
-// animations » laisse l'illustration complète et immobile.
+// bouge que visible à l'écran et tant que le visiteur ne l'a pas mise en
+// pause (bouton, WCAG 2.2.2) : sinon ses animations CSS s'arrêtent
+// (data-paused) et sa séquence aussi. « Réduire les animations », le rendu
+// serveur et l'absence de JavaScript montrent l'illustration complète et
+// immobile.
 
-const SceneContext = createContext({ playing: false });
+const SceneContext = createContext({ playing: false, reduced: true });
 
 const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
 
@@ -37,9 +42,12 @@ function usePrefersReducedMotion(): boolean {
 }
 
 export function MotionScene({ className, children }: { className?: string; children: ReactNode }) {
+  const t = useTranslations("Illustrations.motion");
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
+  const [paused, setPaused] = useState(false);
   const reduced = usePrefersReducedMotion();
+  const playing = visible && !reduced && !paused;
 
   useEffect(() => {
     const node = ref.current;
@@ -51,17 +59,29 @@ export function MotionScene({ className, children }: { className?: string; child
     return () => observer.disconnect();
   }, []);
 
+  const context = useMemo(() => ({ playing, reduced }), [playing, reduced]);
+
   return (
-    <SceneContext.Provider value={{ playing: visible && !reduced }}>
-      <div ref={ref} data-paused={visible ? undefined : ""} className={className}>
+    <SceneContext.Provider value={context}>
+      <div ref={ref} data-paused={playing ? undefined : ""} className={cn("relative", className)}>
         {children}
+        {!reduced && (
+          <button
+            type="button"
+            onClick={() => setPaused((current) => !current)}
+            aria-label={paused ? t("play") : t("pause")}
+            className="absolute right-0 bottom-0 flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors duration-150 hover:bg-muted hover:text-foreground focus-visible:focus-ring"
+          >
+            {paused ? <Play className="size-4" aria-hidden="true" /> : <Pause className="size-4" aria-hidden="true" />}
+          </button>
+        )}
       </div>
     </SceneContext.Provider>
   );
 }
 
 const TICK_MS = 1100;
-// Temps passé sur la conversation complète avant de la rejouer.
+// Temps passé sur la séquence complète avant de la rejouer.
 const HOLD_TICKS = 4;
 
 type Phase = { step: number; kind: "typing" | "show" };
@@ -84,38 +104,54 @@ const SequenceContext = createContext<{ shown: (index: number) => boolean; typin
   typing: () => false,
 });
 
-// Étapes (messages, fiche résumé) qui arrivent l'une après l'autre, puis la
-// séquence reprend. Au premier rendu (serveur, sans JavaScript, animations
-// réduites), tout est affiché ; chaque étape garde sa place pour que
-// l'illustration ne saute pas.
-export function Sequence({ typing, children }: { typing: boolean[]; children: ReactNode }) {
-  const { playing } = useContext(SceneContext);
-  const phases = phasesOf(typing);
+// Étapes (messages, fiche résumé) qui arrivent l'une après l'autre. Une
+// illustration décorative rejoue en boucle ; un vrai contenu (`loop={false}`,
+// la transcription d'un appel type) se joue une fois et reste affiché, pour
+// être lu. Chaque étape garde sa place : l'illustration ne saute pas.
+export function Sequence({
+  typing,
+  loop = true,
+  children,
+}: {
+  typing: boolean[];
+  loop?: boolean;
+  children: ReactNode;
+}) {
+  const { playing, reduced } = useContext(SceneContext);
+  const phases = useMemo(() => phasesOf(typing), [typing]);
   const total = phases.length;
-  const [step, setStep] = useState(total);
-  const started = useRef(false);
+  // Position de la phase « affichée » de chaque étape.
+  const showAt = useMemo(
+    () => typing.map((_, index) => phases.findIndex((phase) => phase.step === index && phase.kind === "show")),
+    [phases, typing]
+  );
+  // Démarre vide : la séquence se remplit à l'entrée dans l'écran.
+  const [step, setStep] = useState(0);
 
   useEffect(() => {
     if (!playing) return;
     const timer = window.setInterval(() => {
-      // Première entrée à l'écran : la conversation repart du début.
-      if (!started.current) {
-        started.current = true;
-        setStep(0);
-        return;
-      }
-      setStep((current) => (current >= total + HOLD_TICKS ? 0 : current + 1));
+      setStep((current) => {
+        if (current < total + HOLD_TICKS) return current + 1;
+        return loop ? 0 : current;
+      });
     }, TICK_MS);
     return () => window.clearInterval(timer);
-  }, [playing, total]);
+  }, [playing, total, loop]);
 
-  const shownUntil = Math.min(step, total);
-  const current = step > 0 && step <= total ? phases[step - 1] : null;
-  const shown = (index: number) =>
-    phases.findIndex((phase) => phase.step === index && phase.kind === "show") < shownUntil;
-  const typingAt = (index: number) => !shown(index) && current?.kind === "typing" && current.step === index;
+  // Animations réduites (même activées en cours de route) : tout affiché.
+  const displayed = reduced ? total : Math.min(step, total);
+  const current = !reduced && step > 0 && step <= total ? phases[step - 1] : null;
 
-  return <SequenceContext.Provider value={{ shown, typing: typingAt }}>{children}</SequenceContext.Provider>;
+  const value = useMemo(
+    () => ({
+      shown: (index: number) => showAt[index] < displayed,
+      typing: (index: number) => showAt[index] >= displayed && current?.kind === "typing" && current.step === index,
+    }),
+    [showAt, displayed, current]
+  );
+
+  return <SequenceContext.Provider value={value}>{children}</SequenceContext.Provider>;
 }
 
 // Une étape de la séquence, placée où l'on veut dans l'illustration.
@@ -154,6 +190,7 @@ export function Step({
   );
 }
 
+// Même forme que les bulles des illustrations (Bubble).
 export function TypingDots({ className }: { className?: string }) {
   return (
     <span

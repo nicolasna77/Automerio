@@ -226,7 +226,9 @@ Seules animations autorisées :
   en orbite lente autour d'Automerio, reliés au centre par des faisceaux. Elles
   ne bougent que visibles à l'écran (démarrage à l'entrée, pause à la sortie),
   rejouent en boucle douce, n'animent que la transformation et l'opacité, et
-  ne servent jamais dans le tableau de bord.
+  ne servent jamais dans le tableau de bord. Chaque scène a un bouton pour
+  mettre en pause (WCAG 2.2.2). Un vrai contenu (l'appel type d'une page
+  métier) se joue une fois et reste affiché.
 
 En dehors de ces illustrations : pas d'animation déclenchée par le
 défilement, de parallaxe, de pulsation ni d'effet « radar ».

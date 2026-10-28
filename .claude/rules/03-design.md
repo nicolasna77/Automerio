@@ -45,7 +45,9 @@ Thème clair et sombre (next-themes).
 ## Composants
 
 - **Rayon unique 8 px** (`--radius: 0.5rem`) ; cercle seulement pour avatar,
-  pastille, numéro d'étape, interrupteur.
+  pastille, numéro d'étape, interrupteur, et la trajectoire de l'orbite des
+  intégrations. Les bulles des illustrations (et « l'assistant écrit ») gardent
+  leur forme de bulle.
 - Primitives `src/components/ui` (shadcn « base-luma » sur **Base UI**, pas
   Radix). `nativeButton={false}` quand un `Button` rend un `<Link>`.
 - **Bouton** : `default` plein vert, une seule action principale par zone ;
