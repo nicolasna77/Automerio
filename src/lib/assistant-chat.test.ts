@@ -87,15 +87,26 @@ describe("buildAssistantPrompt", () => {
     const prompt = buildAssistantPrompt({
       area: "public",
       signedIn: false,
-      services: [{ name: "Standard", description: "Décroche.", price: "25 €/mois", usage: "150 min", href: "/services/standard" }],
+      services: [
+        { slug: "standard", name: "Standard", description: "Décroche.", price: "25 €/mois", usage: "150 min", href: "/services/standard" },
+      ],
       faq: [{ question: "Je garde mon numéro ?", answer: "Oui." }],
       destinations: DESTINATIONS,
     });
-    expect(prompt).toContain("Standard (/services/standard)");
+    expect(prompt).toContain("Standard (slug : standard, page : /services/standard)");
     expect(prompt).toContain("forfait 150 min");
     expect(prompt).toContain("Q : Je garde mon numéro ?");
     expect(prompt).toContain("- /signup : Créer un compte.");
     expect(prompt).toContain("sans compte connecté");
+    expect(prompt).toContain("Propose de créer un compte");
+    expect(prompt).not.toContain("activate_service");
+  });
+
+  it("donne la marche à suivre de l'activation à un client connecté", () => {
+    const prompt = buildAssistantPrompt({ area: "dashboard", signedIn: true, services: [], faq: [], destinations: [] });
+    expect(prompt).toContain("get_activation_form");
+    expect(prompt).toContain("« oui » clair, appelle activate_service");
+    expect(prompt).toContain("une seule question par message");
   });
 });
 

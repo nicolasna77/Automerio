@@ -16,6 +16,15 @@ type Turn = ChatTurn & { links?: AssistantAnswer["links"] };
 const STORAGE_KEY = "automerio:assistant-chat";
 // Le compteur n'apparaît qu'à l'approche de la limite.
 const COUNTER_FROM = MAX_QUESTION_LENGTH - 100;
+const REDIRECT_DELAY_MS = 3000;
+
+function isHttpsUrl(value: string): boolean {
+  try {
+    return new URL(value).protocol === "https:";
+  } catch {
+    return false;
+  }
+}
 
 // Pages où l'assistant gênerait : connexion, invitation et espace équipe.
 const HIDDEN_PREFIXES = ["/admin", "/login", "/signup", "/forgot-password", "/reset-password", "/invitation"];
@@ -55,6 +64,8 @@ function AssistantChatPanel({ area }: { area: ChatArea }) {
   const [draft, setDraft] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Solution créée par l'assistant : page de paiement Stripe à ouvrir.
+  const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
   const launcherRef = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
@@ -69,7 +80,15 @@ function AssistantChatPanel({ area }: { area: ChatArea }) {
 
   useEffect(() => {
     if (open) endRef.current?.scrollIntoView({ block: "end" });
-  }, [open, turns, pending, error]);
+  }, [open, turns, pending, error, checkoutUrl]);
+
+  // Le temps de lire le récapitulatif (solution, prix, montant), puis le
+  // paiement s'ouvre sans clic. Le lien reste là si la redirection traîne.
+  useEffect(() => {
+    if (!checkoutUrl) return;
+    const timer = window.setTimeout(() => window.location.assign(checkoutUrl), REDIRECT_DELAY_MS);
+    return () => window.clearTimeout(timer);
+  }, [checkoutUrl]);
 
   useEffect(() => {
     if (open) inputRef.current?.focus();
@@ -93,11 +112,13 @@ function AssistantChatPanel({ area }: { area: ChatArea }) {
       return;
     }
     setTurns([...history, { role: "assistant", text: result.data.reply, links: result.data.links }]);
+    if (result.data.checkoutUrl && isHttpsUrl(result.data.checkoutUrl)) setCheckoutUrl(result.data.checkoutUrl);
   }
 
   function send(question: string) {
     const text = question.trim();
-    if (!text || text.length > MAX_QUESTION_LENGTH || pending) return;
+    // Paiement en cours d'ouverture : plus de question, même avec Entrée.
+    if (!text || text.length > MAX_QUESTION_LENGTH || pending || checkoutUrl) return;
     const history: Turn[] = [...turns, { role: "user", text }];
     setTurns(history);
     setDraft("");
@@ -119,6 +140,8 @@ function AssistantChatPanel({ area }: { area: ChatArea }) {
   function reset() {
     setTurns([]);
     setError(null);
+    // Annule aussi une redirection vers le paiement pas encore partie.
+    setCheckoutUrl(null);
     inputRef.current?.focus();
   }
 
@@ -224,6 +247,18 @@ function AssistantChatPanel({ area }: { area: ChatArea }) {
               </p>
             )}
 
+            {checkoutUrl && (
+              <div className="space-y-2">
+                <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+                  {t("redirecting")}
+                </p>
+                <Button size="sm" className="rounded-lg" nativeButton={false} render={<a href={checkoutUrl} />}>
+                  {t("openCheckout")}
+                </Button>
+              </div>
+            )}
+
             {(error || canRetry) && (
               <div className="space-y-2">
                 {error && (
@@ -263,7 +298,7 @@ function AssistantChatPanel({ area }: { area: ChatArea }) {
                 size="icon"
                 className="rounded-lg"
                 loading={pending}
-                disabled={!draft.trim() || tooLong}
+                disabled={!draft.trim() || tooLong || Boolean(checkoutUrl)}
                 aria-label={t("send")}
               >
                 {!pending && <SendHorizontal aria-hidden="true" />}
