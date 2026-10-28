@@ -132,6 +132,18 @@ client ; pas sur les pages de connexion, l'admin ni en mode liste d'attente)
 - erreur d'OpenAI → message dans le fil, « Réessayer » ou page Contact
 - Échap ou le bouton ferme le panneau, le focus revient sur le bouton
 - la conversation vit dans l'onglet (`sessionStorage`), rien en base
+- **activer une solution** (client connecté) : « Je veux un standard
+  téléphonique » → l'assistant demande l'organisation (s'il y en a plusieurs),
+  le nom, chaque réglage obligatoire, propose les facultatifs, le volume
+  (minutes ou réponses) et un code promo → récapitulatif et prix calculés par
+  le serveur, terminé par « Confirmez-vous l'activation ? » → « oui » (le
+  serveur refuse tout autre message, `confirmsRecap`) → `activateService` (même action que l'écran d'activation)
+  → message « solution, prix, montant à payer » → redirection vers Stripe
+  Checkout, sans clic ; retour habituel `?checkout=success` / `canceled`
+  - membre non responsable → l'assistant explique qu'un responsable doit le faire
+  - nom déjà pris, code promo refusé, champ manquant → l'assistant le dit et
+    redemande la valeur
+  - solution désactivée → refusée, comme à l'écran
 
 ### Contacter l'équipe (prospect)
 En-tête (lien « Contact ») ou pied de page → `/contact` : nom, e-mail, métier

@@ -3250,7 +3250,7 @@
         "third": "Quelle solution pour un artisan ?"
       },
       "dashboard": {
-        "first": "Comment activer une nouvelle solution ?",
+        "first": "Je veux activer un standard téléphonique",
         "second": "Où voir mes appels reçus ?",
         "third": "Comment inviter un collègue ?"
       }
@@ -3347,6 +3347,12 @@
         "hint": "Écrire à l'équipe depuis l'espace client et suivre la réponse."
       }
     },
-    "unavailable": "L'assistant ne répond pas pour le moment. Réessayez ou écrivez-nous depuis la page Contact."
+    "unavailable": "L'assistant ne répond pas pour le moment. Réessayez ou écrivez-nous depuis la page Contact.",
+    "activation": {
+      "created": "C'est fait : « {name} » ({service}) est créée pour {organization}. À payer aujourd'hui : {today}, puis {monthly} par mois, sans engagement. J'ouvre la page de paiement sécurisée Stripe.",
+      "createdWithPromo": "C'est fait : « {name} » ({service}) est créée pour {organization}. Prix : {monthly} par mois, sans engagement. Avec le code {code} ({discount}), vous payez aujourd'hui {today}. J'ouvre la page de paiement sécurisée Stripe."
+    },
+    "redirecting": "Ouverture de la page de paiement…",
+    "openCheckout": "Ouvrir la page de paiement"
   }
 }
