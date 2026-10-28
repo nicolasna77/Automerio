@@ -6,6 +6,8 @@ import { locale as rootLocale } from "next/root-params";
 import { routing } from "@/i18n/routing";
 import { Toaster } from "@/components/ui/sonner";
 import { SameHashScroll } from "@/components/same-hash-scroll";
+import { AssistantChat } from "@/components/assistant-chat";
+import { isWaitlistMode } from "@/lib/launch-mode";
 import "../globals.css";
 import { cn } from "@/lib/utils";
 import { JsonLd, organizationSchema } from "@/components/json-ld";
@@ -81,6 +83,9 @@ export default async function RootLayout({
         >
           <NextIntlClientProvider>
             {children}
+            {/* En mode liste d'attente, presque toutes les pages sont fermées :
+                l'assistant n'aurait rien vers quoi guider. */}
+            {!isWaitlistMode() && <AssistantChat />}
             <Toaster />
           </NextIntlClientProvider>
         </ThemeProvider>

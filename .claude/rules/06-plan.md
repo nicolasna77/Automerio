@@ -20,7 +20,9 @@ catalogue et activation avec Stripe, téléphonie (Twilio + OpenAI Realtime),
 messageries Meta, agendas (Google, Cal.com, Calendly), conversations et reprise
 en main, quota et dépassement, pause manuelle, tableau de bord, réglages,
 facturation, aide, notifications, bilan hebdomadaire, espace admin, audit,
-marketing, pages légales, accueil et pages solution.
+marketing, pages légales, accueil et pages solution, assistant de chat du
+site (vérifié à 1280 px en thème sombre ; 390 px et thème clair à contrôler
+en préproduction).
 
 ## Étapes à venir
 

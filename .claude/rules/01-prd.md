@@ -34,6 +34,10 @@ Priorité : **V1** = indispensable (en production), **Souhaitable**, **Plus tard
 - **V1** Découvrir l'offre : accueil, pages solution, pages métier, tarifs, FAQ.
 - **V1** Recevoir un appel de démonstration de l'assistant depuis le site
   (limité par numéro et par IP).
+- **V1** Poser ses questions à l'assistant de chat, en bas à droite de l'écran
+  (site public et tableau de bord client) : il répond à partir du catalogue et
+  de la FAQ, et propose des liens vers la page qui convient. Il ne lit aucune
+  donnée du client et ne fait aucune action à sa place. Limité par IP.
 - **V1** Créer un compte (e-mail et mot de passe, ou Google), se connecter,
   réinitialiser son mot de passe, double authentification.
 - **V1** S'inscrire sur la liste d'attente quand le site est en mode liste

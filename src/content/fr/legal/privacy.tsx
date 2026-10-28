@@ -8,7 +8,7 @@ const PROCESSORS: [string, string][] = [
   ["Stripe", "paiement, facturation et gestion des moyens de paiement"],
   ["Resend", "envoi des e-mails (confirmation d'adresse, notifications)"],
   ["Twilio", "numéros de téléphone et acheminement des appels"],
-  ["OpenAI", "agent vocal, réponses aux messages et aide à la rédaction"],
+  ["OpenAI", "agent vocal, réponses aux messages, assistant de chat du site et aide à la rédaction"],
   ["Google", "connexion avec un compte Google et agenda de rendez-vous"],
   ["Meta", "connexion aux comptes WhatsApp, Messenger et Instagram"],
   ["Upstash", "protection contre les abus (limitation du nombre de requêtes)"],

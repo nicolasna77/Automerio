@@ -1181,8 +1181,8 @@
           "switch": "Assistant en service : {name}",
           "cardTitle": "Assistant",
           "cardOnCalls": "Activé : il décroche vos appels.",
-      "cardOnMessages": "Activé : il répond à vos messages.",
-      "cardWaiting": "Activé : il répondra dès la fin de la mise en service.",
+          "cardOnMessages": "Activé : il répond à vos messages.",
+          "cardWaiting": "Activé : il répondra dès la fin de la mise en service.",
           "cardOff": "Désactivé : il ne répond plus. Réactivez-le quand vous voulez.",
           "on": "Activé",
           "off": "Désactivé",
@@ -2372,7 +2372,10 @@
     "webhookMissing": "Enregistrez d'abord une adresse de réception.",
     "webhookUnreachable": "Votre outil n'a pas répondu. Vérifiez l'adresse, puis réessayez.",
     "webhookRejected": "Votre outil a refusé l'envoi (statut {status}). Vérifiez son réglage, puis réessayez.",
-    "pauseOnlyLive": "Seuls un standard téléphonique ou une messagerie payés peuvent être mis en pause."
+    "pauseOnlyLive": "Seuls un standard téléphonique ou une messagerie payés peuvent être mis en pause.",
+    "assistantInvalidQuestion": "Écrivez une question de 500 caractères au plus.",
+    "assistantRateLimited": "Vous avez posé beaucoup de questions. Réessayez dans quelques minutes.",
+    "assistantUnavailable": "L'assistant ne répond pas pour le moment. Réessayez ou écrivez-nous depuis la page Contact."
   },
   "Labels": {
     "status": {
@@ -3231,5 +3234,119 @@
   "Voice": {
     "paused": "Nous ne pouvons pas prendre votre appel pour le moment, merci de rappeler plus tard.",
     "unavailable": "Service momentanément indisponible, merci de rappeler plus tard."
+  },
+  "AssistantChat": {
+    "open": "Une question ?",
+    "openLabel": "Ouvrir l'assistant",
+    "close": "Fermer l'assistant",
+    "title": "Assistant Automerio",
+    "subtitle": "Répond sur l'offre et vous guide vers la bonne page.",
+    "welcome": "Bonjour. Posez votre question sur nos solutions, les prix ou votre compte : je vous indique la page qui convient.",
+    "suggestionsLabel": "Exemples de questions",
+    "suggestions": {
+      "public": {
+        "first": "Combien coûte le standard téléphonique ?",
+        "second": "Est-ce que je garde mon numéro ?",
+        "third": "Quelle solution pour un artisan ?"
+      },
+      "dashboard": {
+        "first": "Comment activer une nouvelle solution ?",
+        "second": "Où voir mes appels reçus ?",
+        "third": "Comment inviter un collègue ?"
+      }
+    },
+    "inputLabel": "Votre question",
+    "placeholder": "Écrivez votre question…",
+    "counter": "{count} / {max}",
+    "tooLong": "{max} caractères au plus.",
+    "send": "Envoyer",
+    "thinking": "L'assistant écrit…",
+    "you": "Vous",
+    "assistant": "Assistant",
+    "linksLabel": "Pages proposées",
+    "retry": "Réessayer",
+    "reset": "Nouvelle conversation",
+    "disclaimer": "Réponses générées par IA, à vérifier. Ne partagez pas de données personnelles.",
+    "pages": {
+      "home": {
+        "label": "Accueil",
+        "hint": "Présentation générale d'Automerio."
+      },
+      "pricing": {
+        "label": "Solutions et tarifs",
+        "hint": "Toutes les solutions avec leur prix mensuel."
+      },
+      "method": {
+        "label": "Comment ça marche",
+        "hint": "Les étapes, de l'inscription à la mise en service."
+      },
+      "faq": {
+        "label": "Questions fréquentes",
+        "hint": "Réponses aux questions courantes."
+      },
+      "contact": {
+        "label": "Contacter l'équipe",
+        "hint": "Formulaire pour écrire à l'équipe, pour un prospect."
+      },
+      "demo": {
+        "label": "Appel de démonstration",
+        "hint": "Recevoir un appel de l'assistant vocal pour l'écouter."
+      },
+      "signup": {
+        "label": "Créer un compte",
+        "hint": "Inscription gratuite, avant d'activer une solution."
+      },
+      "login": {
+        "label": "Se connecter",
+        "hint": "Connexion à l'espace client."
+      },
+      "service": {
+        "hint": "Page de présentation de cette solution."
+      },
+      "trade": {
+        "hint": "Page dédiée aux {audience}."
+      },
+      "overview": {
+        "label": "Vue d'ensemble",
+        "hint": "Tableau de bord : activité récente, appels à rappeler."
+      },
+      "myServices": {
+        "label": "Mes solutions",
+        "hint": "Solutions du client, leur statut, quota et réglages."
+      },
+      "catalog": {
+        "label": "Catalogue",
+        "hint": "Choisir une solution à activer."
+      },
+      "activate": {
+        "label": "Activer : {name}",
+        "hint": "Activer et payer cette solution."
+      },
+      "calendar": {
+        "label": "Calendrier",
+        "hint": "Rendez-vous pris par l'assistant."
+      },
+      "subscriptions": {
+        "label": "Abonnements",
+        "hint": "Abonnements en cours, résiliation."
+      },
+      "payments": {
+        "label": "Paiements",
+        "hint": "Factures et moyen de paiement."
+      },
+      "organization": {
+        "label": "Organisation",
+        "hint": "Entreprise, membres, invitations et rôles."
+      },
+      "profile": {
+        "label": "Mon profil",
+        "hint": "Nom, mot de passe, double authentification, notifications, export et suppression du compte."
+      },
+      "help": {
+        "label": "Aide",
+        "hint": "Écrire à l'équipe depuis l'espace client et suivre la réponse."
+      }
+    },
+    "unavailable": "L'assistant ne répond pas pour le moment. Réessayez ou écrivez-nous depuis la page Contact."
   }
 }
