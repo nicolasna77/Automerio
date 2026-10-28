@@ -34,6 +34,16 @@ Priorité : **V1** = indispensable (en production), **Souhaitable**, **Plus tard
 - **V1** Découvrir l'offre : accueil, pages solution, pages métier, tarifs, FAQ.
 - **V1** Recevoir un appel de démonstration de l'assistant depuis le site
   (limité par numéro et par IP).
+- **V1** Poser ses questions à l'assistant de chat, en bas à droite de l'écran
+  (site public et tableau de bord client) : il répond à partir du catalogue et
+  de la FAQ, et propose des liens vers la page qui convient. Limité par IP.
+- **V1** Activer une solution en discutant avec l'assistant (client connecté,
+  responsable de l'organisation) : il demande l'organisation, le nom, les
+  réglages obligatoires de la solution (les facultatifs sont proposés), le
+  volume (minutes ou réponses) et un code promo, récapitule, attend un « oui »
+  au récapitulatif (vérifié par le serveur), puis crée la solution et ouvre directement le paiement Stripe en annonçant la solution,
+  le prix mensuel et le montant à payer. Mêmes contrôles que l'écran
+  d'activation ; il ne paie jamais à la place du client.
 - **V1** Créer un compte (e-mail et mot de passe, ou Google), se connecter,
   réinitialiser son mot de passe, double authentification.
 - **V1** S'inscrire sur la liste d'attente quand le site est en mode liste

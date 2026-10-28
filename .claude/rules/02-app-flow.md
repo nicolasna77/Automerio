@@ -117,6 +117,34 @@ Page d'une solution de messagerie → fil → reprendre la main → répondre
 `/dashboard/organization` → « Inviter » → e-mail et rôle → envoyer
 - invité déjà membre → message ; invitation expirée → page d'invitation l'indique
 
+### Assistant de chat
+Bouton « Une question ? » en bas à droite (site public, tableau de bord
+client ; pas sur les pages de connexion, l'admin ni en mode liste d'attente)
+→ panneau → question → « Envoyer »
+- réponse en texte simple, puis jusqu'à trois liens vers des pages du site
+  (`src/lib/assistant-chat.ts` : liste d'adresses construite côté serveur,
+  jamais une adresse inventée par le modèle) ; un clic ouvre la page et
+  referme le panneau, la conversation est gardée
+- liens du tableau de bord seulement pour un client connecté
+- question vide → bouton désactivé ; plus de 500 caractères → compteur, envoi
+  refusé
+- plus de 20 questions en 10 minutes par IP → message de limite
+- erreur d'OpenAI → message dans le fil, « Réessayer » ou page Contact
+- Échap ou le bouton ferme le panneau, le focus revient sur le bouton
+- la conversation vit dans l'onglet (`sessionStorage`), rien en base
+- **activer une solution** (client connecté) : « Je veux un standard
+  téléphonique » → l'assistant demande l'organisation (s'il y en a plusieurs),
+  le nom, chaque réglage obligatoire, propose les facultatifs, le volume
+  (minutes ou réponses) et un code promo → récapitulatif et prix calculés par
+  le serveur, terminé par « Confirmez-vous l'activation ? » → « oui » (le
+  serveur refuse tout autre message, `confirmsRecap`) → `activateService` (même action que l'écran d'activation)
+  → message « solution, prix, montant à payer » → redirection vers Stripe
+  Checkout, sans clic ; retour habituel `?checkout=success` / `canceled`
+  - membre non responsable → l'assistant explique qu'un responsable doit le faire
+  - nom déjà pris, code promo refusé, champ manquant → l'assistant le dit et
+    redemande la valeur
+  - solution désactivée → refusée, comme à l'écran
+
 ### Contacter l'équipe (prospect)
 En-tête (lien « Contact ») ou pied de page → `/contact` : nom, e-mail, métier
 (facultatif), demande → « Envoyer ma demande »

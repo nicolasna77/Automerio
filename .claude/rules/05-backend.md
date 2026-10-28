@@ -56,6 +56,11 @@ Abréviations des droits : **M** membre de l'organisation, **R** responsable
 | `test_call` | clientServiceId, requestedById, status, durationSec | M | M ; S |
 | `demo_call` | **phoneHash**, **ipHash** (hachés), serviceSlug, status | A | S |
 
+L'assistant de chat n'a pas de table : les questions partent à OpenAI pour la
+réponse, la conversation reste dans l'onglet du navigateur. Pour un client
+connecté, il lit aussi ses organisations (nom, rôle) et crée la solution par
+`activateService` (`client_service`, écriture R, comme l'écran d'activation).
+
 ### Relation client et équipe
 
 | Table | Champs principaux | Lecture | Écriture |
@@ -83,6 +88,7 @@ peut pas être supprimée tant qu'elle a des solutions (`onDelete: Restrict`).
 | Identifiant et messages WhatsApp / Messenger / Instagram | Client final | Répondre, historique | Non |
 | E-mail Google relié, jetons d'agenda | Client | Réserver dans l'agenda | Oui si pas d'agenda |
 | Numéro et IP de l'appel de démonstration | Visiteur | Anti-abus | Stockés **hachés** |
+| Questions posées à l'assistant de chat, noms des organisations du client connecté, réponses aux réglages | Visiteur, client | Répondre, activer une solution | Conversation non stockée ; envoyée à OpenAI ; IP gardée par le compteur de limite (Upstash) ; les réglages sont enregistrés dans `client_service` comme depuis l'écran |
 | Nom, e-mail, téléphone (contact, liste d'attente) | Prospect | Répondre, rappeler, newsletter (consentement daté) | Téléphone facultatif |
 
 Automerio est **sous-traitant** pour les données des clients finaux (appels,
