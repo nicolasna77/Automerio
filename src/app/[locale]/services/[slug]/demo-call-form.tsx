@@ -67,7 +67,7 @@ export function DemoCallForm({ serviceSlug }: { serviceSlug: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="space-y-4">
+    <form onSubmit={handleSubmit} noValidate className="group space-y-4">
       <div className="absolute left-[-9999px]" aria-hidden="true">
         <label htmlFor={`${phoneId}-website`}>{t("honeypot")}</label>
         <input
@@ -102,29 +102,42 @@ export function DemoCallForm({ serviceSlug }: { serviceSlug: string }) {
         </p>
       )}
 
-      <Button
-        type="submit"
-        size="lg"
-        className="w-full"
-        loading={isPending}
-        aria-describedby={noticeId}
-      >
-        {!isPending && <PhoneCall aria-hidden="true" data-icon="inline-start" />}
-        {t("submit")}
-      </Button>
+      <div>
+        <Button
+          type="submit"
+          size="lg"
+          className="w-full"
+          loading={isPending}
+          aria-describedby={noticeId}
+        >
+          {!isPending && <PhoneCall aria-hidden="true" data-icon="inline-start" />}
+          {t("submit")}
+        </Button>
 
-      <p id={noticeId} className="text-xs leading-relaxed text-muted-foreground">
-        {t.rich("notice", {
-          link: (chunks) => (
-            <Link
-              href="/privacy"
-              className="underline underline-offset-4 rounded-sm hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-            >
-              {chunks}
-            </Link>
-          ),
-        })}
-      </p>
+        {/* Mention toujours visible au doigt (mobile, tablette) : sans survol,
+            elle n'apparaîtrait qu'au focus, trop tard pour être lue avant
+            l'envoi. Avec une souris, dès md, repliée et dévoilée au survol du
+            formulaire ou dès qu'un champ a le focus. Repliée sans
+            display:none : elle reste lue par aria-describedby et son lien
+            reste atteignable au clavier. L'espacement vit dans l'enfant, que
+            la rangée 0fr rogne : il ne laisse aucun blanc une fois repliée. */}
+        <div className="grid grid-rows-[1fr] transition-[grid-template-rows,opacity] duration-150 motion-reduce:transition-none md:pointer-fine:grid-rows-[0fr] md:pointer-fine:opacity-0 md:pointer-fine:group-hover:grid-rows-[1fr] md:pointer-fine:group-hover:opacity-100 md:pointer-fine:group-focus-within:grid-rows-[1fr] md:pointer-fine:group-focus-within:opacity-100">
+          <div className="min-h-0 overflow-hidden">
+            <p id={noticeId} className="pt-4 text-xs leading-relaxed text-muted-foreground">
+              {t.rich("notice", {
+                link: (chunks) => (
+                  <Link
+                    href="/privacy"
+                    className="underline underline-offset-4 rounded-sm hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                  >
+                    {chunks}
+                  </Link>
+                ),
+              })}
+            </p>
+          </div>
+        </div>
+      </div>
     </form>
   );
 }
