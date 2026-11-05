@@ -99,10 +99,19 @@ function phasesOf(typing: boolean[]): Phase[] {
   );
 }
 
-const SequenceContext = createContext<{ shown: (index: number) => boolean; typing: (index: number) => boolean }>({
+const SequenceContext = createContext<{
+  shown: (index: number) => boolean;
+  typing: (index: number) => boolean;
+  clearing: boolean;
+}>({
   shown: () => true,
   typing: () => false,
+  clearing: false,
 });
+
+// Avant de rejouer, la séquence complète s'efface d'un bloc (fondu seul),
+// puis repart vide : pas de coupure franche.
+const CLEARING = -1;
 
 // Étapes (messages, fiche résumé) qui arrivent l'une après l'autre. Une
 // illustration décorative rejoue en boucle ; un vrai contenu (`loop={false}`,
@@ -132,23 +141,26 @@ export function Sequence({
     if (!playing) return;
     const timer = window.setInterval(() => {
       setStep((current) => {
+        if (current === CLEARING) return 0;
         if (current < total + HOLD_TICKS) return current + 1;
-        return loop ? 0 : current;
+        return loop ? CLEARING : current;
       });
     }, TICK_MS);
     return () => window.clearInterval(timer);
   }, [playing, total, loop]);
 
   // Animations réduites (même activées en cours de route) : tout affiché.
-  const displayed = reduced ? total : Math.min(step, total);
+  const clearing = !reduced && step === CLEARING;
+  const displayed = reduced || clearing ? total : Math.min(step, total);
   const current = !reduced && step > 0 && step <= total ? phases[step - 1] : null;
 
   const value = useMemo(
     () => ({
       shown: (index: number) => showAt[index] < displayed,
       typing: (index: number) => showAt[index] >= displayed && current?.kind === "typing" && current.step === index,
+      clearing,
     }),
-    [showAt, displayed, current]
+    [showAt, displayed, current, clearing]
   );
 
   return <SequenceContext.Provider value={value}>{children}</SequenceContext.Provider>;
@@ -176,7 +188,7 @@ export function Step({
       <div
         className={cn(
           "transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none",
-          shown ? "translate-y-0 opacity-100" : "translate-y-1.5 opacity-0"
+          sequence.clearing ? "translate-y-0 opacity-0" : shown ? "translate-y-0 opacity-100" : "translate-y-1.5 opacity-0"
         )}
       >
         {children}
