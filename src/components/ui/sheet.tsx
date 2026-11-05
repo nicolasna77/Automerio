@@ -49,13 +49,15 @@ function SheetPortal({ ...props }: SheetPrimitive.Portal.Props) {
   return <SheetPrimitive.Portal data-slot="sheet-portal" {...props} />
 }
 
-// Le fond s'éclaircit à mesure que le tiroir s'en va sous le doigt.
+// Le fond s'éclaircit à mesure que le tiroir s'en va sous le doigt. Base UI
+// ne lui transmet pas la force du geste (--drawer-swipe-strength vaut
+// toujours 1 sur lui) : sa sortie reste courte pour suivre un geste vif.
 function SheetOverlay({ className, ...props }: SheetPrimitive.Backdrop.Props) {
   return (
     <SheetPrimitive.Backdrop
       data-slot="sheet-overlay"
       className={cn(
-        "fixed inset-0 z-50 bg-black/30 opacity-[calc(1-var(--drawer-swipe-progress,0))] transition-opacity duration-200 ease-out data-ending-style:opacity-0 data-ending-style:duration-[calc(var(--drawer-swipe-strength,1)*200ms)] data-starting-style:opacity-0 data-swiping:duration-0 supports-backdrop-filter:backdrop-blur-sm",
+        "fixed inset-0 z-50 bg-black/30 opacity-[calc(1-var(--drawer-swipe-progress,0))] transition-opacity duration-200 ease-out data-ending-style:opacity-0 data-ending-style:duration-150 data-starting-style:opacity-0 data-swiping:duration-0 supports-backdrop-filter:backdrop-blur-sm",
         className
       )}
       {...props}
@@ -83,7 +85,7 @@ function SheetContent({
           className={cn(
             // Pendant le geste, le tiroir suit le doigt sans transition ; au
             // relâchement, la durée suit la force du geste.
-            "fixed z-50 flex flex-col data-[side=left]:touch-pan-y data-[side=right]:touch-pan-y bg-popover bg-clip-padding text-sm text-popover-foreground shadow-xl transition-[transform,opacity] duration-200 ease-out data-swiping:duration-0 data-swiping:select-none data-ending-style:duration-[calc(var(--drawer-swipe-strength,1)*200ms)]",
+            "fixed z-50 flex flex-col data-[side=left]:touch-pan-y data-[side=right]:touch-pan-y bg-popover bg-clip-padding text-sm text-popover-foreground shadow-xl transition-[translate,opacity] duration-200 ease-out data-swiping:duration-0 data-swiping:select-none data-ending-style:duration-[calc(var(--drawer-swipe-strength,1)*200ms)]",
             "data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:border-t data-[side=bottom]:translate-y-[var(--drawer-swipe-movement-y,0px)] data-[side=bottom]:data-ending-style:translate-y-full data-[side=bottom]:data-starting-style:translate-y-full",
             "data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:border-b data-[side=top]:translate-y-[var(--drawer-swipe-movement-y,0px)] data-[side=top]:data-ending-style:-translate-y-full data-[side=top]:data-starting-style:-translate-y-full",
             "data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:border-r data-[side=left]:translate-x-[var(--drawer-swipe-movement-x,0px)] data-[side=left]:data-ending-style:-translate-x-full data-[side=left]:data-starting-style:-translate-x-full data-[side=left]:sm:max-w-sm",

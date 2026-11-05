@@ -259,8 +259,15 @@
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, opacity, box-shadow !important;
     scroll-behavior: auto !important;
+  }
+
+  /* Un composant qui coupe lui-même ses transitions (motion-reduce:transition-none)
+     garde le dernier mot. */
+  *:not([class*="transition-none"]),
+  *::before,
+  *::after {
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, opacity, box-shadow !important;
   }
 
   /* Ouverture et fermeture des fenêtres et menus (tw-animate-css) : fondu

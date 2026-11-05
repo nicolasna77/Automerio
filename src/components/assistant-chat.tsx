@@ -17,7 +17,6 @@ const STORAGE_KEY = "automerio:assistant-chat";
 // Le compteur n'apparaît qu'à l'approche de la limite.
 const COUNTER_FROM = MAX_QUESTION_LENGTH - 100;
 const REDIRECT_DELAY_MS = 3000;
-const REDIRECT_SECONDS = Math.ceil(REDIRECT_DELAY_MS / 1000);
 
 function isHttpsUrl(value: string): boolean {
   try {
@@ -69,7 +68,6 @@ function AssistantChatPanel({ area }: { area: ChatArea }) {
   const [error, setError] = useState<string | null>(null);
   // Solution créée par l'assistant : page de paiement Stripe à ouvrir.
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
-  const [redirectIn, setRedirectIn] = useState(0);
   const launcherRef = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
@@ -91,15 +89,7 @@ function AssistantChatPanel({ area }: { area: ChatArea }) {
   useEffect(() => {
     if (!checkoutUrl) return;
     const timer = window.setTimeout(() => window.location.assign(checkoutUrl), REDIRECT_DELAY_MS);
-    // Compte à rebours affiché : le client sait que la page va changer.
-    const startedAt = Date.now();
-    const tick = window.setInterval(() => {
-      setRedirectIn(Math.max(0, Math.ceil((REDIRECT_DELAY_MS - (Date.now() - startedAt)) / 1000)));
-    }, 250);
-    return () => {
-      window.clearTimeout(timer);
-      window.clearInterval(tick);
-    };
+    return () => window.clearTimeout(timer);
   }, [checkoutUrl]);
 
   useEffect(() => {
@@ -129,10 +119,7 @@ function AssistantChatPanel({ area }: { area: ChatArea }) {
       return;
     }
     setTurns([...history, { role: "assistant", text: result.data.reply, links: result.data.links }]);
-    if (result.data.checkoutUrl && isHttpsUrl(result.data.checkoutUrl)) {
-      setRedirectIn(REDIRECT_SECONDS);
-      setCheckoutUrl(result.data.checkoutUrl);
-    }
+    if (result.data.checkoutUrl && isHttpsUrl(result.data.checkoutUrl)) setCheckoutUrl(result.data.checkoutUrl);
   }
 
   function send(question: string) {
@@ -172,7 +159,7 @@ function AssistantChatPanel({ area }: { area: ChatArea }) {
 
   return (
     <>
-      {(open || mounted) && (
+      {mounted && (
         <section
           id={panelId}
           role="dialog"
@@ -181,7 +168,12 @@ function AssistantChatPanel({ area }: { area: ChatArea }) {
           onKeyDown={(event) => {
             if (event.key === "Escape") close();
           }}
+          // Fermeture finie, ou interrompue (onglet passé en arrière-plan) :
+          // le panneau invisible ne reste pas dans la page.
           onTransitionEnd={(event) => {
+            if (event.target === event.currentTarget && !open) setMounted(false);
+          }}
+          onTransitionCancel={(event) => {
             if (event.target === event.currentTarget && !open) setMounted(false);
           }}
           // Le panneau naît de son bouton (en bas à droite) et y retourne.
@@ -282,9 +274,7 @@ function AssistantChatPanel({ area }: { area: ChatArea }) {
                 <p className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
                   {t("redirecting")}
-                  <span aria-hidden="true" className="font-mono tabular-nums">
-                    {t("redirectIn", { seconds: redirectIn })}
-                  </span>
+                  <RedirectCountdown key={checkoutUrl} />
                 </p>
                 <Button size="sm" className="rounded-lg" nativeButton={false} render={<a href={checkoutUrl} />}>
                   {t("openCheckout")}
@@ -361,6 +351,22 @@ function AssistantChatPanel({ area }: { area: ChatArea }) {
         <span className="sr-only sm:not-sr-only">{t("open")}</span>
       </Button>
     </>
+  );
+}
+
+// Compte à rebours avant le paiement : le client sait que la page va changer.
+// Son propre état, pour ne pas re-rendre toute la conversation chaque seconde.
+function RedirectCountdown() {
+  const t = useTranslations("AssistantChat");
+  const [seconds, setSeconds] = useState(Math.ceil(REDIRECT_DELAY_MS / 1000));
+  useEffect(() => {
+    const tick = window.setInterval(() => setSeconds((current) => Math.max(0, current - 1)), 1000);
+    return () => window.clearInterval(tick);
+  }, []);
+  return (
+    <span aria-hidden="true" className="font-mono tabular-nums">
+      {t("redirectIn", { seconds })}
+    </span>
   );
 }
 

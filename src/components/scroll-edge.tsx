@@ -6,9 +6,10 @@ import { cn } from "@/lib/utils";
 // Filet sous un en-tête collant (DESIGN.md, Mouvement) : absent tout en haut
 // de la page, il apparaît en fondu dès que le contenu passe sous l'en-tête.
 // À placer en dernier enfant d'un en-tête en `sticky` (donc positionné).
-// Sans JavaScript, le filet reste visible.
+// Absent au premier rendu, comme tout en haut de la page : pas d'éclair au
+// chargement.
 export function ScrollEdge({ className }: { className?: string }) {
-  const [atTop, setAtTop] = useState(false);
+  const [atTop, setAtTop] = useState(true);
 
   useEffect(() => {
     const update = () => setAtTop(window.scrollY <= 0);
