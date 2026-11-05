@@ -87,8 +87,13 @@ Thème clair et sombre (next-themes).
 Transitions de couleur et d'opacité (150 ms), ouverture des menus, chargement,
 traits du hero (en pause hors de l'écran), réponse de FAQ qui se déplie,
 pastille des onglets de l'accueil qui glisse (200 ms, sans rebond), défilement
-doux vers une section de la même page (lien `/#…`). Pas d'animation déclenchée
-par le défilement. « Réduire les animations » coupe tout.
+doux vers une section de la même page (lien `/#…`), bouton qui s'enfonce à
+l'appui, menus et panneau du chat qui partent de leur bouton, tiroirs mobiles
+refermables d'un glissement, barre latérale qui se replie (200 ms, ralentie à
+l'arrivée), filet de l'en-tête qui apparaît dès que la page défile. Pas d'autre
+animation déclenchée par le défilement. « Réduire les animations » coupe tout
+déplacement, garde les fondus courts. « Réduire la transparence » et
+« Augmenter le contraste » rendent les barres translucides opaques.
 
 ## Ton
 

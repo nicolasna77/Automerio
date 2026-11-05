@@ -50,14 +50,15 @@ export function useTabIndicator(
 }
 
 // Pastille unique qui glisse vers l'onglet choisi (DESIGN.md, Mouvement) :
-// 200 ms, sans rebond, coupée par « réduire les animations ». Placée avant
+// 200 ms, sans rebond, coupée par « réduire les animations » ; elle apparaît
+// en fondu à la première mesure plutôt que d'un coup. Placée avant
 // les onglets dans le DOM, elle passe sous leur texte.
 export function TabIndicator({ box }: { box: Box | null }) {
   if (!box) return null;
   return (
     <span
       aria-hidden="true"
-      className="pointer-events-none absolute top-0 left-0 rounded-md bg-primary transition-[transform,width,height] duration-200 ease-out motion-reduce:transition-none"
+      className="pointer-events-none absolute top-0 left-0 rounded-md bg-primary transition-[transform,width,height,opacity] duration-200 ease-out starting:opacity-0 motion-reduce:transition-none"
       style={{
         transform: `translate(${box.x}px, ${box.y}px)`,
         width: box.width,

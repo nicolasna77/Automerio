@@ -42,7 +42,7 @@ export function SiteMobileNav({
   const [open, setOpen] = useState(false);
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet side="left" open={open} onOpenChange={setOpen}>
       <SheetTrigger
         render={
           <Button
@@ -56,7 +56,7 @@ export function SiteMobileNav({
         <Menu aria-hidden="true" />
       </SheetTrigger>
 
-      <SheetContent side="left" className="w-[85vw] max-w-sm">
+      <SheetContent className="w-[85vw] max-w-sm">
         <SheetHeader>
           <SheetTitle className="sr-only">{t("menu.title")}</SheetTitle>
           <AutomerioLogo />

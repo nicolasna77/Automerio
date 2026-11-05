@@ -476,7 +476,7 @@ export function ServiceConfigurationForm({
           current?.id ?? ""
         ) ||
           isDirty) && (
-          <div className="sticky bottom-0 z-20 -mx-4 mt-6 border-t border-border bg-background/95 px-4 py-3 backdrop-blur-sm sm:-mx-6 sm:px-6 lg:bottom-4 lg:mx-0 lg:rounded-lg lg:border lg:shadow-sm">
+          <div className="sticky bottom-0 z-20 -mx-4 mt-6 border-t border-border bg-background/95 px-4 py-3 backdrop-blur-sm reduced-transparency:bg-background contrast-more:bg-background sm:-mx-6 sm:px-6 lg:bottom-4 lg:mx-0 lg:rounded-lg lg:border lg:shadow-sm">
             <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2">
               <p role="status" className="mr-auto flex items-center gap-2 text-sm text-muted-foreground">
                 {isDirty ? (

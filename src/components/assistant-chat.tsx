@@ -17,6 +17,7 @@ const STORAGE_KEY = "automerio:assistant-chat";
 // Le compteur n'apparaît qu'à l'approche de la limite.
 const COUNTER_FROM = MAX_QUESTION_LENGTH - 100;
 const REDIRECT_DELAY_MS = 3000;
+const REDIRECT_SECONDS = Math.ceil(REDIRECT_DELAY_MS / 1000);
 
 function isHttpsUrl(value: string): boolean {
   try {
@@ -58,6 +59,8 @@ function AssistantChatPanel({ area }: { area: ChatArea }) {
   const inputId = useId();
   const counterId = useId();
   const [open, setOpen] = useState(false);
+  // Le panneau reste affiché le temps de se refermer vers son bouton.
+  const [mounted, setMounted] = useState(false);
   // Le panneau est fermé au premier rendu : lire le stockage ici ne crée
   // aucun écart d'hydratation.
   const [turns, setTurns] = useState<Turn[]>(readStoredTurns);
@@ -66,6 +69,7 @@ function AssistantChatPanel({ area }: { area: ChatArea }) {
   const [error, setError] = useState<string | null>(null);
   // Solution créée par l'assistant : page de paiement Stripe à ouvrir.
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
+  const [redirectIn, setRedirectIn] = useState(0);
   const launcherRef = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
@@ -87,12 +91,25 @@ function AssistantChatPanel({ area }: { area: ChatArea }) {
   useEffect(() => {
     if (!checkoutUrl) return;
     const timer = window.setTimeout(() => window.location.assign(checkoutUrl), REDIRECT_DELAY_MS);
-    return () => window.clearTimeout(timer);
+    // Compte à rebours affiché : le client sait que la page va changer.
+    const startedAt = Date.now();
+    const tick = window.setInterval(() => {
+      setRedirectIn(Math.max(0, Math.ceil((REDIRECT_DELAY_MS - (Date.now() - startedAt)) / 1000)));
+    }, 250);
+    return () => {
+      window.clearTimeout(timer);
+      window.clearInterval(tick);
+    };
   }, [checkoutUrl]);
 
   useEffect(() => {
     if (open) inputRef.current?.focus();
   }, [open]);
+
+  function show() {
+    setMounted(true);
+    setOpen(true);
+  }
 
   function close() {
     setOpen(false);
@@ -112,7 +129,10 @@ function AssistantChatPanel({ area }: { area: ChatArea }) {
       return;
     }
     setTurns([...history, { role: "assistant", text: result.data.reply, links: result.data.links }]);
-    if (result.data.checkoutUrl && isHttpsUrl(result.data.checkoutUrl)) setCheckoutUrl(result.data.checkoutUrl);
+    if (result.data.checkoutUrl && isHttpsUrl(result.data.checkoutUrl)) {
+      setRedirectIn(REDIRECT_SECONDS);
+      setCheckoutUrl(result.data.checkoutUrl);
+    }
   }
 
   function send(question: string) {
@@ -152,15 +172,25 @@ function AssistantChatPanel({ area }: { area: ChatArea }) {
 
   return (
     <>
-      {open && (
+      {(open || mounted) && (
         <section
           id={panelId}
           role="dialog"
           aria-labelledby={titleId}
+          inert={!open}
           onKeyDown={(event) => {
             if (event.key === "Escape") close();
           }}
-          className="fixed right-4 bottom-20 z-50 flex max-h-[min(36rem,calc(100dvh-7rem))] w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-lg border bg-card text-card-foreground shadow-lg sm:right-6 sm:bottom-24"
+          onTransitionEnd={(event) => {
+            if (event.target === event.currentTarget && !open) setMounted(false);
+          }}
+          // Le panneau naît de son bouton (en bas à droite) et y retourne.
+          // Une transition repart de la valeur affichée : rouvert en pleine
+          // fermeture, il repart de là sans saut.
+          className={cn(
+            "fixed right-4 bottom-20 z-50 flex max-h-[min(36rem,calc(100dvh-7rem))] w-[calc(100vw-2rem)] max-w-sm origin-bottom-right flex-col overflow-hidden rounded-lg border bg-card text-card-foreground shadow-lg transition-[opacity,scale,translate] duration-200 ease-out starting:translate-y-2 starting:scale-95 starting:opacity-0 sm:right-6 sm:bottom-24",
+            open ? "translate-y-0 scale-100 opacity-100" : "pointer-events-none translate-y-2 scale-95 opacity-0"
+          )}
         >
           <header className="flex items-start gap-3 border-b px-4 py-3">
             <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -252,6 +282,9 @@ function AssistantChatPanel({ area }: { area: ChatArea }) {
                 <p className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
                   {t("redirecting")}
+                  <span aria-hidden="true" className="font-mono tabular-nums">
+                    {t("redirectIn", { seconds: redirectIn })}
+                  </span>
                 </p>
                 <Button size="sm" className="rounded-lg" nativeButton={false} render={<a href={checkoutUrl} />}>
                   {t("openCheckout")}
@@ -319,7 +352,7 @@ function AssistantChatPanel({ area }: { area: ChatArea }) {
 
       <Button
         ref={launcherRef}
-        onClick={() => (open ? close() : setOpen(true))}
+        onClick={() => (open ? close() : show())}
         aria-expanded={open}
         aria-controls={open ? panelId : undefined}
         className="fixed right-4 bottom-4 z-50 h-11 rounded-lg px-3 shadow-lg sm:right-6 sm:bottom-6"
