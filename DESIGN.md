@@ -212,7 +212,16 @@ net et une ombre large et diffuse, plus dense en thème sombre.
 Seules animations autorisées :
 
 - transition de couleur ou d'opacité au survol et au clic (150 ms) ;
-- ouverture et fermeture des fenêtres et menus (fondu court) ;
+- bouton qui s'enfonce légèrement dès l'appui (`scale(0.97)`, 100 ms), pas au
+  relâchement ;
+- ouverture et fermeture des fenêtres et menus (fondu court) ; les menus et le
+  panneau de l'assistant de chat partent de leur bouton et y reviennent ;
+- tiroirs (menu mobile, barre latérale mobile) qui suivent le doigt et se
+  referment d'un glissement vers leur bord, à la vitesse du geste ;
+- barre latérale du tableau de bord qui se replie (200 ms, ralentie à
+  l'arrivée, jamais à vitesse constante) ;
+- filet sous l'en-tête qui apparaît en fondu dès que la page défile, absent
+  tout en haut ;
 - indicateur de chargement (rotation) et squelette de chargement ;
 - réponse de FAQ qui se déplie à l'ouverture (200 ms, `faq-list.tsx`) ;
 - pastille des onglets de l'accueil qui glisse vers l'onglet choisi (200 ms, sans rebond) ;
@@ -223,7 +232,13 @@ Seules animations autorisées :
 
 Pas d'animation déclenchée par le défilement, de parallaxe, de pulsation ni
 d'effet « radar ».
-Le réglage système « réduire les animations » coupe tout mouvement.
+Le réglage système « réduire les animations » coupe tout déplacement
+(glissement, agrandissement, défilement doux, boucles) ; les fondus courts de
+couleur et d'opacité restent, pour qu'un changement d'état se voie encore.
+
+Matériaux : en-têtes et barres collantes translucides (`backdrop-blur`).
+« Réduire la transparence » et « Augmenter le contraste » les rendent
+opaques, sans flou.
 
 ## Ton des textes
 

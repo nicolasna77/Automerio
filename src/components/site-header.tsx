@@ -12,6 +12,7 @@ import { getServiceCopy } from "@/lib/service-copy";
 import { SITE_NAV_LINKS } from "@/lib/site";
 import { isWaitlistMode } from "@/lib/launch-mode";
 import { IndustriesMenu } from "@/components/industries-menu";
+import { ScrollEdge } from "@/components/scroll-edge";
 import { getTrades, tradePath } from "@/lib/trades";
 
 export async function SiteHeader() {
@@ -52,7 +53,7 @@ export async function SiteHeader() {
       >
         {t("skipToContent")}
       </a>
-      <header className="sticky top-0 z-50 border-b bg-background/90 backdrop-blur supports-backdrop-filter:bg-background/75">
+      <header className="sticky top-0 z-50 bg-background/90 backdrop-blur supports-backdrop-filter:bg-background/75 reduced-transparency:bg-background contrast-more:bg-background">
         <div className="mx-auto flex h-16 max-w-[80rem] items-center gap-2 px-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-1">
             <SiteMobileNav
@@ -133,6 +134,7 @@ export async function SiteHeader() {
             )}
           </div>
         </div>
+        <ScrollEdge />
       </header>
     </>
   );

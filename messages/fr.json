@@ -3353,6 +3353,7 @@
       "createdWithPromo": "C'est fait : « {name} » ({service}) est créée pour {organization}. Prix : {monthly} par mois, sans engagement. Avec le code {code} ({discount}), vous payez aujourd'hui {today}. J'ouvre la page de paiement sécurisée Stripe."
     },
     "redirecting": "Ouverture de la page de paiement…",
+    "redirectIn": "{seconds} s",
     "openCheckout": "Ouvrir la page de paiement"
   }
 }
