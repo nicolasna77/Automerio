@@ -1,0 +1,105 @@
+/* Mouvements des illustrations du site public (DESIGN.md, Mouvement) :
+   transformation et opacité seulement, mis en pause hors de l'écran par
+   MotionScene (data-paused), coupés par « réduire les animations ». */
+
+/* Barres de l'onde d'un appel : chacune monte et descend, décalée. */
+.wave {
+  transform-origin: center;
+  animation: wave 1.1s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+@keyframes wave {
+  0%,
+  100% {
+    transform: scaleY(0.45);
+  }
+
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+/* Trois points « l'assistant écrit ». */
+.typingDot {
+  animation: typing 1s ease-in-out infinite;
+}
+
+@keyframes typing {
+  0%,
+  60%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+
+  30% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+
+/* Orbite des canaux : l'anneau tourne, chaque logo tourne en sens inverse
+   pour rester droit. */
+.orbit {
+  animation: orbit 60s linear infinite;
+}
+
+.counter {
+  animation: counter 60s linear infinite;
+}
+
+@keyframes orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes counter {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+/* Faisceau : un point lumineux parcourt le rayon, du canal vers le centre. */
+.beam {
+  animation: beam 3.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes beam {
+  0% {
+    opacity: 0;
+    transform: translateX(var(--beam-length));
+  }
+
+  15%,
+  80% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+}
+
+:global([data-paused]) .wave,
+:global([data-paused]) .typingDot,
+:global([data-paused]) .orbit,
+:global([data-paused]) .counter,
+:global([data-paused]) .beam {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wave,
+  .typingDot,
+  .orbit,
+  .counter,
+  .beam {
+    animation: none;
+  }
+
+  .beam {
+    opacity: 0;
+  }
+}
