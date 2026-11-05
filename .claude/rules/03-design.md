@@ -45,7 +45,9 @@ Thème clair et sombre (next-themes).
 ## Composants
 
 - **Rayon unique 8 px** (`--radius: 0.5rem`) ; cercle seulement pour avatar,
-  pastille, numéro d'étape, interrupteur.
+  pastille, numéro d'étape, interrupteur, et la trajectoire de l'orbite des
+  intégrations. Les bulles des illustrations (et « l'assistant écrit ») gardent
+  leur forme de bulle.
 - Primitives `src/components/ui` (shadcn « base-luma » sur **Base UI**, pas
   Radix). `nativeButton={false}` quand un `Button` rend un `<Link>`.
 - **Bouton** : `default` plein vert, une seule action principale par zone ;
@@ -90,10 +92,13 @@ pastille des onglets de l'accueil qui glisse (200 ms, sans rebond), défilement
 doux vers une section de la même page (lien `/#…`), bouton qui s'enfonce à
 l'appui, menus et panneau du chat qui partent de leur bouton, tiroirs mobiles
 refermables d'un glissement, barre latérale qui se replie (200 ms, ralentie à
-l'arrivée), filet de l'en-tête qui apparaît dès que la page défile. Pas d'autre
-animation déclenchée par le défilement. « Réduire les animations » coupe tout
-déplacement, garde les fondus courts. « Réduire la transparence » et
-« Augmenter le contraste » rendent les barres translucides opaques.
+l'arrivée), filet de l'en-tête qui apparaît dès que la page défile,
+illustrations animées du site public (messages qui arrivent, onde audio, logos
+en orbite et faisceaux ; seulement visibles à l'écran, en boucle douce). Hors
+de ces illustrations et du filet, pas d'animation déclenchée par le défilement.
+« Réduire les animations » coupe tout déplacement et garde les fondus courts :
+les illustrations restent complètes et immobiles. « Réduire la transparence »
+et « Augmenter le contraste » rendent les barres translucides opaques.
 
 ## Ton
 

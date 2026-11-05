@@ -762,6 +762,10 @@
           "c": "Question traitée par l'équipe"
         }
       }
+    },
+    "motion": {
+      "pause": "Mettre l'animation en pause",
+      "play": "Relancer l'animation"
     }
   },
   "DemoCall": {
