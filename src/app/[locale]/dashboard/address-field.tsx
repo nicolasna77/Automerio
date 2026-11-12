@@ -127,8 +127,9 @@ export function AddressField({
             }
           }}
           onBlur={() => {
-            // Laisse le temps d'un clic dans la liste avant de la fermer.
-            setTimeout(() => setOpen(false), 150);
+            // Un choix dans la liste ne fait pas perdre le focus (mousedown
+            // empêché sur chaque option) : la fermeture peut être immédiate.
+            setOpen(false);
             onBlur?.();
           }}
         />

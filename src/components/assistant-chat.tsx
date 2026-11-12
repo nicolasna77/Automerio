@@ -58,6 +58,8 @@ function AssistantChatPanel({ area }: { area: ChatArea }) {
   const inputId = useId();
   const counterId = useId();
   const [open, setOpen] = useState(false);
+  // Le panneau reste affiché le temps de se refermer vers son bouton.
+  const [mounted, setMounted] = useState(false);
   // Le panneau est fermé au premier rendu : lire le stockage ici ne crée
   // aucun écart d'hydratation.
   const [turns, setTurns] = useState<Turn[]>(readStoredTurns);
@@ -93,6 +95,11 @@ function AssistantChatPanel({ area }: { area: ChatArea }) {
   useEffect(() => {
     if (open) inputRef.current?.focus();
   }, [open]);
+
+  function show() {
+    setMounted(true);
+    setOpen(true);
+  }
 
   function close() {
     setOpen(false);
@@ -152,15 +159,30 @@ function AssistantChatPanel({ area }: { area: ChatArea }) {
 
   return (
     <>
-      {open && (
+      {mounted && (
         <section
           id={panelId}
           role="dialog"
           aria-labelledby={titleId}
+          inert={!open}
           onKeyDown={(event) => {
             if (event.key === "Escape") close();
           }}
-          className="fixed right-4 bottom-20 z-50 flex max-h-[min(36rem,calc(100dvh-7rem))] w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-lg border bg-card text-card-foreground shadow-lg sm:right-6 sm:bottom-24"
+          // Fermeture finie, ou interrompue (onglet passé en arrière-plan) :
+          // le panneau invisible ne reste pas dans la page.
+          onTransitionEnd={(event) => {
+            if (event.target === event.currentTarget && !open) setMounted(false);
+          }}
+          onTransitionCancel={(event) => {
+            if (event.target === event.currentTarget && !open) setMounted(false);
+          }}
+          // Le panneau naît de son bouton (en bas à droite) et y retourne.
+          // Une transition repart de la valeur affichée : rouvert en pleine
+          // fermeture, il repart de là sans saut.
+          className={cn(
+            "fixed right-4 bottom-20 z-50 flex max-h-[min(36rem,calc(100dvh-7rem))] w-[calc(100vw-2rem)] max-w-sm origin-bottom-right flex-col overflow-hidden rounded-lg border bg-card text-card-foreground shadow-lg transition-[opacity,scale,translate] duration-200 ease-out starting:translate-y-2 starting:scale-95 starting:opacity-0 sm:right-6 sm:bottom-24",
+            open ? "translate-y-0 scale-100 opacity-100" : "pointer-events-none translate-y-2 scale-95 opacity-0"
+          )}
         >
           <header className="flex items-start gap-3 border-b px-4 py-3">
             <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -252,6 +274,7 @@ function AssistantChatPanel({ area }: { area: ChatArea }) {
                 <p className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
                   {t("redirecting")}
+                  <RedirectCountdown key={checkoutUrl} />
                 </p>
                 <Button size="sm" className="rounded-lg" nativeButton={false} render={<a href={checkoutUrl} />}>
                   {t("openCheckout")}
@@ -319,7 +342,7 @@ function AssistantChatPanel({ area }: { area: ChatArea }) {
 
       <Button
         ref={launcherRef}
-        onClick={() => (open ? close() : setOpen(true))}
+        onClick={() => (open ? close() : show())}
         aria-expanded={open}
         aria-controls={open ? panelId : undefined}
         className="fixed right-4 bottom-4 z-50 h-11 rounded-lg px-3 shadow-lg sm:right-6 sm:bottom-6"
@@ -328,6 +351,22 @@ function AssistantChatPanel({ area }: { area: ChatArea }) {
         <span className="sr-only sm:not-sr-only">{t("open")}</span>
       </Button>
     </>
+  );
+}
+
+// Compte à rebours avant le paiement : le client sait que la page va changer.
+// Son propre état, pour ne pas re-rendre toute la conversation chaque seconde.
+function RedirectCountdown() {
+  const t = useTranslations("AssistantChat");
+  const [seconds, setSeconds] = useState(Math.ceil(REDIRECT_DELAY_MS / 1000));
+  useEffect(() => {
+    const tick = window.setInterval(() => setSeconds((current) => Math.max(0, current - 1)), 1000);
+    return () => window.clearInterval(tick);
+  }, []);
+  return (
+    <span aria-hidden="true" className="font-mono tabular-nums">
+      {t("redirectIn", { seconds })}
+    </span>
   );
 }
 

@@ -188,7 +188,10 @@ export function ActivationFlow({
     setSubmitAttempted(false);
     requestAnimationFrame(() => {
       stepHeadingRef.current?.focus({ preventScroll: true });
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      // Une valeur passée ici l'emporte sur le CSS : « réduire les
+      // animations » se vérifie donc à la main.
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
     });
   }
 
@@ -498,7 +501,7 @@ export function ActivationFlow({
           </Card>
         )}
 
-        <div className="sticky bottom-0 z-20 -mx-4 flex flex-wrap items-center justify-between gap-2 border-t border-border bg-background/95 px-4 py-3 backdrop-blur-sm sm:-mx-6 sm:px-6 lg:bottom-4 lg:mx-0 lg:rounded-lg lg:border lg:px-4 lg:shadow-sm">
+        <div className="sticky bottom-0 z-20 -mx-4 flex flex-wrap items-center justify-between gap-2 border-t border-border bg-background/95 px-4 py-3 backdrop-blur-sm reduced-transparency:bg-background contrast-more:bg-background sm:-mx-6 sm:px-6 lg:bottom-4 lg:mx-0 lg:rounded-lg lg:border lg:px-4 lg:shadow-sm">
           {stepIndex === 0 ? (
             <Link href="/dashboard/services/catalog" className={buttonVariants({ variant: "outline" })}>
               {tCommon("cancel")}

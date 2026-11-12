@@ -10,6 +10,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Separator } from "@/components/ui/separator";
 import { BreadcrumbProvider, HeaderBreadcrumbs } from "@/components/header-breadcrumbs";
 import { NotificationsMenu } from "@/components/notifications-menu";
+import { ScrollEdge } from "@/components/scroll-edge";
 import type { NotificationDTO } from "@/lib/notifications";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
@@ -45,7 +46,7 @@ export async function WorkspaceLayout({
           {sidebar}
           <SidebarInset>
             <BreadcrumbProvider>
-            <header className="sticky top-0 z-40 flex h-14 items-center justify-between gap-2 border-b bg-background/95 px-4 backdrop-blur">
+            <header className="sticky top-0 z-40 flex h-14 items-center justify-between gap-2 bg-background/95 px-4 backdrop-blur reduced-transparency:bg-background contrast-more:bg-background">
               <div className="flex min-w-0 flex-1 items-center gap-2">
                 <SidebarTrigger className="-ml-1 shrink-0" />
                 <Separator orientation="vertical" className="mr-1 data-[orientation=vertical]:h-4 data-[orientation=vertical]:self-center" />
@@ -55,6 +56,7 @@ export async function WorkspaceLayout({
                 <NotificationsMenu notifications={notifications} />
                 <ThemeToggle />
               </div>
+              <ScrollEdge />
             </header>
             <main id="main-content" className="flex-1">
               {children}
