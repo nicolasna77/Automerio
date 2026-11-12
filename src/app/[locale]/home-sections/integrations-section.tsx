@@ -22,24 +22,32 @@ const INTEGRATIONS = [
 // la liste porte le contenu. Rayon en unités de conteneur (cqw) pour suivre
 // la largeur de l'illustration ; le premier canal est en haut.
 const SPOKE_LENGTH = "calc(50cqw - 1.25rem)";
+// L'impulsion ne court qu'entre les tuiles : du bord du canal (2,5 rem de
+// large) au bord du logo central (4,5 rem), pour que son fondu reste visible.
+const PULSE_TRACK = "calc(50cqw - 4.75rem)";
 
 function IntegrationsBeams() {
   return (
-    <MotionScene className="relative mx-auto mt-12 aspect-square w-full max-w-[18rem] [container-type:inline-size] sm:max-w-xs">
+    <MotionScene className="mx-auto mt-12 aspect-square w-full max-w-[18rem] [container-type:inline-size] sm:max-w-xs">
       <div aria-hidden="true" className="absolute inset-0">
         {INTEGRATIONS.map((item, index) => {
           const angle = (360 / INTEGRATIONS.length) * index - 90;
           return (
             <div key={item.key}>
               <div
-                className="absolute top-1/2 left-1/2 -mt-px h-0.5 origin-left overflow-hidden"
+                className="absolute top-1/2 left-1/2 -mt-px h-0.5 origin-left"
                 style={{ width: SPOKE_LENGTH, transform: `rotate(${angle}deg)` }}
               >
                 <div className="absolute inset-0 border-t-2 border-dashed border-border" />
-                <span
-                  className={`absolute top-0 left-0 h-0.5 w-4 bg-primary ${motion.beam}`}
-                  style={{ ["--beam-length" as string]: SPOKE_LENGTH }}
-                />
+                <div className="absolute inset-y-0 right-5 left-9 overflow-hidden">
+                  {/* Décalées d'un sixième de tour, les impulsions se suivent
+                      au lieu de clignoter ensemble ; un délai négatif évite
+                      l'attente au premier tour. */}
+                  <span
+                    className={`absolute top-0 left-0 h-0.5 w-4 bg-primary ${motion.beam}`}
+                    style={{ ["--beam-length" as string]: PULSE_TRACK, animationDelay: `${-index / 3}s` }}
+                  />
+                </div>
               </div>
               <div
                 className="absolute top-1/2 left-1/2 -mt-5 -ml-5"
@@ -56,7 +64,7 @@ function IntegrationsBeams() {
             </div>
           );
         })}
-        <span className="absolute top-1/2 left-1/2 flex size-18 -translate-1/2 items-center justify-center rounded-lg border-2 border-primary/25 bg-card shadow-sm">
+        <span className="absolute top-1/2 left-1/2 flex size-18 -translate-1/2 items-center justify-center rounded-lg border border-border bg-card shadow-sm">
           <AutomerioMark decorative className="size-12 rounded-lg" />
         </span>
       </div>
