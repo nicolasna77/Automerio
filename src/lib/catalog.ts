@@ -129,31 +129,6 @@ export const CATEGORY_ORDER: ServiceCategory[] = [
   "ABONNEMENT",
 ];
 
-export const CATEGORY_LABELS: Record<ServiceCategory, string> = {
-  COMMUNICATION: "Communication client automatisée",
-  ADMINISTRATION: "Administration automatisée",
-  INFORMATION: "Traitement de l'information",
-  ABONNEMENT: "Abonnement",
-};
-
-export const CATEGORY_DESCRIPTIONS: Record<ServiceCategory, string> = {
-  COMMUNICATION:
-    "Vos clients obtiennent une réponse immédiate, sur tous vos canaux, sans mobiliser votre temps.",
-  ADMINISTRATION:
-    "Devis, factures, contrats, relances : vos documents administratifs se génèrent et se suivent tout seuls.",
-  INFORMATION:
-    "Vos documents et réunions sont lus, résumés et classés automatiquement.",
-  ABONNEMENT:
-    "Un suivi continu pour que vos automatisations restent performantes dans la durée.",
-};
-
-export const STATUS_LABELS: Record<ClientServiceStatus, string> = {
-  PENDING_PAYMENT: "Paiement en cours",
-  CONFIGURING: "En configuration",
-  ACTIVE: "Actif",
-  CANCELED: "Résilié",
-};
-
 export function formatPrice(monthlyPriceCents: number | null): string {
   return monthlyPriceCents === null ? "—" : `${formatCents(monthlyPriceCents)}/mois`;
 }
@@ -303,26 +278,6 @@ export function formatDate(date: Date): string {
     month: "long",
     year: "numeric",
   }).format(date);
-}
-
-export function describeServiceStatus(item: {
-  status: ClientServiceStatus;
-  createdAt: Date;
-  activatedAt: Date | null;
-  canceledAt: Date | null;
-}): string {
-  switch (item.status) {
-    case "ACTIVE":
-      return item.activatedAt
-        ? `Actif depuis le ${formatDate(item.activatedAt)}`
-        : "Actif";
-    case "PENDING_PAYMENT":
-      return `En attente de paiement depuis le ${formatDate(item.createdAt)}`;
-    case "CONFIGURING":
-      return "Paiement confirmé. Déploiement en cours par l'équipe Automerio";
-    case "CANCELED":
-      return item.canceledAt ? `Résilié le ${formatDate(item.canceledAt)}` : "Résilié";
-  }
 }
 
 type SetupSubject = {

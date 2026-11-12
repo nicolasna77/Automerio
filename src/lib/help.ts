@@ -1,10 +1,5 @@
 import type { HelpRequestStatus } from "@prisma/client";
 
-export const HELP_REQUEST_STATUS_LABELS: Record<HelpRequestStatus, string> = {
-  OPEN: "En attente",
-  RESOLVED: "Traité",
-};
-
 export type HelpRequestServiceOption = {
   clientServiceId: string;
   name: string;

@@ -4,18 +4,8 @@ export const ROLE_LABELS: Record<string, string> = {
   member: "Collaborateur",
 };
 
-export const ROLE_DESCRIPTIONS: Record<string, string> = {
-  owner: "Gère l'entreprise, l'équipe et les paiements.",
-  admin: "Gère l'équipe et les paiements, comme le propriétaire.",
-  member: "Consulte et configure les solutions, sans engager de dépense.",
-};
-
 export const INVITABLE_ROLES = ["admin", "member"] as const;
 export type InvitableRole = (typeof INVITABLE_ROLES)[number];
-
-export const INVITABLE_ROLE_ITEMS: Record<string, string> = Object.fromEntries(
-  INVITABLE_ROLES.map((role) => [role, ROLE_LABELS[role]])
-);
 
 const MANAGER_ROLES = new Set(["owner", "admin"]);
 
