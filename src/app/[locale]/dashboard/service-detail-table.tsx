@@ -2,7 +2,6 @@ import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TELEPHONY_SERVICE_SLUGS, type MyServiceDTO } from "@/lib/catalog";
 import { CallActivity } from "./call-activity";
-import { CallForwardingGuide } from "./call-forwarding-guide";
 import { UsageCounter } from "./usage-counter";
 
 // Les cartes d'activité de la page de détail d'une solution de téléphonie.
@@ -38,21 +37,6 @@ export function ServiceLiveCard({ item }: { item: MyServiceDTO }) {
       </CardHeader>
       <CardContent>
         <ServiceCallsContent item={item} />
-      </CardContent>
-    </Card>
-  );
-}
-
-export function CallForwardingCard({ item }: { item: MyServiceDTO }) {
-  const t = useTranslations("Dashboard.service");
-  if (!isLiveTelephony(item) || !item.externalPhoneNumber) return null;
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle as="h2" className="text-base">{t("forwarding")}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <CallForwardingGuide targetNumber={item.externalPhoneNumber} />
       </CardContent>
     </Card>
   );

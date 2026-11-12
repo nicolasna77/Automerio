@@ -15,12 +15,3 @@ export const authClient = createAuthClient({
     twoFactorClient(),
   ],
 });
-
-export const {
-  signIn,
-  signOut,
-  signUp,
-  useSession,
-  useListOrganizations,
-  useActiveOrganization,
-} = authClient;

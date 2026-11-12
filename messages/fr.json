@@ -1533,7 +1533,6 @@
       "bookings": "Rendez-vous et commandes reçus",
       "aside": "Abonnement",
       "calls": "Appels reçus",
-      "forwarding": "Recevoir vos appels",
       "instagramError": {
         "title": "Connexion à Instagram impossible",
         "description": "Réessayez depuis la carte Mise en service, ou contactez-nous si le problème persiste.",
@@ -1969,9 +1968,6 @@
       "description": "Vos informations, vos e-mails et la sécurité de votre compte.",
       "organizationsHint": "Vos entreprises se gèrent depuis le sélecteur d'organisation, en haut de la barre latérale.",
       "account": {
-        "imageUnavailable": "Traitement d'image indisponible",
-        "imageInvalid": "Image invalide",
-        "fileUnreadable": "Lecture du fichier impossible",
         "notAnImage": "Merci de choisir un fichier image.",
         "tooLarge": "L'image ne doit pas dépasser 5 Mo.",
         "imageFailed": "Impossible de traiter cette image.",
@@ -2130,7 +2126,6 @@
       "label": "Dépassement",
       "switch": "Accepter le dépassement du forfait",
       "accepted": "Accepté : au-delà de {included} par mois, l'assistant continue et la consommation en plus est facturée {price}, sur votre prochaine facture.",
-      "acceptedFree": "Accepté : au-delà de {included} par mois, l'assistant continue.",
       "refused": "Refusé : une fois {included} atteints, l'assistant se met en pause jusqu'au renouvellement du forfait. Rien n'est facturé en plus.",
       "paused": "Forfait atteint : l'assistant est en pause jusqu'au renouvellement. Acceptez le dépassement ou augmentez le volume pour le relancer.",
       "acceptedToast": "Dépassement accepté : l'assistant continuera au-delà du forfait.",
@@ -2592,7 +2587,6 @@
       "submitting": "Création du compte…",
       "terms": "En créant un compte, vous acceptez nos <terms>conditions générales de vente</terms> et notre <privacy>politique de confidentialité</privacy>.",
       "hasAccount": "Déjà un compte ? <link>Se connecter</link>",
-      "sentDescription": "Nous avons envoyé un lien de confirmation à <email>{email}</email>. Cliquez dessus pour activer votre compte.",
       "notReceived": "Rien reçu après quelques minutes ? Regardez dans les indésirables, ou demandez un nouveau lien.",
       "errors": {
         "emailTaken": "Un compte existe déjà avec cet e-mail. Connectez-vous ou utilisez une autre adresse.",
@@ -2606,7 +2600,6 @@
       "title": "Mot de passe oublié",
       "subtitle": "Indiquez votre e-mail : nous vous envoyons un lien pour en choisir un nouveau.",
       "submit": "Envoyer le lien",
-      "sentDescription": "Si un compte existe pour <email>{email}</email>, un lien pour choisir un nouveau mot de passe vient de lui être envoyé. Il expire dans une heure.",
       "notReceived": "Rien reçu ? Regardez dans les indésirables avant de redemander un lien.",
       "useAnotherAddress": "Utiliser une autre adresse",
       "errors": {
@@ -3241,7 +3234,6 @@
   },
   "AssistantChat": {
     "open": "Une question ?",
-    "openLabel": "Ouvrir l'assistant",
     "close": "Fermer l'assistant",
     "title": "Assistant Automerio",
     "subtitle": "Répond sur l'offre et vous guide vers la bonne page.",
