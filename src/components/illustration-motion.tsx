@@ -10,14 +10,11 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react";
-import { Pause, Play } from "lucide-react";
-import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import styles from "./illustration-motion.module.css";
 
 // Illustrations animées du site public (DESIGN.md, Mouvement). Une scène ne
-// bouge que visible à l'écran et tant que le visiteur ne l'a pas mise en
-// pause (bouton, WCAG 2.2.2) : sinon ses animations CSS s'arrêtent
+// bouge que visible à l'écran : sinon ses animations CSS s'arrêtent
 // (data-paused) et sa séquence aussi. « Réduire les animations », le rendu
 // serveur et l'absence de JavaScript montrent l'illustration complète et
 // immobile.
@@ -42,12 +39,10 @@ function usePrefersReducedMotion(): boolean {
 }
 
 export function MotionScene({ className, children }: { className?: string; children: ReactNode }) {
-  const t = useTranslations("Illustrations.motion");
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
-  const [paused, setPaused] = useState(false);
   const reduced = usePrefersReducedMotion();
-  const playing = visible && !reduced && !paused;
+  const playing = visible && !reduced;
 
   useEffect(() => {
     const node = ref.current;
@@ -65,16 +60,6 @@ export function MotionScene({ className, children }: { className?: string; child
     <SceneContext.Provider value={context}>
       <div ref={ref} data-paused={playing ? undefined : ""} className={cn("relative", className)}>
         {children}
-        {!reduced && (
-          <button
-            type="button"
-            onClick={() => setPaused((current) => !current)}
-            aria-label={paused ? t("play") : t("pause")}
-            className="absolute right-0 bottom-0 flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors duration-150 hover:bg-muted hover:text-foreground focus-visible:focus-ring"
-          >
-            {paused ? <Play className="size-4" aria-hidden="true" /> : <Pause className="size-4" aria-hidden="true" />}
-          </button>
-        )}
       </div>
     </SceneContext.Provider>
   );

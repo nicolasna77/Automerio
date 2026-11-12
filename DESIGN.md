@@ -232,11 +232,12 @@ Seules animations autorisées :
 - illustrations animées du site public (`illustration-motion.tsx`) : messages
   d'un appel ou d'une conversation qui arrivent l'un après l'autre, avec
   l'indicateur « l'assistant écrit », onde audio d'un appel, logos des canaux
-  en orbite lente autour d'Automerio, reliés au centre par des faisceaux. Elles
+  en étoile autour d'Automerio, reliés au centre par des rayons en pointillés
+  que parcourt une impulsion, du canal vers le centre. Elles
   ne bougent que visibles à l'écran (démarrage à l'entrée, pause à la sortie),
   rejouent en boucle douce, n'animent que la transformation et l'opacité, et
-  ne servent jamais dans le tableau de bord. Chaque scène a un bouton pour
-  mettre en pause (WCAG 2.2.2). Un vrai contenu (l'appel type d'une page
+  ne servent jamais dans le tableau de bord. Pas de bouton pause / lecture :
+  « Réduire les animations » est le seul moyen de les arrêter. Un vrai contenu (l'appel type d'une page
   métier) se joue une fois et reste affiché.
 
 En dehors de ces illustrations et du filet de l'en-tête : pas d'animation

@@ -38,31 +38,10 @@
   }
 }
 
-/* Orbite des canaux : l'anneau tourne, chaque logo tourne en sens inverse
-   pour rester droit. */
-.orbit {
-  animation: orbit 60s linear infinite;
-}
-
-.counter {
-  animation: counter 60s linear infinite;
-}
-
-@keyframes orbit {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes counter {
-  to {
-    transform: rotate(-360deg);
-  }
-}
-
-/* Faisceau : un point lumineux parcourt le rayon, du canal vers le centre. */
+/* Impulsion : un trait lumineux parcourt le rayon, du canal vers le centre,
+   à vitesse constante. */
 .beam {
-  animation: beam 3.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation: beam 2s linear infinite;
 }
 
 @keyframes beam {
@@ -84,8 +63,6 @@
 
 :global([data-paused]) .wave,
 :global([data-paused]) .typingDot,
-:global([data-paused]) .orbit,
-:global([data-paused]) .counter,
 :global([data-paused]) .beam {
   animation-play-state: paused;
 }
@@ -93,8 +70,6 @@
 @media (prefers-reduced-motion: reduce) {
   .wave,
   .typingDot,
-  .orbit,
-  .counter,
   .beam {
     animation: none;
   }
