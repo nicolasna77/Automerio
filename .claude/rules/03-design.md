@@ -45,9 +45,8 @@ Thème clair et sombre (next-themes).
 ## Composants
 
 - **Rayon unique 8 px** (`--radius: 0.5rem`) ; cercle seulement pour avatar,
-  pastille, numéro d'étape, interrupteur, et la trajectoire de l'orbite des
-  intégrations. Les bulles des illustrations (et « l'assistant écrit ») gardent
-  leur forme de bulle.
+  pastille, numéro d'étape, interrupteur. Les bulles des illustrations (et
+  « l'assistant écrit ») gardent leur forme de bulle.
 - Primitives `src/components/ui` (shadcn « base-luma » sur **Base UI**, pas
   Radix). `nativeButton={false}` quand un `Button` rend un `<Link>`.
 - **Bouton** : `default` plein vert, une seule action principale par zone ;
@@ -94,7 +93,7 @@ l'appui, menus et panneau du chat qui partent de leur bouton, tiroirs mobiles
 refermables d'un glissement, barre latérale qui se replie (200 ms, ralentie à
 l'arrivée), filet de l'en-tête qui apparaît dès que la page défile,
 illustrations animées du site public (messages qui arrivent, onde audio, logos
-en orbite et faisceaux ; seulement visibles à l'écran, en boucle douce). Hors
+en étoile reliés au centre par des impulsions ; seulement visibles à l'écran, en boucle douce). Hors
 de ces illustrations et du filet, pas d'animation déclenchée par le défilement.
 « Réduire les animations » coupe tout déplacement et garde les fondus courts :
 les illustrations restent complètes et immobiles. « Réduire la transparence »
